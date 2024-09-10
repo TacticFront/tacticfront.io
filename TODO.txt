@@ -98,15 +98,14 @@
 * BUG: attacks speed up DONE 9/6/2024
 * rebalance income DONE 9/7/2024
 * Make fake humans DONE 9/8/2024
-* Have fake humans join lobby
-* Make more colors
+* Make more colors DONE 9/8/2024
+* Have fake humans join lobby DONE 9/9/2024
 * BUG: fix tile per turn pacing issues 
 
 --- v3 Release
 
 * BUG: when clicking on enemy sometimes boat goes all the way around
 * names dissappear too much (maybe screen size)
-* directed expansion
 * UI: win condition & popup
 * UI: boats
 * UI: current attacks

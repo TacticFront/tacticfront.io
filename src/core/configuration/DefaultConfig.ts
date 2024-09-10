@@ -1,5 +1,6 @@
 import {Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tile} from "../Game";
-import {within} from "../Util";
+import {GameID} from "../Schemas";
+import {simpleHash, within} from "../Util";
 import {Config, Theme} from "./Config";
 import {pastelTheme} from "./PastelTheme";
 
@@ -17,6 +18,9 @@ export class DefaultConfig implements Config {
     }
     numBots(): number {
         return 400
+    }
+    numFakeHumans(gameID: GameID): number {
+        return simpleHash(gameID) % 3
     }
     turnIntervalMs(): number {
         return 100

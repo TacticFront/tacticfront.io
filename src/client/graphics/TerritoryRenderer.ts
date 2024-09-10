@@ -106,7 +106,7 @@ export class TerritoryRenderer {
             this.paintCell(
                 tile.cell(),
                 this.theme.territoryColor(tile.owner().id()),
-                60
+                70
             )
         }
     }

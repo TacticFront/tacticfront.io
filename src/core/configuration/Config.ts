@@ -2,6 +2,7 @@ import {Player, PlayerID, PlayerInfo, TerraNullius, Tile} from "../Game";
 import {Colord, colord} from "colord";
 import {devConfig} from "./DevConfig";
 import {defaultConfig} from "./DefaultConfig";
+import {GameID} from "../Schemas";
 
 export enum GameEnv {
 	Dev,
@@ -29,6 +30,7 @@ export interface Config {
 	gameCreationRate(): number
 	lobbyLifetime(): number
 	numBots(): number
+	numFakeHumans(gameID: GameID): number
 	numSpawnPhaseTurns(): number
 
 	startTroops(playerInfo: PlayerInfo): number

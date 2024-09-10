@@ -1,4 +1,4 @@
-import {getConfig} from "../core/configuration/Config";
+import {Config, getConfig} from "../core/configuration/Config";
 import {GameID, Lobby, ServerMessage, ServerMessageSchema} from "../core/Schemas";
 import {loadTerrainMap, TerrainMap} from "../core/TerrainMapLoader";
 import {ClientGame, createClientGame} from "./ClientGame";
@@ -8,6 +8,8 @@ import {v4 as uuidv4} from 'uuid';
 
 
 import './styles.css';
+import {simpleHash} from "../core/Util";
+import {PseudoRandom} from "../core/PseudoRandom";
 
 
 class Client {
@@ -18,10 +20,13 @@ class Client {
 
     private ip: Promise<string | null> = null
 
+    private config: Config
+
     constructor() {
     }
 
     initialize(): void {
+        this.config = getConfig()
         setFavicon()
         this.terrainMap = loadTerrainMap()
         this.startLobbyPolling()
@@ -73,7 +78,8 @@ class Client {
             const timeRemaining = Math.max(0, Math.floor((lobby.msUntilStart) / 1000));
             timerElement.textContent = `Starts in: ${timeRemaining}s`;
         }
-        if (playerCountElement) playerCountElement.textContent = `Players: ${lobby.numClients}`;
+
+        if (playerCountElement) playerCountElement.textContent = `Players: ${lobby.numClients + this.numFakeHumans(lobby)}`;
 
         if (lobbies.length > 1) {
             const nextLobby = lobbies[1]
@@ -124,7 +130,7 @@ class Client {
             uuidv4(),
             clientIP,
             lobby.id,
-            getConfig(),
+            this.config,
             terrainMap
         );
         this.game.join();
@@ -133,6 +139,28 @@ class Client {
             console.log('Browser is closing');
             g.stop();
         });
+    }
+
+    numFakeHumans(lobby: Lobby): number {
+        const gameHash = simpleHash(lobby.id)
+        const totalNumFakeHumans = this.config.numFakeHumans(lobby.id)
+        const timeLeft = lobby.msUntilStart
+        const rand = new PseudoRandom(gameHash)
+        const startTimes: number[] = []
+        const lobbyTime = this.config.lobbyLifetime() / this.config.gameCreationRate()
+        for (let i = 0; i < totalNumFakeHumans; i++) {
+            startTimes.push(rand.nextInt(0, lobbyTime))
+        }
+
+        startTimes.sort()
+
+        let currNumFakeHumans = 0
+        for (const joinTime of startTimes) {
+            if (timeLeft < joinTime) {
+                currNumFakeHumans++
+            }
+        }
+        return currNumFakeHumans
     }
 }
 
