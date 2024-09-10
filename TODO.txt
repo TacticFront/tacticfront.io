@@ -100,6 +100,7 @@
 * Make fake humans DONE 9/8/2024
 * Make more colors DONE 9/8/2024
 * Have fake humans join lobby DONE 9/9/2024
+* Update landing page image DONE 9/9/2024
 * BUG: fix tile per turn pacing issues 
 
 --- v3 Release
