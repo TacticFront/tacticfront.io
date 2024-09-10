@@ -33,21 +33,21 @@ export class DefaultConfig implements Config {
     }
     theme(): Theme {return pastelTheme;}
 
-    attackLogic(attacker: Player, defender: Player | TerraNullius, tileToConquer: Tile): {attackerTroopLoss: number; defenderTroopLoss: number; tilesPerTickUsed: number} {
+    attackLogic(attackTroops: number, attacker: Player, defender: Player | TerraNullius, tileToConquer: Tile): {attackerTroopLoss: number; defenderTroopLoss: number; tilesPerTickUsed: number} {
         let mag = 0
         let speed = 0
         switch (tileToConquer.terrain()) {
             case TerrainType.Plains:
                 mag = 5
-                speed = 3
+                speed = 10
                 break
             case TerrainType.Highland:
                 mag = 15
-                speed = 5
+                speed = 20
                 break
             case TerrainType.Mountain:
                 mag = 45
-                speed = 10
+                speed = 40
                 break
         }
 
@@ -64,13 +64,13 @@ export class DefaultConfig implements Config {
             return {
                 attackerTroopLoss: within(defender.troops() / attacker.troops() * mag, 1, 1000),
                 defenderTroopLoss: within(attacker.troops() / defender.troops(), 1, 1000),
-                tilesPerTickUsed: within(attacker.numTilesOwned() / defender.numTilesOwned() / 2, 1, 5) * speed
+                tilesPerTickUsed: within(defender.troops() / (attackTroops * 5), .2, 3) * speed
             }
         } else {
             return {
                 attackerTroopLoss: mag,
                 defenderTroopLoss: 0,
-                tilesPerTickUsed: Math.floor(Math.max(speed, 1))
+                tilesPerTickUsed: within(this.startTroops(attacker.info()) / (attackTroops * 5), .2, 3) * speed
             }
         }
     }

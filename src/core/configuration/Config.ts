@@ -36,7 +36,7 @@ export interface Config {
 	startTroops(playerInfo: PlayerInfo): number
 	troopAdditionRate(player: Player): number
 	attackTilesPerTick(attacker: Player, defender: Player | TerraNullius, numAdjacentTilesWithEnemy: number): number
-	attackLogic(attacker: Player, defender: Player | TerraNullius, tileToConquer: Tile): {
+	attackLogic(attackTroops: number, attacker: Player, defender: Player | TerraNullius, tileToConquer: Tile): {
 		attackerTroopLoss: number,
 		defenderTroopLoss: number,
 		tilesPerTickUsed: number

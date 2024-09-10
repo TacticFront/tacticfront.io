@@ -1,3 +1,4 @@
+import {info} from "console";
 import {Config} from "./configuration/Config";
 import {EventBus} from "./EventBus";
 import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Boat, MutableBoat, BoatEvent, TerrainType, PlayerType} from "./Game";

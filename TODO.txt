@@ -101,7 +101,8 @@
 * Make more colors DONE 9/8/2024
 * Have fake humans join lobby DONE 9/9/2024
 * Update landing page image DONE 9/9/2024
-* BUG: fix tile per turn pacing issues 
+* BUG: fix tile per turn pacing issues DONE 9/9/2024
+* Improve expansion directions (more uniform) 9/9/2024
 
 --- v3 Release
 

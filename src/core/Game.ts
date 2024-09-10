@@ -99,6 +99,7 @@ export interface TerraNullius {
 }
 
 export interface Player {
+    info(): PlayerInfo
     name(): string
     clientID(): ClientID
     id(): PlayerID

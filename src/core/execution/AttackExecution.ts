@@ -6,7 +6,12 @@ import {Terrain} from "../TerrainMapLoader";
 
 export class AttackExecution implements Execution {
     private active: boolean = true;
-    private toConquer: PriorityQueue<TileContainer> = new PriorityQueue<TileContainer>((a: TileContainer, b: TileContainer) => a.priority - b.priority);
+    private toConquer: PriorityQueue<TileContainer> = new PriorityQueue<TileContainer>((a: TileContainer, b: TileContainer) => {
+        if (a.priority == b.priority) {
+            return a.tick - b.tick
+        }
+        return a.priority - b.priority
+    });
     private random = new PseudoRandom(123)
 
     private _owner: MutablePlayer
@@ -113,7 +118,7 @@ export class AttackExecution implements Execution {
                 continue
             }
             this.addNeighbors(tileToConquer)
-            const {attackerTroopLoss, defenderTroopLoss, tilesPerTickUsed} = this.mg.config().attackLogic(this._owner, this.target, tileToConquer)
+            const {attackerTroopLoss, defenderTroopLoss, tilesPerTickUsed} = this.mg.config().attackLogic(this.troops, this._owner, this.target, tileToConquer)
             numTilesPerTick -= tilesPerTickUsed
             this.troops -= attackerTroopLoss
             if (this.target.isPlayer()) {
@@ -159,6 +164,7 @@ export class AttackExecution implements Execution {
             this.toConquer.enqueue(new TileContainer(
                 neighbor,
                 dist / 100 + this.random.nextInt(0, 3) - numOwnedByMe * 2 + mag,
+                this.mg.ticks()
             ))
         }
     }
@@ -195,5 +201,5 @@ export class AttackExecution implements Execution {
 
 
 class TileContainer {
-    constructor(public readonly tile: Tile, public readonly priority: number) { }
+    constructor(public readonly tile: Tile, public readonly priority: number, public readonly tick: number) { }
 }

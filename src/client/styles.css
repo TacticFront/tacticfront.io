@@ -9,7 +9,7 @@ body {
     font-family: 'Overpass', sans-serif;
 }
 
-body {
+/* body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
@@ -20,7 +20,7 @@ body {
     background-position: center;
     background-attachment: fixed;
     background-blend-mode: overlay;
-}
+} */
 
 .content {
     max-width: 1020px;

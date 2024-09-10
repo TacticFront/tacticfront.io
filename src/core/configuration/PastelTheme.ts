@@ -12,8 +12,8 @@ export const pastelTheme = new class implements Theme {
     private land = colord({r: 194, g: 193, b: 148});
     private shore = colord({r: 204, g: 203, b: 158});
 
-    private water = colord({r: 110, g: 153, b: 181});
-    private shorelineWater = colord({r: 100, g: 143, b: 171});
+    private water = colord({r: 75, g: 142, b: 190});
+    private shorelineWater = colord({r: 100, g: 143, b: 255});
 
     private territoryColors: Colord[] = [
         colord({r: 230, g: 100, b: 100}), // Bright Red
@@ -36,7 +36,6 @@ export const pastelTheme = new class implements Theme {
         colord({r: 230, g: 180, b: 180}), // Light Pink
         colord({r: 120, g: 120, b: 190}), // Periwinkle
         colord({r: 190, g: 170, b: 100}), // Sand
-        colord({r: 160, g: 100, b: 100}), // Indian Red
         colord({r: 100, g: 180, b: 160}), // Aquamarine
         colord({r: 210, g: 160, b: 200}), // Orchid
         colord({r: 170, g: 190, b: 100}), // Yellow Green
@@ -66,7 +65,6 @@ export const pastelTheme = new class implements Theme {
         colord({r: 180, g: 160, b: 180}), // Mauve
         colord({r: 160, g: 180, b: 140}), // Dark Olive Green
         colord({r: 170, g: 150, b: 170}),  // Dusty Rose
-        colord({r: 230, g: 100, b: 100}), // Bright Red
         colord({r: 100, g: 180, b: 230}), // Sky Blue
         colord({r: 230, g: 180, b: 80}),  // Golden Yellow
         colord({r: 180, g: 100, b: 230}), // Purple
@@ -86,7 +84,6 @@ export const pastelTheme = new class implements Theme {
         colord({r: 230, g: 180, b: 180}), // Light Pink
         colord({r: 120, g: 120, b: 190}), // Periwinkle
         colord({r: 190, g: 170, b: 100}), // Sand
-        colord({r: 160, g: 100, b: 100}), // Indian Red
         colord({r: 100, g: 180, b: 160}), // Aquamarine
         colord({r: 210, g: 160, b: 200}), // Orchid
         colord({r: 170, g: 190, b: 100}), // Yellow Green
@@ -164,14 +161,14 @@ export const pastelTheme = new class implements Theme {
             case TerrainType.Highland:
                 return colord({
                     r: 200 + 2 * mag,
-                    g: 193 + 2 * mag,
+                    g: 183 + 2 * mag,
                     b: 138 + 2 * mag
                 })
             case TerrainType.Mountain:
                 return colord({
-                    r: 220 + mag,
-                    g: 220 + mag,
-                    b: 220 + mag
+                    r: 230 + mag / 2,
+                    g: 230 + mag / 2,
+                    b: 230 + mag / 2
                 })
         }
     }
