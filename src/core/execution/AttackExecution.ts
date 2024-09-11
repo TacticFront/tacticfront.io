@@ -64,6 +64,7 @@ export class AttackExecution implements Execution {
                 // Existing attack on same target, add troops
                 if (otherAttack._owner == this._owner && otherAttack.targetID == this.targetID && this.sourceCell == otherAttack.sourceCell) {
                     otherAttack.troops += this.troops
+                    otherAttack.refreshToConquer()
                     this.active = false
                     return
                 }

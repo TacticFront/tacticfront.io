@@ -147,7 +147,7 @@ class Client {
         const timeLeft = lobby.msUntilStart
         const rand = new PseudoRandom(gameHash)
         const startTimes: number[] = []
-        const lobbyTime = this.config.lobbyLifetime() / this.config.gameCreationRate()
+        const lobbyTime = this.config.gameCreationRate()
         for (let i = 0; i < totalNumFakeHumans; i++) {
             startTimes.push(rand.nextInt(0, lobbyTime))
         }

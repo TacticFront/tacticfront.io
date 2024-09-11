@@ -132,7 +132,7 @@ export class ClientGame {
         this.renderer.initialize()
         this.input.initialize()
         this.gs.addExecution(...this.executor.spawnBots(this.gs.config().numBots()))
-        console.log('!!! number fake humans 15')
+        console.log('!!! number fake humans ')
         this.gs.addExecution(...this.executor.fakeHumanExecutions(this.gs.config().numFakeHumans(this.gameID)))
 
         this.intervalID = setInterval(() => this.tick(), 10);

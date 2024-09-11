@@ -104,6 +104,14 @@
 * BUG: fix tile per turn pacing issues DONE 9/9/2024
 * Improve expansion directions (more uniform) 9/9/2024
 
+Uncaught Error: Player with id 0fbon not found
+    player https://tunnel.openfront.dev/bundle.js:2
+    init https://tunnel.openfront.dev/bundle.js:2
+    tick https://tunnel.openfront.dev/bundle.js:2
+    tick https://tunnel.openfront.dev/bundle.js:2
+    tick https://tunnel.openfront.dev/bundle.js:2
+    intervalID https://tunnel.openfront.dev/bundle.js:2
+
 --- v3 Release
 
 * BUG: when clicking on enemy sometimes boat goes all the way around

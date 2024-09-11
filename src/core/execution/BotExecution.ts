@@ -66,11 +66,11 @@ export class BotExecution implements Execution {
                     return
                 }
             }
-            if (owner.type() == PlayerType.Human) {
-                if (this.random.chance(2)) {
-                    return
-                }
-            }
+            // if (owner.type() == PlayerType.Human) {
+            //     if (this.random.chance(2)) {
+            //         return
+            //     }
+            // }
         }
         this.sendAttack(owner)
     }
