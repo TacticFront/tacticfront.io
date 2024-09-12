@@ -1,4 +1,3 @@
-import {Player, PlayerInfo} from "../Game";
 import {DefaultConfig} from "./DefaultConfig";
 
 export const devConfig = new class extends DefaultConfig {
@@ -16,8 +15,12 @@ export const devConfig = new class extends DefaultConfig {
     }
 
     numBots(): number {
-        return 500
+        return 400
     }
+
+    // numFakeHumans(gameID: GameID): number {
+    //     return 10
+    // }
 
     // startTroops(playerInfo: PlayerInfo): number {
     //     if (playerInfo.isBot) {

@@ -1,4 +1,4 @@
-import {Cell, Execution, MutableGame, MutablePlayer, Player, PlayerID, PlayerInfo, TerrainType, TerraNullius, Tile} from "../Game"
+import {Cell, Execution, MutableGame, MutablePlayer, Player, PlayerID, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tile} from "../Game"
 import {PseudoRandom} from "../PseudoRandom"
 import {and, bfs, dist, simpleHash} from "../Util";
 import {AttackExecution} from "./AttackExecution";
@@ -13,6 +13,8 @@ export class FakeHumanExecution implements Execution {
     private mg: MutableGame
     private neighborsTerraNullius = true
     private player: Player = null
+
+    private enemy: Player | null = null
 
 
     constructor(private playerInfo: PlayerInfo) {
@@ -48,6 +50,27 @@ export class FakeHumanExecution implements Execution {
         if (ticks % this.random.nextInt(10, 30) != 0) {
             return
         }
+
+        if (ticks % 100 == 0) {
+            this.enemy = null
+        }
+
+        if (this.enemy == null) {
+            this.enemy = this.mg.executions()
+                .filter(e => e instanceof AttackExecution)
+                .map(e => e as AttackExecution)
+                .filter(e => e.targetID() == this.player.id())
+                .map(e => e.owner())
+                .find(enemy => enemy && enemy.type() == PlayerType.Human)
+        }
+
+        if (this.enemy) {
+            if (this.player.sharesBorderWith(this.enemy)) {
+                this.sendAttack(this.enemy)
+            }
+            return
+        }
+
 
         if (this.neighborsTerraNullius) {
             for (const b of this.player.borderTiles()) {

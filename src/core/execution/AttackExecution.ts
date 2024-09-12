@@ -28,10 +28,14 @@ export class AttackExecution implements Execution {
     constructor(
         private troops: number,
         private _ownerID: PlayerID,
-        private targetID: PlayerID | null,
+        private _targetID: PlayerID | null,
         private sourceCell: Cell | null,
         private targetCell: Cell | null,
     ) { }
+
+    public targetID(): PlayerID {
+        return this._targetID
+    }
 
     activeDuringSpawnPhase(): boolean {
         return false
@@ -45,7 +49,7 @@ export class AttackExecution implements Execution {
         this.targetCell = null
 
         this._owner = mg.player(this._ownerID)
-        this.target = this.targetID == null ? mg.terraNullius() : mg.player(this.targetID)
+        this.target = this._targetID == null ? mg.terraNullius() : mg.player(this._targetID)
         this.troops = Math.min(this._owner.troops(), this.troops)
         this._owner.setTroops(this._owner.troops() - this.troops)
         this.mg = mg
@@ -54,7 +58,7 @@ export class AttackExecution implements Execution {
             if (exec.isActive() && exec instanceof AttackExecution && exec != this) {
                 const otherAttack = exec as AttackExecution
                 // Target has opposing attack, cancel them out
-                if (this.target.isPlayer() && otherAttack.targetID == this._ownerID && this.targetID == otherAttack._ownerID) {
+                if (this.target.isPlayer() && otherAttack._targetID == this._ownerID && this._targetID == otherAttack._ownerID) {
                     if (otherAttack.troops > this.troops) {
                         otherAttack.troops -= this.troops
                         // otherAttack.calculateToConquer()
@@ -66,7 +70,7 @@ export class AttackExecution implements Execution {
                     }
                 }
                 // Existing attack on same target, add troops
-                if (otherAttack._owner == this._owner && otherAttack.targetID == this.targetID && this.sourceCell == otherAttack.sourceCell) {
+                if (otherAttack._owner == this._owner && otherAttack._targetID == this._targetID && this.sourceCell == otherAttack.sourceCell) {
                     otherAttack.troops += this.troops
                     otherAttack.refreshToConquer()
                     this.active = false
