@@ -106,7 +106,7 @@
 * store username DONE 9/11/2024
 * give anon unique number after Anon name DONE 9/11/2024
 * make color a hash of name DONE 9/11/2024
-* Make boats more intuitive (larger area to click off coast)
+* Make boats more intuitive (larger area to click off coast) DONE 9/11/2024
 * FakeHumans retaliate when attacked
 
 

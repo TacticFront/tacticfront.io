@@ -236,7 +236,7 @@ export class ClientGame {
 
             const enemyShoreDists = Array.from(bfs(
                 tile,
-                and((t) => t.isLand() && t.owner() == tile.owner(), dist(tile, bordersEnemy ? 10 : 500))
+                and((t) => t.isLand() && t.owner() == tile.owner(), dist(tile, 10))
             )).filter(t => t.isOceanShore()).map(t => ({
                 dist: manhattanDist(t.cell(), tile.cell()),
                 tile: t
@@ -270,9 +270,8 @@ export class ClientGame {
             if (!bordersOcean) {
                 return
             }
-            const tn = Array.from(bfs(tile, dist(tile, 3)))
+            const tn = Array.from(bfs(tile, dist(tile, 10)))
                 .filter(t => t.isOceanShore())
-                .filter(t => t.owner() == tile.owner())
                 .sort((a, b) => manhattanDist(tile.cell(), a.cell()) - manhattanDist(tile.cell(), b.cell()))
             if (tn.length > 0) {
                 this.sendBoatAttackIntent(targetID, tn[0].cell(), this.gs.config().boatAttackAmount(this.myPlayer, owner))
