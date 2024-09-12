@@ -1,5 +1,5 @@
 import {PriorityQueue} from "@datastructures-js/priority-queue";
-import {Boat, BoatEvent, Cell, Game, Tile, TileEvent} from "../../core/Game";
+import {Boat, BoatEvent, Cell, Game, Player, Tile, TileEvent} from "../../core/Game";
 import {PseudoRandom} from "../../core/PseudoRandom";
 import {Colord} from "colord";
 import {bfs, dist} from "../../core/Util";
@@ -65,12 +65,12 @@ export class TerritoryRenderer {
             bfs(event.boat.tile(), dist(event.boat.tile(), 4)).forEach(
                 t => {
                     if (trail.has(t)) {
-                        this.paintCell(t.cell(), this.theme.territoryColor(event.boat.owner().id()), 150)
+                        this.paintCell(t.cell(), this.theme.territoryColor(event.boat.owner().info()), 150)
                     }
                 }
             )
-            bfs(event.boat.tile(), dist(event.boat.tile(), 2)).forEach(t => this.paintCell(t.cell(), this.theme.borderColor(event.boat.owner().id()), 255))
-            bfs(event.boat.tile(), dist(event.boat.tile(), 1)).forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(event.boat.owner().id()), 180))
+            bfs(event.boat.tile(), dist(event.boat.tile(), 2)).forEach(t => this.paintCell(t.cell(), this.theme.borderColor(event.boat.owner().info()), 255))
+            bfs(event.boat.tile(), dist(event.boat.tile(), 1)).forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(event.boat.owner().info()), 180))
         } else {
             trail.forEach(t => this.paintTerritory(t))
             this.boatToTrail.delete(event.boat)
@@ -96,16 +96,17 @@ export class TerritoryRenderer {
             this.clearCell(tile.cell())
             return
         }
+        const owner = tile.owner() as Player
         if (tile.isBorder()) {
             this.paintCell(
                 tile.cell(),
-                this.theme.borderColor(tile.owner().id()),
+                this.theme.borderColor(owner.info()),
                 255
             )
         } else {
             this.paintCell(
                 tile.cell(),
-                this.theme.territoryColor(tile.owner().id()),
+                this.theme.territoryColor(owner.info()),
                 110
             )
         }

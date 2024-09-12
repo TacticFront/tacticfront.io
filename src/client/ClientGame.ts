@@ -11,6 +11,7 @@ import {and, bfs, dist, manhattanDist} from "../core/Util";
 import {TerrainRenderer} from "./graphics/TerrainRenderer";
 
 
+
 export function createClientGame(name: string, clientID: ClientID, playerID: PlayerID, ip: string | null, gameID: GameID, config: Config, terrainMap: TerrainMap): ClientGame {
     let eventBus = new EventBus()
     let game = createGame(terrainMap, eventBus, config)
@@ -32,7 +33,6 @@ export function createClientGame(name: string, clientID: ClientID, playerID: Pla
 }
 
 export class ClientGame {
-
     private myPlayer: Player
     private turns: Turn[] = []
     private socket: WebSocket
@@ -118,6 +118,8 @@ export class ClientGame {
 
     public start() {
         console.log('version 3')
+
+
 
         this.isActive = true
         // TODO: make each class do this, or maybe have client intercept all requests?

@@ -103,16 +103,17 @@
 * Update landing page image DONE 9/9/2024
 * BUG: fix tile per turn pacing issues DONE 9/9/2024
 * Improve expansion directions (more uniform) 9/9/2024
+* store username DONE 9/11/2024
+* give anon unique number after Anon name DONE 9/11/2024
+* make color a hash of name DONE 9/11/2024
+* Make boats more intuitive (larger area to click off coast)
+* FakeHumans retaliate when attacked
 
 
 --- v3 Release
 
-* store username
+
 * store cookies
-* Make boats more intuitive (larger area to click off coast)
-* give anon unique number after Anon name
-* make color a hash of name
-* FakeHumans retaliate when attacked
 * BUG: when clicking on enemy sometimes boat goes all the way around
 * names dissappear too much (maybe screen size)
 * names dissapear on bottom of screen

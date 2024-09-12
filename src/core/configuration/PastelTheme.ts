@@ -1,5 +1,5 @@
 import {Colord, colord, random} from "colord";
-import {PlayerID, TerrainType, Tile} from "../Game";
+import {PlayerID, PlayerInfo, TerrainType, Tile} from "../Game";
 import {Theme} from "./Config";
 import {time} from "console";
 import {PseudoRandom} from "../PseudoRandom";
@@ -119,12 +119,12 @@ export const pastelTheme = new class implements Theme {
         return colord({r: 50, g: 50, b: 50})
     }
 
-    territoryColor(id: PlayerID): Colord {
-        return this.territoryColors[simpleHash(id) % this.territoryColors.length]
+    territoryColor(playerInfo: PlayerInfo): Colord {
+        return this.territoryColors[simpleHash(playerInfo.name) % this.territoryColors.length]
     }
 
-    borderColor(id: PlayerID): Colord {
-        const tc = this.territoryColor(id).rgba;
+    borderColor(playerInfo: PlayerInfo): Colord {
+        const tc = this.territoryColor(playerInfo).rgba;
         return colord({
             r: Math.max(tc.r - 40, 0),
             g: Math.max(tc.g - 40, 0),
