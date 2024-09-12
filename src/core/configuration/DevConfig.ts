@@ -16,7 +16,7 @@ export const devConfig = new class extends DefaultConfig {
     }
 
     numBots(): number {
-        return 400
+        return 500
     }
 
     // startTroops(playerInfo: PlayerInfo): number {

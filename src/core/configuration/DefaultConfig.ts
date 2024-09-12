@@ -39,18 +39,18 @@ export class DefaultConfig implements Config {
         switch (tileToConquer.terrain()) {
             case TerrainType.Plains:
                 mag = 10
-                // speed = 10
+                speed = 10
                 break
             case TerrainType.Highland:
                 mag = 30
-                // speed = 20
+                speed = 20
                 break
             case TerrainType.Mountain:
                 mag = 90
-                // speed = 40
+                speed = 40
                 break
         }
-        speed = mag
+        // speed = mag
 
         if (attacker.isPlayer() && defender.isPlayer()) {
             if (attacker.type() == PlayerType.Bot && defender.type() == PlayerType.FakeHuman) {

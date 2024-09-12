@@ -104,18 +104,18 @@
 * BUG: fix tile per turn pacing issues DONE 9/9/2024
 * Improve expansion directions (more uniform) 9/9/2024
 
-Uncaught Error: Player with id 0fbon not found
-    player https://tunnel.openfront.dev/bundle.js:2
-    init https://tunnel.openfront.dev/bundle.js:2
-    tick https://tunnel.openfront.dev/bundle.js:2
-    tick https://tunnel.openfront.dev/bundle.js:2
-    tick https://tunnel.openfront.dev/bundle.js:2
-    intervalID https://tunnel.openfront.dev/bundle.js:2
 
 --- v3 Release
 
+* store username
+* store cookies
+* Make boats more intuitive (larger area to click off coast)
+* give anon unique number after Anon name
+* make color a hash of name
+* FakeHumans retaliate when attacked
 * BUG: when clicking on enemy sometimes boat goes all the way around
 * names dissappear too much (maybe screen size)
+* names dissapear on bottom of screen
 * UI: win condition & popup
 * UI: boats
 * UI: current attacks
@@ -123,12 +123,9 @@ Uncaught Error: Player with id 0fbon not found
 * UI: event box
 * make random waves on ocean, dark spots
 * Load terrain dataImage in background
-* BUG: half encircle Antoartica causes capture
+* BUG: half encircle Antartica causes capture
 
 --- v4 Release
 
-* store username
-* store cookies
-* BUG: when sending boat to TerraNullius, only takes one tile
 * REFACTOR: give terranullius an ID, game.player() returns terranullius
 * REFACTOR: ocean is considered TerraNullius ?

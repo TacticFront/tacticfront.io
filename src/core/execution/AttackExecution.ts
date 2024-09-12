@@ -8,6 +8,10 @@ export class AttackExecution implements Execution {
     private active: boolean = true;
     private toConquer: PriorityQueue<TileContainer> = new PriorityQueue<TileContainer>((a: TileContainer, b: TileContainer) => {
         if (a.priority == b.priority) {
+            if (a.tick == b.tick) {
+                return 0
+                // return this.random.nextInt(-1, 1)
+            }
             return a.tick - b.tick
         }
         return a.priority - b.priority
