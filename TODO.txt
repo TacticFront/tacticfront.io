@@ -111,6 +111,8 @@
 
 
 --- v3 Release
+BUG: FakeHuman don't be enemy if don't share border
+BUG: when send boat only captures one pixel
 
 * store cookies
 * names dissapear on bottom of screen

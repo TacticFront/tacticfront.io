@@ -62,7 +62,7 @@ export class BotExecution implements Execution {
         const owner = toAttack.owner()
         if (owner.isPlayer()) {
             if (owner.type() == PlayerType.FakeHuman) {
-                if (!this.random.chance(4)) {
+                if (!this.random.chance(2)) {
                     return
                 }
             }

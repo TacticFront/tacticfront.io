@@ -20,7 +20,7 @@ export class DefaultConfig implements Config {
         return 400
     }
     numFakeHumans(gameID: GameID): number {
-        return simpleHash(gameID) % 5
+        return simpleHash(gameID) % 20
     }
     turnIntervalMs(): number {
         return 100
@@ -53,10 +53,10 @@ export class DefaultConfig implements Config {
         speed = mag
 
         if (attacker.isPlayer() && defender.isPlayer()) {
-            if (attacker.type() == PlayerType.Bot && defender.type() == PlayerType.FakeHuman) {
+            if (attacker.type() == PlayerType.Bot && (defender.type() == PlayerType.FakeHuman || defender.type() == PlayerType.Human)) {
                 mag *= 1.2
             }
-            if (attacker.type() == PlayerType.FakeHuman && defender.type() == PlayerType.Bot) {
+            if ((attacker.type() == PlayerType.FakeHuman || attacker.type() == PlayerType.Human) && defender.type() == PlayerType.Bot) {
                 mag *= .8
             }
         }
@@ -118,10 +118,10 @@ export class DefaultConfig implements Config {
         // console.log(`to add ${toAdd}`)
 
         if (player.type() == PlayerType.FakeHuman) {
-            toAdd *= 1.1
+            toAdd *= 1.0
         }
         if (player.type() == PlayerType.Bot) {
-            toAdd *= .8
+            toAdd *= .7
         }
 
         return Math.min(player.troops() + toAdd, max)
