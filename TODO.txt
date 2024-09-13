@@ -112,10 +112,7 @@
 
 --- v3 Release
 
-
 * store cookies
-* BUG: when clicking on enemy sometimes boat goes all the way around
-* names dissappear too much (maybe screen size)
 * names dissapear on bottom of screen
 * UI: win condition & popup
 * UI: boats

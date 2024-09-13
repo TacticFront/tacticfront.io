@@ -42,15 +42,15 @@ export class DefaultConfig implements Config {
                 speed = 10
                 break
             case TerrainType.Highland:
-                mag = 30
+                mag = 20
                 speed = 20
                 break
             case TerrainType.Mountain:
-                mag = 90
+                mag = 40
                 speed = 40
                 break
         }
-        // speed = mag
+        speed = mag
 
         if (attacker.isPlayer() && defender.isPlayer()) {
             if (attacker.type() == PlayerType.Bot && defender.type() == PlayerType.FakeHuman) {
@@ -69,9 +69,9 @@ export class DefaultConfig implements Config {
             }
         } else {
             return {
-                attackerTroopLoss: mag,
+                attackerTroopLoss: Math.max(10, mag / 1.5),
                 defenderTroopLoss: 0,
-                tilesPerTickUsed: within(this.startTroops(attacker.info()) / (attackTroops * 5), .2, 3) * speed
+                tilesPerTickUsed: within(this.startTroops(attacker.info()) / (attackTroops * 5), .2, 3) * Math.max(10, speed / 1.5)
             }
         }
     }
@@ -105,7 +105,7 @@ export class DefaultConfig implements Config {
 
     maxTroops(player: Player): number {
         let max = Math.sqrt(player.numTilesOwned()) * 3000 + 50000
-        return Math.min(max, 1_000_000)
+        return Math.min(max, 2_000_000)
     }
 
     troopAdditionRate(player: Player): number {
@@ -118,7 +118,7 @@ export class DefaultConfig implements Config {
         // console.log(`to add ${toAdd}`)
 
         if (player.type() == PlayerType.FakeHuman) {
-            toAdd *= 1.2
+            toAdd *= 1.1
         }
         if (player.type() == PlayerType.Bot) {
             toAdd *= .8

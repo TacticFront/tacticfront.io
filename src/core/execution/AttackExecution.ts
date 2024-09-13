@@ -152,27 +152,24 @@ export class AttackExecution implements Execution {
             if (this.targetCell != null) {
                 dist = manhattanDist(tile.cell(), this.targetCell)
             }
-            // if() {
-
+            // if (numOwnedByMe > 2) {
+            //     numOwnedByMe = 10
             // }
-            if (numOwnedByMe > 2) {
-                numOwnedByMe = 10
-            }
-            let mag = 0
-            switch (tile.terrain()) {
-                case TerrainType.Plains:
-                    mag = 1
-                    break
-                case TerrainType.Highland:
-                    mag = 2
-                    break
-                case TerrainType.Mountain:
-                    mag = 3
-                    break
-            }
+            // let mag = 0
+            // switch (tile.terrain()) {
+            //     case TerrainType.Plains:
+            //         mag = 1
+            //         break
+            //     case TerrainType.Highland:
+            //         mag = 2
+            //         break
+            //     case TerrainType.Mountain:
+            //         mag = 3
+            //         break
+            // }
             this.toConquer.enqueue(new TileContainer(
                 neighbor,
-                dist / 100 + this.random.nextInt(0, 3) - numOwnedByMe * 2 + mag,
+                dist / 100 + this.random.nextInt(0, 2) - numOwnedByMe, // + mag,
                 this.mg.ticks()
             ))
         }
