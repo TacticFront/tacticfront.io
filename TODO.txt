@@ -111,6 +111,8 @@
 
 
 --- v3 Release
+
+* Add discord link DONE 9/14/2024
 BUG: FakeHuman don't be enemy if don't share border
 BUG: when send boat only captures one pixel
 
