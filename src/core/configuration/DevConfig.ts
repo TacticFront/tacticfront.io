@@ -1,3 +1,4 @@
+import {GameID} from "../Schemas";
 import {DefaultConfig} from "./DefaultConfig";
 
 export const devConfig = new class extends DefaultConfig {
@@ -15,13 +16,13 @@ export const devConfig = new class extends DefaultConfig {
     }
 
     numBots(): number {
-        return 400
+        return 0
     }
-    
 
-    // numFakeHumans(gameID: GameID): number {
-    //     return 10
-    // }
+
+    numFakeHumans(gameID: GameID): number {
+        return 0
+    }
 
     // startTroops(playerInfo: PlayerInfo): number {
     //     if (playerInfo.isBot) {

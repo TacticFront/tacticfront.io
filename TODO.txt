@@ -109,13 +109,20 @@
 * Make boats more intuitive (larger area to click off coast) DONE 9/11/2024
 * FakeHumans retaliate when attacked DONE 9/11/2024
 
-
---- v3 Release
+--- v3 Release DONE
 
 * Add discord link DONE 9/14/2024
-BUG: FakeHuman don't be enemy if don't share border
-BUG: when send boat only captures one pixel
-
+* front page mobile friendly
+* game mobile friendly
+* right click popup alliance option
+* click alliance sends alliance request
+* notification for alliance request
+* comfirm alliance
+* first place has crown
+* alliance has icon
+* attack alliance create traitor flag
+* BUG: FakeHuman don't be enemy if don't share border
+* BUG: when send boat only captures one pixel
 * store cookies
 * names dissapear on bottom of screen
 * UI: win condition & popup
@@ -129,6 +136,10 @@ BUG: when send boat only captures one pixel
 
 --- v4 Release
 
+
+* improve front page (make map larger?)
+* Add additional maps
+* add offline mode
 * REFACTOR: give terranullius an ID, game.player() returns terranullius
 * REFACTOR: ocean is considered TerraNullius ?
 
