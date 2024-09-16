@@ -26,6 +26,7 @@ export function getGameEnv(): GameEnv {
 
 export interface Config {
 	theme(): Theme;
+	percentageTilesOwnedToWin(): number
 	turnIntervalMs(): number
 	gameCreationRate(): number
 	lobbyLifetime(): number

@@ -2,6 +2,9 @@ import {GameID} from "../Schemas";
 import {DefaultConfig} from "./DefaultConfig";
 
 export const devConfig = new class extends DefaultConfig {
+    percentageTilesOwnedToWin(): number {
+        return 80
+    }
     numSpawnPhaseTurns(): number {
         return 40
     }

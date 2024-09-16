@@ -112,8 +112,9 @@
 --- v3 Release DONE
 
 * Add discord link DONE 9/14/2024
-* front page mobile friendly
-* game mobile friendly
+* front page mobile friendly DONE 9/15/2024
+* game mobile friendly DONE 9/16/2024
+* UI: basic win condition & popup DONE 9/16/2024
 * right click popup alliance option
 * click alliance sends alliance request
 * notification for alliance request
@@ -125,7 +126,6 @@
 * BUG: when send boat only captures one pixel
 * store cookies
 * names dissapear on bottom of screen
-* UI: win condition & popup
 * UI: boats
 * UI: current attacks
 * UI: leader board

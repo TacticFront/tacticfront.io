@@ -9,6 +9,7 @@ import {ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeav
 import {TerrainMap} from "../core/TerrainMapLoader";
 import {and, bfs, dist, manhattanDist} from "../core/Util";
 import {TerrainRenderer} from "./graphics/TerrainRenderer";
+import {WinCheckExecution} from "../core/execution/WinCheckExecution";
 
 
 
@@ -16,7 +17,7 @@ export function createClientGame(name: string, clientID: ClientID, playerID: Pla
     let eventBus = new EventBus()
     let game = createGame(terrainMap, eventBus, config)
     let terrainRenderer = new TerrainRenderer(game)
-    let gameRenderer = new GameRenderer(game, clientID, terrainRenderer)
+    let gameRenderer = new GameRenderer(eventBus, game, clientID, terrainRenderer)
 
     return new ClientGame(
         name,
@@ -39,7 +40,6 @@ export class ClientGame {
     private isActive = false
 
     private currTurn = 0
-
 
     private intervalID: NodeJS.Timeout
 
@@ -131,8 +131,8 @@ export class ClientGame {
         this.renderer.initialize()
         this.input.initialize()
         this.gs.addExecution(...this.executor.spawnBots(this.gs.config().numBots()))
-        console.log('!!! number fake humans ')
         this.gs.addExecution(...this.executor.fakeHumanExecutions(this.gs.config().numFakeHumans(this.gameID)))
+        this.gs.addExecution(new WinCheckExecution(this.eventBus))
 
         this.intervalID = setInterval(() => this.tick(), 10);
     }

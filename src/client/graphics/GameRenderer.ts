@@ -8,6 +8,7 @@ import {TerritoryRenderer} from "./TerritoryRenderer";
 import {ClientID} from "../../core/Schemas";
 import {renderTroops} from "./Utils";
 import {UIRenderer} from "./UIRenderer";
+import {EventBus} from "../../core/EventBus";
 
 export class GameRenderer {
 	private territoryCanvas: HTMLCanvasElement
@@ -28,11 +29,11 @@ export class GameRenderer {
 	private theme: Theme
 
 
-	constructor(private gs: Game, private clientID: ClientID, private terrainRenderer: TerrainRenderer) {
+	constructor(private eventBus: EventBus, private gs: Game, private clientID: ClientID, private terrainRenderer: TerrainRenderer) {
 		this.theme = gs.config().theme()
 		this.nameRenderer = new NameRenderer(gs, this.theme)
 		this.territoryRenderer = new TerritoryRenderer(gs)
-		this.uiRenderer = new UIRenderer(gs, this.theme, clientID)
+		this.uiRenderer = new UIRenderer(eventBus, gs, this.theme, clientID)
 	}
 
 	initialize() {
@@ -107,7 +108,7 @@ export class GameRenderer {
 
 		this.context.restore()
 
-		this.renderUIBar()
+		this.renderSpawnBar()
 		this.uiRenderer.render(this.context)
 
 		requestAnimationFrame(() => this.renderGame());
@@ -115,7 +116,7 @@ export class GameRenderer {
 
 
 	// TODO: move to UIRenderer
-	renderUIBar() {
+	renderSpawnBar() {
 		if (!this.gs.inSpawnPhase()) {
 			return
 		}

@@ -2,7 +2,7 @@ import {Cell, TerrainType} from './Game';
 import binAsString from "!!binary-loader!../../resources/TopoWorldMap.bin";
 
 export class TerrainMap {
-    constructor(public readonly tiles: Terrain[][]) { }
+    constructor(public readonly tiles: Terrain[][], public readonly numLandTiles: number) { }
 
     terrain(cell: Cell): Terrain {
         return this.tiles[cell.x][cell.y]
@@ -45,6 +45,7 @@ export async function loadTerrainMap(): Promise<TerrainMap> {
     }
 
     const terrain: Terrain[][] = Array(width).fill(null).map(() => Array(height).fill(null));
+    let numLand = 0
 
     // Start from the 5th byte (index 4) when processing terrain data
     for (let x = 0; x < width; x++) {
@@ -58,6 +59,7 @@ export async function loadTerrainMap(): Promise<TerrainMap> {
             let type: TerrainType = null
             let land = false
             if (isLand) {
+                numLand++
                 land = true
                 if (magnitude < 10) {
                     type = TerrainType.Plains
@@ -82,7 +84,7 @@ export async function loadTerrainMap(): Promise<TerrainMap> {
         }
     }
 
-    return new TerrainMap(terrain);
+    return new TerrainMap(terrain, numLand);
 }
 
 function logBinaryAsAscii(data: string, length: number = 8) {

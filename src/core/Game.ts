@@ -142,6 +142,7 @@ export interface Game {
     neighbors(cell: Cell | Tile): Tile[]
     width(): number
     height(): number
+    numLandTiles(): number
     forEachTile(fn: (tile: Tile) => void): void
     executions(): ExecutionView[]
     terraNullius(): TerraNullius

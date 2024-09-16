@@ -7,6 +7,9 @@ import {pastelTheme} from "./PastelTheme";
 
 
 export class DefaultConfig implements Config {
+    percentageTilesOwnedToWin(): number {
+        return 80
+    }
     boatMaxNumber(): number {
         return 3
     }

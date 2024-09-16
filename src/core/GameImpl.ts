@@ -294,12 +294,14 @@ export class GameImpl implements MutableGame {
     private execs: Execution[] = []
     private _width: number
     private _height: number
+    private _numLandTiles: number
     _terraNullius: TerraNulliusImpl
 
     constructor(terrainMap: TerrainMap, private eventBus: EventBus, private _config: Config) {
         this._terraNullius = new TerraNulliusImpl(this)
         this._width = terrainMap.width();
         this._height = terrainMap.height();
+        this._numLandTiles = terrainMap.numLandTiles
         this.map = new Array(this._width);
         for (let x = 0; x < this._width; x++) {
             this.map[x] = new Array(this._height);
@@ -308,6 +310,9 @@ export class GameImpl implements MutableGame {
                 this.map[x][y] = new TileImpl(this, this._terraNullius, cell, terrainMap.terrain(cell));
             }
         }
+    }
+    numLandTiles(): number {
+        return this._numLandTiles
     }
     hasPlayer(id: PlayerID): boolean {
         return this._players.has(id)

@@ -42,6 +42,10 @@ export default (env, argv) => {
 					}
 				},
 				{
+					test: /\.html$/,
+					use: ['html-loader']
+				},
+				{
 					test: /\.svg$/,
 					type: 'asset/inline',
 				},
