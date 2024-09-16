@@ -45,6 +45,7 @@ export class GameRenderer {
 		this.canvas.style.top = '0';
 		this.canvas.style.width = '100%';
 		this.canvas.style.height = '100%';
+		this.canvas.style.touchAction = 'none';
 
 		this.nameRenderer.initialize()
 		this.terrainRenderer.init()

@@ -118,9 +118,6 @@ export class ClientGame {
 
     public start() {
         console.log('version 3')
-
-
-
         this.isActive = true
         // TODO: make each class do this, or maybe have client intercept all requests?
         //this.eventBus.on(TickEvent, (e) => this.tick(e))
@@ -185,7 +182,7 @@ export class ClientGame {
         this.renderer.playerEvent(event)
     }
 
-    private inputEvent(event: MouseDownEvent) {
+    private inputEvent(event: MouseUpEvent) {
         if (!this.isActive) {
             return
         }

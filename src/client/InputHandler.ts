@@ -32,12 +32,17 @@ export class DragEvent implements GameEvent {
 
 export class InputHandler {
 
-    private lastMouseDownX: number = 0
-    private lastMouseDownY: number
+    private lastPointerX: number = 0;
+    private lastPointerY: number = 0;
 
-    private isMouseDown: boolean = false;
-    private lastMouseX: number = 0;
-    private lastMouseY: number = 0;
+    private lastPointerDownX: number = 0;
+    private lastPointerDownY: number = 0;
+
+    private pointers: Map<number, PointerEvent> = new Map();
+
+    private lastPinchDistance: number = 0;
+
+    private pointerDown: boolean = false
 
     constructor(private eventBus: EventBus) { }
 
@@ -45,20 +50,31 @@ export class InputHandler {
         document.addEventListener("pointerdown", (e) => this.onPointerDown(e));
         document.addEventListener("pointerup", (e) => this.onPointerUp(e));
         document.addEventListener("wheel", (e) => this.onScroll(e), {passive: false});
-        document.addEventListener('mousedown', this.onMouseDown.bind(this));
-        document.addEventListener('mousemove', this.onMouseMove.bind(this));
-        document.addEventListener('mouseup', this.onMouseUp.bind(this));
-        document.addEventListener('mouseleave', this.onMouseUp.bind(this))
+        document.addEventListener('pointermove', this.onPointerMove.bind(this));
+        this.pointers.clear()
     }
 
-    onPointerDown(event: PointerEvent) {
-        this.lastMouseDownX = event.x
-        this.lastMouseDownY = event.y
-        this.eventBus.emit(new MouseDownEvent(event.x, event.y))
+    private onPointerDown(event: PointerEvent) {
+        this.pointerDown = true
+        this.pointers.set(event.pointerId, event);
+
+        if (this.pointers.size === 1) {
+            this.lastPointerX = event.clientX;
+            this.lastPointerY = event.clientY;
+
+            this.lastPointerDownX = event.clientX
+            this.lastPointerDownY = event.clientY
+
+            this.eventBus.emit(new MouseDownEvent(event.clientX, event.clientY));
+        } else if (this.pointers.size === 2) {
+            this.lastPinchDistance = this.getPinchDistance();
+        }
     }
 
     onPointerUp(event: PointerEvent) {
-        const dist = Math.abs(event.x - this.lastMouseDownX) + Math.abs(event.y - this.lastMouseDownY);
+        this.pointerDown = false
+        this.pointers.delete(event.pointerId);
+        const dist = Math.abs(event.x - this.lastPointerDownX) + Math.abs(event.y - this.lastPointerDownY);
         if (dist < 10) {
             this.eventBus.emit(new MouseUpEvent(event.x, event.y))
         }
@@ -68,26 +84,47 @@ export class InputHandler {
         this.eventBus.emit(new ZoomEvent(event.x, event.y, event.deltaY))
     }
 
-    private onMouseDown(event: MouseEvent) {
-        this.isMouseDown = true;
-        this.lastMouseX = event.clientX;
-        this.lastMouseY = event.clientY;
+    private onPointerMove(event: PointerEvent) {
+
+        this.pointers.set(event.pointerId, event);
+
+        if (!this.pointerDown) {
+            return
+        }
+
+        if (this.pointers.size === 1) {
+            const deltaX = event.clientX - this.lastPointerX;
+            const deltaY = event.clientY - this.lastPointerY;
+
+            this.eventBus.emit(new DragEvent(deltaX, deltaY));
+
+            this.lastPointerX = event.clientX;
+            this.lastPointerY = event.clientY;
+        } else if (this.pointers.size === 2) {
+            const currentPinchDistance = this.getPinchDistance();
+            const pinchDelta = currentPinchDistance - this.lastPinchDistance;
+
+            if (Math.abs(pinchDelta) > 1) {  // Threshold to avoid tiny zoom adjustments
+                const zoomCenter = this.getPinchCenter();
+                this.eventBus.emit(new ZoomEvent(zoomCenter.x, zoomCenter.y, -pinchDelta * 2));
+                this.lastPinchDistance = currentPinchDistance;
+            }
+        }
     }
 
-    private onMouseMove(event: MouseEvent) {
-        if (!this.isMouseDown) return;
-
-        const deltaX = event.clientX - this.lastMouseX;
-        const deltaY = event.clientY - this.lastMouseY;
-
-        this.eventBus.emit(new DragEvent(deltaX, deltaY))
-
-        this.lastMouseX = event.clientX;
-        this.lastMouseY = event.clientY;
+    private getPinchDistance(): number {
+        const pointerEvents = Array.from(this.pointers.values());
+        const dx = pointerEvents[0].clientX - pointerEvents[1].clientX;
+        const dy = pointerEvents[0].clientY - pointerEvents[1].clientY;
+        return Math.sqrt(dx * dx + dy * dy);
     }
 
-    private onMouseUp(event: MouseEvent) {
-        this.isMouseDown = false;
+    private getPinchCenter(): {x: number, y: number} {
+        const pointerEvents = Array.from(this.pointers.values());
+        return {
+            x: (pointerEvents[0].clientX + pointerEvents[1].clientX) / 2,
+            y: (pointerEvents[0].clientY + pointerEvents[1].clientY) / 2
+        };
     }
 
 }
