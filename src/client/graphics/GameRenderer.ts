@@ -2,15 +2,15 @@ import {Colord} from "colord";
 import {Cell, Game, PlayerEvent, Tile, TileEvent, Player, Execution, BoatEvent} from "../../core/Game";
 import {Theme} from "../../core/configuration/Config";
 import {DragEvent, ZoomEvent} from "../InputHandler";
-import {NameRenderer} from "./NameRenderer";
-import {TerrainRenderer} from "./TerrainRenderer";
-import {TerritoryRenderer} from "./TerritoryRenderer";
+import {NameLayer} from "./layers/NameLayer";
+import {TerrainLayer} from "./layers/TerrainLayer";
+import {TerritoryLayer} from "./layers/TerritoryLayer";
 import {ClientID} from "../../core/Schemas";
 import {createCanvas, renderTroops} from "./Utils";
-import {UIRenderer} from "./UIRenderer";
+import {UILayer} from "./layers/UILayer";
 import {EventBus} from "../../core/EventBus";
 import {TransformHandler} from "./TransformHandler";
-import {Layer} from "./Layer";
+import {Layer} from "./layers/Layer";
 
 
 export function createRenderer(game: Game, eventBus: EventBus, clientID: ClientID): GameRenderer {
@@ -18,10 +18,10 @@ export function createRenderer(game: Game, eventBus: EventBus, clientID: ClientI
 	const transformHandler = new TransformHandler(game, eventBus, canvas.getBoundingClientRect())
 
 	const layers: Layer[] = [
-		new TerrainRenderer(game),
-		new TerritoryRenderer(game, eventBus),
-		new NameRenderer(game, game.config().theme()),
-		new UIRenderer(eventBus, game, game.config().theme(), clientID)
+		new TerrainLayer(game),
+		new TerritoryLayer(game, eventBus),
+		new NameLayer(game, game.config().theme()),
+		new UILayer(eventBus, game, game.config().theme(), clientID)
 	]
 
 	return new GameRenderer(game, eventBus, canvas, transformHandler, layers)

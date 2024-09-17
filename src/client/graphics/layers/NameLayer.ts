@@ -1,11 +1,11 @@
-import {Cell, Game, Player, PlayerType} from "../../core/Game"
-import {PseudoRandom} from "../../core/PseudoRandom"
-import {calculateBoundingBox} from "../../core/Util"
-import {Theme} from "../../core/configuration/Config"
+import {Cell, Game, Player, PlayerType} from "../../../core/Game"
+import {PseudoRandom} from "../../../core/PseudoRandom"
+import {calculateBoundingBox} from "../../../core/Util"
+import {Theme} from "../../../core/configuration/Config"
 import {Layer} from "./Layer"
-import {placeName} from "./NameBoxCalculator"
-import {TransformHandler} from "./TransformHandler"
-import {renderTroops} from "./Utils"
+import {placeName} from "../NameBoxCalculator"
+import {TransformHandler} from "../TransformHandler"
+import {renderTroops} from "../Utils"
 
 class RenderInfo {
     public isVisible = true
@@ -19,7 +19,7 @@ class RenderInfo {
     ) { }
 }
 
-export class NameRenderer implements Layer {
+export class NameLayer implements Layer {
 
     private lastChecked = 0
     private refreshRate = 1000

@@ -1,4 +1,4 @@
-import {TransformHandler} from "./TransformHandler"
+import {TransformHandler} from "../TransformHandler"
 
 export interface Layer {
     init()

@@ -1,10 +1,10 @@
 import {inherits} from "util"
-import {Game} from "../../core/Game";
+import {Game} from "../../../core/Game";
 import {throws} from "assert";
 import {Layer} from "./Layer";
-import {TransformHandler} from "./TransformHandler";
+import {TransformHandler} from "../TransformHandler";
 
-export class TerrainRenderer implements Layer {
+export class TerrainLayer implements Layer {
     private canvas: HTMLCanvasElement
     private context: CanvasRenderingContext2D
     private imageData: ImageData

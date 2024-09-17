@@ -1,13 +1,13 @@
-import {Theme} from "../../core/configuration/Config";
-import {EventBus} from "../../core/EventBus";
-import {WinEvent} from "../../core/execution/WinCheckExecution";
-import {Game, Player} from "../../core/Game";
-import {ClientID} from "../../core/Schemas";
-import {renderTroops} from "./Utils";
+import {Theme} from "../../../core/configuration/Config";
+import {EventBus} from "../../../core/EventBus";
+import {WinEvent} from "../../../core/execution/WinCheckExecution";
+import {Game, Player} from "../../../core/Game";
+import {ClientID} from "../../../core/Schemas";
+import {renderTroops} from "../Utils";
 import winModalHtml from '../WinModal.html';
-import {RightClickEvent} from "../InputHandler";
+import {RightClickEvent} from "../../InputHandler";
 import {Layer} from "./Layer";
-import {TransformHandler} from "./TransformHandler";
+import {TransformHandler} from "../TransformHandler";
 
 
 interface MenuOption {
@@ -15,7 +15,7 @@ interface MenuOption {
     action: () => void;
 }
 
-export class UIRenderer implements Layer {
+export class UILayer implements Layer {
     private exitButton: HTMLButtonElement;
     private winModal: HTMLElement | null = null;
 

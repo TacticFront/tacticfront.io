@@ -8,7 +8,7 @@ import {InputHandler, MouseUpEvent, ZoomEvent, DragEvent, MouseDownEvent} from "
 import {ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema, ClientMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ServerSyncMessage, Turn} from "../core/Schemas";
 import {TerrainMap} from "../core/TerrainMapLoader";
 import {and, bfs, dist, manhattanDist} from "../core/Util";
-import {TerrainRenderer} from "./graphics/TerrainRenderer";
+import {TerrainLayer} from "./graphics/layers/TerrainLayer";
 import {WinCheckExecution} from "../core/execution/WinCheckExecution";
 
 

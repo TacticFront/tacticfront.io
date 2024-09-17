@@ -1,14 +1,14 @@
 import {PriorityQueue} from "@datastructures-js/priority-queue";
-import {Boat, BoatEvent, Cell, Game, Player, Tile, TileEvent} from "../../core/Game";
-import {PseudoRandom} from "../../core/PseudoRandom";
+import {Boat, BoatEvent, Cell, Game, Player, Tile, TileEvent} from "../../../core/Game";
+import {PseudoRandom} from "../../../core/PseudoRandom";
 import {Colord} from "colord";
-import {bfs, dist} from "../../core/Util";
-import {Theme} from "../../core/configuration/Config";
+import {bfs, dist} from "../../../core/Util";
+import {Theme} from "../../../core/configuration/Config";
 import {Layer} from "./Layer";
-import {TransformHandler} from "./TransformHandler";
-import {EventBus} from "../../core/EventBus";
+import {TransformHandler} from "../TransformHandler";
+import {EventBus} from "../../../core/EventBus";
 
-export class TerritoryRenderer implements Layer {
+export class TerritoryLayer implements Layer {
     private canvas: HTMLCanvasElement
     private context: CanvasRenderingContext2D
     private imageData: ImageData
