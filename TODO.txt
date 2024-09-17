@@ -109,13 +109,13 @@
 * Make boats more intuitive (larger area to click off coast) DONE 9/11/2024
 * FakeHumans retaliate when attacked DONE 9/11/2024
 
---- v3 Release DONE
 
 * Add discord link DONE 9/14/2024
 * front page mobile friendly DONE 9/15/2024
 * game mobile friendly DONE 9/16/2024
 * UI: basic win condition & popup DONE 9/16/2024
 * right click popup alliance option
+* make fake humans easier
 * click alliance sends alliance request
 * notification for alliance request
 * comfirm alliance

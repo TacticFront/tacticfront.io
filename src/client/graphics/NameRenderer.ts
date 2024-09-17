@@ -2,7 +2,9 @@ import {Cell, Game, Player, PlayerType} from "../../core/Game"
 import {PseudoRandom} from "../../core/PseudoRandom"
 import {calculateBoundingBox} from "../../core/Util"
 import {Theme} from "../../core/configuration/Config"
+import {Layer} from "./Layer"
 import {placeName} from "./NameBoxCalculator"
+import {TransformHandler} from "./TransformHandler"
 import {renderTroops} from "./Utils"
 
 class RenderInfo {
@@ -17,7 +19,7 @@ class RenderInfo {
     ) { }
 }
 
-export class NameRenderer {
+export class NameRenderer implements Layer {
 
     private lastChecked = 0
     private refreshRate = 1000
@@ -32,9 +34,12 @@ export class NameRenderer {
     constructor(private game: Game, private theme: Theme) {
 
     }
+    shouldTransform(): boolean {
+        return true
+    }
 
 
-    public initialize() {
+    public init() {
         this.canvas = document.createElement('canvas');
         this.context = this.canvas.getContext('2d');
 
@@ -45,6 +50,7 @@ export class NameRenderer {
         this.canvas.height = this.game.height();
     }
 
+    // TODO: remove tick, move this to render
     public tick() {
         const now = Date.now()
         if (now - this.lastChecked > this.refreshRate) {
@@ -74,11 +80,12 @@ export class NameRenderer {
         }
     }
 
-    public render(mainContex: CanvasRenderingContext2D, scale: number, uppperLeft: Cell, bottomRight: Cell) {
+    public render(mainContex: CanvasRenderingContext2D, transformHandler: TransformHandler) {
+        const [upperLeft, bottomRight] = transformHandler.screenBoundingRect()
         for (const render of this.renders) {
-            render.isVisible = this.isVisible(render, uppperLeft, bottomRight)
-            if (render.player.isAlive() && render.isVisible && render.fontSize * scale > 10) {
-                this.renderPlayerInfo(render, mainContex, scale, uppperLeft, bottomRight)
+            render.isVisible = this.isVisible(render, upperLeft, bottomRight)
+            if (render.player.isAlive() && render.isVisible && render.fontSize * transformHandler.scale > 10) {
+                this.renderPlayerInfo(render, mainContex, transformHandler.scale, upperLeft, bottomRight)
             }
         }
     }

@@ -1,14 +1,21 @@
 import {inherits} from "util"
 import {Game} from "../../core/Game";
 import {throws} from "assert";
+import {Layer} from "./Layer";
+import {TransformHandler} from "./TransformHandler";
 
-export class TerrainRenderer {
+export class TerrainRenderer implements Layer {
     private canvas: HTMLCanvasElement
     private context: CanvasRenderingContext2D
     private imageData: ImageData
 
 
     constructor(private game: Game) { }
+    shouldTransform(): boolean {
+        return true
+    }
+    tick() {
+    }
 
     init() {
         this.canvas = document.createElement('canvas');
@@ -34,7 +41,7 @@ export class TerrainRenderer {
         })
     }
 
-    draw(context: CanvasRenderingContext2D) {
+    render(context: CanvasRenderingContext2D, transformHandler: TransformHandler) {
         context.drawImage(
             this.canvas,
             -this.game.width() / 2,

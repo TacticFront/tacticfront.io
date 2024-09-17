@@ -4,8 +4,11 @@ import {PseudoRandom} from "../../core/PseudoRandom";
 import {Colord} from "colord";
 import {bfs, dist} from "../../core/Util";
 import {Theme} from "../../core/configuration/Config";
+import {Layer} from "./Layer";
+import {TransformHandler} from "./TransformHandler";
+import {EventBus} from "../../core/EventBus";
 
-export class TerritoryRenderer {
+export class TerritoryRenderer implements Layer {
     private canvas: HTMLCanvasElement
     private context: CanvasRenderingContext2D
     private imageData: ImageData
@@ -17,8 +20,15 @@ export class TerritoryRenderer {
     private boatToTrail = new Map<Boat, Set<Tile>>()
 
 
-    constructor(private game: Game) {
+    constructor(private game: Game, eventBus: EventBus) {
         this.theme = game.config().theme()
+        eventBus.on(TileEvent, e => this.tileUpdate(e))
+        eventBus.on(BoatEvent, e => this.boatEvent(e))
+    }
+    shouldTransform(): boolean {
+        return true
+    }
+    tick() {
     }
 
     init() {
@@ -40,7 +50,7 @@ export class TerritoryRenderer {
         })
     }
 
-    draw(context: CanvasRenderingContext2D) {
+    render(context: CanvasRenderingContext2D, transformHandler: TransformHandler) {
         this.renderTerritory()
         this.context.putImageData(this.imageData, 0, 0);
         context.drawImage(

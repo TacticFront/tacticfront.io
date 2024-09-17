@@ -3,7 +3,7 @@ import {Cell, MutableGame, PlayerEvent, PlayerID, MutablePlayer, TileEvent, Play
 import {createGame} from "../core/GameImpl";
 import {EventBus} from "../core/EventBus";
 import {Config} from "../core/configuration/Config";
-import {GameRenderer} from "./graphics/GameRenderer";
+import {createRenderer, GameRenderer} from "./graphics/GameRenderer";
 import {InputHandler, MouseUpEvent, ZoomEvent, DragEvent, MouseDownEvent} from "./InputHandler"
 import {ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema, ClientMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ServerSyncMessage, Turn} from "../core/Schemas";
 import {TerrainMap} from "../core/TerrainMapLoader";
@@ -16,8 +16,7 @@ import {WinCheckExecution} from "../core/execution/WinCheckExecution";
 export function createClientGame(name: string, clientID: ClientID, playerID: PlayerID, ip: string | null, gameID: GameID, config: Config, terrainMap: TerrainMap): ClientGame {
     let eventBus = new EventBus()
     let game = createGame(terrainMap, eventBus, config)
-    let terrainRenderer = new TerrainRenderer(game)
-    let gameRenderer = new GameRenderer(eventBus, game, clientID, terrainRenderer)
+    let gameRenderer = createRenderer(game, eventBus, clientID)
 
     return new ClientGame(
         name,
@@ -119,14 +118,9 @@ export class ClientGame {
     public start() {
         console.log('version 3')
         this.isActive = true
-        // TODO: make each class do this, or maybe have client intercept all requests?
-        //this.eventBus.on(TickEvent, (e) => this.tick(e))
-        this.eventBus.on(TileEvent, (e) => this.renderer.tileUpdate(e))
+
         this.eventBus.on(PlayerEvent, (e) => this.playerEvent(e))
-        this.eventBus.on(BoatEvent, (e) => this.renderer.boatEvent(e))
         this.eventBus.on(MouseUpEvent, (e) => this.inputEvent(e))
-        this.eventBus.on(ZoomEvent, (e) => this.renderer.onZoom(e))
-        this.eventBus.on(DragEvent, (e) => this.renderer.onMove(e))
 
         this.renderer.initialize()
         this.input.initialize()
@@ -179,14 +173,13 @@ export class ClientGame {
             console.log('setting name')
             this.myPlayer = event.player
         }
-        this.renderer.playerEvent(event)
     }
 
     private inputEvent(event: MouseUpEvent) {
         if (!this.isActive) {
             return
         }
-        const cell = this.renderer.screenToWorldCoordinates(event.x, event.y)
+        const cell = this.renderer.transformHandler.screenToWorldCoordinates(event.x, event.y)
         if (!this.gs.isOnMap(cell)) {
             return
         }

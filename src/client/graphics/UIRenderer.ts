@@ -5,20 +5,61 @@ import {Game, Player} from "../../core/Game";
 import {ClientID} from "../../core/Schemas";
 import {renderTroops} from "./Utils";
 import winModalHtml from '../WinModal.html';
+import {RightClickEvent} from "../InputHandler";
+import {Layer} from "./Layer";
+import {TransformHandler} from "./TransformHandler";
 
-export class UIRenderer {
+
+interface MenuOption {
+    label: string;
+    action: () => void;
+}
+
+export class UIRenderer implements Layer {
     private exitButton: HTMLButtonElement;
     private winModal: HTMLElement | null = null;
+
+    private customMenu = document.getElementById('customMenu');
 
 
     constructor(private eventBus: EventBus, private game: Game, private theme: Theme, private clientID: ClientID) {
 
     }
+    render(context: CanvasRenderingContext2D, transformHandler: TransformHandler) {
+    }
+
+    shouldTransform(): boolean {
+        return false
+    }
+
+    tick() {
+    }
 
     init() {
         this.createExitButton()
         this.createWinModal()
+        this.initRightClickMenu()
         this.eventBus.on(WinEvent, (e) => this.onWinEvent(e))
+        this.eventBus.on(RightClickEvent, (e) => this.onRightClick(e))
+    }
+
+    initRightClickMenu() {
+        if (!this.customMenu) {
+            console.error('Custom menu not found');
+            return;
+        }
+
+        document.addEventListener('click', () => {
+            this.customMenu!.style.display = 'none';
+        });
+
+        const menuItems = this.customMenu.querySelectorAll('li');
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                alert(`You clicked: ${item.textContent}`);
+                this.customMenu!.style.display = 'none';
+            });
+        });
     }
 
     createWinModal() {
@@ -124,9 +165,6 @@ export class UIRenderer {
         document.body.appendChild(this.exitButton);
     }
 
-    render(context: CanvasRenderingContext2D) {
-    }
-
 
     onWinEvent(event: WinEvent) {
         console.log(`${event.winner.name()} won the game!!}`)
@@ -163,6 +201,39 @@ export class UIRenderer {
     exitGame() {
         this.closeWinModal();
         window.location.reload();
+    }
+
+    private onRightClick(e: RightClickEvent) {
+        this.customMenu!.style.display = 'block';
+        this.customMenu!.style.left = `${e.x}px`;
+        this.customMenu!.style.top = `${e.y}px`;
+    }
+
+    private populateMenu(options: MenuOption[]) {
+        if (!this.customMenu) return;
+
+        // Clear existing menu items
+        this.customMenu.innerHTML = '';
+
+        // Create new menu items
+        const ul = document.createElement('ul');
+        options.forEach(option => {
+            const li = document.createElement('li');
+            li.textContent = option.label;
+            li.onclick = () => {
+                option.action();
+                this.hideMenu();
+            };
+            ul.appendChild(li);
+        });
+
+        this.customMenu.appendChild(ul);
+    }
+
+    private hideMenu() {
+        if (this.customMenu) {
+            this.customMenu.style.display = 'none';
+        }
     }
 
 }

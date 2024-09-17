@@ -15,6 +15,13 @@ export class MouseDownEvent implements GameEvent {
     ) { }
 }
 
+export class RightClickEvent implements GameEvent {
+    constructor(
+        public readonly x: number,
+        public readonly y: number,
+    ) { }
+}
+
 export class ZoomEvent implements GameEvent {
     constructor(
         public readonly x: number,
@@ -31,6 +38,8 @@ export class DragEvent implements GameEvent {
 }
 
 export class InputHandler {
+
+    private contextMenuActive = false
 
     private lastPointerX: number = 0;
     private lastPointerY: number = 0;
@@ -51,10 +60,23 @@ export class InputHandler {
         document.addEventListener("pointerup", (e) => this.onPointerUp(e));
         document.addEventListener("wheel", (e) => this.onScroll(e), {passive: false});
         document.addEventListener('pointermove', this.onPointerMove.bind(this));
+        document.addEventListener('contextmenu', (e: MouseEvent) => {
+            this.onRightClick(e)
+        });
+
         this.pointers.clear()
     }
 
     private onPointerDown(event: PointerEvent) {
+        if (this.contextMenuActive) {
+            this.contextMenuActive = false
+            return
+        }
+
+        if (event.button > 0) {
+            return
+        }
+
         this.pointerDown = true
         this.pointers.set(event.pointerId, event);
 
@@ -72,6 +94,9 @@ export class InputHandler {
     }
 
     onPointerUp(event: PointerEvent) {
+        if (event.button > 0) {
+            return
+        }
         this.pointerDown = false
         this.pointers.delete(event.pointerId);
         const dist = Math.abs(event.x - this.lastPointerDownX) + Math.abs(event.y - this.lastPointerDownY);
@@ -85,6 +110,10 @@ export class InputHandler {
     }
 
     private onPointerMove(event: PointerEvent) {
+        if (event.button > 0) {
+            return
+        }
+
 
         this.pointers.set(event.pointerId, event);
 
@@ -110,6 +139,12 @@ export class InputHandler {
                 this.lastPinchDistance = currentPinchDistance;
             }
         }
+    }
+
+    private onRightClick(event: MouseEvent) {
+        event.preventDefault()
+        this.contextMenuActive = true
+        this.eventBus.emit(new RightClickEvent(event.clientX, event.clientY))
     }
 
     private getPinchDistance(): number {

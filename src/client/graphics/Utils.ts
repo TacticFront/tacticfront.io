@@ -15,3 +15,17 @@ export function renderTroops(troops: number): string {
     }
     return troopsStr
 }
+
+export function createCanvas(): HTMLCanvasElement {
+    const canvas = document.createElement('canvas');
+
+    // Set canvas style to fill the screen
+    canvas.style.position = 'fixed';
+    canvas.style.left = '0';
+    canvas.style.top = '0';
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.touchAction = 'none';
+
+    return canvas
+}
