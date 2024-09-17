@@ -26,6 +26,21 @@ export class UIRenderer implements Layer {
 
     }
     render(context: CanvasRenderingContext2D, transformHandler: TransformHandler) {
+        if (!this.game.inSpawnPhase()) {
+            return
+        }
+
+        const barHeight = 15;
+        const barBackgroundWidth = transformHandler.width();
+
+        const ratio = this.game.ticks() / this.game.config().numSpawnPhaseTurns()
+
+        // Draw bar background
+        context.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        context.fillRect(0, 0, barBackgroundWidth, barHeight);
+
+        context.fillStyle = 'rgba(0, 128, 255, 0.7)';
+        context.fillRect(0, 0, barBackgroundWidth * ratio, barHeight);
     }
 
     shouldTransform(): boolean {

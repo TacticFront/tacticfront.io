@@ -12,6 +12,10 @@ export class TransformHandler {
         this.eventBus.on(DragEvent, (e) => this.onMove(e))
     }
 
+    width(): number {
+        return this.boundingRect.right
+    }
+
     handleTransform(context: CanvasRenderingContext2D) {
         // Disable image smoothing for pixelated effect
         if (this.scale > 3) {

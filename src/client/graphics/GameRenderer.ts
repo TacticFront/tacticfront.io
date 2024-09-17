@@ -78,28 +78,7 @@ export class GameRenderer {
 			}
 		})
 
-		this.renderSpawnBar()
-
 		requestAnimationFrame(() => this.renderGame());
-	}
-
-	// TODO: move to UIRenderer
-	renderSpawnBar() {
-		if (!this.game.inSpawnPhase()) {
-			return
-		}
-
-		const barHeight = 15;
-		const barBackgroundWidth = this.canvas.width;
-
-		const ratio = this.game.ticks() / this.game.config().numSpawnPhaseTurns()
-
-		// Draw bar background
-		this.context.fillStyle = 'rgba(0, 0, 0, 0.5)';
-		this.context.fillRect(0, 0, barBackgroundWidth, barHeight);
-
-		this.context.fillStyle = 'rgba(0, 128, 255, 0.7)';
-		this.context.fillRect(0, 0, barBackgroundWidth * ratio, barHeight);
 	}
 
 	tick() {
