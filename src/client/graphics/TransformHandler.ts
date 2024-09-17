@@ -7,13 +7,17 @@ export class TransformHandler {
     private offsetX: number = -350
     private offsetY: number = -200
 
-    constructor(private game: Game, private eventBus: EventBus, private boundingRect: DOMRect) {
+    constructor(private game: Game, private eventBus: EventBus, private canvas: HTMLCanvasElement) {
         this.eventBus.on(ZoomEvent, (e) => this.onZoom(e))
         this.eventBus.on(DragEvent, (e) => this.onMove(e))
     }
 
+    boundingRect(): DOMRect {
+        return this.canvas.getBoundingClientRect()
+    }
+
     width(): number {
-        return this.boundingRect.right
+        return this.boundingRect().width
     }
 
     handleTransform(context: CanvasRenderingContext2D) {
@@ -36,7 +40,7 @@ export class TransformHandler {
     }
 
     screenToWorldCoordinates(screenX: number, screenY: number): Cell {
-        const canvasRect = this.boundingRect;
+        const canvasRect = this.boundingRect();
         const canvasX = screenX - canvasRect.left;
         const canvasY = screenY - canvasRect.top;
 
@@ -78,7 +82,7 @@ export class TransformHandler {
         // Clamp the scale to prevent extreme zooming
         this.scale = Math.max(0.5, Math.min(20, this.scale));
 
-        const canvasRect = this.boundingRect
+        const canvasRect = this.boundingRect()
         const canvasX = event.x - canvasRect.left;
         const canvasY = event.y - canvasRect.top;
 

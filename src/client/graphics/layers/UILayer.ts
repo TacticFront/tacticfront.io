@@ -22,16 +22,16 @@ export class UILayer implements Layer {
     private customMenu = document.getElementById('customMenu');
 
 
-    constructor(private eventBus: EventBus, private game: Game, private theme: Theme, private clientID: ClientID) {
+    constructor(private eventBus: EventBus, private game: Game, private theme: Theme, private clientID: ClientID, private transformHandler: TransformHandler) {
 
     }
-    render(context: CanvasRenderingContext2D, transformHandler: TransformHandler) {
+    render(context: CanvasRenderingContext2D) {
         if (!this.game.inSpawnPhase()) {
             return
         }
 
         const barHeight = 15;
-        const barBackgroundWidth = transformHandler.width();
+        const barBackgroundWidth = this.transformHandler.width();
 
         const ratio = this.game.ticks() / this.game.config().numSpawnPhaseTurns()
 
@@ -219,9 +219,25 @@ export class UILayer implements Layer {
     }
 
     private onRightClick(e: RightClickEvent) {
+        const cell = this.transformHandler.screenToWorldCoordinates(e.x, e.y)
+        const tile = this.game.tile(cell)
+        if (!tile.hasOwner()) {
+            return
+        }
+        const owner = tile.owner() as Player
+        if (owner.clientID() == this.clientID) {
+            return
+        }
+
         this.customMenu!.style.display = 'block';
         this.customMenu!.style.left = `${e.x}px`;
         this.customMenu!.style.top = `${e.y}px`;
+        this.populateMenu([
+            {
+                label: "Request Alliance",
+                action: (): void => { },
+            }
+        ])
     }
 
     private populateMenu(options: MenuOption[]) {

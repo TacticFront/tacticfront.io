@@ -1,12 +1,9 @@
-import {Colord} from "colord";
-import {Cell, Game, PlayerEvent, Tile, TileEvent, Player, Execution, BoatEvent} from "../../core/Game";
-import {Theme} from "../../core/configuration/Config";
-import {DragEvent, ZoomEvent} from "../InputHandler";
+import {Game} from "../../core/Game";
 import {NameLayer} from "./layers/NameLayer";
 import {TerrainLayer} from "./layers/TerrainLayer";
 import {TerritoryLayer} from "./layers/TerritoryLayer";
 import {ClientID} from "../../core/Schemas";
-import {createCanvas, renderTroops} from "./Utils";
+import {createCanvas} from "./Utils";
 import {UILayer} from "./layers/UILayer";
 import {EventBus} from "../../core/EventBus";
 import {TransformHandler} from "./TransformHandler";
@@ -15,13 +12,13 @@ import {Layer} from "./layers/Layer";
 
 export function createRenderer(game: Game, eventBus: EventBus, clientID: ClientID): GameRenderer {
 	const canvas = createCanvas()
-	const transformHandler = new TransformHandler(game, eventBus, canvas.getBoundingClientRect())
+	const transformHandler = new TransformHandler(game, eventBus, canvas)
 
 	const layers: Layer[] = [
 		new TerrainLayer(game),
 		new TerritoryLayer(game, eventBus),
-		new NameLayer(game, game.config().theme()),
-		new UILayer(eventBus, game, game.config().theme(), clientID)
+		new NameLayer(game, game.config().theme(), transformHandler),
+		new UILayer(eventBus, game, game.config().theme(), clientID, transformHandler)
 	]
 
 	return new GameRenderer(game, eventBus, canvas, transformHandler, layers)
@@ -43,7 +40,7 @@ export class GameRenderer {
 		window.addEventListener('resize', () => this.resizeCanvas());
 		this.resizeCanvas();
 
-		this.transformHandler = new TransformHandler(this.game, this.eventBus, this.canvas.getBoundingClientRect())
+		this.transformHandler = new TransformHandler(this.game, this.eventBus, this.canvas)
 
 		requestAnimationFrame(() => this.renderGame());
 	}
@@ -66,7 +63,7 @@ export class GameRenderer {
 
 		this.layers.forEach(l => {
 			if (l.shouldTransform()) {
-				l.render(this.context, this.transformHandler)
+				l.render(this.context)
 			}
 		})
 
@@ -74,7 +71,7 @@ export class GameRenderer {
 
 		this.layers.forEach(l => {
 			if (!l.shouldTransform()) {
-				l.render(this.context, this.transformHandler)
+				l.render(this.context)
 			}
 		})
 

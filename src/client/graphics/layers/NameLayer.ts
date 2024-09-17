@@ -25,13 +25,10 @@ export class NameLayer implements Layer {
     private refreshRate = 1000
 
     private rand = new PseudoRandom(10)
-    private renderInfo: Map<Player, RenderInfo> = new Map()
-    private context: CanvasRenderingContext2D
-    private canvas: HTMLCanvasElement
     private renders: RenderInfo[] = []
     private seenPlayers: Set<Player> = new Set()
 
-    constructor(private game: Game, private theme: Theme) {
+    constructor(private game: Game, private theme: Theme, private transformHandler: TransformHandler) {
 
     }
     shouldTransform(): boolean {
@@ -40,14 +37,7 @@ export class NameLayer implements Layer {
 
 
     public init() {
-        this.canvas = document.createElement('canvas');
-        this.context = this.canvas.getContext('2d');
 
-        this.canvas.style.position = 'fixed';
-        this.canvas.style.left = '0';
-        this.canvas.style.top = '0';
-        this.canvas.width = this.game.width();
-        this.canvas.height = this.game.height();
     }
 
     // TODO: remove tick, move this to render
@@ -80,12 +70,12 @@ export class NameLayer implements Layer {
         }
     }
 
-    public render(mainContex: CanvasRenderingContext2D, transformHandler: TransformHandler) {
-        const [upperLeft, bottomRight] = transformHandler.screenBoundingRect()
+    public render(mainContex: CanvasRenderingContext2D) {
+        const [upperLeft, bottomRight] = this.transformHandler.screenBoundingRect()
         for (const render of this.renders) {
             render.isVisible = this.isVisible(render, upperLeft, bottomRight)
-            if (render.player.isAlive() && render.isVisible && render.fontSize * transformHandler.scale > 10) {
-                this.renderPlayerInfo(render, mainContex, transformHandler.scale, upperLeft, bottomRight)
+            if (render.player.isAlive() && render.isVisible && render.fontSize * this.transformHandler.scale > 10) {
+                this.renderPlayerInfo(render, mainContex, this.transformHandler.scale, upperLeft, bottomRight)
             }
         }
     }
