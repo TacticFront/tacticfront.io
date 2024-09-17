@@ -22,11 +22,8 @@ export class TransformHandler {
 
     handleTransform(context: CanvasRenderingContext2D) {
         // Disable image smoothing for pixelated effect
-        if (this.scale > 3) {
-            context.imageSmoothingEnabled = false;
-        } else {
-            context.imageSmoothingEnabled = true;
-        }
+        context.imageSmoothingEnabled = false;
+
 
         // Apply zoom and pan
         context.setTransform(
