@@ -64,7 +64,11 @@ export class BotExecution implements Execution {
 
         const toAttack = border[this.random.nextInt(0, border.length)]
         const owner = toAttack.owner()
+
         if (owner.isPlayer()) {
+            if (this.bot.alliedWith(owner)) {
+                return
+            }
             if (owner.type() == PlayerType.FakeHuman) {
                 if (!this.random.chance(2)) {
                     return

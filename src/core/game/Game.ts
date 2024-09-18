@@ -138,6 +138,7 @@ export interface Player {
     incomingAllianceRequests(): AllianceRequest[]
     outgoingAllianceRequests(): AllianceRequest[]
     alliances(): Alliance[]
+    alliedWith(other: Player): boolean
     toString(): string
 }
 

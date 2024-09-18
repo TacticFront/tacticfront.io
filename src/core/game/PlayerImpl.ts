@@ -120,6 +120,11 @@ export class PlayerImpl implements MutablePlayer {
         return this.gs.alliances_.filter(a => a.requestor() == this || a.recipient() == this)
     }
 
+    alliedWith(other: Player): boolean {
+        return this.alliances().find(a => a.recipient() == other || a.requestor() == other) != null
+    }
+
+
     hash(): number {
         return simpleHash(this.id()) * (this.troops() + this.numTilesOwned());
     }
