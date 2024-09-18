@@ -56,13 +56,14 @@ export interface MutableAllianceRequest extends AllianceRequest {
     reject(): void
 }
 
-export class Alliance {
-    constructor(
-        public readonly requestor: Player,
-        public readonly recepient: Player
-    ) { }
+export interface Alliance {
+    requestor(): Player
+    recipient(): Player
 }
 
+export interface MutableAlliance extends Alliance {
+
+}
 
 export class PlayerInfo {
     constructor(
@@ -134,6 +135,9 @@ export interface Player {
     numTilesOwned(): number
     tiles(): ReadonlySet<Tile>
     sharesBorderWith(other: Player | TerraNullius): boolean
+    incomingAllianceRequests(): AllianceRequest[]
+    outgoingAllianceRequests(): AllianceRequest[]
+    alliances(): Alliance[]
     toString(): string
 }
 
@@ -147,6 +151,9 @@ export interface MutablePlayer extends Player {
     executions(): Execution[]
     neighbors(): (MutablePlayer | TerraNullius)[]
     boats(): MutableBoat[]
+    incomingAllianceRequests(): MutableAllianceRequest[]
+    outgoingAllianceRequests(): MutableAllianceRequest[]
+    alliances(): MutableAlliance[]
     addBoat(troops: number, tile: Tile, target: Player | TerraNullius): MutableBoat
 }
 
@@ -178,7 +185,7 @@ export interface MutableGame extends Game {
     executions(): Execution[]
     removeInactiveExecutions(): void
     removeExecution(exec: Execution): void
-    allianceRequest(requestor: Player, recipient: Player): MutableAllianceRequest
+    createAllianceRequest(requestor: Player, recipient: Player): MutableAllianceRequest
 }
 
 export class TileEvent implements GameEvent {
@@ -191,4 +198,8 @@ export class PlayerEvent implements GameEvent {
 
 export class BoatEvent implements GameEvent {
     constructor(public readonly boat: Boat, public oldTile: Tile) { }
+}
+
+export class AllianceRequestReplyEvent implements GameEvent {
+    constructor(public readonly allianceRequest: AllianceRequest, public readonly accepted: boolean) { }
 }

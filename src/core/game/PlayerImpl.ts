@@ -1,4 +1,4 @@
-import {MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, MutableGame, Execution} from "./Game";
+import {MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, MutableGame, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance} from "./Game";
 import {ClientID} from "../Schemas";
 import {simpleHash} from "../Util";
 import {CellString, GameImpl} from "./GameImpl";
@@ -104,10 +104,22 @@ export class PlayerImpl implements MutablePlayer {
     info(): PlayerInfo {return this.playerInfo;}
     troops(): number {return this._troops;}
     isAlive(): boolean {return this._tiles.size > 0;}
-    gameState(): MutableGame {return this.gs;}
     executions(): Execution[] {
         return this.gs.executions().filter(exec => exec.owner().id() == this.id());
     }
+
+    incomingAllianceRequests(): MutableAllianceRequest[] {
+        return this.gs.allianceRequests.filter(ar => ar.recipient() == this)
+    }
+
+    outgoingAllianceRequests(): MutableAllianceRequest[] {
+        return this.gs.allianceRequests.filter(ar => ar.requestor() == this)
+    }
+
+    alliances(): MutableAlliance[] {
+        return this.gs.alliances_.filter(a => a.requestor() == this || a.recipient() == this)
+    }
+
     hash(): number {
         return simpleHash(this.id()) * (this.troops() + this.numTilesOwned());
     }

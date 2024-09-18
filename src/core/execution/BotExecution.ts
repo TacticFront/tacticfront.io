@@ -40,6 +40,10 @@ export class BotExecution implements Execution {
             return
         }
 
+        this.bot.incomingAllianceRequests().forEach(ar => {
+            ar.accept()
+        })
+
         if (this.neighborsTerraNullius) {
             for (const b of this.bot.borderTiles()) {
                 for (const n of b.neighbors()) {
@@ -66,11 +70,6 @@ export class BotExecution implements Execution {
                     return
                 }
             }
-            // if (owner.type() == PlayerType.Human) {
-            //     if (this.random.chance(2)) {
-            //         return
-            //     }
-            // }
         }
         this.sendAttack(owner)
     }

@@ -6,7 +6,6 @@ export class AllianceRequestExecution implements Execution {
     private requestor: Player;
     private recipient: Player
 
-
     constructor(private requestorID: PlayerID, private recipientID: PlayerID) { }
 
     init(mg: MutableGame, ticks: number): void {
@@ -16,8 +15,7 @@ export class AllianceRequestExecution implements Execution {
     }
 
     tick(ticks: number): void {
-        alert('recied request')
-
+        this.mg.createAllianceRequest(this.requestor, this.recipient)
         this.active = false
     }
 

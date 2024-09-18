@@ -4,7 +4,7 @@ import {GameImpl} from "./GameImpl";
 
 export class AllianceRequestImpl implements MutableAllianceRequest {
 
-    constructor(private requestor_, private recipient_, private game: GameImpl) { }
+    constructor(private requestor_, private recipient_, private tickCreated: number, private game: GameImpl) { }
 
     requestor(): Player {
         return this.requestor_;

@@ -7,6 +7,7 @@ import {PlayerImpl} from "./PlayerImpl";
 import {TerraNulliusImpl} from "./TerraNulliusImpl";
 import {TileImpl} from "./TileImpl";
 import {AllianceRequestImpl} from "./AllianceRequestImpl";
+import {AllianceImpl} from "./AllianceImpl";
 
 export function createGame(terrainMap: TerrainMap, eventBus: EventBus, config: Config): Game {
     return new GameImpl(terrainMap, eventBus, config)
@@ -28,7 +29,8 @@ export class GameImpl implements MutableGame {
     private _numLandTiles: number
     _terraNullius: TerraNulliusImpl
 
-    private allianceRequests: AllianceRequestImpl[] = []
+    allianceRequests: AllianceRequestImpl[] = []
+    alliances_: AllianceImpl[] = []
 
     constructor(terrainMap: TerrainMap, private eventBus: EventBus, private _config: Config) {
         this._terraNullius = new TerraNulliusImpl(this)
@@ -45,18 +47,22 @@ export class GameImpl implements MutableGame {
         }
     }
 
-    allianceRequest(requestor: Player, recipient: Player): MutableAllianceRequest {
-        const ar = new AllianceRequestImpl(requestor, recipient, this)
+    createAllianceRequest(requestor: Player, recipient: Player): MutableAllianceRequest {
+        const ar = new AllianceRequestImpl(requestor, recipient, this._ticks, this)
         this.allianceRequests.push(ar)
         return ar
     }
 
-    acceptAllianceRequest() {
-
+    acceptAllianceRequest(request: AllianceRequestImpl) {
+        this.allianceRequests = this.allianceRequests.filter(ar => ar != request)
+        const alliance = new AllianceImpl(request.requestor() as PlayerImpl, request.recipient() as PlayerImpl, this._ticks)
+        this.alliances_.push(alliance)
+        // TODO: Fire event.
     }
 
-    rejectAllianceRequest() {
-
+    rejectAllianceRequest(request: AllianceRequestImpl) {
+        this.allianceRequests = this.allianceRequests.filter(ar => ar != request)
+        // TODO: Fire event.
     }
 
     numLandTiles(): number {
