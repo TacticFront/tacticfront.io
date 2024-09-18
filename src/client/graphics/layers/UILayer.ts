@@ -1,7 +1,7 @@
 import {GameEnv, Theme} from "../../../core/configuration/Config";
 import {EventBus, GameEvent} from "../../../core/EventBus";
 import {WinEvent} from "../../../core/execution/WinCheckExecution";
-import {AllianceRequest, Game, Player} from "../../../core/game/Game";
+import {AllianceRequest, AllianceRequestReplyEvent, Game, Player} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
 import {renderTroops} from "../Utils";
 import winModalHtml from '../WinModal.html';
@@ -31,6 +31,7 @@ export class UILayer implements Layer {
     constructor(private eventBus: EventBus, private game: Game, private theme: Theme, private clientID: ClientID, private transformHandler: TransformHandler) {
 
     }
+
     render(context: CanvasRenderingContext2D) {
         if (!this.game.inSpawnPhase()) {
             return
@@ -62,6 +63,7 @@ export class UILayer implements Layer {
         this.initRightClickMenu()
         this.eventBus.on(WinEvent, (e) => this.onWinEvent(e))
         this.eventBus.on(RightClickEvent, (e) => this.onRightClick(e))
+        this.eventBus.on(AllianceRequestReplyEvent, (e) => this.onAllianceRequestReplyEvent(e))
     }
 
     initRightClickMenu() {
@@ -186,10 +188,20 @@ export class UILayer implements Layer {
         document.body.appendChild(this.exitButton);
     }
 
-
     onWinEvent(event: WinEvent) {
         console.log(`${event.winner.name()} won the game!!}`)
         this.showWinModal(event.winner)
+    }
+
+    onAllianceRequestReplyEvent(event: AllianceRequestReplyEvent) {
+        if (event.allianceRequest.requestor().clientID() == this.clientID) {
+            const recipient = event.allianceRequest.recipient().name()
+            if (event.accepted) {
+                alert(`${recipient} accepted your alliance request`)
+            } else {
+                alert(`${recipient} rejected your alliance request`)
+            }
+        }
     }
 
     showWinModal(winner: Player) {

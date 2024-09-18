@@ -1,7 +1,7 @@
 import {info} from "console";
 import {Config} from "../configuration/Config";
 import {EventBus} from "../EventBus";
-import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Boat, BoatEvent, PlayerType, MutableAllianceRequest} from "./Game";
+import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Boat, BoatEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent} from "./Game";
 import {TerrainMap} from "./TerrainMapLoader";
 import {PlayerImpl} from "./PlayerImpl";
 import {TerraNulliusImpl} from "./TerraNulliusImpl";
@@ -57,12 +57,12 @@ export class GameImpl implements MutableGame {
         this.allianceRequests = this.allianceRequests.filter(ar => ar != request)
         const alliance = new AllianceImpl(request.requestor() as PlayerImpl, request.recipient() as PlayerImpl, this._ticks)
         this.alliances_.push(alliance)
-        // TODO: Fire event.
+        this.eventBus.emit(new AllianceRequestReplyEvent(request, true))
     }
 
     rejectAllianceRequest(request: AllianceRequestImpl) {
         this.allianceRequests = this.allianceRequests.filter(ar => ar != request)
-        // TODO: Fire event.
+        this.eventBus.emit(new AllianceRequestReplyEvent(request, false))
     }
 
     numLandTiles(): number {

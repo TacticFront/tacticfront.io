@@ -15,10 +15,10 @@ export class AllianceRequestImpl implements MutableAllianceRequest {
     }
 
     accept(): void {
-        throw new Error("Method not implemented.");
+        this.game.acceptAllianceRequest(this)
     }
     reject(): void {
-        throw new Error("Method not implemented.");
+        this.game.rejectAllianceRequest(this)
     }
 
 }
