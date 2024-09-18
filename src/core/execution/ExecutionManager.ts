@@ -1,4 +1,4 @@
-import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerInfo, TerraNullius, Tile, PlayerType} from "../Game";
+import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerInfo, TerraNullius, Tile, PlayerType, Alliance} from "../Game";
 import {AttackIntent, BoatAttackIntentSchema, GameID, Intent, Turn} from "../Schemas";
 import {AttackExecution} from "./AttackExecution";
 import {SpawnExecution} from "./SpawnExecution";
@@ -9,6 +9,7 @@ import {UpdateNameExecution} from "./UpdateNameExecution";
 import {FakeHumanExecution} from "./FakeHumanExecution";
 import Usernames from '../../../resources/Usernames.txt'
 import {simpleHash} from "../Util";
+import {AllianceRequestExecution} from "./AllianceRequestExecution";
 
 
 
@@ -55,6 +56,8 @@ export class Executor {
                 intent.name,
                 intent.clientID
             )
+        } else if (intent.type == "allianceRequest") {
+            return new AllianceRequestExecution(intent.requestor, intent.recipient)
         } else {
             throw new Error(`intent type ${intent} not found`)
         }

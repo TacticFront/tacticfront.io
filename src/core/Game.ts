@@ -46,6 +46,24 @@ export interface Execution extends ExecutionView {
     owner(): MutablePlayer
 }
 
+export interface AllianceRequest {
+    requestor(): Player
+    recipient(): Player
+}
+
+export interface MutableAllianceRequest extends AllianceRequest {
+    accept(): void
+    reject(): void
+}
+
+export class Alliance {
+    constructor(
+        public readonly requestor: Player,
+        public readonly recepient: Player
+    ) { }
+}
+
+
 export class PlayerInfo {
     constructor(
         public readonly name: string,
@@ -159,9 +177,9 @@ export interface MutableGame extends Game {
     addPlayer(playerInfo: PlayerInfo, troops: number): MutablePlayer
     executions(): Execution[]
     removeInactiveExecutions(): void
-    removeExecution(exec: Execution)
+    removeExecution(exec: Execution): void
+    allianceRequest(requestor: Player, recipient: Player): MutableAllianceRequest
 }
-
 
 export class TileEvent implements GameEvent {
     constructor(public readonly tile: Tile) { }

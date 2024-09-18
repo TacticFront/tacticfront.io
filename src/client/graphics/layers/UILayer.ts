@@ -1,7 +1,7 @@
-import {Theme} from "../../../core/configuration/Config";
-import {EventBus} from "../../../core/EventBus";
+import {GameEnv, Theme} from "../../../core/configuration/Config";
+import {EventBus, GameEvent} from "../../../core/EventBus";
 import {WinEvent} from "../../../core/execution/WinCheckExecution";
-import {Game, Player} from "../../../core/Game";
+import {AllianceRequest, Game, Player} from "../../../core/Game";
 import {ClientID} from "../../../core/Schemas";
 import {renderTroops} from "../Utils";
 import winModalHtml from '../WinModal.html';
@@ -9,6 +9,12 @@ import {RightClickEvent} from "../../InputHandler";
 import {Layer} from "./Layer";
 import {TransformHandler} from "../TransformHandler";
 
+export class SendAllianceRequestEvent implements GameEvent {
+    constructor(
+        public readonly requestor: Player,
+        public readonly recipient: Player
+    ) { }
+}
 
 interface MenuOption {
     label: string;
@@ -228,6 +234,13 @@ export class UILayer implements Layer {
         if (owner.clientID() == this.clientID) {
             return
         }
+        // TODO: check if already allied with
+
+        const myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
+        if (!myPlayer) {
+            console.warn('my player not found')
+            return
+        }
 
         this.customMenu!.style.display = 'block';
         this.customMenu!.style.left = `${e.x}px`;
@@ -235,7 +248,11 @@ export class UILayer implements Layer {
         this.populateMenu([
             {
                 label: "Request Alliance",
-                action: (): void => { },
+                action: (): void => {
+                    this.eventBus.emit(
+                        new SendAllianceRequestEvent(myPlayer, owner)
+                    )
+                },
             }
         ])
     }

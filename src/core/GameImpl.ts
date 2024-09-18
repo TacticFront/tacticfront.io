@@ -1,7 +1,7 @@
 import {info} from "console";
 import {Config} from "./configuration/Config";
 import {EventBus} from "./EventBus";
-import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Boat, MutableBoat, BoatEvent, TerrainType, PlayerType} from "./Game";
+import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Boat, MutableBoat, BoatEvent, TerrainType, PlayerType, MutableAllianceRequest} from "./Game";
 import {ClientID} from "./Schemas";
 import {Terrain, TerrainMap} from "./TerrainMapLoader";
 import {simpleHash} from "./Util";
@@ -113,6 +113,27 @@ class TileImpl implements Tile {
         }
         return this._neighbors
     }
+}
+
+export class AllianceRequestImpl implements MutableAllianceRequest {
+
+    constructor(private requestor_, private recipient_, private game: GameImpl) { }
+
+    requestor(): Player {
+        return this.requestor_
+    }
+
+    recipient(): Player {
+        return this.recipient_
+    }
+
+    accept(): void {
+        throw new Error("Method not implemented.");
+    }
+    reject(): void {
+        throw new Error("Method not implemented.");
+    }
+
 }
 
 export class BoatImpl implements MutableBoat {
@@ -297,6 +318,8 @@ export class GameImpl implements MutableGame {
     private _numLandTiles: number
     _terraNullius: TerraNulliusImpl
 
+    private allianceRequests: AllianceRequestImpl[] = []
+
     constructor(terrainMap: TerrainMap, private eventBus: EventBus, private _config: Config) {
         this._terraNullius = new TerraNulliusImpl(this)
         this._width = terrainMap.width();
@@ -311,6 +334,21 @@ export class GameImpl implements MutableGame {
             }
         }
     }
+
+    allianceRequest(requestor: Player, recipient: Player): MutableAllianceRequest {
+        const ar = new AllianceRequestImpl(requestor, recipient, this)
+        this.allianceRequests.push(ar)
+        return ar
+    }
+
+    acceptAllianceRequest() {
+
+    }
+
+    rejectAllianceRequest() {
+
+    }
+
     numLandTiles(): number {
         return this._numLandTiles
     }

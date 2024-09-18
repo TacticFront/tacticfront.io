@@ -19,12 +19,12 @@ export const devConfig = new class extends DefaultConfig {
     }
 
     numBots(): number {
-        return 0
+        return 400
     }
 
 
     numFakeHumans(gameID: GameID): number {
-        return 0
+        return 10
     }
 
     // startTroops(playerInfo: PlayerInfo): number {
