@@ -1,5 +1,5 @@
 import {Colord, colord, random} from "colord";
-import {PlayerID, PlayerInfo, TerrainType, Tile} from "../Game";
+import {PlayerID, PlayerInfo, TerrainType, Tile} from "../game/Game";
 import {Theme} from "./Config";
 import {time} from "console";
 import {PseudoRandom} from "../PseudoRandom";

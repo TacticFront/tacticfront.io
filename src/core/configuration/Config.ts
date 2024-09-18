@@ -1,4 +1,4 @@
-import {Player, PlayerID, PlayerInfo, TerraNullius, Tile} from "../Game";
+import {Player, PlayerID, PlayerInfo, TerraNullius, Tile} from "../game/Game";
 import {Colord, colord} from "colord";
 import {devConfig} from "./DevConfig";
 import {defaultConfig} from "./DefaultConfig";

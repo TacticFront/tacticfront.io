@@ -1,5 +1,5 @@
 import {EventBus} from "../../core/EventBus"
-import {Cell, Game} from "../../core/Game";
+import {Cell, Game} from "../../core/game/Game";
 import {ZoomEvent, DragEvent} from "../InputHandler";
 
 export class TransformHandler {

@@ -1,6 +1,6 @@
 import {Config, getConfig} from "../core/configuration/Config";
 import {GameID, Lobby, ServerMessage, ServerMessageSchema} from "../core/Schemas";
-import {loadTerrainMap, TerrainMap} from "../core/TerrainMapLoader";
+import {loadTerrainMap, TerrainMap} from "../core/game/TerrainMapLoader";
 import {ClientGame, createClientGame} from "./ClientGame";
 import backgroundImage from '../../resources/images/TerrainMapFrontPage.png';
 import favicon from '../../resources/images/Favicon.png';

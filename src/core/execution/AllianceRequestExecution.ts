@@ -1,4 +1,4 @@
-import {AllianceRequest, Execution, MutableGame, MutablePlayer, Player, PlayerID} from "../Game";
+import {AllianceRequest, Execution, MutableGame, MutablePlayer, Player, PlayerID} from "../game/Game";
 
 export class AllianceRequestExecution implements Execution {
     private active = true
@@ -17,7 +17,7 @@ export class AllianceRequestExecution implements Execution {
 
     tick(ticks: number): void {
         alert('recied request')
-        
+
         this.active = false
     }
 

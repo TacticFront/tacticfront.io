@@ -1,4 +1,4 @@
-import {Cell, Game, Player, PlayerType} from "../../../core/Game"
+import {Cell, Game, Player, PlayerType} from "../../../core/game/Game"
 import {PseudoRandom} from "../../../core/PseudoRandom"
 import {calculateBoundingBox} from "../../../core/Util"
 import {Theme} from "../../../core/configuration/Config"

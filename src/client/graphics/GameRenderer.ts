@@ -1,4 +1,4 @@
-import {Game} from "../../core/Game";
+import {Game} from "../../core/game/Game";
 import {NameLayer} from "./layers/NameLayer";
 import {TerrainLayer} from "./layers/TerrainLayer";
 import {TerritoryLayer} from "./layers/TerritoryLayer";

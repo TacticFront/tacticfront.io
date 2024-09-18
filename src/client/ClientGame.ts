@@ -1,12 +1,12 @@
 import {Executor} from "../core/execution/ExecutionManager";
-import {Cell, MutableGame, PlayerEvent, PlayerID, MutablePlayer, TileEvent, Player, Game, BoatEvent, Tile, PlayerType} from "../core/Game";
-import {createGame} from "../core/GameImpl";
+import {Cell, MutableGame, PlayerEvent, PlayerID, MutablePlayer, TileEvent, Player, Game, BoatEvent, Tile, PlayerType} from "../core/game/Game";
+import {createGame} from "../core/game/GameImpl";
 import {EventBus} from "../core/EventBus";
 import {Config} from "../core/configuration/Config";
 import {createRenderer, GameRenderer} from "./graphics/GameRenderer";
 import {InputHandler, MouseUpEvent, ZoomEvent, DragEvent, MouseDownEvent} from "./InputHandler"
 import {ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema, ClientMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ServerSyncMessage, Turn} from "../core/Schemas";
-import {TerrainMap} from "../core/TerrainMapLoader";
+import {TerrainMap} from "../core/game/TerrainMapLoader";
 import {and, bfs, dist, manhattanDist} from "../core/Util";
 import {TerrainLayer} from "./graphics/layers/TerrainLayer";
 import {WinCheckExecution} from "../core/execution/WinCheckExecution";

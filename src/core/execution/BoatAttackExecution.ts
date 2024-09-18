@@ -1,5 +1,5 @@
 import {PriorityQueue} from "@datastructures-js/priority-queue";
-import {Boat, Cell, Execution, MutableBoat, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, Tile, TileEvent} from "../Game";
+import {Boat, Cell, Execution, MutableBoat, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, Tile, TileEvent} from "../game/Game";
 import {manhattanDist, manhattanDistWrapped} from "../Util";
 import {AttackExecution} from "./AttackExecution";
 import {Config} from "../configuration/Config";

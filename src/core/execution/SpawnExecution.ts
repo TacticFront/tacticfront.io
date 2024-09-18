@@ -1,4 +1,4 @@
-import {Cell, Execution, MutableGame, MutablePlayer, PlayerInfo, PlayerType} from "../Game"
+import {Cell, Execution, MutableGame, MutablePlayer, PlayerInfo, PlayerType} from "../game/Game"
 import {BotExecution} from "./BotExecution"
 import {PlayerExecution} from "./PlayerExecution"
 import {getSpawnCells} from "./Util"

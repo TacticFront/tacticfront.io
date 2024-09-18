@@ -1,5 +1,5 @@
 import {EventBus, GameEvent} from "../EventBus"
-import {Execution, MutableGame, MutablePlayer, Player, PlayerID} from "../Game"
+import {Execution, MutableGame, MutablePlayer, Player, PlayerID} from "../game/Game"
 
 export class WinEvent implements GameEvent {
     constructor(public readonly winner: Player) { }

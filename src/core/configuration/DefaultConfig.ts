@@ -1,4 +1,4 @@
-import {Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tile} from "../Game";
+import {Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tile} from "../game/Game";
 import {GameID} from "../Schemas";
 import {simpleHash, within} from "../Util";
 import {Config, Theme} from "./Config";

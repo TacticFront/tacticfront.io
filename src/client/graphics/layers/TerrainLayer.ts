@@ -1,5 +1,5 @@
 import {inherits} from "util"
-import {Game} from "../../../core/Game";
+import {Game} from "../../../core/game/Game";
 import {throws} from "assert";
 import {Layer} from "./Layer";
 import {TransformHandler} from "../TransformHandler";

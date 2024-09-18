@@ -1,4 +1,4 @@
-import {Game, Cell} from "../Game";
+import {Game, Cell} from "../game/Game";
 
 
 export function getSpawnCells(gs: Game, cell: Cell): Cell[] {

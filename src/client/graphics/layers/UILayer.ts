@@ -1,7 +1,7 @@
 import {GameEnv, Theme} from "../../../core/configuration/Config";
 import {EventBus, GameEvent} from "../../../core/EventBus";
 import {WinEvent} from "../../../core/execution/WinCheckExecution";
-import {AllianceRequest, Game, Player} from "../../../core/Game";
+import {AllianceRequest, Game, Player} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
 import {renderTroops} from "../Utils";
 import winModalHtml from '../WinModal.html';

@@ -1,4 +1,4 @@
-import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerInfo, TerraNullius, Tile, PlayerType, Alliance} from "../Game";
+import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerInfo, TerraNullius, Tile, PlayerType, Alliance} from "../game/Game";
 import {AttackIntent, BoatAttackIntentSchema, GameID, Intent, Turn} from "../Schemas";
 import {AttackExecution} from "./AttackExecution";
 import {SpawnExecution} from "./SpawnExecution";

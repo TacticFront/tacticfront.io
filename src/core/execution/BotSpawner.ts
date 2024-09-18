@@ -1,4 +1,4 @@
-import {Cell, Game, PlayerType, Tile, TileEvent} from "../Game";
+import {Cell, Game, PlayerType, Tile, TileEvent} from "../game/Game";
 import {PseudoRandom} from "../PseudoRandom";
 import {SpawnIntent} from "../Schemas";
 import {bfs, dist as dist, manhattanDist} from "../Util";

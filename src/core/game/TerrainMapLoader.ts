@@ -1,5 +1,5 @@
 import {Cell, TerrainType} from './Game';
-import binAsString from "!!binary-loader!../../resources/TopoWorldMap.bin";
+import binAsString from "!!binary-loader!../../../resources/TopoWorldMap.bin";
 
 export class TerrainMap {
     constructor(public readonly tiles: Terrain[][], public readonly numLandTiles: number) { }

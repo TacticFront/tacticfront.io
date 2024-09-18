@@ -1,7 +1,7 @@
 import {info} from "console"
-import {Config} from "./configuration/Config"
-import {GameEvent} from "./EventBus"
-import {ClientID, GameID} from "./Schemas"
+import {Config} from "../configuration/Config"
+import {GameEvent} from "../EventBus"
+import {ClientID, GameID} from "../Schemas"
 
 export type PlayerID = string
 

@@ -1,7 +1,7 @@
 import {Config} from "../configuration/Config"
-import {Execution, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, Tile} from "../Game"
+import {Execution, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, Tile} from "../game/Game"
 import {bfs, calculateBoundingBox, getMode, inscribed, simpleHash} from "../Util"
-import {GameImpl} from "../GameImpl"
+import {GameImpl} from "../game/GameImpl"
 
 export class PlayerExecution implements Execution {
 

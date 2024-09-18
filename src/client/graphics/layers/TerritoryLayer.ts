@@ -1,5 +1,5 @@
 import {PriorityQueue} from "@datastructures-js/priority-queue";
-import {Boat, BoatEvent, Cell, Game, Player, Tile, TileEvent} from "../../../core/Game";
+import {Boat, BoatEvent, Cell, Game, Player, Tile, TileEvent} from "../../../core/game/Game";
 import {PseudoRandom} from "../../../core/PseudoRandom";
 import {Colord} from "colord";
 import {bfs, dist} from "../../../core/Util";

@@ -1,4 +1,4 @@
-import {Cell, Execution, MutableGame, MutablePlayer, Player, PlayerID, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tile} from "../Game"
+import {Cell, Execution, MutableGame, MutablePlayer, Player, PlayerID, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tile} from "../game/Game"
 import {PseudoRandom} from "../PseudoRandom"
 import {and, bfs, dist, simpleHash} from "../Util";
 import {AttackExecution} from "./AttackExecution";

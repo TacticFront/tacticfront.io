@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {PlayerType} from './Game';
+import {PlayerType} from './game/Game';
 
 export type GameID = string
 export type ClientID = string

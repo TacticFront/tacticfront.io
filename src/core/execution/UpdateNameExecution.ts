@@ -1,4 +1,4 @@
-import {Execution, MutableGame, MutablePlayer, PlayerID} from "../Game"
+import {Execution, MutableGame, MutablePlayer, PlayerID} from "../game/Game"
 import {ClientID} from "../Schemas"
 
 export class UpdateNameExecution implements Execution {
