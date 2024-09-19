@@ -116,17 +116,18 @@
 * UI: basic win condition & popup DONE 9/16/2024
 * right click popup alliance option DONE 9/17/2024
 * BUG: can't ally same person twice DONE 9/18/2024
+* attack alliance create traitor flag DONE 9/18/2024
 * break alliance makes you a traitor DONE 9/18/2024
 * add traitor icon DONE 9/18/2024
-* make alliance icon
-* alert play when they become traitor
+* make alliance icon DONE 9/19/2024
+* bots attack traitors
+* create event box
 * make fake humans easier
 * click alliance sends alliance request
 * notification for alliance request
 * comfirm alliance
 * first place has crown
 * alliance has icon
-* attack alliance create traitor flag
 * BUG: FakeHuman don't be enemy if don't share border
 * BUG: when send boat only captures one pixel
 * store cookies

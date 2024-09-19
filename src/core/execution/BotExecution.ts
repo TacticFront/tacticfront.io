@@ -48,6 +48,14 @@ export class BotExecution implements Execution {
             }
         })
 
+        const traitors = this.bot.neighbors().filter(n => n.isPlayer() && n.isTraitor()) as Player[]
+        if (traitors.length > 0) {
+            if (this.random.chance(2)) {
+                this.sendAttack(this.random.randElement(traitors))
+            }
+            return
+        }
+
         if (this.neighborsTerraNullius) {
             for (const b of this.bot.borderTiles()) {
                 for (const n of b.neighbors()) {
