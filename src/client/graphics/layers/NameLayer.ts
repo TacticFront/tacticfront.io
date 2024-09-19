@@ -7,6 +7,8 @@ import {placeName} from "../NameBoxCalculator"
 import {TransformHandler} from "../TransformHandler"
 import {renderTroops} from "../Utils"
 import traitorIcon from '../../../../resources/images/TraitorIcon.png';
+import allianceIcon from '../../../../resources/images/AllianceIcon.png';
+import {ClientID} from "../../../core/Schemas"
 
 
 class RenderInfo {
@@ -30,17 +32,23 @@ export class NameLayer implements Layer {
     private renders: RenderInfo[] = []
     private seenPlayers: Set<Player> = new Set()
     private traitorIconImage: HTMLImageElement;
+    private allianceIconImage: HTMLImageElement;
+
+    private myPlayer: Player | null = null
 
 
-    constructor(private game: Game, private theme: Theme, private transformHandler: TransformHandler) {
+
+    constructor(private game: Game, private theme: Theme, private transformHandler: TransformHandler, private clientID: ClientID) {
         this.traitorIconImage = new Image();
         this.traitorIconImage.src = traitorIcon;
+
+        this.allianceIconImage = new Image()
+        this.allianceIconImage.src = allianceIcon
     }
 
     shouldTransform(): boolean {
         return true
     }
-
 
     public init() {
 
@@ -132,6 +140,17 @@ export class NameLayer implements Layer {
             );
         }
 
+        const myPlayer = this.getPlayer()
+        if (myPlayer != null && myPlayer.alliedWith(render.player)) {
+            context.drawImage(
+                this.allianceIconImage,
+                nameCenterX - iconSize / 2,
+                nameCenterY - iconSize / 2,
+                iconSize,
+                iconSize
+            );
+        }
+
         context.textRendering = "optimizeSpeed";
 
         context.font = `${render.fontSize}px ${this.theme.font()}`;
@@ -143,5 +162,13 @@ export class NameLayer implements Layer {
         context.font = `bold ${render.fontSize}px ${this.theme.font()}`;
 
         context.fillText(renderTroops(render.player.troops()), nameCenterX, nameCenterY + render.fontSize);
+    }
+
+    private getPlayer(): Player | null {
+        if(this.myPlayer != null) {
+            return this.myPlayer
+        }
+        this.myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
+        return this.myPlayer
     }
 }

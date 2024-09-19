@@ -17,7 +17,7 @@ export function createRenderer(game: Game, eventBus: EventBus, clientID: ClientI
 	const layers: Layer[] = [
 		new TerrainLayer(game),
 		new TerritoryLayer(game, eventBus),
-		new NameLayer(game, game.config().theme(), transformHandler),
+		new NameLayer(game, game.config().theme(), transformHandler, clientID),
 		new UILayer(eventBus, game, game.config().theme(), clientID, transformHandler)
 	]
 

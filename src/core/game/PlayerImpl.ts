@@ -124,6 +124,9 @@ export class PlayerImpl implements MutablePlayer {
     }
 
     alliedWith(other: Player): boolean {
+        if (other == this) {
+            return false
+        }
         return this.alliances().find(a => a.recipient() == other || a.requestor() == other) != null
     }
 
