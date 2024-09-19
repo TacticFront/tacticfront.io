@@ -52,8 +52,8 @@ export class BotExecution implements Execution {
         if (traitors.length > 0) {
             if (this.random.chance(2)) {
                 this.sendAttack(this.random.randElement(traitors))
+                return
             }
-            return
         }
 
         if (this.neighborsTerraNullius) {
