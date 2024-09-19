@@ -128,7 +128,6 @@ export interface Player {
     boats(): Boat[]
     ownsTile(cell: Cell): boolean
     isAlive(): boolean
-    executions(): ExecutionView[]
     borderTiles(): ReadonlySet<Tile>
     isPlayer(): this is Player
     neighbors(): (Player | TerraNullius)[]
@@ -140,6 +139,7 @@ export interface Player {
     alliances(): Alliance[]
     alliedWith(other: Player): boolean
     pendingAllianceRequestWith(other: Player): boolean
+    isTraitor(): boolean
     toString(): string
 }
 
@@ -156,6 +156,7 @@ export interface MutablePlayer extends Player {
     incomingAllianceRequests(): MutableAllianceRequest[]
     outgoingAllianceRequests(): MutableAllianceRequest[]
     alliances(): MutableAlliance[]
+    breakAllianceWith(other: Player): void
     addBoat(troops: number, tile: Tile, target: Player | TerraNullius): MutableBoat
 }
 
@@ -185,8 +186,7 @@ export interface MutableGame extends Game {
     players(): MutablePlayer[]
     addPlayer(playerInfo: PlayerInfo, troops: number): MutablePlayer
     executions(): Execution[]
-    removeInactiveExecutions(): void
-    removeExecution(exec: Execution): void
+    // todo move to player.
     createAllianceRequest(requestor: Player, recipient: Player): MutableAllianceRequest
 }
 

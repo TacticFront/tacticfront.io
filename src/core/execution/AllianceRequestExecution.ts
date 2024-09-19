@@ -15,7 +15,11 @@ export class AllianceRequestExecution implements Execution {
     }
 
     tick(ticks: number): void {
-        this.mg.createAllianceRequest(this.requestor, this.recipient)
+        if (this.requestor.alliedWith(this.recipient)) {
+            console.warn('already allied')
+        } else {
+            this.mg.createAllianceRequest(this.requestor, this.recipient)
+        }
         this.active = false
     }
 

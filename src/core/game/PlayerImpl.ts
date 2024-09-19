@@ -5,9 +5,12 @@ import {CellString, GameImpl} from "./GameImpl";
 import {BoatImpl} from "./BoatImpl";
 import {TileImpl} from "./TileImpl";
 import {TerraNulliusImpl} from "./TerraNulliusImpl";
+import {threadId} from "worker_threads";
 
 
 export class PlayerImpl implements MutablePlayer {
+    private isTraitor_ = false
+
     public _borderTiles: Set<Tile> = new Set();
 
     public _boats: BoatImpl[] = [];
@@ -130,6 +133,17 @@ export class PlayerImpl implements MutablePlayer {
 
     }
 
+    isTraitor(): boolean {
+        return this.isTraitor_
+    }
+
+    breakAllianceWith(other: Player): void {
+        if (!this.alliedWith(other)) {
+            throw new Error('cannot break alliance, already allied')
+        }
+        this.isTraitor_ = true
+        this.gs.breakAlliance(this, other)
+    }
 
     hash(): number {
         return simpleHash(this.id()) * (this.troops() + this.numTilesOwned());

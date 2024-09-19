@@ -115,7 +115,10 @@
 * game mobile friendly DONE 9/16/2024
 * UI: basic win condition & popup DONE 9/16/2024
 * right click popup alliance option DONE 9/17/2024
-* BUG: can't ally same person twice
+* BUG: can't ally same person twice DONE 9/18/2024
+* break alliance makes you a traitor
+* add traitor icon
+* alert play when they become traitor
 * make fake humans easier
 * click alliance sends alliance request
 * notification for alliance request

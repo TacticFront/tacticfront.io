@@ -1,10 +1,11 @@
 import {PriorityQueue} from "@datastructures-js/priority-queue";
-import {Cell, Execution, MutableGame, MutablePlayer, PlayerID, TerrainType, TerraNullius, Tile} from "../game/Game";
+import {Cell, Execution, MutableGame, MutablePlayer, Player, PlayerID, TerrainType, TerraNullius, Tile} from "../game/Game";
 import {PseudoRandom} from "../PseudoRandom";
 import {manhattanDist} from "../Util";
 import {Terrain} from "../game/TerrainMapLoader";
 
 export class AttackExecution implements Execution {
+    private breakAlliance = false
     private active: boolean = true;
     private toConquer: PriorityQueue<TileContainer> = new PriorityQueue<TileContainer>((a: TileContainer, b: TileContainer) => {
         if (a.priority == b.priority) {
@@ -83,6 +84,14 @@ export class AttackExecution implements Execution {
         } else {
             this.refreshToConquer()
         }
+
+        if (this.target.isPlayer()) {
+            if (this._owner.alliedWith(this.target)) {
+                // No updates should happen in init.
+                this.breakAlliance = true
+            }
+        }
+
     }
 
     private refreshToConquer() {
@@ -99,6 +108,11 @@ export class AttackExecution implements Execution {
         }
         if (ticks < this.mg.config().numSpawnPhaseTurns()) {
             return
+        }
+        if (this.breakAlliance) {
+            this.breakAlliance = false
+            alert('set player traitor')
+            this._owner.breakAllianceWith(this.target as Player)
         }
 
         let numTilesPerTick = this.mg.config().attackTilesPerTick(this._owner, this.target, this.border.size + this.random.nextInt(0, 5))

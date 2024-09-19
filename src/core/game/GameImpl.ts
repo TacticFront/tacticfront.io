@@ -316,4 +316,14 @@ export class GameImpl implements MutableGame {
         this.eventBus.emit(new BoatEvent(boat, oldTile))
     }
 
+    public breakAlliance(breaker: Player, other: Player) {
+        const breakerSet = new Set(breaker.alliances())
+        const alliances = other.alliances().filter(a => breakerSet.has(a))
+        if (alliances.length != 1) {
+            throw new Error('must have exactly one alliance')
+        }
+        this.alliances_ = this.alliances_.filter(a => a != alliances[0])
+        // TODO emit event.
+    }
+
 }
