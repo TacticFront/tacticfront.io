@@ -6,6 +6,8 @@ import {Layer} from "./Layer"
 import {placeName} from "../NameBoxCalculator"
 import {TransformHandler} from "../TransformHandler"
 import {renderTroops} from "../Utils"
+import traitorIcon from '../../../../resources/images/TraitorIcon.png';
+
 
 class RenderInfo {
     public isVisible = true
@@ -27,10 +29,14 @@ export class NameLayer implements Layer {
     private rand = new PseudoRandom(10)
     private renders: RenderInfo[] = []
     private seenPlayers: Set<Player> = new Set()
+    private traitorIconImage: HTMLImageElement;
+
 
     constructor(private game: Game, private theme: Theme, private transformHandler: TransformHandler) {
-
+        this.traitorIconImage = new Image();
+        this.traitorIconImage.src = traitorIcon;
     }
+
     shouldTransform(): boolean {
         return true
     }
@@ -111,6 +117,20 @@ export class NameLayer implements Layer {
     renderPlayerInfo(render: RenderInfo, context: CanvasRenderingContext2D, scale: number, uppperLeft: Cell, bottomRight: Cell) {
         const nameCenterX = Math.floor(render.location.x - this.game.width() / 2)
         const nameCenterY = Math.floor(render.location.y - this.game.height() / 2)
+
+        const iconSize = render.fontSize * 2; // Adjust size as needed
+        // const iconX = nameCenterX + render.fontSize * 2; // Position to the right of the name
+        // const iconY = nameCenterY - render.fontSize / 2;
+
+        if (render.player.isTraitor() && this.traitorIconImage.complete) {
+            context.drawImage(
+                this.traitorIconImage,
+                nameCenterX - iconSize / 2,
+                nameCenterY - iconSize / 2,
+                iconSize,
+                iconSize
+            );
+        }
 
         context.textRendering = "optimizeSpeed";
 

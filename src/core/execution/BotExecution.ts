@@ -41,7 +41,11 @@ export class BotExecution implements Execution {
         }
 
         this.bot.incomingAllianceRequests().forEach(ar => {
-            ar.accept()
+            if (ar.requestor().isTraitor()) {
+                ar.reject()
+            } else {
+                ar.accept()
+            }
         })
 
         if (this.neighborsTerraNullius) {

@@ -116,8 +116,9 @@
 * UI: basic win condition & popup DONE 9/16/2024
 * right click popup alliance option DONE 9/17/2024
 * BUG: can't ally same person twice DONE 9/18/2024
-* break alliance makes you a traitor
-* add traitor icon
+* break alliance makes you a traitor DONE 9/18/2024
+* add traitor icon DONE 9/18/2024
+* make alliance icon
 * alert play when they become traitor
 * make fake humans easier
 * click alliance sends alliance request
@@ -146,5 +147,5 @@
 * add offline mode
 * REFACTOR: give terranullius an ID, game.player() returns terranullius
 * REFACTOR: ocean is considered TerraNullius ?
-
+* Make icons svgs
 testing webhook

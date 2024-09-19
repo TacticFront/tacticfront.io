@@ -111,7 +111,6 @@ export class AttackExecution implements Execution {
         }
         if (this.breakAlliance) {
             this.breakAlliance = false
-            alert('set player traitor')
             this._owner.breakAllianceWith(this.target as Player)
         }
 
