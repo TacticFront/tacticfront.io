@@ -41,19 +41,19 @@ export class DefaultConfig implements Config {
         let speed = 0
         switch (tileToConquer.terrain()) {
             case TerrainType.Plains:
-                mag = 10
-                speed = 10
+                mag = 20
+                speed = 5
                 break
             case TerrainType.Highland:
-                mag = 20
-                speed = 20
+                mag = 40
+                speed = 10
                 break
             case TerrainType.Mountain:
-                mag = 40
-                speed = 40
+                mag = 60
+                speed = 20
                 break
         }
-        speed = mag
+        // speed = mag  
 
         if (attacker.isPlayer() && defender.isPlayer()) {
             if (attacker.type() == PlayerType.Bot && (defender.type() == PlayerType.FakeHuman || defender.type() == PlayerType.Human)) {
@@ -66,9 +66,9 @@ export class DefaultConfig implements Config {
 
         if (defender.isPlayer()) {
             return {
-                attackerTroopLoss: within(defender.troops() / attacker.troops() * mag, 1, 1000),
+                attackerTroopLoss: within(defender.troops() / attacker.troops(), .2, 5) * mag,
                 defenderTroopLoss: defender.troops() / defender.numTilesOwned(),
-                tilesPerTickUsed: within(defender.troops() / (attackTroops * 5), .2, 3) * speed
+                tilesPerTickUsed: within(defender.troops() / (attackTroops * 5), .2, 1.5) * speed
             }
         } else {
             return {
