@@ -253,6 +253,9 @@ export class UILayer implements Layer {
             console.warn('my player not found')
             return
         }
+        if (myPlayer.alliedWith(owner) || myPlayer.pendingAllianceRequestWith(owner)) {
+            return
+        }
 
         this.customMenu!.style.display = 'block';
         this.customMenu!.style.left = `${e.x}px`;

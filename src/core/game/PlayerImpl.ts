@@ -124,6 +124,12 @@ export class PlayerImpl implements MutablePlayer {
         return this.alliances().find(a => a.recipient() == other || a.requestor() == other) != null
     }
 
+    pendingAllianceRequestWith(other: Player): boolean {
+        return this.incomingAllianceRequests().find(ar => ar.requestor() == other) != null
+            || this.outgoingAllianceRequests().find(ar => ar.recipient() == other) != null
+
+    }
+
 
     hash(): number {
         return simpleHash(this.id()) * (this.troops() + this.numTilesOwned());

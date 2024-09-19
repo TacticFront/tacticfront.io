@@ -114,7 +114,7 @@
 * front page mobile friendly DONE 9/15/2024
 * game mobile friendly DONE 9/16/2024
 * UI: basic win condition & popup DONE 9/16/2024
-* right click popup alliance option
+* right click popup alliance option DONE 9/17/2024
 * BUG: can't ally same person twice
 * make fake humans easier
 * click alliance sends alliance request
