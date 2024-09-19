@@ -144,7 +144,9 @@ export class PlayerImpl implements MutablePlayer {
         if (!this.alliedWith(other)) {
             throw new Error('cannot break alliance, already allied')
         }
-        this.isTraitor_ = true
+        if (!other.isTraitor()) {
+            this.isTraitor_ = true
+        }
         this.gs.breakAlliance(this, other)
     }
 
