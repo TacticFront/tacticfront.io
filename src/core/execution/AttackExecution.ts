@@ -113,6 +113,12 @@ export class AttackExecution implements Execution {
             this.breakAlliance = false
             this._owner.breakAllianceWith(this.target as Player)
         }
+        if (this.target.isPlayer() && this._owner.alliedWith(this.target)) {
+            // In this case a new alliance was created AFTER the attack started.
+            this._owner.addTroops(this.troops)
+            this.active = false
+            return
+        }
 
         let numTilesPerTick = this.mg.config().attackTilesPerTick(this._owner, this.target, this.border.size + this.random.nextInt(0, 5))
         // console.log(`num tiles per tick: ${numTilesPerTick}`)
