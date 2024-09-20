@@ -11,8 +11,7 @@ import {Layer} from "./layers/Layer";
 import {EventsDisplay} from "./layers/EventsDisplay";
 
 
-export function createRenderer(game: Game, eventBus: EventBus, clientID: ClientID): GameRenderer {
-	const canvas = createCanvas()
+export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: EventBus, clientID: ClientID): GameRenderer {
 	const transformHandler = new TransformHandler(game, eventBus, canvas)
 
 	const layers: Layer[] = [

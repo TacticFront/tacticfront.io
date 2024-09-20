@@ -11,13 +11,15 @@ import {and, bfs, dist, manhattanDist} from "../core/Util";
 import {TerrainLayer} from "./graphics/layers/TerrainLayer";
 import {WinCheckExecution} from "../core/execution/WinCheckExecution";
 import {SendAllianceRequestUIEvent} from "./graphics/layers/UILayer";
+import {createCanvas} from "./graphics/Utils";
 
 
 
 export function createClientGame(name: string, clientID: ClientID, playerID: PlayerID, ip: string | null, gameID: GameID, config: Config, terrainMap: TerrainMap): ClientGame {
     let eventBus = new EventBus()
     let game = createGame(terrainMap, eventBus, config)
-    let gameRenderer = createRenderer(game, eventBus, clientID)
+    const canvas = createCanvas()
+    let gameRenderer = createRenderer(canvas, game, eventBus, clientID)
 
     return new ClientGame(
         name,
@@ -28,7 +30,7 @@ export function createClientGame(name: string, clientID: ClientID, playerID: Pla
         eventBus,
         game,
         gameRenderer,
-        new InputHandler(eventBus),
+        new InputHandler(canvas, eventBus),
         new Executor(game, gameID)
     )
 }

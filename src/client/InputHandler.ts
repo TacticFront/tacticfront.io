@@ -53,17 +53,16 @@ export class InputHandler {
 
     private pointerDown: boolean = false
 
-    constructor(private eventBus: EventBus) { }
+    constructor(private canvas: HTMLCanvasElement, private eventBus: EventBus) { }
 
     initialize() {
-        document.addEventListener("pointerdown", (e) => this.onPointerDown(e));
-        document.addEventListener("pointerup", (e) => this.onPointerUp(e));
-        document.addEventListener("wheel", (e) => this.onScroll(e), {passive: false});
-        document.addEventListener('pointermove', this.onPointerMove.bind(this));
-        document.addEventListener('contextmenu', (e: MouseEvent) => {
-            this.onRightClick(e)
+        this.canvas.addEventListener("pointerdown", (e) => this.onPointerDown(e));
+        this.canvas.addEventListener("pointerup", (e) => this.onPointerUp(e));
+        this.canvas.addEventListener("wheel", (e) => this.onScroll(e), {passive: false});
+        this.canvas.addEventListener('pointermove', this.onPointerMove.bind(this));
+        this.canvas.addEventListener('contextmenu', (e: MouseEvent) => {
+            this.onRightClick(e);
         });
-
         this.pointers.clear()
     }
 
