@@ -150,6 +150,10 @@ export class PlayerImpl implements MutablePlayer {
         this.gs.breakAlliance(this, other)
     }
 
+    createAllianceRequest(recipient: Player): MutableAllianceRequest {
+        return this.gs.createAllianceRequest(this, recipient)
+    }
+
     hash(): number {
         return simpleHash(this.id()) * (this.troops() + this.numTilesOwned());
     }

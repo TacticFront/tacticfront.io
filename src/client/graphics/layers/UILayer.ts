@@ -3,13 +3,11 @@ import {EventBus, GameEvent} from "../../../core/EventBus";
 import {WinEvent} from "../../../core/execution/WinCheckExecution";
 import {AllianceRequest, AllianceRequestReplyEvent, Game, Player} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
-import {renderTroops} from "../Utils";
-import winModalHtml from '../WinModal.html';
 import {RightClickEvent} from "../../InputHandler";
 import {Layer} from "./Layer";
 import {TransformHandler} from "../TransformHandler";
 
-export class SendAllianceRequestEvent implements GameEvent {
+export class SendAllianceRequestUIEvent implements GameEvent {
     constructor(
         public readonly requestor: Player,
         public readonly recipient: Player
@@ -28,7 +26,12 @@ export class UILayer implements Layer {
     private customMenu = document.getElementById('customMenu');
 
 
-    constructor(private eventBus: EventBus, private game: Game, private theme: Theme, private clientID: ClientID, private transformHandler: TransformHandler) {
+    constructor(
+        private eventBus: EventBus,
+         private game: Game, 
+         private clientID: ClientID,
+         private transformHandler: TransformHandler
+        ) {
 
     }
 
@@ -63,7 +66,6 @@ export class UILayer implements Layer {
         this.initRightClickMenu()
         this.eventBus.on(WinEvent, (e) => this.onWinEvent(e))
         this.eventBus.on(RightClickEvent, (e) => this.onRightClick(e))
-        this.eventBus.on(AllianceRequestReplyEvent, (e) => this.onAllianceRequestReplyEvent(e))
     }
 
     initRightClickMenu() {
@@ -193,17 +195,6 @@ export class UILayer implements Layer {
         this.showWinModal(event.winner)
     }
 
-    onAllianceRequestReplyEvent(event: AllianceRequestReplyEvent) {
-        if (event.allianceRequest.requestor().clientID() == this.clientID) {
-            const recipient = event.allianceRequest.recipient().name()
-            if (event.accepted) {
-                alert(`${recipient} accepted your alliance request`)
-            } else {
-                alert(`${recipient} rejected your alliance request`)
-            }
-        }
-    }
-
     showWinModal(winner: Player) {
         if (this.winModal) {
             const message = this.winModal.querySelector('#winMessage');
@@ -265,7 +256,7 @@ export class UILayer implements Layer {
                 label: "Request Alliance",
                 action: (): void => {
                     this.eventBus.emit(
-                        new SendAllianceRequestEvent(myPlayer, owner)
+                        new SendAllianceRequestUIEvent(myPlayer, owner)
                     )
                 },
             }

@@ -157,12 +157,14 @@ export interface MutablePlayer extends Player {
     outgoingAllianceRequests(): MutableAllianceRequest[]
     alliances(): MutableAlliance[]
     breakAllianceWith(other: Player): void
+    createAllianceRequest(recipient: Player): MutableAllianceRequest
     addBoat(troops: number, tile: Tile, target: Player | TerraNullius): MutableBoat
 }
 
 export interface Game {
     // Throws exception is player not found
     player(id: PlayerID): Player
+    playerByClientID(id: ClientID): Player | null
     hasPlayer(id: PlayerID): boolean
     players(): Player[]
     tile(cell: Cell): Tile
@@ -183,11 +185,10 @@ export interface Game {
 
 export interface MutableGame extends Game {
     player(id: PlayerID): MutablePlayer
+    playerByClientID(id: ClientID): MutablePlayer | null
     players(): MutablePlayer[]
     addPlayer(playerInfo: PlayerInfo, troops: number): MutablePlayer
     executions(): Execution[]
-    // todo move to player.
-    createAllianceRequest(requestor: Player, recipient: Player): MutableAllianceRequest
 }
 
 export class TileEvent implements GameEvent {
@@ -200,6 +201,10 @@ export class PlayerEvent implements GameEvent {
 
 export class BoatEvent implements GameEvent {
     constructor(public readonly boat: Boat, public oldTile: Tile) { }
+}
+
+export class AllianceRequestEvent implements GameEvent {
+    constructor(public readonly allianceRequest: AllianceRequest) { }
 }
 
 export class AllianceRequestReplyEvent implements GameEvent {

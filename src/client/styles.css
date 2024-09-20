@@ -232,3 +232,70 @@ h3 {
 #customMenu ul li:hover {
     background-color: #f1f1f1;
 }
+
+#table-container {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Events Table Styles */
+.events-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.events-table th,
+.events-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.0);
+    z-index: 1000;
+}
+
+.events-table th {
+    background-color: rgba(0, 0, 0, 0.0);
+    font-size: 1.2em;
+    text-transform: uppercase;
+}
+
+.events-table tr:hover {
+    background-color: rgba(255, 255, 255, 0.0);
+}
+
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    margin: 5px 10px 5px 0;
+    background-color: #4CAF50;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #45a049;
+}
+
+.btn-info {
+    background-color: #2196F3;
+}
+
+.btn-info:hover {
+    background-color: #0b7dda;
+}
+
+@media (max-width: 600px) {
+
+    .events-table th,
+    .events-table td {
+        padding: 10px;
+    }
+
+    .btn {
+        display: block;
+        margin: 5px 0;
+    }
+}

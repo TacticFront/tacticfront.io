@@ -6,13 +6,13 @@ export const devConfig = new class extends DefaultConfig {
         return 80
     }
     numSpawnPhaseTurns(): number {
-        return 40
+        return 80
     }
     gameCreationRate(): number {
-        return 2 * 1000
+        return 10 * 1000
     }
     lobbyLifetime(): number {
-        return 2 * 1000
+        return 10 * 1000
     }
     turnIntervalMs(): number {
         return 100

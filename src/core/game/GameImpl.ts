@@ -1,13 +1,14 @@
 import {info} from "console";
 import {Config} from "../configuration/Config";
 import {EventBus} from "../EventBus";
-import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Boat, BoatEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent} from "./Game";
+import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Boat, BoatEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent} from "./Game";
 import {TerrainMap} from "./TerrainMapLoader";
 import {PlayerImpl} from "./PlayerImpl";
 import {TerraNulliusImpl} from "./TerraNulliusImpl";
 import {TileImpl} from "./TileImpl";
 import {AllianceRequestImpl} from "./AllianceRequestImpl";
 import {AllianceImpl} from "./AllianceImpl";
+import {ClientID} from "../Schemas";
 
 export function createGame(terrainMap: TerrainMap, eventBus: EventBus, config: Config): Game {
     return new GameImpl(terrainMap, eventBus, config)
@@ -50,6 +51,7 @@ export class GameImpl implements MutableGame {
     createAllianceRequest(requestor: Player, recipient: Player): MutableAllianceRequest {
         const ar = new AllianceRequestImpl(requestor, recipient, this._ticks, this)
         this.allianceRequests.push(ar)
+        this.eventBus.emit(new AllianceRequestEvent(ar))
         return ar
     }
 
@@ -191,6 +193,16 @@ export class GameImpl implements MutableGame {
         }
         return this._players.get(id)
     }
+
+    playerByClientID(id: ClientID): MutablePlayer | null {
+        for (const [pID, player] of this._players) {
+            if (player.clientID() == id) {
+                return player
+            }
+        }
+        return null
+    }
+
 
     tile(cell: Cell): Tile {
         this.assertIsOnMap(cell)

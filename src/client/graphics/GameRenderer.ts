@@ -8,6 +8,7 @@ import {UILayer} from "./layers/UILayer";
 import {EventBus} from "../../core/EventBus";
 import {TransformHandler} from "./TransformHandler";
 import {Layer} from "./layers/Layer";
+import {EventsDisplay} from "./layers/EventsDisplay";
 
 
 export function createRenderer(game: Game, eventBus: EventBus, clientID: ClientID): GameRenderer {
@@ -18,7 +19,8 @@ export function createRenderer(game: Game, eventBus: EventBus, clientID: ClientI
 		new TerrainLayer(game),
 		new TerritoryLayer(game, eventBus),
 		new NameLayer(game, game.config().theme(), transformHandler, clientID),
-		new UILayer(eventBus, game, game.config().theme(), clientID, transformHandler)
+		new UILayer(eventBus, game, clientID, transformHandler),
+		new EventsDisplay(eventBus, game, clientID)
 	]
 
 	return new GameRenderer(game, eventBus, canvas, transformHandler, layers)

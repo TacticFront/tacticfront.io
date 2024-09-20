@@ -10,7 +10,7 @@ import {TerrainMap} from "../core/game/TerrainMapLoader";
 import {and, bfs, dist, manhattanDist} from "../core/Util";
 import {TerrainLayer} from "./graphics/layers/TerrainLayer";
 import {WinCheckExecution} from "../core/execution/WinCheckExecution";
-import {SendAllianceRequestEvent} from "./graphics/layers/UILayer";
+import {SendAllianceRequestUIEvent} from "./graphics/layers/UILayer";
 
 
 
@@ -122,7 +122,7 @@ export class ClientGame {
 
         this.eventBus.on(PlayerEvent, (e) => this.playerEvent(e))
         this.eventBus.on(MouseUpEvent, (e) => this.inputEvent(e))
-        this.eventBus.on(SendAllianceRequestEvent, (e) => this.onSendAllianceRequest(e))
+        this.eventBus.on(SendAllianceRequestUIEvent, (e) => this.onSendAllianceRequest(e))
 
         this.renderer.initialize()
         this.input.initialize()
@@ -271,7 +271,7 @@ export class ClientGame {
         }
     }
 
-    private onSendAllianceRequest(event: SendAllianceRequestEvent) {
+    private onSendAllianceRequest(event: SendAllianceRequestUIEvent) {
         this.sendIntent({
             type: "allianceRequest",
             clientID: this.id,
