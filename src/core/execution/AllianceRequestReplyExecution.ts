@@ -1,6 +1,6 @@
 import {AllianceRequest, Execution, MutableGame, MutablePlayer, Player, PlayerID} from "../game/Game";
 
-export class AllianceRequestExecutionReply implements Execution {
+export class AllianceRequestReplyExecution implements Execution {
     private active = true
     private mg: MutableGame = null
     private requestor: MutablePlayer;

@@ -1,8 +1,15 @@
 import {nullable} from "zod";
-import {EventBus} from "../../../core/EventBus";
-import {AllianceRequestEvent, AllianceRequestReplyEvent, Game} from "../../../core/game/Game";
+import {EventBus, GameEvent} from "../../../core/EventBus";
+import {AllianceRequest, AllianceRequestEvent, AllianceRequestReplyEvent, Game} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
 import {Layer} from "./Layer";
+
+export class AllianceRequestReplyUIEvent implements GameEvent {
+    constructor(
+        public readonly allianceRequest: AllianceRequest,
+        public readonly accepted: boolean,
+    ) { }
+}
 
 interface Event {
     description: string;
@@ -72,12 +79,12 @@ export class EventsDisplay implements Layer {
                 {
                     text: "Accept",
                     className: "btn",
-                    action: () => alert('accepted'),
+                    action: () => this.eventBus.emit(new AllianceRequestReplyUIEvent(event.allianceRequest, true)),
                 },
                 {
                     text: "Reject",
                     className: "btn btn-info",
-                    action: () => alert('rejected'),
+                    action: () => this.eventBus.emit(new AllianceRequestReplyUIEvent(event.allianceRequest, false)),
                 }
             ],
             highlight: true
