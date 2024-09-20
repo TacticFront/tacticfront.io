@@ -41,15 +41,15 @@ export class DefaultConfig implements Config {
         let speed = 0
         switch (tileToConquer.terrain()) {
             case TerrainType.Plains:
-                mag = 20
+                mag = 30
                 speed = 5
                 break
             case TerrainType.Highland:
-                mag = 40
+                mag = 60
                 speed = 10
                 break
             case TerrainType.Mountain:
-                mag = 60
+                mag = 90
                 speed = 20
                 break
         }
@@ -66,13 +66,13 @@ export class DefaultConfig implements Config {
 
         if (defender.isPlayer()) {
             return {
-                attackerTroopLoss: within(defender.troops() / attacker.troops(), .2, 5) * mag,
+                attackerTroopLoss: within(defender.troops() / attacker.troops(), .5, 2) * mag,
                 defenderTroopLoss: defender.troops() / defender.numTilesOwned(),
                 tilesPerTickUsed: within(defender.troops() / (attackTroops * 5), .2, 1.5) * speed
             }
         } else {
             return {
-                attackerTroopLoss: Math.max(10, mag / 1.5),
+                attackerTroopLoss: mag / 2,
                 defenderTroopLoss: 0,
                 tilesPerTickUsed: within(this.startTroops(attacker.info()) / (attackTroops * 5), .2, 3) * Math.max(10, speed / 1.5)
             }
