@@ -127,9 +127,9 @@
 * notification for alliance request DONE 9/20/2024
 * comfirm alliance DONE 9/20/2024
 * create event box DONE 9/20/2024
+* BUG: left click lost after right click DONE 9/20/2024
 * make fake humans easier
 * first place has crown
-* alliance has icon
 * BUG: FakeHuman don't be enemy if don't share border
 * BUG: when send boat only captures one pixel
 * store cookies

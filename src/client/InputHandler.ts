@@ -39,8 +39,6 @@ export class DragEvent implements GameEvent {
 
 export class InputHandler {
 
-    private contextMenuActive = false
-
     private lastPointerX: number = 0;
     private lastPointerY: number = 0;
 
@@ -67,10 +65,6 @@ export class InputHandler {
     }
 
     private onPointerDown(event: PointerEvent) {
-        if (this.contextMenuActive) {
-            this.contextMenuActive = false
-            return
-        }
 
         if (event.button > 0) {
             return
@@ -142,7 +136,6 @@ export class InputHandler {
 
     private onRightClick(event: MouseEvent) {
         event.preventDefault()
-        this.contextMenuActive = true
         this.eventBus.emit(new RightClickEvent(event.clientX, event.clientY))
     }
 
