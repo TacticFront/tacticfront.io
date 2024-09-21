@@ -1,7 +1,7 @@
 import {info} from "console";
 import {Config} from "../configuration/Config";
 import {EventBus} from "../EventBus";
-import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Boat, BoatEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent} from "./Game";
+import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Boat, BoatEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent, BrokeAllianceEvent} from "./Game";
 import {TerrainMap} from "./TerrainMapLoader";
 import {PlayerImpl} from "./PlayerImpl";
 import {TerraNulliusImpl} from "./TerraNulliusImpl";
@@ -335,7 +335,7 @@ export class GameImpl implements MutableGame {
             throw new Error('must have exactly one alliance')
         }
         this.alliances_ = this.alliances_.filter(a => a != alliances[0])
-        // TODO emit event.
+        this.eventBus.emit(new BrokeAllianceEvent(breaker, other))
     }
 
 }

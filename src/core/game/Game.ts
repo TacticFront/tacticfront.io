@@ -210,3 +210,7 @@ export class AllianceRequestEvent implements GameEvent {
 export class AllianceRequestReplyEvent implements GameEvent {
     constructor(public readonly allianceRequest: AllianceRequest, public readonly accepted: boolean) { }
 }
+
+export class BrokeAllianceEvent implements GameEvent {
+    constructor(public readonly traitor: Player, public readonly betrayed: Player) { }
+}

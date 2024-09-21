@@ -1,6 +1,6 @@
 import {nullable} from "zod";
 import {EventBus, GameEvent} from "../../../core/EventBus";
-import {AllianceRequest, AllianceRequestEvent, AllianceRequestReplyEvent, Game} from "../../../core/game/Game";
+import {AllianceRequest, AllianceRequestEvent, AllianceRequestReplyEvent, BrokeAllianceEvent as BrokenAllianceEvent, Game} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
 import {Layer} from "./Layer";
 
@@ -52,6 +52,7 @@ export class EventsDisplay implements Layer {
         this.eventBus.on(AllianceRequestEvent, a => this.onAllianceRequestEvent(a))
         this.eventBus.on(AllianceRequestReplyEvent, a => this.onAllianceRequestReplyEvent(a))
         this.eventBus.on(DisplayMessageEvent, e => this.onDisplayMessageEvent(e))
+        this.eventBus.on(BrokenAllianceEvent, e => this.onBrokenAllianceEvent(e))
         this.renderTable()
     }
 
@@ -145,6 +146,29 @@ export class EventsDisplay implements Layer {
             createdAt: this.game.ticks(),
         });
         this.renderTable()
+    }
+
+    onBrokenAllianceEvent(event: BrokenAllianceEvent) {
+        const myPlayer = this.game.playerByClientID(this.clientID)
+        if (myPlayer == null) {
+            return
+        }
+        if (event.traitor == myPlayer) {
+            this.addEvent({
+                description: `You broke your alliance with ${event.betrayed.name()}, making you a TRAITOR`,
+                type: MessageType.ERROR,
+                highlight: true,
+                createdAt: this.game.ticks(),
+            })
+        }
+        if (event.betrayed == myPlayer) {
+            this.addEvent({
+                description: `${event.traitor.name()}, broke their alliance with you`,
+                type: MessageType.ERROR,
+                highlight: true,
+                createdAt: this.game.ticks(),
+            })
+        }
     }
 
     addEvent(event: Event): void {
