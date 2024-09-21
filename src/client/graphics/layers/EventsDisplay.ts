@@ -20,6 +20,7 @@ interface Event {
     }[];
     highlight?: boolean;
     createdAt: number
+    onDelete?: () => void
 }
 
 export class EventsDisplay implements Layer {
@@ -48,6 +49,8 @@ export class EventsDisplay implements Layer {
         for (const event of this.events) {
             if (this.game.ticks() - event.createdAt < 100) {
                 remainingEvent.push(event)
+            } else if (event.onDelete != null) {
+                event.onDelete()
             }
         }
         this.events = remainingEvent
@@ -97,7 +100,8 @@ export class EventsDisplay implements Layer {
                 }
             ],
             highlight: true,
-            createdAt: this.game.ticks()
+            createdAt: this.game.ticks(),
+            onDelete: () => this.eventBus.emit(new AllianceRequestReplyUIEvent(event.allianceRequest, false))
         });
         this.renderTable()
     }

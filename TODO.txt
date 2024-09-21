@@ -129,6 +129,7 @@
 * create event box DONE 9/20/2024
 * BUG: left click lost after right click DONE 9/20/2024
 * eventbox events dissapear after timeout DONE 9/20/2024
+* auto reject alliance when event dissapears
 * first place has crown
 * make fake humans easier
 * BUG: FakeHuman don't be enemy if don't share border
