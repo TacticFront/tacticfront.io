@@ -133,9 +133,9 @@
 * first place has crown DONE 9/20/2024
 * can't attack ally DONE 9/20/2024
 * add updates to eventbox: boats (max count, too far) DONE 9/20/2024
+* fake humans handle alliances
 * make alliances expire
-* color code events
-* broken alliances 
+* make year clock
 * BUG: FakeHuman don't be enemy if don't share border
 * BUG: when send boat only captures one pixel
 * store cookies
@@ -143,7 +143,6 @@
 * UI: boats
 * UI: current attacks
 * UI: leader board
-* UI: event box
 * make random waves on ocean, dark spots
 * Load terrain dataImage in background
 * BUG: half encircle Antartica causes capture
