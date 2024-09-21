@@ -8,6 +8,7 @@ import {TransformHandler} from "../TransformHandler"
 import {renderTroops} from "../Utils"
 import traitorIcon from '../../../../resources/images/TraitorIcon.png';
 import allianceIcon from '../../../../resources/images/AllianceIcon.png';
+import crownIcon from '../../../../resources/images/CrownIcon.png';
 import {ClientID} from "../../../core/Schemas"
 
 
@@ -33,8 +34,12 @@ export class NameLayer implements Layer {
     private seenPlayers: Set<Player> = new Set()
     private traitorIconImage: HTMLImageElement;
     private allianceIconImage: HTMLImageElement;
+    private crownIconImage: HTMLImageElement;
+
 
     private myPlayer: Player | null = null
+
+    private firstPlace: Player | null = null
 
 
 
@@ -44,6 +49,9 @@ export class NameLayer implements Layer {
 
         this.allianceIconImage = new Image()
         this.allianceIconImage.src = allianceIcon
+
+        this.crownIconImage = new Image()
+        this.crownIconImage.src = crownIcon
     }
 
     shouldTransform(): boolean {
@@ -59,6 +67,12 @@ export class NameLayer implements Layer {
         const now = Date.now()
         if (now - this.lastChecked > this.refreshRate) {
             this.lastChecked = now
+
+            const sorted = this.game.players().sort((a, b) => b.numTilesOwned() - a.numTilesOwned())
+            if (sorted.length > 0) {
+                this.firstPlace = sorted[0]
+            }
+
             this.renders = this.renders.filter(r => r.player.isAlive())
             for (const player of this.game.players()) {
                 if (player.isAlive()) {
@@ -130,6 +144,17 @@ export class NameLayer implements Layer {
         // const iconX = nameCenterX + render.fontSize * 2; // Position to the right of the name
         // const iconY = nameCenterY - render.fontSize / 2;
 
+        if (render.player == this.firstPlace) {
+            context.drawImage(
+                this.crownIconImage,
+                nameCenterX - iconSize / 2,
+                nameCenterY - iconSize / 2,
+                iconSize,
+                iconSize
+            );
+        }
+
+
         if (render.player.isTraitor() && this.traitorIconImage.complete) {
             context.drawImage(
                 this.traitorIconImage,
@@ -165,7 +190,7 @@ export class NameLayer implements Layer {
     }
 
     private getPlayer(): Player | null {
-        if(this.myPlayer != null) {
+        if (this.myPlayer != null) {
             return this.myPlayer
         }
         this.myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
