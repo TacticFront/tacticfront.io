@@ -3,6 +3,8 @@ import {Boat, Cell, Execution, MutableBoat, MutableGame, MutablePlayer, Player, 
 import {manhattanDist, manhattanDistWrapped} from "../Util";
 import {AttackExecution} from "./AttackExecution";
 import {Config} from "../configuration/Config";
+import {EventBus} from "../EventBus";
+import {DisplayMessageEvent, MessageType} from "../../client/graphics/layers/EventsDisplay";
 
 export class BoatAttackExecution implements Execution {
 
@@ -49,7 +51,7 @@ export class BoatAttackExecution implements Execution {
         this.attacker = mg.player(this.attackerID)
 
         if (this.attacker.boats().length >= mg.config().boatMaxNumber()) {
-            console.log('too many boats')
+            mg.displayMessage(`No boats available, max ${mg.config().boatMaxNumber()}`, MessageType.WARN)
             this.active = false
             this.attacker.addTroops(this.troops)
             return
@@ -76,7 +78,7 @@ export class BoatAttackExecution implements Execution {
             return
         }
         if (manhattanDistWrapped(this.src.cell(), this.dst.cell(), mg.width()) > mg.config().boatMaxDistance()) {
-            console.log(`boat attack distance too large, dist ${manhattanDist(this.src.cell(), this.dst.cell())} max: ${mg.config().boatMaxDistance()}`)
+            mg.displayMessage(`Cannot send boat: destination is too far away`, MessageType.WARN)
             this.active = false
             return
         }

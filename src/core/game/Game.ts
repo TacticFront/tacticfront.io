@@ -2,6 +2,7 @@ import {info} from "console"
 import {Config} from "../configuration/Config"
 import {GameEvent} from "../EventBus"
 import {ClientID, GameID} from "../Schemas"
+import {DisplayMessageEvent, MessageType} from "../../client/graphics/layers/EventsDisplay"
 
 export type PlayerID = string
 
@@ -181,6 +182,7 @@ export interface Game {
     inSpawnPhase(): boolean
     addExecution(...exec: Execution[]): void
     config(): Config
+    displayMessage(message: string, type: MessageType): void
 }
 
 export interface MutableGame extends Game {

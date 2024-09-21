@@ -9,6 +9,7 @@ import {TileImpl} from "./TileImpl";
 import {AllianceRequestImpl} from "./AllianceRequestImpl";
 import {AllianceImpl} from "./AllianceImpl";
 import {ClientID} from "../Schemas";
+import {DisplayMessageEvent, MessageType} from "../../client/graphics/layers/EventsDisplay";
 
 export function createGame(terrainMap: TerrainMap, eventBus: EventBus, config: Config): Game {
     return new GameImpl(terrainMap, eventBus, config)
@@ -336,6 +337,10 @@ export class GameImpl implements MutableGame {
         }
         this.alliances_ = this.alliances_.filter(a => a != alliances[0])
         this.eventBus.emit(new BrokeAllianceEvent(breaker, other))
+    }
+
+    displayMessage(message: string, type: MessageType): void {
+        this.eventBus.emit(new DisplayMessageEvent(message, type))
     }
 
 }

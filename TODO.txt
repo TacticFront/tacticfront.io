@@ -131,10 +131,10 @@
 * eventbox events dissapear after timeout DONE 9/20/2024
 * auto reject alliance when event dissapears DONE 9/20/2024
 * first place has crown DONE 9/20/2024
-* can't attack ally
+* can't attack ally DONE 9/20/2024
+* add updates to eventbox: boats (max count, too far)
 * make alliances expire
 * color code events
-* add updates to eventbox: boats (max count, too far)
 * broken alliances 
 * BUG: FakeHuman don't be enemy if don't share border
 * BUG: when send boat only captures one pixel
