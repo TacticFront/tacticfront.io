@@ -167,7 +167,7 @@ export class ClientGame {
         }
         this.isProcessingTurn = true
         this.gs.addExecution(...this.executor.createExecs(this.turns[this.currTurn]))
-        this.gs.tick()
+        this.gs.executeNextTick()
         this.renderer.tick()
         this.currTurn++
         this.isProcessingTurn = false

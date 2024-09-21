@@ -19,6 +19,7 @@ interface Event {
         action: () => void
     }[];
     highlight?: boolean;
+    createdAt: number
 }
 
 export class EventsDisplay implements Layer {
@@ -43,6 +44,14 @@ export class EventsDisplay implements Layer {
     }
 
     tick() {
+        const remainingEvent: Event[] = []
+        for (const event of this.events) {
+            if (this.game.ticks() - event.createdAt < 100) {
+                remainingEvent.push(event)
+            }
+        }
+        this.events = remainingEvent
+        this.renderTable()
     }
 
     private createTableContainer() {
@@ -87,7 +96,8 @@ export class EventsDisplay implements Layer {
                     action: () => this.eventBus.emit(new AllianceRequestReplyUIEvent(event.allianceRequest, false)),
                 }
             ],
-            highlight: true
+            highlight: true,
+            createdAt: this.game.ticks()
         });
         this.renderTable()
     }
@@ -101,10 +111,10 @@ export class EventsDisplay implements Layer {
         if (event.allianceRequest.requestor() != myPlayer) {
             return
         }
-
         this.addEvent({
             description: `${event.allianceRequest.recipient().name()} ${event.accepted ? "accepted" : "rejected"} your alliance request`,
-            highlight: true
+            highlight: true,
+            createdAt: this.game.ticks(),
         });
         this.renderTable()
     }

@@ -85,7 +85,7 @@ export class GameImpl implements MutableGame {
         return this._ticks
     }
 
-    tick() {
+    executeNextTick() {
         this.execs.forEach(e => {
             if (e.isActive() && (!this.inSpawnPhase() || e.activeDuringSpawnPhase())) {
                 e.tick(this._ticks)

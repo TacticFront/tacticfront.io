@@ -176,7 +176,7 @@ export interface Game {
     forEachTile(fn: (tile: Tile) => void): void
     executions(): ExecutionView[]
     terraNullius(): TerraNullius
-    tick(): void
+    executeNextTick(): void
     ticks(): number
     inSpawnPhase(): boolean
     addExecution(...exec: Execution[]): void
