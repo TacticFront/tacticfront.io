@@ -9,8 +9,9 @@ import {UpdateNameExecution} from "./UpdateNameExecution";
 import {FakeHumanExecution} from "./FakeHumanExecution";
 import Usernames from '../../../resources/Usernames.txt'
 import {simpleHash} from "../Util";
-import {AllianceRequestExecution} from "./AllianceRequestExecution";
-import {AllianceRequestReplyExecution} from "./AllianceRequestReplyExecution";
+import {AllianceRequestExecution} from "./alliance/AllianceRequestExecution";
+import {AllianceRequestReplyExecution} from "./alliance/AllianceRequestReplyExecution";
+import {BreakAllianceExecution} from "./alliance/BreakAllianceExecution";
 
 
 
@@ -61,6 +62,8 @@ export class Executor {
             return new AllianceRequestExecution(intent.requestor, intent.recipient)
         } else if (intent.type == "allianceRequestReply") {
             return new AllianceRequestReplyExecution(intent.requestor, intent.recipient, intent.accept)
+        } else if (intent.type == "breakAlliance") {
+            return new BreakAllianceExecution(intent.requestor, intent.recipient)
         }
         else {
             throw new Error(`intent type ${intent} not found`)

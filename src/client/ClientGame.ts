@@ -10,7 +10,7 @@ import {TerrainMap} from "../core/game/TerrainMapLoader";
 import {and, bfs, dist, manhattanDist} from "../core/Util";
 import {TerrainLayer} from "./graphics/layers/TerrainLayer";
 import {WinCheckExecution} from "../core/execution/WinCheckExecution";
-import {SendAllianceRequestUIEvent} from "./graphics/layers/UILayer";
+import {SendAllianceRequestUIEvent, SendBreakAllianceUIEvent} from "./graphics/layers/UILayer";
 import {createCanvas} from "./graphics/Utils";
 import {AllianceRequestReplyUIEvent as SendAllianceRequestReplyUIEvent} from "./graphics/layers/EventsDisplay";
 
@@ -127,6 +127,7 @@ export class ClientGame {
         this.eventBus.on(MouseUpEvent, (e) => this.inputEvent(e))
         this.eventBus.on(SendAllianceRequestUIEvent, (e) => this.onSendAllianceRequest(e))
         this.eventBus.on(SendAllianceRequestReplyUIEvent, (e) => this.onAllianceRequestReplyUIEvent(e))
+        this.eventBus.on(SendBreakAllianceUIEvent, (e) => this.onBreakAllianceRequestUIEvent(e))
 
         this.renderer.initialize()
         this.input.initialize()
@@ -291,6 +292,15 @@ export class ClientGame {
             requestor: event.allianceRequest.requestor().id(),
             recipient: event.allianceRequest.recipient().id(),
             accept: event.accepted,
+        })
+    }
+
+    private onBreakAllianceRequestUIEvent(event: SendBreakAllianceUIEvent) {
+        this.sendIntent({
+            type: "breakAlliance",
+            clientID: this.id,
+            requestor: event.requestor.id(),
+            recipient: event.recipient.id(),
         })
     }
 

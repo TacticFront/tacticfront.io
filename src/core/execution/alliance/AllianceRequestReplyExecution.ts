@@ -1,4 +1,4 @@
-import {AllianceRequest, Execution, MutableGame, MutablePlayer, Player, PlayerID} from "../game/Game";
+import {AllianceRequest, Execution, MutableGame, MutablePlayer, Player, PlayerID} from "../../game/Game";
 
 export class AllianceRequestReplyExecution implements Execution {
     private active = true

@@ -4,7 +4,13 @@ import {PlayerType} from './game/Game';
 export type GameID = string
 export type ClientID = string
 
-export type Intent = SpawnIntent | AttackIntent | BoatAttackIntent | UpdateNameIntent | AllianceRequestIntent | AllianceRequestReplyIntent
+export type Intent = SpawnIntent
+    | AttackIntent
+    | BoatAttackIntent
+    | UpdateNameIntent
+    | AllianceRequestIntent
+    | AllianceRequestReplyIntent
+    | BreakAllianceIntent
 
 export type AttackIntent = z.infer<typeof AttackIntentSchema>
 export type SpawnIntent = z.infer<typeof SpawnIntentSchema>
@@ -12,6 +18,7 @@ export type BoatAttackIntent = z.infer<typeof BoatAttackIntentSchema>
 export type UpdateNameIntent = z.infer<typeof UpdateNameIntentSchema>
 export type AllianceRequestIntent = z.infer<typeof AllianceRequestIntentSchema>
 export type AllianceRequestReplyIntent = z.infer<typeof AllianceRequestReplyIntentSchema>
+export type BreakAllianceIntent = z.infer<typeof BreakAllianceIntentSchema>
 
 
 export type Turn = z.infer<typeof TurnSchema>
@@ -91,13 +98,20 @@ export const AllianceRequestReplyIntentSchema = BaseIntentSchema.extend({
     accept: z.boolean(),
 })
 
+export const BreakAllianceIntentSchema = BaseIntentSchema.extend({
+    type: z.literal('breakAlliance'),
+    requestor: z.string(), // The one who made the original alliance request
+    recipient: z.string(),
+})
+
 const IntentSchema = z.union([
     AttackIntentSchema,
     SpawnIntentSchema,
     BoatAttackIntentSchema,
     UpdateNameIntentSchema,
     AllianceRequestIntentSchema,
-    AllianceRequestReplyIntentSchema
+    AllianceRequestReplyIntentSchema,
+    BreakAllianceIntentSchema
 ]);
 
 const TurnSchema = z.object({

@@ -14,6 +14,14 @@ export class SendAllianceRequestUIEvent implements GameEvent {
     ) { }
 }
 
+
+export class SendBreakAllianceUIEvent implements GameEvent {
+    constructor(
+        public readonly requestor: Player,
+        public readonly recipient: Player
+    ) { }
+}
+
 interface MenuOption {
     label: string;
     action: () => void;
@@ -236,34 +244,48 @@ export class UILayer implements Layer {
         if (!tile.hasOwner()) {
             return
         }
+        const options: MenuOption[] = []
         const owner = tile.owner() as Player
         if (owner.clientID() == this.clientID) {
             return
         }
-        // TODO: check if already allied with
-
         const myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
         if (!myPlayer) {
             console.warn('my player not found')
             return
         }
-        if (myPlayer.alliedWith(owner) || myPlayer.pendingAllianceRequestWith(owner)) {
+
+        if (myPlayer.pendingAllianceRequestWith(owner)) {
             return
         }
 
-        this.customMenu!.style.display = 'block';
-        this.customMenu!.style.left = `${e.x}px`;
-        this.customMenu!.style.top = `${e.y}px`;
-        this.populateMenu([
-            {
+        if (myPlayer.alliedWith(owner)) {
+            options.push({
+                label: "Break Alliance",
+                action: (): void => {
+                    this.eventBus.emit(
+                        new SendBreakAllianceUIEvent(myPlayer, owner)
+                    )
+                },
+            })
+        } else {
+            options.push({
                 label: "Request Alliance",
                 action: (): void => {
                     this.eventBus.emit(
                         new SendAllianceRequestUIEvent(myPlayer, owner)
                     )
                 },
-            }
-        ])
+            })
+        }
+
+        this.customMenu!.style.display = 'block';
+        this.customMenu!.style.left = `${e.x}px`;
+        this.customMenu!.style.top = `${e.y}px`;
+
+
+
+        this.populateMenu(options)
     }
 
     private populateMenu(options: MenuOption[]) {
