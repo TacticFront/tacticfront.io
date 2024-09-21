@@ -1,6 +1,6 @@
 import {nullable} from "zod";
 import {EventBus, GameEvent} from "../../../core/EventBus";
-import {AllianceRequest, AllianceRequestEvent, AllianceRequestReplyEvent, BrokeAllianceEvent as BrokenAllianceEvent, Game, PlayerID} from "../../../core/game/Game";
+import {AllianceRequest, AllianceRequestEvent, AllianceRequestReplyEvent, BrokeAllianceEvent, Game, PlayerID} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
 import {Layer} from "./Layer";
 
@@ -56,7 +56,7 @@ export class EventsDisplay implements Layer {
         this.eventBus.on(AllianceRequestEvent, a => this.onAllianceRequestEvent(a))
         this.eventBus.on(AllianceRequestReplyEvent, a => this.onAllianceRequestReplyEvent(a))
         this.eventBus.on(DisplayMessageEvent, e => this.onDisplayMessageEvent(e))
-        this.eventBus.on(BrokenAllianceEvent, e => this.onBrokenAllianceEvent(e))
+        this.eventBus.on(BrokeAllianceEvent, e => this.onBrokeAllianceEvent(e))
         this.renderTable()
     }
 
@@ -164,7 +164,7 @@ export class EventsDisplay implements Layer {
         this.renderTable()
     }
 
-    onBrokenAllianceEvent(event: BrokenAllianceEvent) {
+    onBrokeAllianceEvent(event: BrokeAllianceEvent) {
         const myPlayer = this.game.playerByClientID(this.clientID)
         if (myPlayer == null) {
             return

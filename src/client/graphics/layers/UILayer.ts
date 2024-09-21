@@ -6,6 +6,7 @@ import {ClientID} from "../../../core/Schemas";
 import {RightClickEvent} from "../../InputHandler";
 import {Layer} from "./Layer";
 import {TransformHandler} from "../TransformHandler";
+import {MessageType} from "./EventsDisplay";
 
 export class SendAllianceRequestUIEvent implements GameEvent {
     constructor(
@@ -275,6 +276,7 @@ export class UILayer implements Layer {
                     this.eventBus.emit(
                         new SendAllianceRequestUIEvent(myPlayer, owner)
                     )
+                    this.game.displayMessage(`sending alliance request to ${owner.name()}`, MessageType.INFO, myPlayer.id())
                 },
             })
         }
