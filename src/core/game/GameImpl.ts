@@ -339,8 +339,8 @@ export class GameImpl implements MutableGame {
         this.eventBus.emit(new BrokeAllianceEvent(breaker, other))
     }
 
-    displayMessage(message: string, type: MessageType): void {
-        this.eventBus.emit(new DisplayMessageEvent(message, type))
+    displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void {
+        this.eventBus.emit(new DisplayMessageEvent(message, type, playerID))
     }
 
 }
