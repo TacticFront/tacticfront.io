@@ -90,7 +90,7 @@ class Client {
             timerElement.textContent = `Starts in: ${timeRemaining}s`;
         }
 
-        if (playerCountElement) playerCountElement.textContent = `Players: ${lobby.numClients + this.numFakeHumans(lobby)}`;
+        if (playerCountElement) playerCountElement.textContent = `Players: ${lobby.numClients}`;
 
         if (lobbies.length > 1) {
             const nextLobby = lobbies[1]
