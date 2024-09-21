@@ -29,13 +29,13 @@ interface Event {
         className: string
         action: () => void
     }[];
+    type: MessageType;
     highlight?: boolean;
     createdAt: number
     onDelete?: () => void
 }
 
 export class EventsDisplay implements Layer {
-    private container: HTMLElement;
     private events: Event[];
     private tableContainer: HTMLDivElement;
 
@@ -44,7 +44,6 @@ export class EventsDisplay implements Layer {
         const element = document.getElementById("app");
         element.style.zIndex = "1000"
         if (!element) throw new Error(`Container element with id app not found`);
-        this.container = element;
         this.events = [];
         this.createTableContainer()
     }
@@ -92,6 +91,7 @@ export class EventsDisplay implements Layer {
             description: event.message,
             createdAt: this.game.ticks(),
             highlight: true,
+            type: event.type,
         })
         this.renderTable()
     }
@@ -121,6 +121,7 @@ export class EventsDisplay implements Layer {
                 }
             ],
             highlight: true,
+            type: MessageType.INFO,
             createdAt: this.game.ticks(),
             onDelete: () => this.eventBus.emit(new AllianceRequestReplyUIEvent(event.allianceRequest, false))
         });
@@ -139,6 +140,7 @@ export class EventsDisplay implements Layer {
         }
         this.addEvent({
             description: `${event.allianceRequest.recipient().name()} ${event.accepted ? "accepted" : "rejected"} your alliance request`,
+            type: event.accepted ? MessageType.SUCCESS : MessageType.ERROR,
             highlight: true,
             createdAt: this.game.ticks(),
         });
@@ -161,27 +163,45 @@ export class EventsDisplay implements Layer {
 
     renderTable(): void {
         let tableHtml = `
-            <table class="events-table">
-                <tbody>
-        `;
+        <table class="events-table">
+            <tbody>
+    `;
 
         this.events.forEach((event, eventIndex) => {
+            let textColor;
+            switch (event.type) {
+                case MessageType.SUCCESS:
+                    textColor = '#66FF66';  // Lighter, brighter green
+                    break;
+                case MessageType.INFO:
+                    textColor = 'white';
+                    break;
+                case MessageType.WARN:
+                    textColor = 'orange';
+                    break;
+                case MessageType.ERROR:
+                    textColor = 'red';
+                    break;
+                default:
+                    textColor = 'white';
+            }
+
             tableHtml += `
-                <tr${event.highlight ? ' style="background-color: rgba(255, 255, 0, 0.1);"' : ''}>
-                    <td>
-                        ${event.description}
-                        ${event.buttons ? '<br>' + event.buttons.map((btn, btnIndex) =>
+            <tr${event.highlight ? ' style="background-color: rgba(255, 255, 0, 0.1);"' : ''}>
+                <td style="color: ${textColor};">
+                    ${event.description}
+                    ${event.buttons ? '<br>' + event.buttons.map((btn, btnIndex) =>
                 `<button class="${btn.className}" data-event-index="${eventIndex}" data-button-index="${btnIndex}">${btn.text}</button>`
             ).join('') : ''}
-                    </td>
-                </tr>
-            `;
+                </td>
+            </tr>
+        `;
         });
 
         tableHtml += `
-                </tbody>
-            </table>
-        `;
+            </tbody>
+        </table>
+    `;
 
         this.tableContainer.innerHTML = tableHtml;
 
@@ -199,7 +219,6 @@ export class EventsDisplay implements Layer {
                     const buttonAction = event.buttons?.[buttonIndex]?.action;
                     if (buttonAction) {
                         buttonAction();
-                        // Optionally, you might want to remove the event after the action is performed
                         this.removeEvent(eventIndex);
                         this.renderTable(); // Re-render the table if you remove the event
                     }
