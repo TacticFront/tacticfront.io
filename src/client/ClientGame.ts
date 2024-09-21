@@ -12,7 +12,7 @@ import {TerrainLayer} from "./graphics/layers/TerrainLayer";
 import {WinCheckExecution} from "../core/execution/WinCheckExecution";
 import {SendAllianceRequestUIEvent, SendBreakAllianceUIEvent} from "./graphics/layers/UILayer";
 import {createCanvas} from "./graphics/Utils";
-import {AllianceRequestReplyUIEvent as SendAllianceRequestReplyUIEvent} from "./graphics/layers/EventsDisplay";
+import {DisplayMessageEvent, MessageType, AllianceRequestReplyUIEvent as SendAllianceRequestReplyUIEvent} from "./graphics/layers/EventsDisplay";
 
 
 
@@ -206,6 +206,10 @@ export class ClientGame {
         const targetID = owner.isPlayer() ? owner.id() : null;
 
         if (tile.owner() == this.myPlayer) {
+            return
+        }
+        if (tile.owner().isPlayer() && this.myPlayer.alliedWith(tile.owner() as Player)) {
+            this.eventBus.emit(new DisplayMessageEvent("Cannot attack ally", MessageType.WARN))
             return
         }
 

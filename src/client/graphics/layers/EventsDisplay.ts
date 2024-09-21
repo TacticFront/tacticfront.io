@@ -11,6 +11,17 @@ export class AllianceRequestReplyUIEvent implements GameEvent {
     ) { }
 }
 
+export enum MessageType {
+    SUCCESS,
+    INFO,
+    WARN,
+    ERROR,
+}
+
+export class DisplayMessageEvent implements GameEvent {
+    constructor(public readonly message: string, public readonly type: MessageType) { }
+}
+
 interface Event {
     description: string;
     buttons?: {
@@ -41,6 +52,7 @@ export class EventsDisplay implements Layer {
     init() {
         this.eventBus.on(AllianceRequestEvent, a => this.onAllianceRequestEvent(a))
         this.eventBus.on(AllianceRequestReplyEvent, a => this.onAllianceRequestReplyEvent(a))
+        this.eventBus.on(DisplayMessageEvent, e => this.onDisplayMessageEvent(e))
         this.renderTable()
     }
 
@@ -75,6 +87,15 @@ export class EventsDisplay implements Layer {
         return false
     }
 
+    onDisplayMessageEvent(event: DisplayMessageEvent) {
+        this.addEvent({
+            description: event.message,
+            createdAt: this.game.ticks(),
+            highlight: true,
+        })
+        this.renderTable()
+    }
+
     onAllianceRequestEvent(event: AllianceRequestEvent): void {
         const myPlayer = this.game.playerByClientID(this.clientID)
         if (myPlayer == null) {
@@ -106,6 +127,7 @@ export class EventsDisplay implements Layer {
         this.renderTable()
     }
 
+    // TODO: move this to DisplayMessageEvent
     onAllianceRequestReplyEvent(event: AllianceRequestReplyEvent) {
         const myPlayer = this.game.playerByClientID(this.clientID)
         if (myPlayer == null) {
