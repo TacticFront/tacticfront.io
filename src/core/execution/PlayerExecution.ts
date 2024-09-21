@@ -51,7 +51,8 @@ export class PlayerExecution implements Execution {
         clusters.sort((a, b) => b.size - a.size);
 
         const main = clusters.shift()
-        if (this.isSurroundedBySamePlayer(main)) {
+        const surroundedBy = this.surroundedBySamePlayer(main)
+        if (surroundedBy && !this.player.alliedWith(surroundedBy)) {
             this.removeCluster(main)
         }
 
@@ -62,7 +63,7 @@ export class PlayerExecution implements Execution {
         }
     }
 
-    private isSurroundedBySamePlayer(cluster: Set<Tile>): boolean {
+    private surroundedBySamePlayer(cluster: Set<Tile>): false | Player {
         const enemies = new Set<Player>()
         for (const tile of cluster) {
             if (tile.isOceanShore() || tile.neighbors().find(n => !n.hasOwner())) {
@@ -75,7 +76,10 @@ export class PlayerExecution implements Execution {
                 return false
             }
         }
-        return true
+        if (enemies.size != 1) {
+            return false
+        }
+        return Array.from(enemies)[0]
     }
 
     private isSurrounded(cluster: Set<Tile>): boolean {

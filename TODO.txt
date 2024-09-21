@@ -122,12 +122,12 @@
 * make alliance icon DONE 9/19/2024
 * bots attack traitors DONE 9/19/2024
 * BUG: alliance should stop attack DONE 9/19/2024
-* create event box
-* BUG: bot attacks don't stop when allied ?
+* BUG: bot attacks don't stop when allied DONE 9/19/2024
+* click alliance sends alliance request DONE 9/20/2024
+* notification for alliance request DONE 9/20/2024
+* comfirm alliance DONE 9/20/2024
+* create event box DONE 9/20/2024
 * make fake humans easier
-* click alliance sends alliance request
-* notification for alliance request
-* comfirm alliance
 * first place has crown
 * alliance has icon
 * BUG: FakeHuman don't be enemy if don't share border

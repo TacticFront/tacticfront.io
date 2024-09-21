@@ -28,10 +28,10 @@ export class UILayer implements Layer {
 
     constructor(
         private eventBus: EventBus,
-         private game: Game, 
-         private clientID: ClientID,
-         private transformHandler: TransformHandler
-        ) {
+        private game: Game,
+        private clientID: ClientID,
+        private transformHandler: TransformHandler
+    ) {
 
     }
 
@@ -229,6 +229,9 @@ export class UILayer implements Layer {
 
     private onRightClick(e: RightClickEvent) {
         const cell = this.transformHandler.screenToWorldCoordinates(e.x, e.y)
+        if (!this.game.isOnMap(cell)) {
+            return
+        }
         const tile = this.game.tile(cell)
         if (!tile.hasOwner()) {
             return
