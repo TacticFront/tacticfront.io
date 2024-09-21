@@ -1,6 +1,6 @@
 import {nullable} from "zod";
 import {EventBus, GameEvent} from "../../../core/EventBus";
-import {AllianceRequest, AllianceRequestEvent, AllianceRequestReplyEvent, BrokeAllianceEvent as BrokenAllianceEvent, Game} from "../../../core/game/Game";
+import {AllianceRequest, AllianceRequestEvent, AllianceRequestReplyEvent, BrokeAllianceEvent as BrokenAllianceEvent, Game, PlayerID} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
 import {Layer} from "./Layer";
 
@@ -19,7 +19,11 @@ export enum MessageType {
 }
 
 export class DisplayMessageEvent implements GameEvent {
-    constructor(public readonly message: string, public readonly type: MessageType) { }
+    constructor(
+        public readonly message: string,
+        public readonly type: MessageType,
+        public readonly playerID: PlayerID | null = null
+    ) { }
 }
 
 interface Event {
@@ -88,6 +92,18 @@ export class EventsDisplay implements Layer {
     }
 
     onDisplayMessageEvent(event: DisplayMessageEvent) {
+        if (event.playerID != null) {
+            const myPlayer = this.game.playerByClientID(this.clientID)
+            if (myPlayer == null) {
+                return
+            }
+            if (myPlayer == null) {
+                return
+            }
+            if (myPlayer.id() != event.playerID) {
+                return
+            }
+        }
         this.addEvent({
             description: event.message,
             createdAt: this.game.ticks(),

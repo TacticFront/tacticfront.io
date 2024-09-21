@@ -182,7 +182,7 @@ export interface Game {
     inSpawnPhase(): boolean
     addExecution(...exec: Execution[]): void
     config(): Config
-    displayMessage(message: string, type: MessageType): void
+    displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void
 }
 
 export interface MutableGame extends Game {

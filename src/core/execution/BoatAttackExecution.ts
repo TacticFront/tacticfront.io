@@ -51,7 +51,7 @@ export class BoatAttackExecution implements Execution {
         this.attacker = mg.player(this.attackerID)
 
         if (this.attacker.boats().length >= mg.config().boatMaxNumber()) {
-            mg.displayMessage(`No boats available, max ${mg.config().boatMaxNumber()}`, MessageType.WARN)
+            mg.displayMessage(`No boats available, max ${mg.config().boatMaxNumber()}`, MessageType.WARN, this.attackerID)
             this.active = false
             this.attacker.addTroops(this.troops)
             return
@@ -78,7 +78,7 @@ export class BoatAttackExecution implements Execution {
             return
         }
         if (manhattanDistWrapped(this.src.cell(), this.dst.cell(), mg.width()) > mg.config().boatMaxDistance()) {
-            mg.displayMessage(`Cannot send boat: destination is too far away`, MessageType.WARN)
+            mg.displayMessage(`Cannot send boat: destination is too far away`, MessageType.WARN, this.attackerID)
             this.active = false
             return
         }

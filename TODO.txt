@@ -132,7 +132,7 @@
 * auto reject alliance when event dissapears DONE 9/20/2024
 * first place has crown DONE 9/20/2024
 * can't attack ally DONE 9/20/2024
-* add updates to eventbox: boats (max count, too far)
+* add updates to eventbox: boats (max count, too far) DONE 9/20/2024
 * make alliances expire
 * color code events
 * broken alliances 
