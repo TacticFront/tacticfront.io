@@ -1,11 +1,13 @@
-import {MutableAlliance, MutablePlayer, Player} from "./Game";
+import {MutableAlliance, MutableGame, MutablePlayer, Player, Tick} from "./Game";
+import {GameImpl} from "./GameImpl";
 import {PlayerImpl} from "./PlayerImpl";
 
 export class AllianceImpl implements MutableAlliance {
     constructor(
+        private readonly mg: GameImpl,
         readonly requestor_: PlayerImpl,
-        readonly recepient_: PlayerImpl,
-        readonly createdAtTick_: number,
+        readonly recipient_: PlayerImpl,
+        readonly createdAtTick_: Tick,
     ) { }
 
     requestor(): MutablePlayer {
@@ -13,7 +15,15 @@ export class AllianceImpl implements MutableAlliance {
     }
 
     recipient(): MutablePlayer {
-        return this.recepient_
+        return this.recipient_
+    }
+
+    createdAt(): Tick {
+        return this.createdAtTick_
+    }
+
+    expire(): void {
+
     }
 
 }

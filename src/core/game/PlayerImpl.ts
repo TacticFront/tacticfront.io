@@ -1,4 +1,4 @@
-import {MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, MutableGame, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance} from "./Game";
+import {MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, MutableGame, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance} from "./Game";
 import {ClientID} from "../Schemas";
 import {simpleHash} from "../Util";
 import {CellString, GameImpl} from "./GameImpl";
@@ -9,7 +9,7 @@ import {threadId} from "worker_threads";
 
 
 export class PlayerImpl implements MutablePlayer {
-    private isTraitor_ = false
+    isTraitor_ = false
 
     public _borderTiles: Set<Tile> = new Set();
 
@@ -123,12 +123,17 @@ export class PlayerImpl implements MutablePlayer {
         return this.gs.alliances_.filter(a => a.requestor() == this || a.recipient() == this)
     }
 
-    alliedWith(other: Player): boolean {
+    isAlliedWith(other: Player): boolean {
         if (other == this) {
             return false
         }
-        return this.alliances().find(a => a.recipient() == other || a.requestor() == other) != null
+        return this.allianceWith(other) != null
     }
+
+    allianceWith(other: Player): MutableAlliance | null {
+        return this.alliances().find(a => a.recipient() == other || a.requestor() == other)
+    }
+
 
     pendingAllianceRequestWith(other: Player): boolean {
         return this.incomingAllianceRequests().find(ar => ar.requestor() == other) != null
@@ -136,22 +141,17 @@ export class PlayerImpl implements MutablePlayer {
 
     }
 
+    breakAlliance(alliance: Alliance): void {
+        this.gs.breakAlliance(this, alliance)
+    }
+
+
     isTraitor(): boolean {
         return this.isTraitor_
     }
 
-    breakAllianceWith(other: Player): void {
-        if (!this.alliedWith(other)) {
-            throw new Error('cannot break alliance, already allied')
-        }
-        if (!other.isTraitor()) {
-            this.isTraitor_ = true
-        }
-        this.gs.breakAlliance(this, other)
-    }
-
     createAllianceRequest(recipient: Player): MutableAllianceRequest {
-        if (this.alliedWith(recipient)) {
+        if (this.isAlliedWith(recipient)) {
             throw new Error(`cannot create alliance request, already allies`)
         }
         return this.gs.createAllianceRequest(this, recipient)

@@ -100,17 +100,17 @@ export class FakeHumanExecution implements Execution {
 
         if (this.random.chance(10)) {
             const toAlly = this.random.randElement(enemies)
-            if (!this.player.alliedWith(toAlly)) {
+            if (!this.player.isAlliedWith(toAlly)) {
                 this.player.createAllianceRequest(toAlly)
             }
         }
 
         if (this.random.chance(2)) {
-            if (!this.player.alliedWith(enemies[0]) || this.random.chance(30)) {
+            if (!this.player.isAlliedWith(enemies[0]) || this.random.chance(30)) {
                 this.sendAttack(enemies[0])
             }
         } else {
-            if (!this.player.alliedWith(enemies[0]) || this.random.chance(60)) {
+            if (!this.player.isAlliedWith(enemies[0]) || this.random.chance(60)) {
                 this.sendAttack(this.random.randElement(enemies))
             }
         }

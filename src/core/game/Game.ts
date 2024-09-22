@@ -3,8 +3,10 @@ import {Config} from "../configuration/Config"
 import {GameEvent} from "../EventBus"
 import {ClientID, GameID} from "../Schemas"
 import {DisplayMessageEvent, MessageType} from "../../client/graphics/layers/EventsDisplay"
+import {BreakAllianceExecution} from "../execution/alliance/BreakAllianceExecution"
 
 export type PlayerID = string
+export type Tick = number
 
 export class Cell {
 
@@ -60,10 +62,11 @@ export interface MutableAllianceRequest extends AllianceRequest {
 export interface Alliance {
     requestor(): Player
     recipient(): Player
+    createdAt(): Tick
 }
 
 export interface MutableAlliance extends Alliance {
-
+    expire(): void
 }
 
 export class PlayerInfo {
@@ -138,7 +141,8 @@ export interface Player {
     incomingAllianceRequests(): AllianceRequest[]
     outgoingAllianceRequests(): AllianceRequest[]
     alliances(): Alliance[]
-    alliedWith(other: Player): boolean
+    isAlliedWith(other: Player): boolean
+    allianceWith(other: Player): Alliance | null
     pendingAllianceRequestWith(other: Player): boolean
     isTraitor(): boolean
     toString(): string
@@ -157,7 +161,8 @@ export interface MutablePlayer extends Player {
     incomingAllianceRequests(): MutableAllianceRequest[]
     outgoingAllianceRequests(): MutableAllianceRequest[]
     alliances(): MutableAlliance[]
-    breakAllianceWith(other: Player): void
+    allianceWith(other: Player): MutableAlliance | null
+    breakAlliance(alliance: Alliance): void
     createAllianceRequest(recipient: Player): MutableAllianceRequest
     addBoat(troops: number, tile: Tile, target: Player | TerraNullius): MutableBoat
 }

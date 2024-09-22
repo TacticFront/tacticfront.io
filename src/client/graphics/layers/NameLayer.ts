@@ -166,7 +166,7 @@ export class NameLayer implements Layer {
         }
 
         const myPlayer = this.getPlayer()
-        if (myPlayer != null && myPlayer.alliedWith(render.player)) {
+        if (myPlayer != null && myPlayer.isAlliedWith(render.player)) {
             context.drawImage(
                 this.allianceIconImage,
                 nameCenterX - iconSize / 2,

@@ -260,7 +260,7 @@ export class UILayer implements Layer {
             return
         }
 
-        if (myPlayer.alliedWith(owner)) {
+        if (myPlayer.isAlliedWith(owner)) {
             options.push({
                 label: "Break Alliance",
                 action: (): void => {

@@ -1,7 +1,7 @@
 import {info} from "console";
 import {Config} from "../configuration/Config";
 import {EventBus} from "../EventBus";
-import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Boat, BoatEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent, BrokeAllianceEvent} from "./Game";
+import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Boat, BoatEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent, BrokeAllianceEvent, MutableAlliance, Alliance} from "./Game";
 import {TerrainMap} from "./TerrainMapLoader";
 import {PlayerImpl} from "./PlayerImpl";
 import {TerraNulliusImpl} from "./TerraNulliusImpl";
@@ -50,7 +50,7 @@ export class GameImpl implements MutableGame {
     }
 
     createAllianceRequest(requestor: MutablePlayer, recipient: Player): MutableAllianceRequest {
-        if (requestor.alliedWith(recipient)) {
+        if (requestor.isAlliedWith(recipient)) {
             console.log('cannot request alliance, already allied')
             return
         }
@@ -72,7 +72,7 @@ export class GameImpl implements MutableGame {
 
     acceptAllianceRequest(request: AllianceRequestImpl) {
         this.allianceRequests = this.allianceRequests.filter(ar => ar != request)
-        const alliance = new AllianceImpl(request.requestor() as PlayerImpl, request.recipient() as PlayerImpl, this._ticks)
+        const alliance = new AllianceImpl(this, request.requestor() as PlayerImpl, request.recipient() as PlayerImpl, this._ticks)
         this.alliances_.push(alliance)
         this.eventBus.emit(new AllianceRequestReplyEvent(request, true))
     }
@@ -343,7 +343,20 @@ export class GameImpl implements MutableGame {
         this.eventBus.emit(new BoatEvent(boat, oldTile))
     }
 
-    public breakAlliance(breaker: Player, other: Player) {
+    public breakAlliance(breaker: Player, alliance: Alliance) {
+        let other: Player = null
+        if (alliance.requestor() == breaker) {
+            other = alliance.recipient()
+        } else {
+            other = alliance.requestor()
+        }
+        if (!breaker.isAlliedWith(other)) {
+            throw new Error(`${breaker} not allied with ${other}, cannot break alliance`)
+        }
+        if (!other.isTraitor()) {
+            (breaker as PlayerImpl).isTraitor_ = true
+        }
+
         const breakerSet = new Set(breaker.alliances())
         const alliances = other.alliances().filter(a => breakerSet.has(a))
         if (alliances.length != 1) {

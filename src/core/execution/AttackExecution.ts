@@ -86,7 +86,7 @@ export class AttackExecution implements Execution {
         }
 
         if (this.target.isPlayer()) {
-            if (this._owner.alliedWith(this.target)) {
+            if (this._owner.isAlliedWith(this.target)) {
                 // No updates should happen in init.
                 this.breakAlliance = true
             }
@@ -109,11 +109,12 @@ export class AttackExecution implements Execution {
         if (ticks < this.mg.config().numSpawnPhaseTurns()) {
             return
         }
-        if (this.breakAlliance && this._owner.alliedWith(this.target as Player)) {
+        const alliance = this._owner.allianceWith(this.target as Player)
+        if (this.breakAlliance && alliance != null) {
             this.breakAlliance = false
-            this._owner.breakAllianceWith(this.target as Player)
+            this._owner.breakAlliance(alliance)
         }
-        if (this.target.isPlayer() && this._owner.alliedWith(this.target)) {
+        if (this.target.isPlayer() && this._owner.isAlliedWith(this.target)) {
             // In this case a new alliance was created AFTER the attack started.
             this._owner.addTroops(this.troops)
             this.active = false

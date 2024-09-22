@@ -52,7 +52,7 @@ export class PlayerExecution implements Execution {
 
         const main = clusters.shift()
         const surroundedBy = this.surroundedBySamePlayer(main)
-        if (surroundedBy && !this.player.alliedWith(surroundedBy)) {
+        if (surroundedBy && !this.player.isAlliedWith(surroundedBy)) {
             this.removeCluster(main)
         }
 

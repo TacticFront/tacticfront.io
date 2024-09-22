@@ -15,7 +15,7 @@ export class AllianceRequestReplyExecution implements Execution {
     }
 
     tick(ticks: number): void {
-        if (this.requestor.alliedWith(this.recipient)) {
+        if (this.requestor.isAlliedWith(this.recipient)) {
             console.warn('already allied')
         } else {
             const request = this.requestor.outgoingAllianceRequests().find(ar => ar.recipient() == this.recipient)

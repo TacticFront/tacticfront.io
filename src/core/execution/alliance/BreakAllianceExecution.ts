@@ -13,10 +13,11 @@ export class BreakAllianceExecution implements Execution {
     }
 
     tick(ticks: number): void {
-        if (!this.requestor.alliedWith(this.recipient)) {
+        const alliance = this.requestor.allianceWith(this.recipient)
+        if (alliance == null) {
             console.warn('cant break alliance, not allied')
         } else {
-            this.requestor.breakAllianceWith(this.recipient)
+            this.requestor.breakAlliance(alliance)
         }
         this.active = false
     }

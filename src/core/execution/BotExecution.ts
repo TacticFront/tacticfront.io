@@ -51,7 +51,7 @@ export class BotExecution implements Execution {
         const traitors = this.bot.neighbors().filter(n => n.isPlayer() && n.isTraitor()) as Player[]
         if (traitors.length > 0) {
             const toAttack = this.random.randElement(traitors)
-            const odds = this.bot.alliedWith(toAttack) ? 6 : 3
+            const odds = this.bot.isAlliedWith(toAttack) ? 6 : 3
             if (this.random.chance(odds)) {
                 this.sendAttack(toAttack)
                 return
@@ -80,7 +80,7 @@ export class BotExecution implements Execution {
         const owner = toAttack.owner()
 
         if (owner.isPlayer()) {
-            if (this.bot.alliedWith(owner)) {
+            if (this.bot.isAlliedWith(owner)) {
                 return
             }
             if (owner.type() == PlayerType.FakeHuman) {

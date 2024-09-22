@@ -208,7 +208,7 @@ export class ClientGame {
         if (tile.owner() == this.myPlayer) {
             return
         }
-        if (tile.owner().isPlayer() && this.myPlayer.alliedWith(tile.owner() as Player)) {
+        if (tile.owner().isPlayer() && this.myPlayer.isAlliedWith(tile.owner() as Player)) {
             this.eventBus.emit(new DisplayMessageEvent("Cannot attack ally", MessageType.WARN))
             return
         }
