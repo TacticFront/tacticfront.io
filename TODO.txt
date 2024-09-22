@@ -133,7 +133,7 @@
 * first place has crown DONE 9/20/2024
 * can't attack ally DONE 9/20/2024
 * add updates to eventbox: boats (max count, too far) DONE 9/20/2024
-* BUG: boats landing doesn't launch attack
+* BUG: boats landing doesn't launch attack DONE 9/20/2024
 * fake humans handle alliances
 * make alliances expire
 * make year clock

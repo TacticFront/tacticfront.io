@@ -151,6 +151,9 @@ export class PlayerImpl implements MutablePlayer {
     }
 
     createAllianceRequest(recipient: Player): MutableAllianceRequest {
+        if (this.alliedWith(recipient)) {
+            throw new Error(`cannot create alliance request, already allies`)
+        }
         return this.gs.createAllianceRequest(this, recipient)
     }
 

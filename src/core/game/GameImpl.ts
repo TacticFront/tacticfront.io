@@ -49,7 +49,21 @@ export class GameImpl implements MutableGame {
         }
     }
 
-    createAllianceRequest(requestor: Player, recipient: Player): MutableAllianceRequest {
+    createAllianceRequest(requestor: MutablePlayer, recipient: Player): MutableAllianceRequest {
+        if (requestor.alliedWith(recipient)) {
+            console.log('cannot request alliance, already allied')
+            return
+        }
+        if (recipient.incomingAllianceRequests().find(ar => ar.requestor() == requestor) != null) {
+            console.log(`duplicate alliance request from ${requestor.name()}`)
+            return
+        }
+        const correspondingReq = requestor.incomingAllianceRequests().find(ar => ar.requestor() == recipient)
+        if (correspondingReq != null) {
+            console.log(`got corresponding alliance requests, accepting`)
+            correspondingReq.accept()
+            return
+        }
         const ar = new AllianceRequestImpl(requestor, recipient, this._ticks, this)
         this.allianceRequests.push(ar)
         this.eventBus.emit(new AllianceRequestEvent(ar))
@@ -333,7 +347,7 @@ export class GameImpl implements MutableGame {
         const breakerSet = new Set(breaker.alliances())
         const alliances = other.alliances().filter(a => breakerSet.has(a))
         if (alliances.length != 1) {
-            throw new Error('must have exactly one alliance')
+            throw new Error(`must have exactly one alliance, have ${alliances.length}`)
         }
         this.alliances_ = this.alliances_.filter(a => a != alliances[0])
         this.eventBus.emit(new BrokeAllianceEvent(breaker, other))

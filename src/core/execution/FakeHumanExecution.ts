@@ -1,5 +1,5 @@
 import {EventBus} from "../EventBus";
-import {Cell, Execution, MutableGame, MutablePlayer, Player, PlayerID, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tile} from "../game/Game"
+import {Cell, Execution, MutableGame, MutablePlayer, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tile} from "../game/Game"
 import {PseudoRandom} from "../PseudoRandom"
 import {and, bfs, dist, simpleHash} from "../Util";
 import {AttackExecution} from "./AttackExecution";
@@ -13,9 +13,11 @@ export class FakeHumanExecution implements Execution {
     private attackRate: number
     private mg: MutableGame
     private neighborsTerraNullius = true
-    private player: Player = null
+    private player: MutablePlayer = null
 
     private enemy: Player | null = null
+
+    private rejected: Set<Player> = new Set<Player>
 
 
     constructor(private playerInfo: PlayerInfo) {
@@ -51,6 +53,8 @@ export class FakeHumanExecution implements Execution {
         if (ticks % this.random.nextInt(10, 30) != 0) {
             return
         }
+
+        this.handleAllianceRequests()
 
         if (ticks % 100 == 0) {
             this.enemy = null
@@ -94,10 +98,48 @@ export class FakeHumanExecution implements Execution {
 
         const enemies = enemyborder.map(t => t.owner()).filter(o => o.isPlayer()).map(o => o as Player).sort((a, b) => a.troops() - b.troops())
 
-        if (this.random.nextInt(0, 1) == 1) {
-            this.sendAttack(enemies[0])
+        if (this.random.chance(10)) {
+            const toAlly = this.random.randElement(enemies)
+            if (!this.player.alliedWith(toAlly)) {
+                this.player.createAllianceRequest(toAlly)
+            }
+        }
+
+        if (this.random.chance(2)) {
+            if (!this.player.alliedWith(enemies[0]) || this.random.chance(30)) {
+                this.sendAttack(enemies[0])
+            }
         } else {
-            this.sendAttack(enemies[this.random.nextInt(0, enemies.length)])
+            if (!this.player.alliedWith(enemies[0]) || this.random.chance(60)) {
+                this.sendAttack(this.random.randElement(enemies))
+            }
+        }
+    }
+
+    handleAllianceRequests() {
+        for (const req of this.player.incomingAllianceRequests()) {
+            if (this.rejected.has(req.requestor())) {
+                continue
+            }
+            if (req.requestor().numTilesOwned() > this.player.numTilesOwned() * 2) {
+                req.accept()
+                continue
+            }
+            if (req.recipient().numTilesOwned() > this.player.numTilesOwned()) {
+                if (this.random.chance(2)) {
+                    req.accept()
+                } else {
+                    req.reject()
+                    this.rejected.add(req.recipient())
+                }
+                continue
+            }
+            if (this.random.chance(5)) {
+                req.accept()
+            } else {
+                req.reject()
+                this.rejected.add(req.recipient())
+            }
         }
     }
 
