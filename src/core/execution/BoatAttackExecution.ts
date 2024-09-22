@@ -57,7 +57,7 @@ export class BoatAttackExecution implements Execution {
             return
         }
 
-        if (this.targetID == null) {
+        if (this.targetID == null || this.targetID == this.mg.terraNullius().id()) {
             this.target = mg.terraNullius()
         } else {
             this.target = mg.player(this.targetID)
@@ -67,11 +67,7 @@ export class BoatAttackExecution implements Execution {
         this.attacker.removeTroops(this.troops)
 
         this.src = this.closestShoreTile(this.attacker, this.cell)
-        if (this.target.isPlayer()) {
-            this.dst = this.closestShoreTile(this.target, this.cell)
-        } else {
-            this.dst = this.mg.tile(this.cell)
-        }
+        this.dst = this.mg.tile(this.cell)
 
         if (this.src == null || this.dst == null) {
             this.active = false

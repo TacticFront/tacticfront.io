@@ -10,7 +10,7 @@ export class TerraNulliusImpl implements TerraNullius {
     }
 
     id(): PlayerID {
-        return 'TerraNulliusID';
+        return null
     }
     ownsTile(cell: Cell): boolean {
         return this.tiles.has(cell);

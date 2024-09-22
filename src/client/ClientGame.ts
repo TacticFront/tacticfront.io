@@ -273,9 +273,10 @@ export class ClientGame {
             }
             const tn = Array.from(bfs(tile, dist(tile, 10)))
                 .filter(t => t.isOceanShore())
+                .filter(t => t.owner() != this.myPlayer)
                 .sort((a, b) => manhattanDist(tile.cell(), a.cell()) - manhattanDist(tile.cell(), b.cell()))
             if (tn.length > 0) {
-                this.sendBoatAttackIntent(targetID, tn[0].cell(), this.gs.config().boatAttackAmount(this.myPlayer, owner))
+                this.sendBoatAttackIntent(tn[0].owner().id(), tn[0].cell(), this.gs.config().boatAttackAmount(this.myPlayer, owner))
             }
         }
     }

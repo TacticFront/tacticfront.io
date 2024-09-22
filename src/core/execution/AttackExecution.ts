@@ -46,14 +46,14 @@ export class AttackExecution implements Execution {
         if (!this.active) {
             return
         }
+        this.mg = mg
 
         this.targetCell = null
 
         this._owner = mg.player(this._ownerID)
-        this.target = this._targetID == null ? mg.terraNullius() : mg.player(this._targetID)
+        this.target = this._targetID == this.mg.terraNullius().id() ? mg.terraNullius() : mg.player(this._targetID)
         this.troops = Math.min(this._owner.troops(), this.troops)
         this._owner.setTroops(this._owner.troops() - this.troops)
-        this.mg = mg
 
         for (const exec of mg.executions()) {
             if (exec.isActive() && exec instanceof AttackExecution && exec != this) {
