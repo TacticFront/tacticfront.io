@@ -61,16 +61,22 @@ export class EventsDisplay implements Layer {
     }
 
     tick() {
-        const remainingEvent: Event[] = []
+        const remainingEvents: Event[] = []
         for (const event of this.events) {
             if (this.game.ticks() - event.createdAt < 100) {
-                remainingEvent.push(event)
+                remainingEvents.push(event)
             } else if (event.onDelete != null) {
                 event.onDelete()
             }
         }
-        this.events = remainingEvent
-        this.renderTable()
+        let shouldRender = false
+        if (this.events.length != remainingEvents.length) {
+            shouldRender = true
+        }
+        this.events = remainingEvents
+        if (shouldRender) {
+            this.renderTable()
+        }
     }
 
     private createTableContainer() {
