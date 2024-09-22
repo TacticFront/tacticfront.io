@@ -1,14 +1,16 @@
 import {Cell, Game, PlayerType, Tile, TileEvent} from "../game/Game";
 import {PseudoRandom} from "../PseudoRandom";
-import {SpawnIntent} from "../Schemas";
-import {bfs, dist as dist, manhattanDist} from "../Util";
+import {GameID, SpawnIntent} from "../Schemas";
+import {bfs, dist as dist, manhattanDist, simpleHash} from "../Util";
 
 
 export class BotSpawner {
-    private random = new PseudoRandom(123);
+    private random: PseudoRandom
     private bots: SpawnIntent[] = [];
 
-    constructor(private gs: Game) { }
+    constructor(private gs: Game, gameID: GameID) {
+        this.random = new PseudoRandom(simpleHash(gameID))
+    }
 
     spawnBots(numBots: number): SpawnIntent[] {
         let tries = 0

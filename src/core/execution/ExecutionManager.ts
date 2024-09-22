@@ -22,7 +22,7 @@ export class Executor {
     // private random = new PseudoRandom(999)
     private random: PseudoRandom = null
 
-    constructor(private gs: Game, gameID: GameID) {
+    constructor(private gs: Game, private gameID: GameID) {
         this.random = new PseudoRandom(simpleHash(gameID))
     }
 
@@ -72,7 +72,7 @@ export class Executor {
 
 
     spawnBots(numBots: number): Execution[] {
-        return new BotSpawner(this.gs).spawnBots(numBots).map(i => this.createExec(i))
+        return new BotSpawner(this.gs, this.gameID).spawnBots(numBots).map(i => this.createExec(i))
     }
 
     fakeHumanExecutions(numFakes: number): Execution[] {
