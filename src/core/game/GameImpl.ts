@@ -1,7 +1,7 @@
 import {info} from "console";
 import {Config} from "../configuration/Config";
 import {EventBus} from "../EventBus";
-import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Boat, BoatEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent, BrokeAllianceEvent, MutableAlliance, Alliance} from "./Game";
+import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Boat, BoatEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent, BrokeAllianceEvent, MutableAlliance, Alliance, AllianceExpiredEvent} from "./Game";
 import {TerrainMap} from "./TerrainMapLoader";
 import {PlayerImpl} from "./PlayerImpl";
 import {TerraNulliusImpl} from "./TerraNulliusImpl";
@@ -364,6 +364,16 @@ export class GameImpl implements MutableGame {
         }
         this.alliances_ = this.alliances_.filter(a => a != alliances[0])
         this.eventBus.emit(new BrokeAllianceEvent(breaker, other))
+    }
+
+    public expireAlliance(alliance: Alliance) {
+        const p1Set = new Set(alliance.recipient().alliances())
+        const alliances = alliance.requestor().alliances().filter(a => p1Set.has(a))
+        if (alliances.length != 1) {
+            throw new Error(`cannot expire alliance: must have exactly one alliance, have ${alliances.length}`)
+        }
+        this.alliances_ = this.alliances_.filter(a => a != alliances[0])
+        this.eventBus.emit(new AllianceExpiredEvent(alliance.requestor(), alliance.recipient()))
     }
 
     displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void {

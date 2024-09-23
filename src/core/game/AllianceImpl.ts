@@ -23,7 +23,7 @@ export class AllianceImpl implements MutableAlliance {
     }
 
     expire(): void {
-
+        this.mg.expireAlliance(this)
     }
 
 }

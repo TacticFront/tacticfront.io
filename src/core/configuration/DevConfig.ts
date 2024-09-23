@@ -1,9 +1,10 @@
+import {Tick} from "../game/Game";
 import {GameID} from "../Schemas";
 import {DefaultConfig} from "./DefaultConfig";
 
 export const devConfig = new class extends DefaultConfig {
     percentageTilesOwnedToWin(): number {
-        return 80
+        return 95
     }
     numSpawnPhaseTurns(): number {
         return 80
@@ -22,6 +23,9 @@ export const devConfig = new class extends DefaultConfig {
         return 0
     }
 
+    // allianceDuration(): Tick {
+    //     return 10 * 10
+    // }
 
     numFakeHumans(gameID: GameID): number {
         return 0

@@ -1,4 +1,4 @@
-import {Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tile} from "../game/Game";
+import {Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tick, Tile} from "../game/Game";
 import {GameID} from "../Schemas";
 import {simpleHash, within} from "../Util";
 import {Config, Theme} from "./Config";
@@ -7,6 +7,9 @@ import {pastelTheme} from "./PastelTheme";
 
 
 export class DefaultConfig implements Config {
+    allianceDuration(): Tick {
+        return 10 * 100
+    }
     percentageTilesOwnedToWin(): number {
         return 95
     }

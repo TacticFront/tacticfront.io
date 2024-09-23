@@ -1,4 +1,4 @@
-import {Player, PlayerID, PlayerInfo, TerraNullius, Tile} from "../game/Game";
+import {Player, PlayerID, PlayerInfo, TerraNullius, Tick, Tile} from "../game/Game";
 import {Colord, colord} from "colord";
 import {devConfig} from "./DevConfig";
 import {defaultConfig} from "./DefaultConfig";
@@ -47,6 +47,7 @@ export interface Config {
 	boatAttackAmount(attacker: Player, defender: Player | TerraNullius): number
 	boatMaxDistance(): number
 	boatMaxNumber(): number
+	allianceDuration(): Tick
 }
 
 export interface Theme {

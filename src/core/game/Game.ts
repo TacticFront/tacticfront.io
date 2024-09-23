@@ -183,7 +183,7 @@ export interface Game {
     executions(): ExecutionView[]
     terraNullius(): TerraNullius
     executeNextTick(): void
-    ticks(): number
+    ticks(): Tick
     inSpawnPhase(): boolean
     addExecution(...exec: Execution[]): void
     config(): Config
@@ -220,4 +220,8 @@ export class AllianceRequestReplyEvent implements GameEvent {
 
 export class BrokeAllianceEvent implements GameEvent {
     constructor(public readonly traitor: Player, public readonly betrayed: Player) { }
+}
+
+export class AllianceExpiredEvent implements GameEvent {
+    constructor(public readonly player1: Player, public readonly player2: Player) { }
 }

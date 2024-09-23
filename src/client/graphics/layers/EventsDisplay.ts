@@ -1,6 +1,6 @@
 import {nullable} from "zod";
 import {EventBus, GameEvent} from "../../../core/EventBus";
-import {AllianceRequest, AllianceRequestEvent, AllianceRequestReplyEvent, BrokeAllianceEvent, Game, PlayerID} from "../../../core/game/Game";
+import {AllianceExpiredEvent, AllianceRequest, AllianceRequestEvent, AllianceRequestReplyEvent, BrokeAllianceEvent, Game, Player, PlayerID} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
 import {Layer} from "./Layer";
 
@@ -57,6 +57,7 @@ export class EventsDisplay implements Layer {
         this.eventBus.on(AllianceRequestReplyEvent, a => this.onAllianceRequestReplyEvent(a))
         this.eventBus.on(DisplayMessageEvent, e => this.onDisplayMessageEvent(e))
         this.eventBus.on(BrokeAllianceEvent, e => this.onBrokeAllianceEvent(e))
+        this.eventBus.on(AllianceExpiredEvent, e => this.onAllianceExpiredEvent(e))
         this.renderTable()
     }
 
@@ -148,7 +149,6 @@ export class EventsDisplay implements Layer {
             createdAt: this.game.ticks(),
             onDelete: () => this.eventBus.emit(new AllianceRequestReplyUIEvent(event.allianceRequest, false))
         });
-        this.renderTable()
     }
 
     // TODO: move this to DisplayMessageEvent
@@ -167,7 +167,6 @@ export class EventsDisplay implements Layer {
             highlight: true,
             createdAt: this.game.ticks(),
         });
-        this.renderTable()
     }
 
     onBrokeAllianceEvent(event: BrokeAllianceEvent) {
@@ -193,8 +192,32 @@ export class EventsDisplay implements Layer {
         }
     }
 
+    onAllianceExpiredEvent(event: AllianceExpiredEvent) {
+        const myPlayer = this.game.playerByClientID(this.clientID)
+        if (myPlayer == null) {
+            return
+        }
+        let other: Player = null
+        if (event.player1 == myPlayer) {
+            other = event.player2
+        }
+        if (event.player2 == myPlayer) {
+            other = event.player1
+        }
+        if (other == null) {
+            return
+        }
+        this.addEvent({
+            description: `Your alliance with ${other.name()} expired`,
+            type: MessageType.WARN,
+            highlight: true,
+            createdAt: this.game.ticks(),
+        })
+    }
+
     addEvent(event: Event): void {
         this.events.push(event);
+        this.renderTable()
     }
 
     removeEvent(index: number): void {

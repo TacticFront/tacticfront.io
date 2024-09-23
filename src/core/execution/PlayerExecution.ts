@@ -32,6 +32,13 @@ export class PlayerExecution implements Execution {
         }
         this.player.setTroops(this.config.troopAdditionRate(this.player))
 
+        const alliances = Array.from(this.player.alliances())
+        for (const alliance of alliances) {
+            if (this.mg.ticks() - alliance.createdAt() > this.mg.config().allianceDuration()) {
+                alliance.expire()
+            }
+        }
+
         if (ticks - this.lastCalc > this.ticksPerClusterCalc) {
             this.lastCalc = ticks
             const start = performance.now()
