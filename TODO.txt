@@ -135,7 +135,7 @@
 * add updates to eventbox: boats (max count, too far) DONE 9/21/2024
 * BUG: boats landing doesn't launch attack DONE 9/21/2024
 * fake humans handle alliances DONE 9/22/2024
-* make alliances expire
+* make alliances expire DONE 9/22/2024
 * make alliance request mobile friendly
 * make year clock
 * block user inputs if too far behind server

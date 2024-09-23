@@ -20,16 +20,16 @@ export const devConfig = new class extends DefaultConfig {
     }
 
     numBots(): number {
-        return 0
+        return 400
     }
 
     // allianceDuration(): Tick {
     //     return 10 * 10
     // }
 
-    numFakeHumans(gameID: GameID): number {
-        return 0
-    }
+    // numFakeHumans(gameID: GameID): number {
+    //     return 0
+    // }
 
     // startTroops(playerInfo: PlayerInfo): number {
     //     if (playerInfo.isBot) {

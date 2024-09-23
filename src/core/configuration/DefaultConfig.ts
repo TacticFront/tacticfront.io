@@ -8,7 +8,7 @@ import {pastelTheme} from "./PastelTheme";
 
 export class DefaultConfig implements Config {
     allianceDuration(): Tick {
-        return 10 * 100
+        return 20 * 100
     }
     percentageTilesOwnedToWin(): number {
         return 95
