@@ -137,10 +137,10 @@
 * fake humans handle alliances DONE 9/22/2024
 * make alliances expire DONE 9/22/2024
 * make alliance request mobile friendly
+* request to attack other players
 * make year clock
 * block user inputs if too far behind server
 * BUG: FakeHuman don't be enemy if don't share border
-* BUG: when send boat only captures one pixel
 * store cookies
 * BUG: names dissapear on bottom of screen
 * UI: boats

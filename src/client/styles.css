@@ -299,3 +299,27 @@ h3 {
         margin: 5px 0;
     }
 }
+
+
+/* Radial Menu */
+.radial-menu {
+    position: absolute;
+    display: none;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.menu-item {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    cursor: pointer;
+}

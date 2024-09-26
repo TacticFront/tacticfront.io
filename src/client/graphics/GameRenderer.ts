@@ -3,12 +3,12 @@ import {NameLayer} from "./layers/NameLayer";
 import {TerrainLayer} from "./layers/TerrainLayer";
 import {TerritoryLayer} from "./layers/TerritoryLayer";
 import {ClientID} from "../../core/Schemas";
-import {createCanvas} from "./Utils";
 import {UILayer} from "./layers/UILayer";
 import {EventBus} from "../../core/EventBus";
 import {TransformHandler} from "./TransformHandler";
 import {Layer} from "./layers/Layer";
 import {EventsDisplay} from "./layers/EventsDisplay";
+import {RadialMenu} from "./layers/RadialMenu";
 
 
 export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: EventBus, clientID: ClientID): GameRenderer {
@@ -19,7 +19,8 @@ export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: 
 		new TerritoryLayer(game, eventBus),
 		new NameLayer(game, game.config().theme(), transformHandler, clientID),
 		new UILayer(eventBus, game, clientID, transformHandler),
-		new EventsDisplay(eventBus, game, clientID)
+		new EventsDisplay(eventBus, game, clientID),
+		new RadialMenu(eventBus),
 	]
 
 	return new GameRenderer(game, eventBus, canvas, transformHandler, layers)

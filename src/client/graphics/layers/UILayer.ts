@@ -3,7 +3,7 @@ import {EventBus, GameEvent} from "../../../core/EventBus";
 import {WinEvent} from "../../../core/execution/WinCheckExecution";
 import {AllianceRequest, AllianceRequestReplyEvent, Game, Player} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
-import {RightClickEvent} from "../../InputHandler";
+import {ContextMenuEvent} from "../../InputHandler";
 import {Layer} from "./Layer";
 import {TransformHandler} from "../TransformHandler";
 import {MessageType} from "./EventsDisplay";
@@ -74,7 +74,7 @@ export class UILayer implements Layer {
         this.createWinModal()
         this.initRightClickMenu()
         this.eventBus.on(WinEvent, (e) => this.onWinEvent(e))
-        this.eventBus.on(RightClickEvent, (e) => this.onRightClick(e))
+        this.eventBus.on(ContextMenuEvent, (e) => this.onRightClick(e))
     }
 
     initRightClickMenu() {
@@ -236,7 +236,7 @@ export class UILayer implements Layer {
         window.location.reload();
     }
 
-    private onRightClick(e: RightClickEvent) {
+    private onRightClick(e: ContextMenuEvent) {
         const cell = this.transformHandler.screenToWorldCoordinates(e.x, e.y)
         if (!this.game.isOnMap(cell)) {
             return

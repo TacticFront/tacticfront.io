@@ -15,7 +15,7 @@ export class MouseDownEvent implements GameEvent {
     ) { }
 }
 
-export class RightClickEvent implements GameEvent {
+export class ContextMenuEvent implements GameEvent {
     constructor(
         public readonly x: number,
         public readonly y: number,
@@ -59,7 +59,7 @@ export class InputHandler {
         this.canvas.addEventListener("wheel", (e) => this.onScroll(e), {passive: false});
         this.canvas.addEventListener('pointermove', this.onPointerMove.bind(this));
         this.canvas.addEventListener('contextmenu', (e: MouseEvent) => {
-            this.onRightClick(e);
+            this.onContextMenu(e);
         });
         this.pointers.clear()
     }
@@ -92,9 +92,15 @@ export class InputHandler {
         }
         this.pointerDown = false
         this.pointers.delete(event.pointerId);
+
         const dist = Math.abs(event.x - this.lastPointerDownX) + Math.abs(event.y - this.lastPointerDownY);
         if (dist < 10) {
-            this.eventBus.emit(new MouseUpEvent(event.x, event.y))
+            if (event.pointerType == "touch") {
+                event.preventDefault()
+                this.eventBus.emit(new ContextMenuEvent(event.clientX, event.clientY))
+            } else {
+                this.eventBus.emit(new MouseUpEvent(event.x, event.y))
+            }
         }
     }
 
@@ -134,9 +140,9 @@ export class InputHandler {
         }
     }
 
-    private onRightClick(event: MouseEvent) {
+    private onContextMenu(event: MouseEvent) {
         event.preventDefault()
-        this.eventBus.emit(new RightClickEvent(event.clientX, event.clientY))
+        this.eventBus.emit(new ContextMenuEvent(event.clientX, event.clientY))
     }
 
     private getPinchDistance(): number {
