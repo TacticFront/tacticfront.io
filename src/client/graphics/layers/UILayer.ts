@@ -1,5 +1,5 @@
 import {GameEnv, Theme} from "../../../core/configuration/Config";
-import {EventBus, GameEvent} from "../../../core/EventBus";
+import {EventBus} from "../../../core/EventBus";
 import {WinEvent} from "../../../core/execution/WinCheckExecution";
 import {AllianceRequest, AllianceRequestReplyEvent, Game, Player} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
@@ -7,21 +7,7 @@ import {ContextMenuEvent} from "../../InputHandler";
 import {Layer} from "./Layer";
 import {TransformHandler} from "../TransformHandler";
 import {MessageType} from "./EventsDisplay";
-
-export class SendAllianceRequestUIEvent implements GameEvent {
-    constructor(
-        public readonly requestor: Player,
-        public readonly recipient: Player
-    ) { }
-}
-
-
-export class SendBreakAllianceUIEvent implements GameEvent {
-    constructor(
-        public readonly requestor: Player,
-        public readonly recipient: Player
-    ) { }
-}
+import {SendAllianceRequestIntentEvent, SendBreakAllianceIntentEvent} from "../../Transport";
 
 interface MenuOption {
     label: string;
@@ -265,7 +251,7 @@ export class UILayer implements Layer {
                 label: "Break Alliance",
                 action: (): void => {
                     this.eventBus.emit(
-                        new SendBreakAllianceUIEvent(myPlayer, owner)
+                        new SendBreakAllianceIntentEvent(myPlayer, owner)
                     )
                 },
             })
@@ -274,7 +260,7 @@ export class UILayer implements Layer {
                 label: "Request Alliance",
                 action: (): void => {
                     this.eventBus.emit(
-                        new SendAllianceRequestUIEvent(myPlayer, owner)
+                        new SendAllianceRequestIntentEvent(myPlayer, owner)
                     )
                     this.game.displayMessage(`sending alliance request to ${owner.name()}`, MessageType.INFO, myPlayer.id())
                 },

@@ -10,17 +10,25 @@ import {TerrainMap} from "../core/game/TerrainMapLoader";
 import {and, bfs, dist, manhattanDist} from "../core/Util";
 import {TerrainLayer} from "./graphics/layers/TerrainLayer";
 import {WinCheckExecution} from "../core/execution/WinCheckExecution";
-import {SendAllianceRequestUIEvent, SendBreakAllianceUIEvent} from "./graphics/layers/UILayer";
+import {SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendSpawnIntentEvent, Transport} from "./Transport";
 import {createCanvas} from "./graphics/Utils";
-import {DisplayMessageEvent, MessageType, AllianceRequestReplyUIEvent as SendAllianceRequestReplyUIEvent} from "./graphics/layers/EventsDisplay";
+import {DisplayMessageEvent, MessageType} from "./graphics/layers/EventsDisplay";
 
 
 
 export function createClientGame(name: string, clientID: ClientID, playerID: PlayerID, ip: string | null, gameID: GameID, config: Config, terrainMap: TerrainMap): ClientGame {
     let eventBus = new EventBus()
+
     let game = createGame(terrainMap, eventBus, config)
     const canvas = createCanvas()
     let gameRenderer = createRenderer(canvas, game, eventBus, clientID)
+
+    const wsHost = process.env.WEBSOCKET_URL || window.location.host;
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const socket = new WebSocket(`${wsProtocol}//${wsHost}`)
+
+    const transport = new Transport(socket, eventBus, gameID, clientID, playerID)
+
 
     return new ClientGame(
         name,
@@ -32,14 +40,14 @@ export function createClientGame(name: string, clientID: ClientID, playerID: Pla
         game,
         gameRenderer,
         new InputHandler(canvas, eventBus),
-        new Executor(game, gameID)
+        new Executor(game, gameID),
+        socket,
     )
 }
 
 export class ClientGame {
     private myPlayer: Player
     private turns: Turn[] = []
-    private socket: WebSocket
     private isActive = false
 
     private currTurn = 0
@@ -59,13 +67,11 @@ export class ClientGame {
         private gs: Game,
         private renderer: GameRenderer,
         private input: InputHandler,
-        private executor: Executor
+        private executor: Executor,
+        private socket: WebSocket,
     ) { }
 
     public join() {
-        const wsHost = process.env.WEBSOCKET_URL || window.location.host;
-        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        this.socket = new WebSocket(`${wsProtocol}//${wsHost}`)
         this.socket.onopen = () => {
             console.log('Connected to game server!');
             this.socket.send(
@@ -93,11 +99,11 @@ export class ClientGame {
                 if (!this.isActive) {
                     this.start()
                 }
-                this.sendIntent({
-                    type: "updateName",
-                    name: this.playerName,
-                    clientID: this.id
-                })
+                // this.sendIntent({
+                //     type: "updateName",
+                //     name: this.playerName,
+                //     clientID: this.id
+                // })
             }
             if (message.type == "turn") {
                 this.addTurn(message.turn)
@@ -125,9 +131,6 @@ export class ClientGame {
 
         this.eventBus.on(PlayerEvent, (e) => this.playerEvent(e))
         this.eventBus.on(MouseUpEvent, (e) => this.inputEvent(e))
-        this.eventBus.on(SendAllianceRequestUIEvent, (e) => this.onSendAllianceRequest(e))
-        this.eventBus.on(SendAllianceRequestReplyUIEvent, (e) => this.onAllianceRequestReplyUIEvent(e))
-        this.eventBus.on(SendBreakAllianceUIEvent, (e) => this.onBreakAllianceRequestUIEvent(e))
 
         this.renderer.initialize()
         this.input.initialize()
@@ -192,7 +195,7 @@ export class ClientGame {
         }
         const tile = this.gs.tile(cell)
         if (tile.isLand() && !tile.hasOwner() && this.gs.inSpawnPhase()) {
-            this.sendSpawnIntent(cell)
+            this.eventBus.emit(new SendSpawnIntentEvent(cell, this.playerName))
             return
         }
         if (this.gs.inSpawnPhase()) {
@@ -260,9 +263,17 @@ export class ClientGame {
                 enemyShoreClosest = enemyShoreDists[0].dist
             }
             if (enemyShoreClosest < borderTileClosest / 6) {
-                this.sendBoatAttackIntent(targetID, enemyShoreDists[0].tile.cell(), this.gs.config().boatAttackAmount(this.myPlayer, owner))
+                this.eventBus.emit(new SendBoatAttackIntentEvent(
+                    targetID,
+                    enemyShoreDists[0].tile.cell(),
+                    this.gs.config().boatAttackAmount(this.myPlayer, owner)
+                ))
             } else {
-                this.sendAttackIntent(targetID, cell, this.gs.config().attackAmount(this.myPlayer, owner))
+                this.eventBus.emit(new SendAttackIntentEvent(
+                    targetID,
+                    cell,
+                    this.gs.config().attackAmount(this.myPlayer, owner)
+                ))
             }
         }
 
@@ -276,90 +287,12 @@ export class ClientGame {
                 .filter(t => t.owner() != this.myPlayer)
                 .sort((a, b) => manhattanDist(tile.cell(), a.cell()) - manhattanDist(tile.cell(), b.cell()))
             if (tn.length > 0) {
-                this.sendBoatAttackIntent(tn[0].owner().id(), tn[0].cell(), this.gs.config().boatAttackAmount(this.myPlayer, owner))
+                this.eventBus.emit(new SendBoatAttackIntentEvent(
+                    tn[0].owner().id(),
+                    tn[0].cell(),
+                    this.gs.config().boatAttackAmount(this.myPlayer, owner)
+                ))
             }
         }
     }
-
-    private onSendAllianceRequest(event: SendAllianceRequestUIEvent) {
-        this.sendIntent({
-            type: "allianceRequest",
-            clientID: this.id,
-            requestor: event.requestor.id(),
-            recipient: event.recipient.id(),
-        })
-    }
-
-    private onAllianceRequestReplyUIEvent(event: SendAllianceRequestReplyUIEvent) {
-        this.sendIntent({
-            type: "allianceRequestReply",
-            clientID: this.id,
-            requestor: event.allianceRequest.requestor().id(),
-            recipient: event.allianceRequest.recipient().id(),
-            accept: event.accepted,
-        })
-    }
-
-    private onBreakAllianceRequestUIEvent(event: SendBreakAllianceUIEvent) {
-        this.sendIntent({
-            type: "breakAlliance",
-            clientID: this.id,
-            requestor: event.requestor.id(),
-            recipient: event.recipient.id(),
-        })
-    }
-
-    private sendSpawnIntent(cell: Cell) {
-        this.sendIntent({
-            type: "spawn",
-            clientID: this.id,
-            playerID: this.playerID,
-            name: this.playerName,
-            playerType: PlayerType.Human,
-            x: cell.x,
-            y: cell.y
-        })
-    }
-
-    private sendAttackIntent(targetID: PlayerID, cell: Cell, troops: number) {
-        this.sendIntent({
-            type: "attack",
-            clientID: this.id,
-            attackerID: this.myPlayer.id(),
-            targetID: targetID,
-            troops: troops,
-            sourceX: null,
-            sourceY: null,
-            targetX: cell.x,
-            targetY: cell.y
-        })
-    }
-
-    private sendBoatAttackIntent(targetID: PlayerID, cell: Cell, troops: number) {
-        this.sendIntent({
-            type: "boat",
-            clientID: this.id,
-            attackerID: this.myPlayer.id(),
-            targetID: targetID,
-            troops: troops,
-            x: cell.x,
-            y: cell.y,
-        })
-    }
-
-    private sendIntent(intent: Intent) {
-        if (this.socket.readyState === WebSocket.OPEN) {
-            const msg = ClientIntentMessageSchema.parse({
-                type: "intent",
-                clientID: this.id,
-                gameID: this.gameID,
-                intent: intent
-            })
-            this.socket.send(JSON.stringify(msg))
-        } else {
-            console.log('WebSocket is not open. Current state:', this.socket.readyState);
-            console.log('attempting reconnect')
-        }
-    }
-
 }

@@ -1,15 +1,9 @@
 import {nullable} from "zod";
 import {EventBus, GameEvent} from "../../../core/EventBus";
-import {AllianceExpiredEvent, AllianceRequest, AllianceRequestEvent, AllianceRequestReplyEvent, BrokeAllianceEvent, Game, Player, PlayerID} from "../../../core/game/Game";
+import {AllianceExpiredEvent, AllianceRequestEvent, AllianceRequestReplyEvent, BrokeAllianceEvent, Game, Player, PlayerID} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
 import {Layer} from "./Layer";
-
-export class AllianceRequestReplyUIEvent implements GameEvent {
-    constructor(
-        public readonly allianceRequest: AllianceRequest,
-        public readonly accepted: boolean,
-    ) { }
-}
+import {SendAllianceReplyIntentEvent} from "../../Transport";
 
 export enum MessageType {
     SUCCESS,
@@ -136,18 +130,18 @@ export class EventsDisplay implements Layer {
                 {
                     text: "Accept",
                     className: "btn",
-                    action: () => this.eventBus.emit(new AllianceRequestReplyUIEvent(event.allianceRequest, true)),
+                    action: () => this.eventBus.emit(new SendAllianceReplyIntentEvent(event.allianceRequest, true)),
                 },
                 {
                     text: "Reject",
                     className: "btn btn-info",
-                    action: () => this.eventBus.emit(new AllianceRequestReplyUIEvent(event.allianceRequest, false)),
+                    action: () => this.eventBus.emit(new SendAllianceReplyIntentEvent(event.allianceRequest, false)),
                 }
             ],
             highlight: true,
             type: MessageType.INFO,
             createdAt: this.game.ticks(),
-            onDelete: () => this.eventBus.emit(new AllianceRequestReplyUIEvent(event.allianceRequest, false))
+            onDelete: () => this.eventBus.emit(new SendAllianceReplyIntentEvent(event.allianceRequest, false))
         });
     }
 
