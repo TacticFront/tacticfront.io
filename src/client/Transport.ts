@@ -1,5 +1,5 @@
 import {EventBus, GameEvent} from "../core/EventBus"
-import {AllianceRequest, Cell, Player, PlayerID, PlayerType} from "../core/game/Game"
+import {AllianceRequest, Cell, Game, Player, PlayerID, PlayerType} from "../core/game/Game"
 import {ClientID, ClientIntentMessageSchema, GameID, Intent} from "../core/Schemas"
 
 
@@ -31,9 +31,8 @@ export class SendSpawnIntentEvent implements GameEvent {
 }
 
 export class SendAttackIntentEvent implements GameEvent {
-    constructor(public readonly targetID: PlayerID,
-        public readonly cell: Cell,
-        public readonly troops: number
+    constructor(
+        public readonly targetID: PlayerID,
     ) { }
 }
 
@@ -108,11 +107,11 @@ export class Transport {
             clientID: this.clientID,
             attackerID: this.playerID,
             targetID: event.targetID,
-            troops: event.troops,
+            troops: null,
             sourceX: null,
             sourceY: null,
-            targetX: event.cell.x,
-            targetY: event.cell.y
+            targetX: null,
+            targetY: null,
         })
     }
 

@@ -54,7 +54,7 @@ export const AttackIntentSchema = BaseIntentSchema.extend({
     type: z.literal('attack'),
     attackerID: z.string(),
     targetID: z.string().nullable(),
-    troops: z.number(),
+    troops: z.number().nullable(),
     sourceX: z.number().nullable(),
     sourceY: z.number().nullable(),
     targetX: z.number().nullable(),

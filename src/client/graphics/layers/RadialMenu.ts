@@ -1,9 +1,15 @@
 import {EventBus} from "../../../core/EventBus";
-import {ContextMenuEvent} from "../../InputHandler";
+import {Cell, Game, Player, PlayerID} from "../../../core/game/Game";
+import {ClientID} from "../../../core/Schemas";
+import {ContextMenuEvent, MouseUpEvent} from "../../InputHandler";
+import {SendAttackIntentEvent} from "../../Transport";
+import {TransformHandler} from "../TransformHandler";
 import {Layer} from "./Layer";
 import * as d3 from 'd3';
 
 export class RadialMenu implements Layer {
+    private clickedCell: Cell | null = null
+
     private menuElement: d3.Selection<HTMLDivElement, unknown, null, undefined>;
     private isVisible: boolean = false;
     private readonly menuItems = [
@@ -16,10 +22,16 @@ export class RadialMenu implements Layer {
     private readonly menuSize = 300; // Increased size
     private readonly centerButtonSize = 60;
 
-    constructor(private eventBus: EventBus) { }
+    constructor(
+        private eventBus: EventBus,
+        private game: Game,
+        private transformHandler: TransformHandler,
+        private clientID: ClientID,
+    ) { }
 
     init() {
         this.eventBus.on(ContextMenuEvent, e => this.onContextMenu(e))
+        this.eventBus.on(MouseUpEvent, e => this.onPointerUp(e))
         this.createMenuElement();
     }
 
@@ -66,22 +78,30 @@ export class RadialMenu implements Layer {
             .style('font-size', '14px')
             .text(d => d.data.name);
 
-        // Add center button
+        // Create a larger, transparent circle for better click detection
         svg.append('circle')
             .attr('r', this.centerButtonSize)
-            .attr('fill', '#2c3e50')
+            .attr('fill', 'transparent')
+            .style('cursor', 'pointer')
             .on('click', () => this.handleCenterButtonClick())
             .on('touchstart', (event) => {
-                event.preventDefault();
                 this.handleCenterButtonClick();
             });
 
+        // Add visible center button circle
+        svg.append('circle')
+            .attr('r', this.centerButtonSize - 10)
+            .attr('fill', '#2c3e50')
+            .style('pointer-events', 'none');
+
+        // Add text to the center button
         svg.append('text')
             .attr('text-anchor', 'middle')
             .attr('dy', '0.3em')
             .attr('fill', 'white')
-            .style('font-size', '14px')
-            .text('Close');
+            .style('font-size', '16px')
+            .style('pointer-events', 'none')
+            .text('Attack');
     }
 
     tick() {
@@ -99,11 +119,16 @@ export class RadialMenu implements Layer {
     private onContextMenu(event: ContextMenuEvent) {
         console.log('on context menu')
 
+        this.clickedCell = this.transformHandler.screenToWorldCoordinates(event.x, event.y)
         if (this.isVisible) {
             this.hideRadialMenu()
         } else {
             this.showRadialMenu(event.x, event.y);
         }
+    }
+
+    private onPointerUp(event: MouseUpEvent) {
+        this.hideRadialMenu()
     }
 
     private showRadialMenu(x: number, y: number) {
@@ -126,6 +151,10 @@ export class RadialMenu implements Layer {
 
     private handleCenterButtonClick() {
         console.log('Center button clicked');
+        const clicked = this.game.tile(this.clickedCell)
+        if (clicked.owner().clientID() != this.clientID) {
+            this.eventBus.emit(new SendAttackIntentEvent(clicked.owner().id()))
+        }
         this.hideRadialMenu();
     }
 }

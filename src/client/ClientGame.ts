@@ -269,11 +269,7 @@ export class ClientGame {
                     this.gs.config().boatAttackAmount(this.myPlayer, owner)
                 ))
             } else {
-                this.eventBus.emit(new SendAttackIntentEvent(
-                    targetID,
-                    cell,
-                    this.gs.config().attackAmount(this.myPlayer, owner)
-                ))
+                this.eventBus.emit(new SendAttackIntentEvent(targetID))
             }
         }
 

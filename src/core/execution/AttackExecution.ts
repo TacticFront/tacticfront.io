@@ -27,7 +27,7 @@ export class AttackExecution implements Execution {
     private border = new Set<Tile>()
 
     constructor(
-        private troops: number,
+        private troops: number | null,
         private _ownerID: PlayerID,
         private _targetID: PlayerID | null,
         private sourceCell: Cell | null,
@@ -52,8 +52,12 @@ export class AttackExecution implements Execution {
 
         this._owner = mg.player(this._ownerID)
         this.target = this._targetID == this.mg.terraNullius().id() ? mg.terraNullius() : mg.player(this._targetID)
+
+        if (this.troops == null) {
+            this.troops = this.mg.config().attackAmount(this._owner, this.target)
+        }
         this.troops = Math.min(this._owner.troops(), this.troops)
-        this._owner.setTroops(this._owner.troops() - this.troops)
+        this._owner.removeTroops(this.troops)
 
         for (const exec of mg.executions()) {
             if (exec.isActive() && exec instanceof AttackExecution && exec != this) {

@@ -120,6 +120,7 @@ export interface TerraNullius {
     ownsTile(cell: Cell): boolean
     isPlayer(): false
     id(): PlayerID // always zero, maybe make it TerraNulliusID?
+    clientID(): ClientID
 }
 
 export interface Player {

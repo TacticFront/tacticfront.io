@@ -20,7 +20,7 @@ export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: 
 		new NameLayer(game, game.config().theme(), transformHandler, clientID),
 		new UILayer(eventBus, game, clientID, transformHandler),
 		new EventsDisplay(eventBus, game, clientID),
-		new RadialMenu(eventBus),
+		new RadialMenu(eventBus, game, transformHandler, clientID),
 	]
 
 	return new GameRenderer(game, eventBus, canvas, transformHandler, layers)

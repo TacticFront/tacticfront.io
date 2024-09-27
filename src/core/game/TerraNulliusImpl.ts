@@ -1,3 +1,4 @@
+import {ClientID} from "../Schemas";
 import {TerraNullius, Cell, Tile, PlayerID} from "./Game";
 import {GameImpl} from "./GameImpl";
 
@@ -8,10 +9,14 @@ export class TerraNulliusImpl implements TerraNullius {
 
     constructor(private gs: GameImpl) {
     }
+    clientID(): ClientID {
+        return "TERRA_NULLIUS_CLIENT_ID"
+    }
 
     id(): PlayerID {
         return null
     }
+
     ownsTile(cell: Cell): boolean {
         return this.tiles.has(cell);
     }
