@@ -139,9 +139,12 @@
 * make radial menu buttons grayed out DONE 9/27/2024
 * add request alliance radial button DONE 9/27/2024
 * add break alliance radial button DONE 9/27/2024
-* add send boat radial button
+* add send boat radial button DONE 9/27/2024
 * attack radial center button only on enemy
 * Make buttons icons
+* better color scheme radial menu
+* test on mobile
+* make event box work on mobile
 * add emoji button
 * buttons greyed out when not active
 * make alliance request mobile friendly

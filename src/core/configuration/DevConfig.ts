@@ -7,7 +7,7 @@ export const devConfig = new class extends DefaultConfig {
         return 95
     }
     numSpawnPhaseTurns(): number {
-        return 80
+        return 40
     }
     gameCreationRate(): number {
         return 2 * 1000
@@ -27,9 +27,9 @@ export const devConfig = new class extends DefaultConfig {
     //     return 10 * 10
     // }
 
-    // numFakeHumans(gameID: GameID): number {
-    //     return 0
-    // }
+    numFakeHumans(gameID: GameID): number {
+        return 0
+    }
 
     // startTroops(playerInfo: PlayerInfo): number {
     //     if (playerInfo.isBot) {

@@ -1,7 +1,7 @@
 import {v4 as uuidv4} from 'uuid';
 
 
-import {Cell, Player, Tile} from "./game/Game";
+import {Cell, Game, Player, TerraNullius, Tile} from "./game/Game";
 
 export function manhattanDist(c1: Cell, c2: Cell): number {
     return Math.abs(c1.x - c2.x) + Math.abs(c1.y - c2.y);
@@ -30,6 +30,41 @@ export function dist(root: Tile, dist: number): (tile: Tile) => boolean {
 
 export function and(x: (tile: Tile) => boolean, y: (tile: Tile) => boolean): (tile: Tile) => boolean {
     return (tile: Tile) => x(tile) && y(tile)
+}
+
+// TODO: refactor to new file
+export function sourceDstOceanShore(game: Game, src: Player, dst: Player | TerraNullius, cell: Cell): [Tile | null, Tile | null] {
+    let srcTile = closestOceanShoreFromPlayer(src, cell, game.width())
+    let dstTile: Tile | null = null
+    if (dst.isPlayer()) {
+        dstTile = closestOceanShoreFromPlayer(dst as Player, cell, game.width())
+    } else {
+        dstTile = closestOceanShoreTN(game.tile(cell), 300)
+    }
+    return [srcTile, dstTile]
+}
+
+function closestOceanShoreFromPlayer(player: Player, target: Cell, width: number): Tile | null {
+    const shoreTiles = Array.from(player.borderTiles()).filter(t => t.isOceanShore())
+    if (shoreTiles.length == 0) {
+        return null
+    }
+
+    return shoreTiles.reduce((closest, current) => {
+        const closestDistance = manhattanDistWrapped(target, closest.cell(), width);
+        const currentDistance = manhattanDistWrapped(target, current.cell(), width);
+        return currentDistance < closestDistance ? current : closest;
+    });
+}
+
+function closestOceanShoreTN(tile: Tile, searchDist: number): Tile {
+    const tn = Array.from(bfs(tile, and(t => !t.hasOwner(), dist(tile, searchDist))))
+        .filter(t => t.isOceanShore())
+        .sort((a, b) => manhattanDist(tile.cell(), a.cell()) - manhattanDist(tile.cell(), b.cell()))
+    if (tn.length == 0) {
+        return null
+    }
+    return tn[0]
 }
 
 export function bfs(tile: Tile, filter: (tile: Tile) => boolean): Set<Tile> {

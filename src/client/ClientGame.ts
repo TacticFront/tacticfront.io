@@ -122,7 +122,6 @@ export class ClientGame {
                 this.join()
             }
         };
-
     }
 
     public start() {
@@ -216,78 +215,14 @@ export class ClientGame {
             return
         }
 
-        let bordersOcean = false
-        let bordersEnemy = false
         if (tile.isLand()) {
-            const bordersWithDists: Tile[] = []
             for (const border of this.myPlayer.borderTiles()) {
-                if (border.isOceanShore()) {
-                    bordersOcean = true
-                }
                 for (const n of border.neighbors()) {
                     if (n.owner() == tile.owner()) {
-                        bordersWithDists.push(n)
-                        bordersEnemy = true
+                        this.eventBus.emit(new SendAttackIntentEvent(targetID))
+                        return
                     }
                 }
-            }
-
-            // Border with enemy sorted by distance to click tile.
-            const borderWithDists = bordersWithDists.map(t => ({
-                dist: manhattanDist(t.cell(), tile.cell()),
-                tile: t
-            })).sort((a, b) => a.dist - b.dist);
-
-            const enemyShoreDists = Array.from(bfs(
-                tile,
-                and((t) => t.isLand() && t.owner() == tile.owner(), dist(tile, 10))
-            )).filter(t => t.isOceanShore()).map(t => ({
-                dist: manhattanDist(t.cell(), tile.cell()),
-                tile: t
-            })).sort((a, b) => a.dist - b.dist);
-
-            if (!bordersEnemy && !bordersOcean) {
-                return
-            }
-
-            let borderTileClosest = 10000000
-            let enemyShoreClosest = 10000
-            if (borderWithDists.length == 0 && enemyShoreDists.length == 0) {
-                return
-            }
-
-            if (bordersWithDists.length > 0) {
-                borderTileClosest = borderWithDists[0].dist
-            }
-            if (enemyShoreDists.length > 0) {
-                enemyShoreClosest = enemyShoreDists[0].dist
-            }
-            if (enemyShoreClosest < borderTileClosest / 6) {
-                this.eventBus.emit(new SendBoatAttackIntentEvent(
-                    targetID,
-                    enemyShoreDists[0].tile.cell(),
-                    this.gs.config().boatAttackAmount(this.myPlayer, owner)
-                ))
-            } else {
-                this.eventBus.emit(new SendAttackIntentEvent(targetID))
-            }
-        }
-
-        if (tile.isOcean()) {
-            const bordersOcean = Array.from(this.myPlayer.borderTiles()).filter(t => t.isOceanShore()).length > 0
-            if (!bordersOcean) {
-                return
-            }
-            const tn = Array.from(bfs(tile, dist(tile, 10)))
-                .filter(t => t.isOceanShore())
-                .filter(t => t.owner() != this.myPlayer)
-                .sort((a, b) => manhattanDist(tile.cell(), a.cell()) - manhattanDist(tile.cell(), b.cell()))
-            if (tn.length > 0) {
-                this.eventBus.emit(new SendBoatAttackIntentEvent(
-                    tn[0].owner().id(),
-                    tn[0].cell(),
-                    this.gs.config().boatAttackAmount(this.myPlayer, owner)
-                ))
             }
         }
     }

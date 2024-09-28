@@ -75,7 +75,7 @@ export const BoatAttackIntentSchema = BaseIntentSchema.extend({
     type: z.literal('boat'),
     attackerID: z.string(),
     targetID: z.string().nullable(),
-    troops: z.number(),
+    troops: z.number().nullable(),
     x: z.number(),
     y: z.number(),
 })

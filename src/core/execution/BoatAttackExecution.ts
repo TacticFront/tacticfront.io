@@ -1,9 +1,7 @@
 import {PriorityQueue} from "@datastructures-js/priority-queue";
 import {Boat, Cell, Execution, MutableBoat, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, Tile, TileEvent} from "../game/Game";
-import {manhattanDist, manhattanDistWrapped} from "../Util";
+import {and, bfs, manhattanDistWrapped, sourceDstOceanShore} from "../Util";
 import {AttackExecution} from "./AttackExecution";
-import {Config} from "../configuration/Config";
-import {EventBus} from "../EventBus";
 import {DisplayMessageEvent, MessageType} from "../../client/graphics/layers/EventsDisplay";
 
 export class BoatAttackExecution implements Execution {
@@ -21,8 +19,8 @@ export class BoatAttackExecution implements Execution {
 
     // TODO make private
     public path: Tile[]
-    private src: Tile
-    private dst: Tile
+    private src: Tile | null
+    private dst: Tile | null
 
     private currTileIndex: number = 0
 
@@ -37,7 +35,7 @@ export class BoatAttackExecution implements Execution {
         private attackerID: PlayerID,
         private targetID: PlayerID | null,
         private cell: Cell,
-        private troops: number,
+        private troops: number | null,
     ) { }
 
     activeDuringSpawnPhase(): boolean {
@@ -63,11 +61,16 @@ export class BoatAttackExecution implements Execution {
             this.target = mg.player(this.targetID)
         }
 
+        if (this.troops == null) {
+            this.troops = this.mg.config().boatAttackAmount(this.attacker, this.target)
+        }
+
         this.troops = Math.min(this.troops, this.attacker.troops())
         this.attacker.removeTroops(this.troops)
 
-        this.src = this.closestShoreTile(this.attacker, this.cell)
-        this.dst = this.mg.tile(this.cell)
+        const [srcTile, dstTile]: [Tile | null, Tile | null] = sourceDstOceanShore(this.mg, this.attacker, this.target, this.cell);
+        this.src = srcTile
+        this.dst = dstTile
 
         if (this.src == null || this.dst == null) {
             this.active = false
@@ -135,18 +138,6 @@ export class BoatAttackExecution implements Execution {
         return this.active
     }
 
-    private closestShoreTile(player: Player, target: Cell): Tile | null {
-        const shoreTiles = Array.from(player.borderTiles()).filter(t => t.isOceanShore())
-        if (shoreTiles.length == 0) {
-            return null
-        }
-
-        return shoreTiles.reduce((closest, current) => {
-            const closestDistance = manhattanDistWrapped(target, closest.cell(), this.mg.width());
-            const currentDistance = manhattanDistWrapped(target, current.cell(), this.mg.width());
-            return currentDistance < closestDistance ? current : closest;
-        });
-    }
 }
 
 export class AStar {

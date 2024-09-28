@@ -1,8 +1,9 @@
 import {EventBus} from "../../../core/EventBus";
 import {Cell, Game, Player, PlayerID} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
+import {manhattanDist, sourceDstOceanShore} from "../../../core/Util";
 import {ContextMenuEvent, MouseUpEvent} from "../../InputHandler";
-import {SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBreakAllianceIntentEvent} from "../../Transport";
+import {SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent} from "../../Transport";
 import {TransformHandler} from "../TransformHandler";
 import {MessageType} from "./EventsDisplay";
 import {Layer} from "./Layer";
@@ -21,8 +22,8 @@ export class RadialMenu implements Layer {
     private isVisible: boolean = false;
     private readonly menuItems = new Map([
         [RadialElement.RequestAlliance, {name: "alliance", color: "#3498db", disabled: true, action: () => { }}],
-        [RadialElement.BreakAlliance, {name: "breakAlliance", color: "#3498db", disabled: true, action: () => { }}],
         [RadialElement.BoatAttack, {name: "boat", color: "#3498db", disabled: true, action: () => { }}],
+        [RadialElement.BreakAlliance, {name: "breakAlliance", color: "#3498db", disabled: true, action: () => { }}],
     ]);
     private readonly menuSize = 190;
     private readonly centerButtonSize = 30;
@@ -179,42 +180,87 @@ export class RadialMenu implements Layer {
             item.disabled = true
             this.updateMenuItemState(item)
         }
-
-        const cell = this.transformHandler.screenToWorldCoordinates(event.x, event.y)
-        if (!this.game.isOnMap(cell)) {
-            return
-        }
-        const tile = this.game.tile(cell)
-        if (!tile.hasOwner()) {
-            return
-        }
-        const owner = tile.owner() as Player
-        if (owner.clientID() == this.clientID) {
-            return
-        }
         const myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
         if (!myPlayer) {
             console.warn('my player not found')
             return
         }
 
-        if (myPlayer.pendingAllianceRequestWith(owner)) {
+
+        this.clickedCell = this.transformHandler.screenToWorldCoordinates(event.x, event.y)
+        if (!this.game.isOnMap(this.clickedCell)) {
+            return
+        }
+        const tile = this.game.tile(this.clickedCell)
+        const other = tile.owner()
+
+        if (tile.hasOwner()) {
+            const other = tile.owner() as Player
+            if (other.clientID() == this.clientID) {
+                return
+            }
+
+            if (myPlayer.pendingAllianceRequestWith(other)) {
+                return
+            }
+
+            if (myPlayer.isAlliedWith(other)) {
+                this.activateMenuElement(RadialElement.BreakAlliance, () => {
+                    this.eventBus.emit(
+                        new SendBreakAllianceIntentEvent(myPlayer, other)
+                    )
+                })
+            } else {
+                this.activateMenuElement(RadialElement.RequestAlliance, () => {
+                    this.eventBus.emit(
+                        new SendAllianceRequestIntentEvent(myPlayer, other)
+                    )
+                    this.game.displayMessage(`sending alliance request to ${other.name()}`, MessageType.INFO, myPlayer.id())
+                })
+            }
+        }
+
+        if (!tile.isLand()) {
+            return
+        }
+        if (myPlayer.boats().length >= this.game.config().boatMaxNumber()) {
             return
         }
 
-        if (myPlayer.isAlliedWith(owner)) {
-            this.activateMenuElement(RadialElement.BreakAlliance, () => {
-                this.eventBus.emit(
-                    new SendBreakAllianceIntentEvent(myPlayer, owner)
-                )
-            })
+        let myPlayerBordersOcean = false
+        for (const bt of myPlayer.borderTiles()) {
+            if (bt.isOceanShore()) {
+                myPlayerBordersOcean = true
+                break
+            }
+        }
+        let otherPlayerBordersOcean = false
+        if (!tile.hasOwner()) {
+            otherPlayerBordersOcean = true
         } else {
-            this.activateMenuElement(RadialElement.RequestAlliance, () => {
-                this.eventBus.emit(
-                    new SendAllianceRequestIntentEvent(myPlayer, owner)
-                )
-                this.game.displayMessage(`sending alliance request to ${owner.name()}`, MessageType.INFO, myPlayer.id())
-            })
+            for (const bt of (other as Player).borderTiles()) {
+                if (bt.isOceanShore()) {
+                    otherPlayerBordersOcean = true
+                    break
+                }
+            }
+        }
+
+        if (other.isPlayer() && myPlayer.allianceWith(other)) {
+            return
+        }
+
+        if (myPlayerBordersOcean && otherPlayerBordersOcean) {
+            const [src, dst] = sourceDstOceanShore(this.game, myPlayer, other, this.clickedCell)
+            if (src != null && dst != null) {
+                if (manhattanDist(src.cell(), dst.cell()) < this.game.config().boatMaxDistance()) {
+                    this.activateMenuElement(RadialElement.BoatAttack, () => {
+                        this.eventBus.emit(
+                            new SendBoatAttackIntentEvent(other.id(), this.clickedCell, null)
+                        )
+                    })
+                }
+            }
         }
     }
 
@@ -266,4 +312,8 @@ export class RadialMenu implements Layer {
         const gray = rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
         return d3.rgb(gray, gray, gray).toString();
     }
+}
+
+function closestOceanShoreOwnedByPlayer(attacker: any, targetShore: any) {
+    throw new Error("Function not implemented.");
 }
