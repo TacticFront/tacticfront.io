@@ -139,8 +139,9 @@
 * make radial menu buttons grayed out DONE 9/27/2024
 * add request alliance radial button DONE 9/27/2024
 * add break alliance radial button DONE 9/27/2024
-* add send boat radial button DONE 9/27/2024
-* attack radial center button only on enemy
+* add send boat radial button DONE 9/28/2024
+* attack radial center button only on enemy DONE 9/28/2024
+* radial center button "spawn" during spawn phase DONE 9/28/2024
 * Make buttons icons
 * better color scheme radial menu
 * test on mobile

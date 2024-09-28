@@ -13,10 +13,11 @@ import {WinCheckExecution} from "../core/execution/WinCheckExecution";
 import {SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendSpawnIntentEvent, Transport} from "./Transport";
 import {createCanvas} from "./graphics/Utils";
 import {DisplayMessageEvent, MessageType} from "./graphics/layers/EventsDisplay";
+import {placeName} from "./graphics/NameBoxCalculator";
 
 
 
-export function createClientGame(name: string, clientID: ClientID, playerID: PlayerID, ip: string | null, gameID: GameID, config: Config, terrainMap: TerrainMap): ClientGame {
+export function createClientGame(playerName: string, clientID: ClientID, playerID: PlayerID, ip: string | null, gameID: GameID, config: Config, terrainMap: TerrainMap): ClientGame {
     let eventBus = new EventBus()
 
     let game = createGame(terrainMap, eventBus, config)
@@ -27,11 +28,11 @@ export function createClientGame(name: string, clientID: ClientID, playerID: Pla
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const socket = new WebSocket(`${wsProtocol}//${wsHost}`)
 
-    const transport = new Transport(socket, eventBus, gameID, clientID, playerID)
+    const transport = new Transport(socket, eventBus, gameID, clientID, playerID, playerName)
 
 
     return new ClientGame(
-        name,
+        playerName,
         clientID,
         playerID,
         ip,
@@ -194,7 +195,7 @@ export class ClientGame {
         }
         const tile = this.gs.tile(cell)
         if (tile.isLand() && !tile.hasOwner() && this.gs.inSpawnPhase()) {
-            this.eventBus.emit(new SendSpawnIntentEvent(cell, this.playerName))
+            this.eventBus.emit(new SendSpawnIntentEvent(cell))
             return
         }
         if (this.gs.inSpawnPhase()) {

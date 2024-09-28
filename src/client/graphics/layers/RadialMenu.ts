@@ -3,7 +3,7 @@ import {Cell, Game, Player, PlayerID} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
 import {manhattanDist, sourceDstOceanShore} from "../../../core/Util";
 import {ContextMenuEvent, MouseUpEvent} from "../../InputHandler";
-import {SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent} from "../../Transport";
+import {SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendSpawnIntentEvent} from "../../Transport";
 import {TransformHandler} from "../TransformHandler";
 import {MessageType} from "./EventsDisplay";
 import {Layer} from "./Layer";
@@ -188,11 +188,6 @@ export class RadialMenu implements Layer {
             item.disabled = true
             this.updateMenuItemState(item)
         }
-        const myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
-        if (!myPlayer) {
-            console.warn('my player not found')
-            return
-        }
 
         this.clickedCell = this.transformHandler.screenToWorldCoordinates(event.x, event.y)
         if (!this.game.isOnMap(this.clickedCell)) {
@@ -200,6 +195,20 @@ export class RadialMenu implements Layer {
         }
         const tile = this.game.tile(this.clickedCell)
         const other = tile.owner()
+
+        if (this.game.inSpawnPhase()) {
+            if (tile.isLand() && !tile.hasOwner()) {
+                this.isCenterButtonEnabled = true
+                this.updateCenterButtonState()
+            }
+            return
+        }
+
+        const myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
+        if (!myPlayer) {
+            console.warn('my player not found')
+            return
+        }
 
         if (tile.owner() != myPlayer && tile.isLand() && myPlayer.sharesBorderWith(other)) {
             if (!other.isPlayer() || !myPlayer.isAlliedWith(other)) {
@@ -303,10 +312,17 @@ export class RadialMenu implements Layer {
     }
 
     private handleCenterButtonClick() {
+        if (!this.isCenterButtonEnabled) {
+            return
+        }
         console.log('Center button clicked');
         const clicked = this.game.tile(this.clickedCell)
-        if (clicked.owner().clientID() != this.clientID) {
-            this.eventBus.emit(new SendAttackIntentEvent(clicked.owner().id()))
+        if (this.game.inSpawnPhase()) {
+            this.eventBus.emit(new SendSpawnIntentEvent(this.clickedCell))
+        } else {
+            if (clicked.owner().clientID() != this.clientID) {
+                this.eventBus.emit(new SendAttackIntentEvent(clicked.owner().id()))
+            }
         }
         this.hideRadialMenu();
     }

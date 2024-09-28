@@ -26,7 +26,6 @@ export class SendAllianceReplyIntentEvent implements GameEvent {
 export class SendSpawnIntentEvent implements GameEvent {
     constructor(
         public readonly cell: Cell,
-        public readonly playerName: string,
     ) { }
 }
 
@@ -52,6 +51,7 @@ export class Transport {
         private gameID: GameID,
         private clientID: ClientID,
         private playerID: PlayerID,
+        private playerName: string,
     ) {
         this.eventBus.on(SendAllianceRequestIntentEvent, (e) => this.onSendAllianceRequest(e))
         this.eventBus.on(SendAllianceReplyIntentEvent, (e) => this.onAllianceRequestReplyUIEvent(e))
@@ -94,7 +94,7 @@ export class Transport {
             type: "spawn",
             clientID: this.clientID,
             playerID: this.playerID,
-            name: event.playerName,
+            name: this.playerName,
             playerType: PlayerType.Human,
             x: event.cell.x,
             y: event.cell.y
