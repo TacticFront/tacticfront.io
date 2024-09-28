@@ -2,8 +2,9 @@ import {EventBus} from "../../../core/EventBus";
 import {Cell, Game, Player, PlayerID} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
 import {ContextMenuEvent, MouseUpEvent} from "../../InputHandler";
-import {SendAttackIntentEvent} from "../../Transport";
+import {SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBreakAllianceIntentEvent} from "../../Transport";
 import {TransformHandler} from "../TransformHandler";
+import {MessageType} from "./EventsDisplay";
 import {Layer} from "./Layer";
 import * as d3 from 'd3';
 
@@ -13,14 +14,12 @@ export class RadialMenu implements Layer {
     private menuElement: d3.Selection<HTMLDivElement, unknown, null, undefined>;
     private isVisible: boolean = false;
     private readonly menuItems = [
-        {name: "sub", color: "#3498db"},
-        {name: "color", color: "#e74c3c"},
-        {name: "shape", color: "#2ecc71"},
-        {name: "font", color: "#f39c12"},
-        {name: "stroke", color: "#9b59b6"}
+        {name: "alliance", color: "#3498db", disabled: true, action: () => { }},
+        {name: "boat", color: "#3498db", disabled: true, action: () => { }},
+        {name: "request", color: "#2ecc71", disabled: true, action: () => { }},
     ];
-    private readonly menuSize = 300; // Increased size
-    private readonly centerButtonSize = 60;
+    private readonly menuSize = 190;
+    private readonly centerButtonSize = 30;
 
     constructor(
         private eventBus: EventBus,
@@ -41,7 +40,7 @@ export class RadialMenu implements Layer {
             .style('position', 'fixed')
             .style('display', 'none')
             .style('z-index', '9999')
-            .style('touch-action', 'none'); // Prevent default touch actions
+            .style('touch-action', 'none');
 
         const svg = this.menuElement.append('svg')
             .attr('width', this.menuSize)
@@ -54,7 +53,7 @@ export class RadialMenu implements Layer {
             .padAngle(0.03);
 
         const arc = d3.arc<any>()
-            .innerRadius(this.centerButtonSize + 10)
+            .innerRadius(this.centerButtonSize + 5)
             .outerRadius(this.menuSize / 2 - 10);
 
         const arcs = svg.selectAll('path')
@@ -64,19 +63,65 @@ export class RadialMenu implements Layer {
 
         arcs.append('path')
             .attr('d', arc)
-            .attr('fill', d => d.data.color)
-            .on('click', (event, d) => this.handleMenuSelection(d.data.name))
+            .attr('fill', d => d.data.disabled ? this.getDisabledColor(d.data.color) : d.data.color)
+            .attr('stroke', '#ffffff')
+            .attr('stroke-width', '2')
+            .style('cursor', d => d.data.disabled ? 'not-allowed' : 'pointer')
+            .style('opacity', d => d.data.disabled ? 0.5 : 1)
+            .attr('data-name', d => d.data.name)
+            .on('mouseover', function (event, d) {
+                if (!d.data.disabled) {
+                    d3.select(this)
+                        .transition()
+                        .duration(200)
+                        .attr('transform', 'scale(1.05)')
+                        .attr('filter', 'url(#glow)');
+                }
+            })
+            .on('mouseout', function (event, d) {
+                if (!d.data.disabled) {
+                    d3.select(this)
+                        .transition()
+                        .duration(200)
+                        .attr('transform', 'scale(1)')
+                        .attr('filter', null);
+                }
+            })
+            .on('click', (event, d) => {
+                if (!d.data.disabled) {
+                    d.data.action();
+                    this.hideRadialMenu();
+                }
+            })
             .on('touchstart', (event, d) => {
                 event.preventDefault();
-                this.handleMenuSelection(d.data.name);
+                if (!d.data.disabled) {
+                    d.data.action();
+                    this.hideRadialMenu();
+                }
             });
 
         arcs.append('text')
             .attr('transform', d => `translate(${arc.centroid(d)})`)
             .attr('text-anchor', 'middle')
-            .attr('fill', 'white')
+            .attr('fill', d => d.data.disabled ? '#999999' : 'white')
             .style('font-size', '14px')
+            .style('pointer-events', 'none')
+            .attr('data-name', d => d.data.name)
             .text(d => d.data.name);
+
+        // Add glow filter
+        const defs = svg.append('defs');
+        const filter = defs.append('filter')
+            .attr('id', 'glow');
+        filter.append('feGaussianBlur')
+            .attr('stdDeviation', '3')
+            .attr('result', 'coloredBlur');
+        const feMerge = filter.append('feMerge');
+        feMerge.append('feMergeNode')
+            .attr('in', 'coloredBlur');
+        feMerge.append('feMergeNode')
+            .attr('in', 'SourceGraphic');
 
         // Create a larger, transparent circle for better click detection
         svg.append('circle')
@@ -85,12 +130,13 @@ export class RadialMenu implements Layer {
             .style('cursor', 'pointer')
             .on('click', () => this.handleCenterButtonClick())
             .on('touchstart', (event) => {
+                event.preventDefault();
                 this.handleCenterButtonClick();
             });
 
         // Add visible center button circle
         svg.append('circle')
-            .attr('r', this.centerButtonSize - 10)
+            .attr('r', this.centerButtonSize)
             .attr('fill', '#2c3e50')
             .style('pointer-events', 'none');
 
@@ -117,14 +163,55 @@ export class RadialMenu implements Layer {
     }
 
     private onContextMenu(event: ContextMenuEvent) {
-        console.log('on context menu')
-
-        this.clickedCell = this.transformHandler.screenToWorldCoordinates(event.x, event.y)
         if (this.isVisible) {
             this.hideRadialMenu()
         } else {
             this.showRadialMenu(event.x, event.y);
         }
+
+        // const cell = this.transformHandler.screenToWorldCoordinates(e.x, e.y)
+        // if (!this.game.isOnMap(cell)) {
+        //     return
+        // }
+        // const tile = this.game.tile(cell)
+        // if (!tile.hasOwner()) {
+        //     return
+        // }
+        // const options: MenuOption[] = []
+        // const owner = tile.owner() as Player
+        // if (owner.clientID() == this.clientID) {
+        //     return
+        // }
+        // const myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
+        // if (!myPlayer) {
+        //     console.warn('my player not found')
+        //     return
+        // }
+
+        // if (myPlayer.pendingAllianceRequestWith(owner)) {
+        //     return
+        // }
+
+        // if (myPlayer.isAlliedWith(owner)) {
+        //     options.push({
+        //         label: "Break Alliance",
+        //         action: (): void => {
+        //             this.eventBus.emit(
+        //                 new SendBreakAllianceIntentEvent(myPlayer, owner)
+        //             )
+        //         },
+        //     })
+        // } else {
+        //     options.push({
+        //         label: "Request Alliance",
+        //         action: (): void => {
+        //             this.eventBus.emit(
+        //                 new SendAllianceRequestIntentEvent(myPlayer, owner)
+        //             )
+        //             this.game.displayMessage(`sending alliance request to ${owner.name()}`, MessageType.INFO, myPlayer.id())
+        //         },
+        //     })
+        // }
     }
 
     private onPointerUp(event: MouseUpEvent) {
@@ -144,11 +231,6 @@ export class RadialMenu implements Layer {
         this.isVisible = false;
     }
 
-    private handleMenuSelection(action: string) {
-        console.log(`Selected action: ${action}`);
-        this.hideRadialMenu();
-    }
-
     private handleCenterButtonClick() {
         console.log('Center button clicked');
         const clicked = this.game.tile(this.clickedCell)
@@ -156,5 +238,29 @@ export class RadialMenu implements Layer {
             this.eventBus.emit(new SendAttackIntentEvent(clicked.owner().id()))
         }
         this.hideRadialMenu();
+    }
+
+    public setMenuItemDisabled(itemName: string, disabled: boolean) {
+        const item = this.menuItems.find(item => item.name === itemName);
+        if (item) {
+            item.disabled = disabled;
+            this.updateMenuItemState(item);
+        }
+    }
+
+    private updateMenuItemState(item: any) {
+        this.menuElement.select(`path[data-name="${item.name}"]`)
+            .attr('fill', item.disabled ? this.getDisabledColor(item.color) : item.color)
+            .style('cursor', item.disabled ? 'not-allowed' : 'pointer')
+            .style('opacity', item.disabled ? 0.5 : 1);
+
+        this.menuElement.select(`text[data-name="${item.name}"]`)
+            .attr('fill', item.disabled ? '#999999' : 'white');
+    }
+
+    private getDisabledColor(color: string): string {
+        const rgb = d3.rgb(color);
+        const gray = rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
+        return d3.rgb(gray, gray, gray).toString();
     }
 }

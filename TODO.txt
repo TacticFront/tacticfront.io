@@ -136,6 +136,12 @@
 * BUG: boats landing doesn't launch attack DONE 9/21/2024
 * fake humans handle alliances DONE 9/22/2024
 * make alliances expire DONE 9/22/2024
+* make radial menu buttons grayed out DONE 9/27/2024
+* add send boat button
+* add request alliance button
+* add break alliance button
+* add emoji button
+* buttons greyed out when not active
 * make alliance request mobile friendly
 * request to attack other players
 * make year clock
