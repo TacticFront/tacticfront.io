@@ -60,7 +60,6 @@ export class UILayer implements Layer {
         this.createWinModal()
         this.initRightClickMenu()
         this.eventBus.on(WinEvent, (e) => this.onWinEvent(e))
-        this.eventBus.on(ContextMenuEvent, (e) => this.onRightClick(e))
     }
 
     initRightClickMenu() {
@@ -220,87 +219,6 @@ export class UILayer implements Layer {
     exitGame() {
         this.closeWinModal();
         window.location.reload();
-    }
-
-    private onRightClick(e: ContextMenuEvent) {
-        const cell = this.transformHandler.screenToWorldCoordinates(e.x, e.y)
-        if (!this.game.isOnMap(cell)) {
-            return
-        }
-        const tile = this.game.tile(cell)
-        if (!tile.hasOwner()) {
-            return
-        }
-        const options: MenuOption[] = []
-        const owner = tile.owner() as Player
-        if (owner.clientID() == this.clientID) {
-            return
-        }
-        const myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
-        if (!myPlayer) {
-            console.warn('my player not found')
-            return
-        }
-
-        if (myPlayer.pendingAllianceRequestWith(owner)) {
-            return
-        }
-
-        if (myPlayer.isAlliedWith(owner)) {
-            options.push({
-                label: "Break Alliance",
-                action: (): void => {
-                    this.eventBus.emit(
-                        new SendBreakAllianceIntentEvent(myPlayer, owner)
-                    )
-                },
-            })
-        } else {
-            options.push({
-                label: "Request Alliance",
-                action: (): void => {
-                    this.eventBus.emit(
-                        new SendAllianceRequestIntentEvent(myPlayer, owner)
-                    )
-                    this.game.displayMessage(`sending alliance request to ${owner.name()}`, MessageType.INFO, myPlayer.id())
-                },
-            })
-        }
-
-        this.customMenu!.style.display = 'block';
-        this.customMenu!.style.left = `${e.x}px`;
-        this.customMenu!.style.top = `${e.y}px`;
-
-
-
-        this.populateMenu(options)
-    }
-
-    private populateMenu(options: MenuOption[]) {
-        if (!this.customMenu) return;
-
-        // Clear existing menu items
-        this.customMenu.innerHTML = '';
-
-        // Create new menu items
-        const ul = document.createElement('ul');
-        options.forEach(option => {
-            const li = document.createElement('li');
-            li.textContent = option.label;
-            li.onclick = () => {
-                option.action();
-                this.hideMenu();
-            };
-            ul.appendChild(li);
-        });
-
-        this.customMenu.appendChild(ul);
-    }
-
-    private hideMenu() {
-        if (this.customMenu) {
-            this.customMenu.style.display = 'none';
-        }
     }
 
 }
