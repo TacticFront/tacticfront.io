@@ -137,9 +137,11 @@
 * fake humans handle alliances DONE 9/22/2024
 * make alliances expire DONE 9/22/2024
 * make radial menu buttons grayed out DONE 9/27/2024
-* add send boat button
-* add request alliance button
-* add break alliance button
+* add request alliance radial button DONE 9/27/2024
+* add break alliance radial button DONE 9/27/2024
+* add send boat radial button
+* attack radial center button only on enemy
+* Make buttons icons
 * add emoji button
 * buttons greyed out when not active
 * make alliance request mobile friendly

@@ -8,16 +8,22 @@ import {MessageType} from "./EventsDisplay";
 import {Layer} from "./Layer";
 import * as d3 from 'd3';
 
+enum RadialElement {
+    RequestAlliance,
+    BreakAlliance,
+    BoatAttack
+}
+
 export class RadialMenu implements Layer {
     private clickedCell: Cell | null = null
 
     private menuElement: d3.Selection<HTMLDivElement, unknown, null, undefined>;
     private isVisible: boolean = false;
-    private readonly menuItems = [
-        {name: "alliance", color: "#3498db", disabled: true, action: () => { }},
-        {name: "boat", color: "#3498db", disabled: true, action: () => { }},
-        {name: "request", color: "#2ecc71", disabled: true, action: () => { }},
-    ];
+    private readonly menuItems = new Map([
+        [RadialElement.RequestAlliance, {name: "alliance", color: "#3498db", disabled: true, action: () => { }}],
+        [RadialElement.BreakAlliance, {name: "breakAlliance", color: "#3498db", disabled: true, action: () => { }}],
+        [RadialElement.BoatAttack, {name: "boat", color: "#3498db", disabled: true, action: () => { }}],
+    ]);
     private readonly menuSize = 190;
     private readonly centerButtonSize = 30;
 
@@ -57,7 +63,7 @@ export class RadialMenu implements Layer {
             .outerRadius(this.menuSize / 2 - 10);
 
         const arcs = svg.selectAll('path')
-            .data(pie(this.menuItems))
+            .data(pie(Array.from(this.menuItems.values())))
             .enter()
             .append('g');
 
@@ -165,53 +171,58 @@ export class RadialMenu implements Layer {
     private onContextMenu(event: ContextMenuEvent) {
         if (this.isVisible) {
             this.hideRadialMenu()
+            return
         } else {
             this.showRadialMenu(event.x, event.y);
         }
+        for (const item of this.menuItems.values()) {
+            item.disabled = true
+            this.updateMenuItemState(item)
+        }
 
-        // const cell = this.transformHandler.screenToWorldCoordinates(e.x, e.y)
-        // if (!this.game.isOnMap(cell)) {
-        //     return
-        // }
-        // const tile = this.game.tile(cell)
-        // if (!tile.hasOwner()) {
-        //     return
-        // }
-        // const options: MenuOption[] = []
-        // const owner = tile.owner() as Player
-        // if (owner.clientID() == this.clientID) {
-        //     return
-        // }
-        // const myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
-        // if (!myPlayer) {
-        //     console.warn('my player not found')
-        //     return
-        // }
+        const cell = this.transformHandler.screenToWorldCoordinates(event.x, event.y)
+        if (!this.game.isOnMap(cell)) {
+            return
+        }
+        const tile = this.game.tile(cell)
+        if (!tile.hasOwner()) {
+            return
+        }
+        const owner = tile.owner() as Player
+        if (owner.clientID() == this.clientID) {
+            return
+        }
+        const myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
+        if (!myPlayer) {
+            console.warn('my player not found')
+            return
+        }
 
-        // if (myPlayer.pendingAllianceRequestWith(owner)) {
-        //     return
-        // }
+        if (myPlayer.pendingAllianceRequestWith(owner)) {
+            return
+        }
 
-        // if (myPlayer.isAlliedWith(owner)) {
-        //     options.push({
-        //         label: "Break Alliance",
-        //         action: (): void => {
-        //             this.eventBus.emit(
-        //                 new SendBreakAllianceIntentEvent(myPlayer, owner)
-        //             )
-        //         },
-        //     })
-        // } else {
-        //     options.push({
-        //         label: "Request Alliance",
-        //         action: (): void => {
-        //             this.eventBus.emit(
-        //                 new SendAllianceRequestIntentEvent(myPlayer, owner)
-        //             )
-        //             this.game.displayMessage(`sending alliance request to ${owner.name()}`, MessageType.INFO, myPlayer.id())
-        //         },
-        //     })
-        // }
+        if (myPlayer.isAlliedWith(owner)) {
+            this.activateMenuElement(RadialElement.BreakAlliance, () => {
+                this.eventBus.emit(
+                    new SendBreakAllianceIntentEvent(myPlayer, owner)
+                )
+            })
+        } else {
+            this.activateMenuElement(RadialElement.RequestAlliance, () => {
+                this.eventBus.emit(
+                    new SendAllianceRequestIntentEvent(myPlayer, owner)
+                )
+                this.game.displayMessage(`sending alliance request to ${owner.name()}`, MessageType.INFO, myPlayer.id())
+            })
+        }
+    }
+
+    private activateMenuElement(el: RadialElement, action: () => void) {
+        const menuItem = this.menuItems.get(el)
+        menuItem.action = action
+        menuItem.disabled = false
+        this.updateMenuItemState(menuItem)
     }
 
     private onPointerUp(event: MouseUpEvent) {
@@ -238,14 +249,6 @@ export class RadialMenu implements Layer {
             this.eventBus.emit(new SendAttackIntentEvent(clicked.owner().id()))
         }
         this.hideRadialMenu();
-    }
-
-    public setMenuItemDisabled(itemName: string, disabled: boolean) {
-        const item = this.menuItems.find(item => item.name === itemName);
-        if (item) {
-            item.disabled = disabled;
-            this.updateMenuItemState(item);
-        }
     }
 
     private updateMenuItemState(item: any) {
