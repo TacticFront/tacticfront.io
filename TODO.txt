@@ -145,6 +145,7 @@
 * better color scheme radial menu
 * test on mobile
 * make event box work on mobile
+* add request attack
 * add emoji button
 * buttons greyed out when not active
 * make alliance request mobile friendly

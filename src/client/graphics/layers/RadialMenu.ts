@@ -17,6 +17,7 @@ enum RadialElement {
 
 export class RadialMenu implements Layer {
     private clickedCell: Cell | null = null
+    private isCenterButtonEnabled = false
 
     private menuElement: d3.Selection<HTMLDivElement, unknown, null, undefined>;
     private isVisible: boolean = false;
@@ -130,25 +131,30 @@ export class RadialMenu implements Layer {
         feMerge.append('feMergeNode')
             .attr('in', 'SourceGraphic');
 
-        // Create a larger, transparent circle for better click detection
-        svg.append('circle')
+        const centerButton = svg.append('g')
+            .attr('class', 'center-button');
+
+        centerButton.append('circle')
+            .attr('class', 'center-button-hitbox')
             .attr('r', this.centerButtonSize)
             .attr('fill', 'transparent')
             .style('cursor', 'pointer')
             .on('click', () => this.handleCenterButtonClick())
-            .on('touchstart', (event) => {
+            .on('touchstart', (event: Event) => {
                 event.preventDefault();
                 this.handleCenterButtonClick();
-            });
+            })
+            .on('mouseover', () => this.onCenterButtonHover(true))
+            .on('mouseout', () => this.onCenterButtonHover(false));
 
-        // Add visible center button circle
-        svg.append('circle')
+        centerButton.append('circle')
+            .attr('class', 'center-button-visible')
             .attr('r', this.centerButtonSize)
             .attr('fill', '#2c3e50')
             .style('pointer-events', 'none');
 
-        // Add text to the center button
-        svg.append('text')
+        centerButton.append('text')
+            .attr('class', 'center-button-text')
             .attr('text-anchor', 'middle')
             .attr('dy', '0.3em')
             .attr('fill', 'white')
@@ -176,6 +182,8 @@ export class RadialMenu implements Layer {
         } else {
             this.showRadialMenu(event.x, event.y);
         }
+        this.isCenterButtonEnabled = false
+        this.updateCenterButtonState()
         for (const item of this.menuItems.values()) {
             item.disabled = true
             this.updateMenuItemState(item)
@@ -186,13 +194,19 @@ export class RadialMenu implements Layer {
             return
         }
 
-
         this.clickedCell = this.transformHandler.screenToWorldCoordinates(event.x, event.y)
         if (!this.game.isOnMap(this.clickedCell)) {
             return
         }
         const tile = this.game.tile(this.clickedCell)
         const other = tile.owner()
+
+        if (tile.owner() != myPlayer && tile.isLand() && myPlayer.sharesBorderWith(other)) {
+            if (!other.isPlayer() || !myPlayer.isAlliedWith(other)) {
+                this.isCenterButtonEnabled = true
+                this.updateCenterButtonState()
+            }
+        }
 
         if (tile.hasOwner()) {
             const other = tile.owner() as Player
@@ -307,13 +321,33 @@ export class RadialMenu implements Layer {
             .attr('fill', item.disabled ? '#999999' : 'white');
     }
 
+    private onCenterButtonHover(isHovering: boolean) {
+        if (!this.isCenterButtonEnabled) return;
+
+        const scale = isHovering ? 1.2 : 1;
+        const fontSize = isHovering ? '18px' : '16px';
+
+        this.menuElement.select('.center-button-hitbox').transition().duration(200).attr('r', this.centerButtonSize * scale);
+        this.menuElement.select('.center-button-visible').transition().duration(200).attr('r', this.centerButtonSize * scale);
+        this.menuElement.select('.center-button-text').transition().duration(200).style('font-size', fontSize);
+    }
+
+    private updateCenterButtonState() {
+        const centerButton = this.menuElement.select('.center-button');
+
+        centerButton.select('.center-button-hitbox')
+            .style('cursor', this.isCenterButtonEnabled ? 'pointer' : 'not-allowed');
+
+        centerButton.select('.center-button-visible')
+            .attr('fill', this.isCenterButtonEnabled ? '#2c3e50' : '#999999');
+
+        centerButton.select('.center-button-text')
+            .attr('fill', this.isCenterButtonEnabled ? 'white' : '#cccccc');
+    }
+
     private getDisabledColor(color: string): string {
         const rgb = d3.rgb(color);
         const gray = rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
         return d3.rgb(gray, gray, gray).toString();
     }
-}
-
-function closestOceanShoreOwnedByPlayer(attacker: any, targetShore: any) {
-    throw new Error("Function not implemented.");
 }
