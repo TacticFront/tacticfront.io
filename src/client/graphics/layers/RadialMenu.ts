@@ -28,8 +28,8 @@ export class RadialMenu implements Layer {
     private isVisible: boolean = false;
     private readonly menuItems = new Map([
         [RadialElement.RequestAlliance, {name: "alliance", color: "#53ac75", disabled: true, action: () => { }, icon: allianceIcon}],
-        [RadialElement.BoatAttack, {name: "boat", color: "#5373ac", disabled: true, action: () => { }, icon: boatIcon}],
-        [RadialElement.BreakAlliance, {name: "break", color: "#ac6753", disabled: true, action: () => { }, icon: traitorIcon}],
+        [RadialElement.BoatAttack, {name: "boat", color: "#3f6ab1", disabled: true, action: () => { }, icon: boatIcon}],
+        [RadialElement.BreakAlliance, {name: "break", color: "#b1593f", disabled: true, action: () => { }, icon: traitorIcon}],
     ]);
 
     private readonly menuSize = 190;

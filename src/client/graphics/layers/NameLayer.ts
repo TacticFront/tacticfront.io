@@ -36,12 +36,9 @@ export class NameLayer implements Layer {
     private allianceIconImage: HTMLImageElement;
     private crownIconImage: HTMLImageElement;
 
-
     private myPlayer: Player | null = null
 
     private firstPlace: Player | null = null
-
-
 
     constructor(private game: Game, private theme: Theme, private transformHandler: TransformHandler, private clientID: ClientID) {
         this.traitorIconImage = new Image();

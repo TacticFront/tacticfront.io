@@ -42,12 +42,6 @@ class Client {
         this.terrainMap = loadTerrainMap()
         this.startLobbyPolling()
         this.ip = getClientIP()
-        setupUsernameCallback((username) => {
-            console.log('Username updated:', username);
-            if (this.game != null) {
-                this.game.playerName = username
-            }
-        });
     }
 
     private startLobbyPolling(): void {
@@ -136,7 +130,7 @@ class Client {
         ]);
         console.log(`got ip ${clientIP}`)
         this.game = createClientGame(
-            refreshUsername(),
+            refreshUsername,
             uuidv4(),
             uuidv4(),
             clientIP,

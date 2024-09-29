@@ -143,12 +143,12 @@
 * attack radial center button only on enemy DONE 9/28/2024
 * radial center button "spawn" during spawn phase DONE 9/28/2024
 * better color scheme radial menu DONE 9/28/2024
-* Make buttons icons
-* Spawn or attack button icon
-* BUG: change username after selecting map
+* Make buttons icons DONE 9/28/2024
+* BUG: change username after selecting map DONE 9/29/2024
 * make fake humans more difficult
 * test on mobile
 * make event box work on mobile
+* BUG: alliance cooldown request
 * add request attack
 * add emoji button
 * buttons greyed out when not active

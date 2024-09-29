@@ -17,7 +17,7 @@ import {placeName} from "./graphics/NameBoxCalculator";
 
 
 
-export function createClientGame(playerName: string, clientID: ClientID, playerID: PlayerID, ip: string | null, gameID: GameID, config: Config, terrainMap: TerrainMap): ClientGame {
+export function createClientGame(playerName: () => string, clientID: ClientID, playerID: PlayerID, ip: string | null, gameID: GameID, config: Config, terrainMap: TerrainMap): ClientGame {
     let eventBus = new EventBus()
 
     let game = createGame(terrainMap, eventBus, config)
@@ -32,7 +32,6 @@ export function createClientGame(playerName: string, clientID: ClientID, playerI
 
 
     return new ClientGame(
-        playerName,
         clientID,
         playerID,
         ip,
@@ -59,7 +58,6 @@ export class ClientGame {
 
 
     constructor(
-        public playerName: string,
         private id: ClientID,
         private playerID: PlayerID,
         private clientIP: string | null,
