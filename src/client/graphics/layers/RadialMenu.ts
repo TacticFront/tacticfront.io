@@ -8,6 +8,11 @@ import {TransformHandler} from "../TransformHandler";
 import {MessageType} from "./EventsDisplay";
 import {Layer} from "./Layer";
 import * as d3 from 'd3';
+import traitorIcon from '../../../../resources/images/TraitorIconWhite.png';
+import allianceIcon from '../../../../resources/images/AllianceIconWhite.png';
+import boatIcon from '../../../../resources/images/BoatIconWhite.png';
+import swordIcon from '../../../../resources/images/SwordIconWhite.png';
+
 
 enum RadialElement {
     RequestAlliance,
@@ -22,12 +27,15 @@ export class RadialMenu implements Layer {
     private menuElement: d3.Selection<HTMLDivElement, unknown, null, undefined>;
     private isVisible: boolean = false;
     private readonly menuItems = new Map([
-        [RadialElement.RequestAlliance, {name: "alliance", color: "#3498db", disabled: true, action: () => { }}],
-        [RadialElement.BoatAttack, {name: "boat", color: "#3498db", disabled: true, action: () => { }}],
-        [RadialElement.BreakAlliance, {name: "breakAlliance", color: "#3498db", disabled: true, action: () => { }}],
+        [RadialElement.RequestAlliance, {name: "alliance", color: "#53ac75", disabled: true, action: () => { }, icon: allianceIcon}],
+        [RadialElement.BoatAttack, {name: "boat", color: "#5373ac", disabled: true, action: () => { }, icon: boatIcon}],
+        [RadialElement.BreakAlliance, {name: "break", color: "#ac6753", disabled: true, action: () => { }, icon: traitorIcon}],
     ]);
+
     private readonly menuSize = 190;
     private readonly centerButtonSize = 30;
+    private readonly iconSize = 32;
+    private readonly centerIconSize = 48;
 
     constructor(
         private eventBus: EventBus,
@@ -108,15 +116,14 @@ export class RadialMenu implements Layer {
                     this.hideRadialMenu();
                 }
             });
-
-        arcs.append('text')
-            .attr('transform', d => `translate(${arc.centroid(d)})`)
-            .attr('text-anchor', 'middle')
-            .attr('fill', d => d.data.disabled ? '#999999' : 'white')
-            .style('font-size', '14px')
+        arcs.append('image')
+            .attr('xlink:href', d => d.data.icon)
+            .attr('width', this.iconSize)
+            .attr('height', this.iconSize)
+            .attr('x', d => arc.centroid(d)[0] - this.iconSize / 2)
+            .attr('y', d => arc.centroid(d)[1] - this.iconSize / 2)
             .style('pointer-events', 'none')
-            .attr('data-name', d => d.data.name)
-            .text(d => d.data.name);
+            .attr('data-name', d => d.data.name);
 
         // Add glow filter
         const defs = svg.append('defs');
@@ -153,14 +160,15 @@ export class RadialMenu implements Layer {
             .attr('fill', '#2c3e50')
             .style('pointer-events', 'none');
 
-        centerButton.append('text')
-            .attr('class', 'center-button-text')
-            .attr('text-anchor', 'middle')
-            .attr('dy', '0.3em')
-            .attr('fill', 'white')
-            .style('font-size', '16px')
-            .style('pointer-events', 'none')
-            .text('Attack');
+        // Replace text with sword icon
+        centerButton.append('image')
+            .attr('class', 'center-button-icon')
+            .attr('xlink:href', swordIcon)
+            .attr('width', this.centerIconSize)
+            .attr('height', this.centerIconSize)
+            .attr('x', -this.centerIconSize / 2)
+            .attr('y', -this.centerIconSize / 2)
+            .style('pointer-events', 'none');
     }
 
     tick() {
