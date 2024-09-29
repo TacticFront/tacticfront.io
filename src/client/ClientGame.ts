@@ -24,11 +24,9 @@ export function createClientGame(playerName: () => string, clientID: ClientID, p
     const canvas = createCanvas()
     let gameRenderer = createRenderer(canvas, game, eventBus, clientID)
 
-    const wsHost = process.env.WEBSOCKET_URL || window.location.host;
-    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const socket = new WebSocket(`${wsProtocol}//${wsHost}`)
 
-    const transport = new Transport(socket, eventBus, gameID, clientID, playerID, playerName)
+
+    const transport = new Transport(null, eventBus, gameID, clientID, playerID, playerName)
 
 
     return new ClientGame(
@@ -41,7 +39,7 @@ export function createClientGame(playerName: () => string, clientID: ClientID, p
         gameRenderer,
         new InputHandler(canvas, eventBus),
         new Executor(game, gameID),
-        socket,
+        transport,
     )
 }
 
@@ -56,6 +54,7 @@ export class ClientGame {
 
     private isProcessingTurn = false
 
+    private socket: WebSocket = null
 
     constructor(
         private id: ClientID,
@@ -67,10 +66,14 @@ export class ClientGame {
         private renderer: GameRenderer,
         private input: InputHandler,
         private executor: Executor,
-        private socket: WebSocket,
+        private transport: Transport,
     ) { }
 
     public join() {
+        const wsHost = process.env.WEBSOCKET_URL || window.location.host;
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        this.socket = new WebSocket(`${wsProtocol}//${wsHost}`)
+        this.transport.socket = this.socket
         this.socket.onopen = () => {
             console.log('Connected to game server!');
             this.socket.send(
@@ -98,11 +101,6 @@ export class ClientGame {
                 if (!this.isActive) {
                     this.start()
                 }
-                // this.sendIntent({
-                //     type: "updateName",
-                //     name: this.playerName,
-                //     clientID: this.id
-                // })
             }
             if (message.type == "turn") {
                 this.addTurn(message.turn)

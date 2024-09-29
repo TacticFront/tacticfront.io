@@ -46,7 +46,7 @@ export class SendBoatAttackIntentEvent implements GameEvent {
 export class Transport {
 
     constructor(
-        private socket: WebSocket,
+        public socket: WebSocket,
         private eventBus: EventBus,
         private gameID: GameID,
         private clientID: ClientID,
