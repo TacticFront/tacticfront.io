@@ -18,6 +18,7 @@ export class FakeHumanExecution implements Execution {
     private enemy: Player | null = null
 
     private rejected: Set<Player> = new Set<Player>
+    private isTraitor = false
 
 
     constructor(private playerInfo: PlayerInfo) {
@@ -26,6 +27,9 @@ export class FakeHumanExecution implements Execution {
 
     init(mg: MutableGame, ticks: number) {
         this.mg = mg
+        if (this.random.chance(2)) {
+            this.isTraitor = true
+        }
     }
 
     tick(ticks: number) {
@@ -106,11 +110,11 @@ export class FakeHumanExecution implements Execution {
         }
 
         if (this.random.chance(2)) {
-            if (!this.player.isAlliedWith(enemies[0]) || this.random.chance(30)) {
+            if (!this.player.isAlliedWith(enemies[0]) || (this.random.chance(90) && this.isTraitor)) {
                 this.sendAttack(enemies[0])
             }
         } else {
-            if (!this.player.isAlliedWith(enemies[0]) || this.random.chance(60)) {
+            if (!this.player.isAlliedWith(enemies[0]) || (this.random.chance(180) && this.isTraitor)) {
                 this.sendAttack(this.random.randElement(enemies))
             }
         }

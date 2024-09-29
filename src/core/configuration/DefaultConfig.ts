@@ -26,7 +26,7 @@ export class DefaultConfig implements Config {
         return 400
     }
     numFakeHumans(gameID: GameID): number {
-        return simpleHash(gameID) % 20
+        return simpleHash(gameID) % 40
     }
     turnIntervalMs(): number {
         return 100
@@ -59,11 +59,19 @@ export class DefaultConfig implements Config {
         // speed = mag  
 
         if (attacker.isPlayer() && defender.isPlayer()) {
-            if (attacker.type() == PlayerType.Bot && (defender.type() == PlayerType.FakeHuman || defender.type() == PlayerType.Human)) {
+            if (attacker.type() == PlayerType.Bot && defender.type() == PlayerType.Human) {
                 mag *= 1.2
             }
-            if ((attacker.type() == PlayerType.FakeHuman || attacker.type() == PlayerType.Human) && defender.type() == PlayerType.Bot) {
+            if (attacker.type() == PlayerType.Bot && defender.type() == PlayerType.FakeHuman) {
+                mag *= 1.5
+            }
+
+
+            if (attacker.type() == PlayerType.Human && defender.type() == PlayerType.Bot) {
                 mag *= .8
+            }
+            if (attacker.type() == PlayerType.FakeHuman && defender.type() == PlayerType.Bot) {
+                mag *= .6
             }
         }
 
@@ -124,7 +132,7 @@ export class DefaultConfig implements Config {
         // console.log(`to add ${toAdd}`)
 
         if (player.type() == PlayerType.FakeHuman) {
-            toAdd *= 1.0
+            toAdd *= 1.1
         }
         if (player.type() == PlayerType.Bot) {
             toAdd *= .7

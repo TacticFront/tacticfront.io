@@ -151,8 +151,6 @@
 * BUG: alliance cooldown request
 * add request attack
 * add emoji button
-* buttons greyed out when not active
-* make alliance request mobile friendly
 * request to attack other players
 * make year clock
 * block user inputs if too far behind server

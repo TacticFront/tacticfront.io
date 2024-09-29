@@ -1,7 +1,7 @@
 import {EventBus} from "../../../core/EventBus";
 import {Cell, Game, Player, PlayerID} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
-import {manhattanDist, sourceDstOceanShore} from "../../../core/Util";
+import {manhattanDist, manhattanDistWrapped, sourceDstOceanShore} from "../../../core/Util";
 import {ContextMenuEvent, MouseUpEvent} from "../../InputHandler";
 import {SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendSpawnIntentEvent} from "../../Transport";
 import {TransformHandler} from "../TransformHandler";
@@ -284,7 +284,7 @@ export class RadialMenu implements Layer {
         if (myPlayerBordersOcean && otherPlayerBordersOcean) {
             const [src, dst] = sourceDstOceanShore(this.game, myPlayer, other, this.clickedCell)
             if (src != null && dst != null) {
-                if (manhattanDist(src.cell(), dst.cell()) < this.game.config().boatMaxDistance()) {
+                if (manhattanDistWrapped(src.cell(), dst.cell(), this.game.width()) < this.game.config().boatMaxDistance()) {
                     this.activateMenuElement(RadialElement.BoatAttack, () => {
                         this.eventBus.emit(
                             new SendBoatAttackIntentEvent(other.id(), this.clickedCell, null)
