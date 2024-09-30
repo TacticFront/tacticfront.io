@@ -10,7 +10,7 @@ import {TerrainMap} from "../core/game/TerrainMapLoader";
 import {and, bfs, dist, manhattanDist} from "../core/Util";
 import {TerrainLayer} from "./graphics/layers/TerrainLayer";
 import {WinCheckExecution} from "../core/execution/WinCheckExecution";
-import {SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendSpawnIntentEvent, Transport} from "./Transport";
+import {SendAttackIntentEvent, SendSpawnIntentEvent, Transport} from "./Transport";
 import {createCanvas} from "./graphics/Utils";
 import {DisplayMessageEvent, MessageType} from "./graphics/layers/EventsDisplay";
 import {placeName} from "./graphics/NameBoxCalculator";
@@ -31,7 +31,6 @@ export function createClientGame(playerName: () => string, clientID: ClientID, p
 
     return new ClientGame(
         clientID,
-        playerID,
         ip,
         gameID,
         eventBus,
@@ -54,11 +53,8 @@ export class ClientGame {
 
     private isProcessingTurn = false
 
-    private socket: WebSocket = null
-
     constructor(
         private id: ClientID,
-        private playerID: PlayerID,
         private clientIP: string | null,
         private gameID: GameID,
         private eventBus: EventBus,
@@ -70,26 +66,11 @@ export class ClientGame {
     ) { }
 
     public join() {
-        const wsHost = process.env.WEBSOCKET_URL || window.location.host;
-        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        this.socket = new WebSocket(`${wsProtocol}//${wsHost}`)
-        this.transport.socket = this.socket
-        this.socket.onopen = () => {
+        const onconnect = () => {
             console.log('Connected to game server!');
-            this.socket.send(
-                JSON.stringify(
-                    ClientJoinMessageSchema.parse({
-                        type: "join",
-                        gameID: this.gameID,
-                        clientID: this.id,
-                        clientIP: this.clientIP,
-                        lastTurn: this.turns.length
-                    })
-                )
-            )
+            this.transport.joinGame(this.clientIP, this.turns.length)
         };
-        this.socket.onmessage = (event: MessageEvent) => {
-            const message: ServerMessage = ServerMessageSchema.parse(JSON.parse(event.data))
+        const onmessage = (message: ServerMessage) => {
             if (message.type == "start") {
                 console.log("starting game!")
                 for (const turn of message.turns) {
@@ -106,23 +87,10 @@ export class ClientGame {
                 this.addTurn(message.turn)
             }
         };
-        this.socket.onerror = (err) => {
-            console.error('Socket encountered error: ', err, 'Closing socket');
-            this.socket.close();
-        };
-        this.socket.onclose = (event: CloseEvent) => {
-            console.log(`WebSocket closed. Code: ${event.code}, Reason: ${event.reason}`);
-            if (!this.isActive) {
-                return
-            }
-            if (event.code != 1000) {
-                this.join()
-            }
-        };
+        this.transport.connect(onconnect, onmessage, () => this.isActive)
     }
 
     public start() {
-        console.log('version 3')
         this.isActive = true
 
         this.eventBus.on(PlayerEvent, (e) => this.playerEvent(e))
@@ -140,18 +108,7 @@ export class ClientGame {
     public stop() {
         clearInterval(this.intervalID)
         this.isActive = false
-        if (this.socket.readyState === WebSocket.OPEN) {
-            console.log('on stop: leaving game')
-            const msg = ClientLeaveMessageSchema.parse({
-                type: "leave",
-                clientID: this.id,
-                gameID: this.gameID,
-            })
-            this.socket.send(JSON.stringify(msg))
-        } else {
-            console.log('WebSocket is not open. Current state:', this.socket.readyState);
-            console.log('attempting reconnect')
-        }
+        this.transport.leaveGame()
     }
 
     public addTurn(turn: Turn): void {
