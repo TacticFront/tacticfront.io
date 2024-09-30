@@ -114,6 +114,9 @@ export class DefaultConfig implements Config {
         if (playerInfo.playerType == PlayerType.Bot) {
             return 10000
         }
+        if (playerInfo.playerType == PlayerType.FakeHuman) {
+            return 50000
+        }
         return 10000
     }
 

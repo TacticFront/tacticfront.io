@@ -106,16 +106,18 @@ export class FakeHumanExecution implements Execution {
             const toAlly = this.random.randElement(enemies)
             if (!this.player.isAlliedWith(toAlly)) {
                 this.player.createAllianceRequest(toAlly)
+                return
             }
         }
 
         if (this.random.chance(2)) {
-            if (!this.player.isAlliedWith(enemies[0]) || (this.random.chance(90) && this.isTraitor)) {
+            if (!this.player.isAlliedWith(enemies[0]) || (this.random.chance(50) && this.isTraitor)) {
                 this.sendAttack(enemies[0])
             }
         } else {
-            if (!this.player.isAlliedWith(enemies[0]) || (this.random.chance(180) && this.isTraitor)) {
-                this.sendAttack(this.random.randElement(enemies))
+            const toAttack = this.random.randElement(enemies)
+            if (!this.player.isAlliedWith(toAttack) || (this.random.chance(100) && this.isTraitor)) {
+                this.sendAttack(toAttack)
             }
         }
     }
@@ -172,6 +174,9 @@ export class FakeHumanExecution implements Execution {
         for (let i = 0; i < 100; i++) {
             const dst = this.random.randElement(otherShore)
             if (this.isSmallIsland(dst)) {
+                continue
+            }
+            if (dst.owner().isPlayer() && this.player.isAlliedWith(dst.owner() as Player)) {
                 continue
             }
 

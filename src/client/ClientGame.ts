@@ -92,7 +92,6 @@ export class ClientGame {
 
     public start() {
         this.isActive = true
-
         this.eventBus.on(PlayerEvent, (e) => this.playerEvent(e))
         this.eventBus.on(MouseUpEvent, (e) => this.inputEvent(e))
 
