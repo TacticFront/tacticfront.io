@@ -104,7 +104,7 @@ export class FakeHumanExecution implements Execution {
 
         if (this.random.chance(10)) {
             const toAlly = this.random.randElement(enemies)
-            if (!this.player.isAlliedWith(toAlly)) {
+            if (!this.player.isAlliedWith(toAlly) && !this.player.recentOrPendingAllianceRequestWith(toAlly)) {
                 this.player.createAllianceRequest(toAlly)
                 return
             }
