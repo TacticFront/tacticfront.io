@@ -246,7 +246,6 @@ export class RadialMenu implements Layer {
                     this.eventBus.emit(
                         new SendAllianceRequestIntentEvent(myPlayer, other)
                     )
-                    this.game.displayMessage(`sending alliance request to ${other.name()}`, MessageType.INFO, myPlayer.id())
                 })
             }
         }

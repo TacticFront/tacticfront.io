@@ -56,14 +56,18 @@ export class EventsDisplay implements Layer {
     }
 
     tick() {
-        const remainingEvents: Event[] = []
+        let remainingEvents: Event[] = []
         for (const event of this.events) {
-            if (this.game.ticks() - event.createdAt < 100) {
+            if (this.game.ticks() - event.createdAt < 50) {
                 remainingEvents.push(event)
             } else if (event.onDelete != null) {
                 event.onDelete()
             }
         }
+        if (remainingEvents.length > 5) {
+            remainingEvents = remainingEvents.slice(-5)
+        }
+
         let shouldRender = false
         if (this.events.length != remainingEvents.length) {
             shouldRender = true
@@ -77,15 +81,9 @@ export class EventsDisplay implements Layer {
     private createTableContainer() {
         this.tableContainer = document.createElement('div');
         this.tableContainer.id = 'table-container';
-        this.tableContainer.style.position = 'fixed';
-        this.tableContainer.style.bottom = '0px'; // Distance from bottom
-        this.tableContainer.style.right = '0px'; // Distance from right
-        this.tableContainer.style.zIndex = '1000';
-        this.tableContainer.style.backgroundColor = 'rgba(255, 255, 255, 0.0)';
-        this.tableContainer.style.padding = '20px';
-        this.tableContainer.style.boxShadow = '0 0 10px rgba(0,0,0,0.0)';
+        this.tableContainer.className = 'events-display';
+        this.tableContainer.style.display = "none";
         document.body.appendChild(this.tableContainer);
-        this.tableContainer.style.minWidth = '400px'; // Set minimum width
     }
 
     shouldTransform(): boolean {
@@ -225,37 +223,29 @@ export class EventsDisplay implements Layer {
     render(): void { }
 
     renderTable(): void {
+        if (this.events.length === 0) {
+            this.tableContainer.innerHTML = "";
+            this.tableContainer.style.display = "none";
+            return;
+        }
+
+        this.tableContainer.style.display = "block";
+
+
         let tableHtml = `
         <table class="events-table">
             <tbody>
     `;
 
         this.events.forEach((event, eventIndex) => {
-            let textColor;
-            switch (event.type) {
-                case MessageType.SUCCESS:
-                    textColor = '#66FF66';  // Lighter, brighter green
-                    break;
-                case MessageType.INFO:
-                    textColor = 'white';
-                    break;
-                case MessageType.WARN:
-                    textColor = 'orange';
-                    break;
-                case MessageType.ERROR:
-                    textColor = 'red';
-                    break;
-                default:
-                    textColor = 'white';
-            }
-
+            const typeClass = MessageType[event.type].toLowerCase();
             tableHtml += `
-            <tr${event.highlight ? ' style="background-color: rgba(255, 255, 0, 0.1);"' : ''}>
-                <td style="color: ${textColor};">
+            <tr class="${event.highlight ? 'highlight' : ''} ${typeClass}">
+                <td>
                     ${event.description}
-                    ${event.buttons ? '<br>' + event.buttons.map((btn, btnIndex) =>
+                    ${event.buttons ? '<div class="button-container">' + event.buttons.map((btn, btnIndex) =>
                 `<button class="${btn.className}" data-event-index="${eventIndex}" data-button-index="${btnIndex}">${btn.text}</button>`
-            ).join('') : ''}
+            ).join('') + '</div>' : ''}
                 </td>
             </tr>
         `;
@@ -265,14 +255,14 @@ export class EventsDisplay implements Layer {
             </tbody>
         </table>
     `;
-
         this.tableContainer.innerHTML = tableHtml;
+
 
         // Add event listeners to buttons
         this.tableContainer.querySelectorAll('button').forEach(button => {
             button.addEventListener('click', (e) => {
                 e.preventDefault();
-                e.stopPropagation(); // Prevent the event from reaching the canvas
+                e.stopPropagation();
                 const target = e.target as HTMLElement;
                 const eventIndex = parseInt(target.getAttribute('data-event-index') || '');
                 const buttonIndex = parseInt(target.getAttribute('data-button-index') || '');
@@ -283,7 +273,7 @@ export class EventsDisplay implements Layer {
                     if (buttonAction) {
                         buttonAction();
                         this.removeEvent(eventIndex);
-                        this.renderTable(); // Re-render the table if you remove the event
+                        this.renderTable();
                     }
                 }
             });

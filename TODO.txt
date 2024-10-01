@@ -145,22 +145,23 @@
 * better color scheme radial menu DONE 9/28/2024
 * Make buttons icons DONE 9/28/2024
 * BUG: change username after selecting map DONE 9/29/2024
-* BUG: fake humans break alliance too often
-* make fake humans more difficult
-* make event box work on mobile
+* BUG: fake humans break alliance too often DONE 9/29/2024
+* make fake humans more difficult DONE 9/29/2024
+* BUG: make event box work on mobile DONE 9/29/2024
 * BUG: alliance cooldown request
-* add request attack
+* BUG: alliance expire message after player dies
+* Make fake humans spawn by their country
+* make create/break alliance single button
+* add request attack other players
 * add emoji button
-* request to attack other players
 * make year clock
 * block user inputs if too far behind server
-* BUG: FakeHuman don't be enemy if don't share border
+* BUG: FakeHuman don't be enemy if don't share border (or send boat)
 * store cookies
 * BUG: names dissapear on bottom of screen
+* UI: leader board
 * UI: boats
 * UI: current attacks
-* UI: leader board
-* make random waves on ocean, dark spots
 * Load terrain dataImage in background
 * BUG: half encircle Antartica causes capture
 
