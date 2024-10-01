@@ -73,12 +73,14 @@ export class GameImpl implements MutableGame {
     acceptAllianceRequest(request: AllianceRequestImpl) {
         this.allianceRequests = this.allianceRequests.filter(ar => ar != request)
         const alliance = new AllianceImpl(this, request.requestor() as PlayerImpl, request.recipient() as PlayerImpl, this._ticks)
-        this.alliances_.push(alliance)
+        this.alliances_.push(alliance);
+        (request.requestor() as PlayerImpl).pastOutgoingAllianceRequests.push(request)
         this.eventBus.emit(new AllianceRequestReplyEvent(request, true))
     }
 
     rejectAllianceRequest(request: AllianceRequestImpl) {
-        this.allianceRequests = this.allianceRequests.filter(ar => ar != request)
+        this.allianceRequests = this.allianceRequests.filter(ar => ar != request);
+        (request.requestor() as PlayerImpl).pastOutgoingAllianceRequests.push(request)
         this.eventBus.emit(new AllianceRequestReplyEvent(request, false))
     }
 

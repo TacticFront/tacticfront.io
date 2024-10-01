@@ -199,6 +199,9 @@ export class EventsDisplay implements Layer {
         if (other == null) {
             return
         }
+        if (!myPlayer.isAlive() || !other.isAlive()) {
+            return
+        }
         this.addEvent({
             description: `Your alliance with ${other.name()} expired`,
             type: MessageType.WARN,

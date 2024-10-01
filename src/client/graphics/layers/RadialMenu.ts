@@ -231,17 +231,13 @@ export class RadialMenu implements Layer {
                 return
             }
 
-            if (myPlayer.pendingAllianceRequestWith(other)) {
-                return
-            }
-
             if (myPlayer.isAlliedWith(other)) {
                 this.activateMenuElement(RadialElement.BreakAlliance, () => {
                     this.eventBus.emit(
                         new SendBreakAllianceIntentEvent(myPlayer, other)
                     )
                 })
-            } else {
+            } else if (!myPlayer.recentOrPendingAllianceRequestWith(other)) {
                 this.activateMenuElement(RadialElement.RequestAlliance, () => {
                     this.eventBus.emit(
                         new SendAllianceRequestIntentEvent(myPlayer, other)

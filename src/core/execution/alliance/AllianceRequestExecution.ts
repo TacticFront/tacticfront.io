@@ -17,6 +17,8 @@ export class AllianceRequestExecution implements Execution {
     tick(ticks: number): void {
         if (this.requestor.isAlliedWith(this.recipient)) {
             console.warn('already allied')
+        } else if (this.requestor.recentOrPendingAllianceRequestWith(this.recipient)) {
+            console.warn('recent or pending alliance request')
         } else {
             this.requestor.createAllianceRequest(this.recipient)
         }

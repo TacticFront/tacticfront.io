@@ -18,6 +18,8 @@ export class PlayerImpl implements MutablePlayer {
 
     private _name: string;
 
+    public pastOutgoingAllianceRequests: AllianceRequest[] = []
+
     constructor(private gs: GameImpl, private readonly playerInfo: PlayerInfo, private _troops) {
         this._name = playerInfo.name;
     }
@@ -134,11 +136,24 @@ export class PlayerImpl implements MutablePlayer {
         return this.alliances().find(a => a.recipient() == other || a.requestor() == other)
     }
 
-
-    pendingAllianceRequestWith(other: Player): boolean {
-        return this.incomingAllianceRequests().find(ar => ar.requestor() == other) != null
+    recentOrPendingAllianceRequestWith(other: Player): boolean {
+        const hasPending = this.incomingAllianceRequests().find(ar => ar.requestor() == other) != null
             || this.outgoingAllianceRequests().find(ar => ar.recipient() == other) != null
+        if (hasPending) {
+            return true
+        }
 
+        const recent = this.pastOutgoingAllianceRequests
+            .filter(ar => ar.recipient() == other)
+            .sort((a, b) => b.createdAt() - a.createdAt())
+
+        if (recent.length == 0) {
+            return false
+        }
+
+        const delta = this.gs.ticks() - recent[0].createdAt()
+
+        return delta < this.gs.config().allianceRequestCooldown()
     }
 
     breakAlliance(alliance: Alliance): void {

@@ -148,8 +148,9 @@
 * BUG: fake humans break alliance too often DONE 9/29/2024
 * make fake humans more difficult DONE 9/29/2024
 * BUG: make event box work on mobile DONE 9/30/2024
-* BUG: alliance cooldown request
-* BUG: alliance expire message after player dies
+* BUG: alliance expire message after player dies DONE 9/30/2024
+* BUG: alliance cooldown request DONE 9/30/2024
+* BUG: double tap zooms on mobile
 * Make fake humans spawn by their country
 * add request attack other players
 * make create/break alliance single button

@@ -48,6 +48,7 @@ export interface Config {
 	boatMaxDistance(): number
 	boatMaxNumber(): number
 	allianceDuration(): Tick
+	allianceRequestCooldown(): Tick
 }
 
 export interface Theme {

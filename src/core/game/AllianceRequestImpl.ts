@@ -1,4 +1,4 @@
-import {MutableAllianceRequest, Player} from "./Game";
+import {MutableAllianceRequest, Player, Tick} from "./Game";
 import {GameImpl} from "./GameImpl";
 
 
@@ -12,6 +12,10 @@ export class AllianceRequestImpl implements MutableAllianceRequest {
 
     recipient(): Player {
         return this.recipient_;
+    }
+
+    createdAt(): Tick {
+        return this.tickCreated
     }
 
     accept(): void {

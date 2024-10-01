@@ -52,6 +52,7 @@ export interface Execution extends ExecutionView {
 export interface AllianceRequest {
     requestor(): Player
     recipient(): Player
+    createdAt(): Tick
 }
 
 export interface MutableAllianceRequest extends AllianceRequest {
@@ -144,7 +145,8 @@ export interface Player {
     alliances(): Alliance[]
     isAlliedWith(other: Player): boolean
     allianceWith(other: Player): Alliance | null
-    pendingAllianceRequestWith(other: Player): boolean
+    // Includes recent requests that  are in cooldown
+    recentOrPendingAllianceRequestWith(other: Player): boolean
     isTraitor(): boolean
     toString(): string
 }
