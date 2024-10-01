@@ -191,7 +191,7 @@ export class RadialMenu implements Layer {
             this.showRadialMenu(event.x, event.y);
         }
         this.isCenterButtonEnabled = false
-        this.updateCenterButtonState()
+        this.enableCenterButton()
         for (const item of this.menuItems.values()) {
             item.disabled = true
             this.updateMenuItemState(item)
@@ -206,8 +206,7 @@ export class RadialMenu implements Layer {
 
         if (this.game.inSpawnPhase()) {
             if (tile.isLand() && !tile.hasOwner()) {
-                this.isCenterButtonEnabled = true
-                this.updateCenterButtonState()
+                this.enableCenterButton()
             }
             return
         }
@@ -220,8 +219,7 @@ export class RadialMenu implements Layer {
 
         if (tile.owner() != myPlayer && tile.isLand() && myPlayer.sharesBorderWith(other)) {
             if (!other.isPlayer() || !myPlayer.isAlliedWith(other)) {
-                this.isCenterButtonEnabled = true
-                this.updateCenterButtonState()
+                this.enableCenterButton()
             }
         }
 
@@ -351,17 +349,21 @@ export class RadialMenu implements Layer {
         this.menuElement.select('.center-button-text').transition().duration(200).style('font-size', fontSize);
     }
 
-    private updateCenterButtonState() {
-        const centerButton = this.menuElement.select('.center-button');
+    private enableCenterButton() {
+        // Add delay so center button is clicked immediately on creation.
+        setTimeout(() => {
+            this.isCenterButtonEnabled = true;
+            const centerButton = this.menuElement.select('.center-button');
 
-        centerButton.select('.center-button-hitbox')
-            .style('cursor', this.isCenterButtonEnabled ? 'pointer' : 'not-allowed');
+            centerButton.select('.center-button-hitbox')
+                .style('cursor', this.isCenterButtonEnabled ? 'pointer' : 'not-allowed');
 
-        centerButton.select('.center-button-visible')
-            .attr('fill', this.isCenterButtonEnabled ? '#2c3e50' : '#999999');
+            centerButton.select('.center-button-visible')
+                .attr('fill', this.isCenterButtonEnabled ? '#2c3e50' : '#999999');
 
-        centerButton.select('.center-button-text')
-            .attr('fill', this.isCenterButtonEnabled ? 'white' : '#cccccc');
+            centerButton.select('.center-button-text')
+                .attr('fill', this.isCenterButtonEnabled ? 'white' : '#cccccc');
+        }, 25);
     }
 
     private getDisabledColor(color: string): string {

@@ -118,7 +118,7 @@ export class DefaultConfig implements Config {
             return 10000
         }
         if (playerInfo.playerType == PlayerType.FakeHuman) {
-            return 50000
+            return 10000
         }
         return 10000
     }
