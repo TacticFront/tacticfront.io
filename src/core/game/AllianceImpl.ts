@@ -10,6 +10,13 @@ export class AllianceImpl implements MutableAlliance {
         readonly createdAtTick_: Tick,
     ) { }
 
+    other(player: Player): PlayerImpl {
+        if (this.requestor_ == player) {
+            return this.recipient_
+        }
+        return this.requestor_
+    }
+
     requestor(): MutablePlayer {
         return this.requestor_
     }

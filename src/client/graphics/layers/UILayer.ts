@@ -7,7 +7,7 @@ import {ContextMenuEvent} from "../../InputHandler";
 import {Layer} from "./Layer";
 import {TransformHandler} from "../TransformHandler";
 import {MessageType} from "./EventsDisplay";
-import {SendAllianceRequestIntentEvent, SendBreakAllianceIntentEvent} from "../../Transport";
+import {SendBreakAllianceIntentEvent} from "../../Transport";
 
 interface MenuOption {
     label: string;

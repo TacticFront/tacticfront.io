@@ -7,6 +7,12 @@ import {pastelTheme} from "./PastelTheme";
 
 
 export class DefaultConfig implements Config {
+    targetDuration(): Tick {
+        return 10 * 10
+    }
+    targetCooldown(): Tick {
+        return 30 * 10
+    }
     allianceRequestCooldown(): Tick {
         return 30 * 10
     }

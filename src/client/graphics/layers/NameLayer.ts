@@ -9,6 +9,7 @@ import {renderTroops} from "../Utils"
 import traitorIcon from '../../../../resources/images/TraitorIcon.png';
 import allianceIcon from '../../../../resources/images/AllianceIcon.png';
 import crownIcon from '../../../../resources/images/CrownIcon.png';
+import targetIcon from '../../../../resources/images/TargetIcon.png';
 import {ClientID} from "../../../core/Schemas"
 
 
@@ -34,6 +35,7 @@ export class NameLayer implements Layer {
     private seenPlayers: Set<Player> = new Set()
     private traitorIconImage: HTMLImageElement;
     private allianceIconImage: HTMLImageElement;
+    private targetIconImage: HTMLImageElement;
     private crownIconImage: HTMLImageElement;
 
     private myPlayer: Player | null = null
@@ -49,6 +51,9 @@ export class NameLayer implements Layer {
 
         this.crownIconImage = new Image()
         this.crownIconImage.src = crownIcon
+
+        this.targetIconImage = new Image()
+        this.targetIconImage.src = targetIcon
     }
 
     shouldTransform(): boolean {
@@ -166,6 +171,16 @@ export class NameLayer implements Layer {
         if (myPlayer != null && myPlayer.isAlliedWith(render.player)) {
             context.drawImage(
                 this.allianceIconImage,
+                nameCenterX - iconSize / 2,
+                nameCenterY - iconSize / 2,
+                iconSize,
+                iconSize
+            );
+        }
+
+        if (new Set(myPlayer.transitiveTargets()).has(render.player)) {
+            context.drawImage(
+                this.targetIconImage,
                 nameCenterX - iconSize / 2,
                 nameCenterY - iconSize / 2,
                 iconSize,

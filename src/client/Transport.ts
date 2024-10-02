@@ -43,6 +43,12 @@ export class SendBoatAttackIntentEvent implements GameEvent {
     ) { }
 }
 
+export class SendTargetPlayerIntentEvent implements GameEvent {
+    constructor(
+        public readonly targetID: PlayerID,
+    ) { }
+}
+
 export class Transport {
 
     public onconnect: () => {}
@@ -61,6 +67,7 @@ export class Transport {
         this.eventBus.on(SendSpawnIntentEvent, (e) => this.onSendSpawnIntentEvent(e))
         this.eventBus.on(SendAttackIntentEvent, (e) => this.onSendAttackIntent(e))
         this.eventBus.on(SendBoatAttackIntentEvent, (e) => this.onSendBoatAttackIntent(e))
+        this.eventBus.on(SendTargetPlayerIntentEvent, (e) => this.onSendTargetPlayerIntent(e))
     }
 
     connect(onconnect: () => void, onmessage: (message: ServerMessage) => void, isActive: () => boolean) {
@@ -181,6 +188,15 @@ export class Transport {
             troops: event.troops,
             x: event.cell.x,
             y: event.cell.y,
+        })
+    }
+
+    private onSendTargetPlayerIntent(event: SendTargetPlayerIntentEvent) {
+        this.sendIntent({
+            type: "targetPlayer",
+            clientID: this.clientID,
+            requestor: this.playerID,
+            target: event.targetID,
         })
     }
 

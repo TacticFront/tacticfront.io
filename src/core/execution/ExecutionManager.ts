@@ -12,6 +12,7 @@ import {simpleHash} from "../Util";
 import {AllianceRequestExecution} from "./alliance/AllianceRequestExecution";
 import {AllianceRequestReplyExecution} from "./alliance/AllianceRequestReplyExecution";
 import {BreakAllianceExecution} from "./alliance/BreakAllianceExecution";
+import {TargetPlayerExecution} from "./TargetPlayerExecution";
 
 
 
@@ -64,6 +65,8 @@ export class Executor {
             return new AllianceRequestReplyExecution(intent.requestor, intent.recipient, intent.accept)
         } else if (intent.type == "breakAlliance") {
             return new BreakAllianceExecution(intent.requestor, intent.recipient)
+        } else if (intent.type == "targetPlayer") {
+            return new TargetPlayerExecution(intent.requestor, intent.target)
         }
         else {
             throw new Error(`intent type ${intent} not found`)

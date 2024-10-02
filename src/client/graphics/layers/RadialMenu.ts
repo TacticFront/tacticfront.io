@@ -3,7 +3,7 @@ import {Cell, Game, Player, PlayerID} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
 import {manhattanDist, manhattanDistWrapped, sourceDstOceanShore} from "../../../core/Util";
 import {ContextMenuEvent, MouseUpEvent} from "../../InputHandler";
-import {SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendSpawnIntentEvent} from "../../Transport";
+import {SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendSpawnIntentEvent, SendTargetPlayerIntentEvent} from "../../Transport";
 import {TransformHandler} from "../TransformHandler";
 import {MessageType} from "./EventsDisplay";
 import {Layer} from "./Layer";
@@ -252,6 +252,11 @@ export class RadialMenu implements Layer {
                 this.activateMenuElement(Slot.Alliance, "#53ac75", allianceIcon, () => {
                     this.eventBus.emit(
                         new SendAllianceRequestIntentEvent(myPlayer, other)
+                    )
+                })
+                this.activateMenuElement(Slot.Target, "#c74848", targetIcon, () => {
+                    this.eventBus.emit(
+                        new SendTargetPlayerIntentEvent(other.id())
                     )
                 })
             }

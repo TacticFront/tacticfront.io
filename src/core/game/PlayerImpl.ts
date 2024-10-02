@@ -1,4 +1,4 @@
-import {MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, MutableGame, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance} from "./Game";
+import {MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, MutableGame, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick} from "./Game";
 import {ClientID} from "../Schemas";
 import {simpleHash} from "../Util";
 import {CellString, GameImpl} from "./GameImpl";
@@ -7,6 +7,10 @@ import {TileImpl} from "./TileImpl";
 import {TerraNulliusImpl} from "./TerraNulliusImpl";
 import {threadId} from "worker_threads";
 
+interface Target {
+    tick: Tick
+    target: Player
+}
 
 export class PlayerImpl implements MutablePlayer {
     isTraitor_ = false
@@ -19,6 +23,8 @@ export class PlayerImpl implements MutablePlayer {
     private _name: string;
 
     public pastOutgoingAllianceRequests: AllianceRequest[] = []
+
+    private targets_: Target[] = []
 
     constructor(private gs: GameImpl, private readonly playerInfo: PlayerInfo, private _troops) {
         this._name = playerInfo.name;
@@ -170,6 +176,33 @@ export class PlayerImpl implements MutablePlayer {
             throw new Error(`cannot create alliance request, already allies`)
         }
         return this.gs.createAllianceRequest(this, recipient)
+    }
+
+    canTarget(other: Player): boolean {
+        for (const t of this.targets_) {
+            if (t.target == other) {
+                if (this.gs.ticks() - t.tick < this.gs.config().targetCooldown()) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+
+    target(other: Player): void {
+        this.targets_.push({tick: this.gs.ticks(), target: other})
+    }
+
+    targets(): PlayerImpl[] {
+        return this.targets_
+            .filter(t => this.gs.ticks() - t.tick < this.gs.config().targetDuration())
+            .map(t => t.target as PlayerImpl)
+    }
+
+    transitiveTargets(): MutablePlayer[] {
+        const ts = this.alliances().map(a => a.other(this)).flatMap(ally => ally.targets())
+        ts.push(...this.targets())
+        return [...new Set(ts)]
     }
 
     hash(): number {

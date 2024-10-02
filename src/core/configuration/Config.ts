@@ -49,6 +49,8 @@ export interface Config {
 	boatMaxNumber(): number
 	allianceDuration(): Tick
 	allianceRequestCooldown(): Tick
+	targetDuration(): Tick
+	targetCooldown(): Tick
 }
 
 export interface Theme {

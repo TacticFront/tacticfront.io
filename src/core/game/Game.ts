@@ -64,10 +64,12 @@ export interface Alliance {
     requestor(): Player
     recipient(): Player
     createdAt(): Tick
+    other(player: Player): Player
 }
 
 export interface MutableAlliance extends Alliance {
     expire(): void
+    other(player: Player): MutablePlayer
 }
 
 export class PlayerInfo {
@@ -148,6 +150,11 @@ export interface Player {
     // Includes recent requests that  are in cooldown
     recentOrPendingAllianceRequestWith(other: Player): boolean
     isTraitor(): boolean
+    canTarget(other: Player): boolean
+    // Targets for this player
+    targets(): Player[]
+    // Targets of player and all allies.
+    transitiveTargets(): Player[]
     toString(): string
 }
 
@@ -168,6 +175,9 @@ export interface MutablePlayer extends Player {
     breakAlliance(alliance: Alliance): void
     createAllianceRequest(recipient: Player): MutableAllianceRequest
     addBoat(troops: number, tile: Tile, target: Player | TerraNullius): MutableBoat
+    target(other: Player): void
+    targets(): MutablePlayer[]
+    transitiveTargets(): MutablePlayer[]
 }
 
 export interface Game {

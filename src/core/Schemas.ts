@@ -11,6 +11,7 @@ export type Intent = SpawnIntent
     | AllianceRequestIntent
     | AllianceRequestReplyIntent
     | BreakAllianceIntent
+    | TargetPlayerIntent
 
 export type AttackIntent = z.infer<typeof AttackIntentSchema>
 export type SpawnIntent = z.infer<typeof SpawnIntentSchema>
@@ -19,6 +20,7 @@ export type UpdateNameIntent = z.infer<typeof UpdateNameIntentSchema>
 export type AllianceRequestIntent = z.infer<typeof AllianceRequestIntentSchema>
 export type AllianceRequestReplyIntent = z.infer<typeof AllianceRequestReplyIntentSchema>
 export type BreakAllianceIntent = z.infer<typeof BreakAllianceIntentSchema>
+export type TargetPlayerIntent = z.infer<typeof TargetPlayerIntentSchema>
 
 
 export type Turn = z.infer<typeof TurnSchema>
@@ -104,6 +106,12 @@ export const BreakAllianceIntentSchema = BaseIntentSchema.extend({
     recipient: z.string(),
 })
 
+export const TargetPlayerIntentSchema = BaseIntentSchema.extend({
+    type: z.literal('targetPlayer'),
+    requestor: z.string(),
+    target: z.string(),
+})
+
 const IntentSchema = z.union([
     AttackIntentSchema,
     SpawnIntentSchema,
@@ -111,7 +119,8 @@ const IntentSchema = z.union([
     UpdateNameIntentSchema,
     AllianceRequestIntentSchema,
     AllianceRequestReplyIntentSchema,
-    BreakAllianceIntentSchema
+    BreakAllianceIntentSchema,
+    TargetPlayerIntentSchema,
 ]);
 
 const TurnSchema = z.object({
