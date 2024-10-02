@@ -1,4 +1,4 @@
-import {MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, MutableGame, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick} from "./Game";
+import {MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, MutableGame, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent} from "./Game";
 import {ClientID} from "../Schemas";
 import {simpleHash} from "../Util";
 import {CellString, GameImpl} from "./GameImpl";
@@ -179,11 +179,12 @@ export class PlayerImpl implements MutablePlayer {
     }
 
     canTarget(other: Player): boolean {
+        if (this.isAlliedWith(other)) {
+            return false
+        }
         for (const t of this.targets_) {
-            if (t.target == other) {
-                if (this.gs.ticks() - t.tick < this.gs.config().targetCooldown()) {
-                    return false
-                }
+            if (this.gs.ticks() - t.tick < this.gs.config().targetCooldown()) {
+                return false
             }
         }
         return true
@@ -191,6 +192,7 @@ export class PlayerImpl implements MutablePlayer {
 
     target(other: Player): void {
         this.targets_.push({tick: this.gs.ticks(), target: other})
+        this.gs.eventBus.emit(new TargetPlayerEvent(this, other))
     }
 
     targets(): PlayerImpl[] {

@@ -238,3 +238,7 @@ export class BrokeAllianceEvent implements GameEvent {
 export class AllianceExpiredEvent implements GameEvent {
     constructor(public readonly player1: Player, public readonly player2: Player) { }
 }
+
+export class TargetPlayerEvent implements GameEvent {
+    constructor(public readonly player: Player, public readonly target: Player) { }
+}

@@ -151,8 +151,8 @@
 * BUG: alliance expire message after player dies DONE 9/30/2024
 * BUG: alliance cooldown request DONE 9/30/2024
 * make create/break alliance single button DONE 10/1/2024
+* add request attack other players DONE 10/2/2024
 * Improve alliance icon
-* add request attack other players
 * BUG: double tap zooms on mobile
 * BUG: center button should be disabled select island
 * BUG: boat icon appears when click inland

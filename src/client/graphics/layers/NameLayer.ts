@@ -178,7 +178,7 @@ export class NameLayer implements Layer {
             );
         }
 
-        if (new Set(myPlayer.transitiveTargets()).has(render.player)) {
+        if (myPlayer != null && new Set(myPlayer.transitiveTargets()).has(render.player)) {
             context.drawImage(
                 this.targetIconImage,
                 nameCenterX - iconSize / 2,

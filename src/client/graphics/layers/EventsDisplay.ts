@@ -1,6 +1,6 @@
 import {nullable} from "zod";
 import {EventBus, GameEvent} from "../../../core/EventBus";
-import {AllianceExpiredEvent, AllianceRequestEvent, AllianceRequestReplyEvent, BrokeAllianceEvent, Game, Player, PlayerID} from "../../../core/game/Game";
+import {AllianceExpiredEvent, AllianceRequestEvent, AllianceRequestReplyEvent, BrokeAllianceEvent, Game, Player, PlayerID, TargetPlayerEvent} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
 import {Layer} from "./Layer";
 import {SendAllianceReplyIntentEvent} from "../../Transport";
@@ -52,6 +52,7 @@ export class EventsDisplay implements Layer {
         this.eventBus.on(DisplayMessageEvent, e => this.onDisplayMessageEvent(e))
         this.eventBus.on(BrokeAllianceEvent, e => this.onBrokeAllianceEvent(e))
         this.eventBus.on(AllianceExpiredEvent, e => this.onAllianceExpiredEvent(e))
+        this.eventBus.on(TargetPlayerEvent, e => this.onTargetPlayerEvent(e))
         this.renderTable()
     }
 
@@ -208,6 +209,21 @@ export class EventsDisplay implements Layer {
             highlight: true,
             createdAt: this.game.ticks(),
         })
+    }
+
+    onTargetPlayerEvent(event: TargetPlayerEvent) {
+        const myPlayer = this.game.playerByClientID(this.clientID)
+        if (myPlayer == null) {
+            return
+        }
+        if (myPlayer.isAlliedWith(event.player)) {
+            this.addEvent({
+                description: `${event.player.name()} requests you attack ${event.target.name()}`,
+                type: MessageType.INFO,
+                highlight: true,
+                createdAt: this.game.ticks(),
+            })
+        }
     }
 
     addEvent(event: Event): void {

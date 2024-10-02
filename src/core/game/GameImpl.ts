@@ -34,7 +34,7 @@ export class GameImpl implements MutableGame {
     allianceRequests: AllianceRequestImpl[] = []
     alliances_: AllianceImpl[] = []
 
-    constructor(terrainMap: TerrainMap, private eventBus: EventBus, private _config: Config) {
+    constructor(terrainMap: TerrainMap, public eventBus: EventBus, private _config: Config) {
         this._terraNullius = new TerraNulliusImpl(this)
         this._width = terrainMap.width();
         this._height = terrainMap.height();

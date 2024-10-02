@@ -254,6 +254,8 @@ export class RadialMenu implements Layer {
                         new SendAllianceRequestIntentEvent(myPlayer, other)
                     )
                 })
+            }
+            if (myPlayer.canTarget(other)) {
                 this.activateMenuElement(Slot.Target, "#c74848", targetIcon, () => {
                     this.eventBus.emit(
                         new SendTargetPlayerIntentEvent(other.id())

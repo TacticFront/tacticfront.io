@@ -11,7 +11,7 @@ export class DefaultConfig implements Config {
         return 10 * 10
     }
     targetCooldown(): Tick {
-        return 30 * 10
+        return 15 * 10
     }
     allianceRequestCooldown(): Tick {
         return 30 * 10
