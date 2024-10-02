@@ -12,30 +12,43 @@ import traitorIcon from '../../../../resources/images/TraitorIconWhite.png';
 import allianceIcon from '../../../../resources/images/AllianceIconWhite.png';
 import boatIcon from '../../../../resources/images/BoatIconWhite.png';
 import swordIcon from '../../../../resources/images/SwordIconWhite.png';
+import targetIcon from '../../../../resources/images/TargetIconWhite.png';
 
 
 enum RadialElement {
     RequestAlliance,
     BreakAlliance,
-    BoatAttack
+    BoatAttack,
+    Target,
+}
+
+enum Slot {
+    Alliance,
+    Boat,
+    Target,
+    FOURTH
 }
 
 export class RadialMenu implements Layer {
     private clickedCell: Cell | null = null
-    private isCenterButtonEnabled = false
 
     private menuElement: d3.Selection<HTMLDivElement, unknown, null, undefined>;
     private isVisible: boolean = false;
     private readonly menuItems = new Map([
-        [RadialElement.RequestAlliance, {name: "alliance", color: "#53ac75", disabled: true, action: () => { }, icon: allianceIcon}],
-        [RadialElement.BoatAttack, {name: "boat", color: "#3f6ab1", disabled: true, action: () => { }, icon: boatIcon}],
-        [RadialElement.BreakAlliance, {name: "break", color: "#b1593f", disabled: true, action: () => { }, icon: traitorIcon}],
+        [Slot.Alliance, {name: "alliance", disabled: true, action: () => { }, color: null, icon: null, defaultIcon: allianceIcon}],
+        [Slot.Boat, {name: "boat", disabled: true, action: () => { }, color: null, icon: null, defaultIcon: boatIcon}],
+        [Slot.Target, {name: "target", disabled: true, action: () => { }, defaultIcon: targetIcon}],
+
     ]);
 
     private readonly menuSize = 190;
     private readonly centerButtonSize = 30;
     private readonly iconSize = 32;
     private readonly centerIconSize = 48;
+    private readonly disabledColor = d3.rgb(128, 128, 128).toString();
+
+    private isCenterButtonEnabled = false
+
 
     constructor(
         private eventBus: EventBus,
@@ -79,7 +92,7 @@ export class RadialMenu implements Layer {
 
         arcs.append('path')
             .attr('d', arc)
-            .attr('fill', d => d.data.disabled ? this.getDisabledColor(d.data.color) : d.data.color)
+            .attr('fill', d => d.data.disabled ? this.disabledColor : d.data.color)
             .attr('stroke', '#ffffff')
             .attr('stroke-width', '2')
             .style('cursor', d => d.data.disabled ? 'not-allowed' : 'pointer')
@@ -190,10 +203,10 @@ export class RadialMenu implements Layer {
         } else {
             this.showRadialMenu(event.x, event.y);
         }
-        this.isCenterButtonEnabled = false
-        this.enableCenterButton()
+        this.renderCenterButton(false)
         for (const item of this.menuItems.values()) {
             item.disabled = true
+            item.icon = item.defaultIcon
             this.updateMenuItemState(item)
         }
 
@@ -206,7 +219,7 @@ export class RadialMenu implements Layer {
 
         if (this.game.inSpawnPhase()) {
             if (tile.isLand() && !tile.hasOwner()) {
-                this.enableCenterButton()
+                this.renderCenterButton(true)
             }
             return
         }
@@ -219,7 +232,7 @@ export class RadialMenu implements Layer {
 
         if (tile.owner() != myPlayer && tile.isLand() && myPlayer.sharesBorderWith(other)) {
             if (!other.isPlayer() || !myPlayer.isAlliedWith(other)) {
-                this.enableCenterButton()
+                this.renderCenterButton(true)
             }
         }
 
@@ -230,13 +243,13 @@ export class RadialMenu implements Layer {
             }
 
             if (myPlayer.isAlliedWith(other)) {
-                this.activateMenuElement(RadialElement.BreakAlliance, () => {
+                this.activateMenuElement(Slot.Alliance, "#b1593f", traitorIcon, () => {
                     this.eventBus.emit(
                         new SendBreakAllianceIntentEvent(myPlayer, other)
                     )
                 })
             } else if (!myPlayer.recentOrPendingAllianceRequestWith(other)) {
-                this.activateMenuElement(RadialElement.RequestAlliance, () => {
+                this.activateMenuElement(Slot.Alliance, "#53ac75", allianceIcon, () => {
                     this.eventBus.emit(
                         new SendAllianceRequestIntentEvent(myPlayer, other)
                     )
@@ -278,7 +291,7 @@ export class RadialMenu implements Layer {
             const [src, dst] = sourceDstOceanShore(this.game, myPlayer, other, this.clickedCell)
             if (src != null && dst != null) {
                 if (manhattanDistWrapped(src.cell(), dst.cell(), this.game.width()) < this.game.config().boatMaxDistance()) {
-                    this.activateMenuElement(RadialElement.BoatAttack, () => {
+                    this.activateMenuElement(Slot.Boat, "#3f6ab1", boatIcon, () => {
                         this.eventBus.emit(
                             new SendBoatAttackIntentEvent(other.id(), this.clickedCell, null)
                         )
@@ -286,13 +299,6 @@ export class RadialMenu implements Layer {
                 }
             }
         }
-    }
-
-    private activateMenuElement(el: RadialElement, action: () => void) {
-        const menuItem = this.menuItems.get(el)
-        menuItem.action = action
-        menuItem.disabled = false
-        this.updateMenuItemState(menuItem)
     }
 
     private onPointerUp(event: MouseUpEvent) {
@@ -328,13 +334,24 @@ export class RadialMenu implements Layer {
         this.hideRadialMenu();
     }
 
+    private activateMenuElement(slot: Slot, color: string, icon: string, action: () => void) {
+        const menuItem = this.menuItems.get(slot)
+        menuItem.action = action
+        menuItem.disabled = false
+        menuItem.color = color
+        menuItem.icon = icon
+        this.updateMenuItemState(menuItem)
+    }
+
     private updateMenuItemState(item: any) {
-        this.menuElement.select(`path[data-name="${item.name}"]`)
-            .attr('fill', item.disabled ? this.getDisabledColor(item.color) : item.color)
+        const menuItem = this.menuElement.select(`path[data-name="${item.name}"]`);
+        menuItem
+            .attr('fill', item.disabled ? this.disabledColor : item.color)
             .style('cursor', item.disabled ? 'not-allowed' : 'pointer')
             .style('opacity', item.disabled ? 0.5 : 1);
 
-        this.menuElement.select(`text[data-name="${item.name}"]`)
+        this.menuElement.select(`image[data-name="${item.name}"]`)
+            .attr('xlink:href', item.icon || item.defaultIcon)
             .attr('fill', item.disabled ? '#999999' : 'white');
     }
 
@@ -349,26 +366,20 @@ export class RadialMenu implements Layer {
         this.menuElement.select('.center-button-text').transition().duration(200).style('font-size', fontSize);
     }
 
-    private enableCenterButton() {
+    private renderCenterButton(enabled: boolean) {
+        this.isCenterButtonEnabled = enabled
         // Add delay so center button is clicked immediately on creation.
         setTimeout(() => {
-            this.isCenterButtonEnabled = true;
             const centerButton = this.menuElement.select('.center-button');
 
             centerButton.select('.center-button-hitbox')
-                .style('cursor', this.isCenterButtonEnabled ? 'pointer' : 'not-allowed');
+                .style('cursor', enabled ? 'pointer' : 'not-allowed');
 
             centerButton.select('.center-button-visible')
-                .attr('fill', this.isCenterButtonEnabled ? '#2c3e50' : '#999999');
+                .attr('fill', enabled ? '#2c3e50' : '#999999');
 
             centerButton.select('.center-button-text')
-                .attr('fill', this.isCenterButtonEnabled ? 'white' : '#cccccc');
+                .attr('fill', enabled ? 'white' : '#cccccc');
         }, 25);
-    }
-
-    private getDisabledColor(color: string): string {
-        const rgb = d3.rgb(color);
-        const gray = rgb.r * 0.299 + rgb.g * 0.587 + rgb.b * 0.114;
-        return d3.rgb(gray, gray, gray).toString();
     }
 }

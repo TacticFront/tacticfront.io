@@ -150,11 +150,13 @@
 * BUG: make event box work on mobile DONE 9/30/2024
 * BUG: alliance expire message after player dies DONE 9/30/2024
 * BUG: alliance cooldown request DONE 9/30/2024
-* Improve alliance  icon
+* make create/break alliance single button DONE 10/1/2024
+* Improve alliance icon
 * add request attack other players
 * BUG: double tap zooms on mobile
+* BUG: center button should be disabled select island
+* BUG: boat icon appears when click inland
 * Make fake humans spawn by their country
-* make create/break alliance single button
 * add emoji button
 * make year clock
 * block user inputs if too far behind server
