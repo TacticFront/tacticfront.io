@@ -153,9 +153,9 @@
 * make create/break alliance single button DONE 10/1/2024
 * add request attack other players DONE 10/2/2024
 * Improve alliance icon
-* BUG: double tap zooms on mobile
 * BUG: center button should be disabled select island
 * BUG: boat icon appears when click inland
+* BUG: double tap zooms on mobile
 * Make fake humans spawn by their country
 * add emoji button
 * make year clock
