@@ -34,6 +34,8 @@ substitutions:
 
 options:
   substitutionOption: 'ALLOW_LOOSE'
+  logging: CLOUD_LOGGING_ONLY
+
 
 images:
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/game-server:$TAG_NAME'
