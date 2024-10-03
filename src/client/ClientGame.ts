@@ -169,11 +169,18 @@ export class ClientGame {
         }
 
         if (tile.isLand()) {
-            for (const border of this.myPlayer.borderTiles()) {
-                for (const n of border.neighbors()) {
-                    if (n.owner() == tile.owner()) {
-                        this.eventBus.emit(new SendAttackIntentEvent(targetID))
-                        return
+            if (tile.hasOwner()) {
+                if (this.myPlayer.sharesBorderWith(tile.owner())) {
+                    this.eventBus.emit(new SendAttackIntentEvent(targetID))
+                }
+            } else {
+
+                outer_loop: for (const t of bfs(tile, and(t => !t.hasOwner() && t.isLand(), dist(tile, 200)))) {
+                    for (const n of t.neighbors()) {
+                        if (n.owner() == this.myPlayer) {
+                            this.eventBus.emit(new SendAttackIntentEvent(targetID))
+                            break outer_loop
+                        }
                     }
                 }
             }

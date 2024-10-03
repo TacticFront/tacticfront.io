@@ -1,7 +1,7 @@
 import {EventBus} from "../../../core/EventBus";
 import {Cell, Game, Player, PlayerID} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
-import {manhattanDist, manhattanDistWrapped, sourceDstOceanShore} from "../../../core/Util";
+import {and, bfs, dist, manhattanDist, manhattanDistWrapped, sourceDstOceanShore} from "../../../core/Util";
 import {ContextMenuEvent, MouseUpEvent} from "../../InputHandler";
 import {SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendSpawnIntentEvent, SendTargetPlayerIntentEvent} from "../../Transport";
 import {TransformHandler} from "../TransformHandler";
@@ -231,8 +231,19 @@ export class RadialMenu implements Layer {
         }
 
         if (tile.owner() != myPlayer && tile.isLand() && myPlayer.sharesBorderWith(other)) {
-            if (!other.isPlayer() || !myPlayer.isAlliedWith(other)) {
-                this.renderCenterButton(true)
+            if (other.isPlayer()) {
+                if (!myPlayer.isAlliedWith(other)) {
+                    this.renderCenterButton(true)
+                }
+            } else {
+                outer_loop: for (const t of bfs(tile, and(t => !t.hasOwner() && t.isLand(), dist(tile, 200)))) {
+                    for (const n of t.neighbors()) {
+                        if (n.owner() == myPlayer) {
+                            this.renderCenterButton(true)
+                            break outer_loop
+                        }
+                    }
+                }
             }
         }
 
