@@ -254,7 +254,7 @@ export class RadialMenu implements Layer {
             }
 
             if (myPlayer.isAlliedWith(other)) {
-                this.activateMenuElement(Slot.Alliance, "#b1593f", traitorIcon, () => {
+                this.activateMenuElement(Slot.Alliance, "#c74848", traitorIcon, () => {
                     this.eventBus.emit(
                         new SendBreakAllianceIntentEvent(myPlayer, other)
                     )
