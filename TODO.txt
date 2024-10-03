@@ -154,7 +154,7 @@
 * add request attack other players DONE 10/2/2024
 * Improve alliance icon DONE 10/2/2024
 * BUG: center button should be disabled select island DONE 10/2/2024
-* BUG: boat icon appears when click inland
+* BUG: boat icon appears when click inland DONE 10/2/2024
 * BUG: double tap zooms on mobile
 * Make fake humans spawn by their country
 * add emoji button

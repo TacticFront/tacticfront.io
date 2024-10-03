@@ -305,6 +305,17 @@ export class RadialMenu implements Layer {
             return
         }
 
+        let nearOcean = false
+        for (const t of bfs(tile, and(t => t.owner() == tile.owner() && t.isLand(), dist(tile, 25)))) {
+            if (t.isOceanShore()) {
+                nearOcean = true
+                break
+            }
+        }
+        if (!nearOcean) {
+            return
+        }
+
         if (myPlayerBordersOcean && otherPlayerBordersOcean) {
             const [src, dst] = sourceDstOceanShore(this.game, myPlayer, other, this.clickedCell)
             if (src != null && dst != null) {
