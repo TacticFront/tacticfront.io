@@ -4,15 +4,15 @@ export const devConfig = new class extends DefaultConfig {
     percentageTilesOwnedToWin(): number {
         return 95
     }
-    // numSpawnPhaseTurns(): number {
-    //     return 40
-    // }
-    // gameCreationRate(): number {
-    //     return 2 * 1000
-    // }
-    // lobbyLifetime(): number {
-    //     return 2 * 1000
-    // }
+    numSpawnPhaseTurns(): number {
+        return 40
+    }
+    gameCreationRate(): number {
+        return 2 * 1000
+    }
+    lobbyLifetime(): number {
+        return 2 * 1000
+    }
     turnIntervalMs(): number {
         return 100
     }

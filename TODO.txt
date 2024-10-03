@@ -152,7 +152,7 @@
 * BUG: alliance cooldown request DONE 9/30/2024
 * make create/break alliance single button DONE 10/1/2024
 * add request attack other players DONE 10/2/2024
-* Improve alliance icon
+* Improve alliance icon DONE 10/2/2024
 * BUG: center button should be disabled select island
 * BUG: boat icon appears when click inland
 * BUG: double tap zooms on mobile
