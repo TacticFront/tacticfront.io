@@ -155,8 +155,9 @@
 * Improve alliance icon DONE 10/2/2024
 * BUG: center button should be disabled select island DONE 10/2/2024
 * BUG: boat icon appears when click inland DONE 10/2/2024
-* BUG: double tap zooms on mobile
 * Make fake humans spawn by their country
+* Auto deploy to dev on commit
+* BUG: double tap zooms on mobile
 * add emoji button
 * make year clock
 * block user inputs if too far behind server
