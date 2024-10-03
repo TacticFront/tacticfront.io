@@ -127,9 +127,6 @@ export class GameImpl implements MutableGame {
         if (this._ticks % 100 == 0) {
             let hash = 1;
             this._players.forEach(p => {
-                if (p.type() == PlayerType.Human) {
-                    console.log(`${p.toString()}`)
-                }
                 hash += p.hash()
             })
             console.log(`tick ${this._ticks}: hash ${hash}`)

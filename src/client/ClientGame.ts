@@ -145,6 +145,7 @@ export class ClientGame {
         if (!this.gs.isOnMap(cell)) {
             return
         }
+        console.log(`clicked cell ${cell}`)
         const tile = this.gs.tile(cell)
         if (tile.isLand() && !tile.hasOwner() && this.gs.inSpawnPhase()) {
             this.eventBus.emit(new SendSpawnIntentEvent(cell))
