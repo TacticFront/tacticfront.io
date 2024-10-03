@@ -7,16 +7,6 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/game-server:$TAG_NAME']
 
-  # Prune Docker system on the instance
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        gcloud compute ssh ${_INSTANCE_NAME} --zone us-central1-a --command 'docker system prune -f -a'
-        gcloud compute ssh ${_INSTANCE_NAME} --zone us-central1-a --command 'docker kill $(docker ps -q)'
-        gcloud compute ssh ${_INSTANCE_NAME} --zone us-central1-a --command 'docker rmi $(docker images -q) -f'
-
   # Update the GCE instance with the new container image
   - name: 'gcr.io/cloud-builders/gcloud'
     args:
