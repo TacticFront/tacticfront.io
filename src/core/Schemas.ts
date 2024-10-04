@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {PlayerType} from './game/Game';
+import {Emoji, PlayerType} from './game/Game';
 
 export type GameID = string
 export type ClientID = string
@@ -12,6 +12,7 @@ export type Intent = SpawnIntent
     | AllianceRequestReplyIntent
     | BreakAllianceIntent
     | TargetPlayerIntent
+    | EmojiIntent
 
 export type AttackIntent = z.infer<typeof AttackIntentSchema>
 export type SpawnIntent = z.infer<typeof SpawnIntentSchema>
@@ -21,7 +22,7 @@ export type AllianceRequestIntent = z.infer<typeof AllianceRequestIntentSchema>
 export type AllianceRequestReplyIntent = z.infer<typeof AllianceRequestReplyIntentSchema>
 export type BreakAllianceIntent = z.infer<typeof BreakAllianceIntentSchema>
 export type TargetPlayerIntent = z.infer<typeof TargetPlayerIntentSchema>
-
+export type EmojiIntent = z.infer<typeof EmojiIntentSchema>
 
 export type Turn = z.infer<typeof TurnSchema>
 
@@ -37,6 +38,8 @@ export type ClientJoinMessage = z.infer<typeof ClientJoinMessageSchema>
 export type ClientLeaveMessage = z.infer<typeof ClientLeaveMessageSchema>
 
 const PlayerTypeSchema = z.nativeEnum(PlayerType);
+const EmojiSchema = z.nativeEnum(Emoji);
+
 
 // TODO: create Cell schema
 
@@ -46,9 +49,11 @@ export interface Lobby {
     numClients: number;
 }
 
+
+
 // Zod schemas
 const BaseIntentSchema = z.object({
-    type: z.enum(['attack', 'spawn', 'boat', 'name']),
+    type: z.enum(['attack', 'spawn', 'boat', 'name', 'targetPlayer', 'emoji']),
     clientID: z.string(),
 });
 
@@ -112,6 +117,13 @@ export const TargetPlayerIntentSchema = BaseIntentSchema.extend({
     target: z.string(),
 })
 
+export const EmojiIntentSchema = BaseIntentSchema.extend({
+    type: z.literal('emoji'),
+    sender: z.string(),
+    recipient: z.string(),
+    emoji: EmojiSchema,
+})
+
 const IntentSchema = z.union([
     AttackIntentSchema,
     SpawnIntentSchema,
@@ -121,6 +133,7 @@ const IntentSchema = z.union([
     AllianceRequestReplyIntentSchema,
     BreakAllianceIntentSchema,
     TargetPlayerIntentSchema,
+    EmojiIntentSchema,
 ]);
 
 const TurnSchema = z.object({

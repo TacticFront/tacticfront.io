@@ -13,6 +13,7 @@ import {AllianceRequestExecution} from "./alliance/AllianceRequestExecution";
 import {AllianceRequestReplyExecution} from "./alliance/AllianceRequestReplyExecution";
 import {BreakAllianceExecution} from "./alliance/BreakAllianceExecution";
 import {TargetPlayerExecution} from "./TargetPlayerExecution";
+import {EmojiExecution} from "./EmojiExecution";
 
 
 
@@ -67,6 +68,8 @@ export class Executor {
             return new BreakAllianceExecution(intent.requestor, intent.recipient)
         } else if (intent.type == "targetPlayer") {
             return new TargetPlayerExecution(intent.requestor, intent.target)
+        } else if (intent.type == "emoji") {
+            return new EmojiExecution(intent.sender, intent.recipient, intent.emoji)
         }
         else {
             throw new Error(`intent type ${intent} not found`)

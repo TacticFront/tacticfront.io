@@ -1,4 +1,4 @@
-import {MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, MutableGame, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent} from "./Game";
+import {MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, MutableGame, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, Emoji, EmojiMessage, EmojiMessageEvent, AllPlayers} from "./Game";
 import {ClientID} from "../Schemas";
 import {simpleHash} from "../Util";
 import {CellString, GameImpl} from "./GameImpl";
@@ -25,6 +25,8 @@ export class PlayerImpl implements MutablePlayer {
     public pastOutgoingAllianceRequests: AllianceRequest[] = []
 
     private targets_: Target[] = []
+
+    private outgoingEmojis_: EmojiMessage[] = []
 
     constructor(private gs: GameImpl, private readonly playerInfo: PlayerInfo, private _troops) {
         this._name = playerInfo.name;
@@ -205,6 +207,29 @@ export class PlayerImpl implements MutablePlayer {
         const ts = this.alliances().map(a => a.other(this)).flatMap(ally => ally.targets())
         ts.push(...this.targets())
         return [...new Set(ts)]
+    }
+
+    sendEmoji(recipient: Player | typeof AllPlayers, emoji: Emoji): void {
+        if (recipient == this) {
+            throw Error(`Cannot send emoji to oneself: ${this}`)
+        }
+        const msg = new EmojiMessage(this, recipient, emoji, this.gs.ticks())
+        this.outgoingEmojis_.push(msg)
+        this.gs.eventBus.emit(new EmojiMessageEvent(msg))
+    }
+
+    outgoingEmojis(): EmojiMessage[] {
+        return null
+    }
+
+    canSendEmoji(recipient: Player | null): boolean {
+        const prevMsgs = this.outgoingEmojis_.filter(msg => msg.recipient == recipient)
+        for (const msg of prevMsgs) {
+            if (this.gs.ticks() - msg.createdAt < this.gs.config().emojiMessageCooldown()) {
+                return false
+            }
+        }
+        return true
     }
 
     hash(): number {

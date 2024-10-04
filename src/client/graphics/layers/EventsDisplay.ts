@@ -1,6 +1,6 @@
 import {nullable} from "zod";
 import {EventBus, GameEvent} from "../../../core/EventBus";
-import {AllianceExpiredEvent, AllianceRequestEvent, AllianceRequestReplyEvent, BrokeAllianceEvent, Game, Player, PlayerID, TargetPlayerEvent} from "../../../core/game/Game";
+import {AllianceExpiredEvent, AllianceRequestEvent, AllianceRequestReplyEvent, BrokeAllianceEvent, EmojiMessageEvent, Game, Player, PlayerID, TargetPlayerEvent} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
 import {Layer} from "./Layer";
 import {SendAllianceReplyIntentEvent} from "../../Transport";
@@ -53,6 +53,7 @@ export class EventsDisplay implements Layer {
         this.eventBus.on(BrokeAllianceEvent, e => this.onBrokeAllianceEvent(e))
         this.eventBus.on(AllianceExpiredEvent, e => this.onAllianceExpiredEvent(e))
         this.eventBus.on(TargetPlayerEvent, e => this.onTargetPlayerEvent(e))
+        this.eventBus.on(EmojiMessageEvent, e => this.onEmojiMessageEvent(e))
         this.renderTable()
     }
 
@@ -219,6 +220,21 @@ export class EventsDisplay implements Layer {
         if (myPlayer.isAlliedWith(event.player)) {
             this.addEvent({
                 description: `${event.player.name()} requests you attack ${event.target.name()}`,
+                type: MessageType.INFO,
+                highlight: true,
+                createdAt: this.game.ticks(),
+            })
+        }
+    }
+
+    onEmojiMessageEvent(event: EmojiMessageEvent) {
+        const myPlayer = this.game.playerByClientID(this.clientID)
+        if (myPlayer == null) {
+            return
+        }
+        if (event.message.recipient == myPlayer) {
+            this.addEvent({
+                description: `${event.message.sender.name()}:${event.message.emoji}`,
                 type: MessageType.INFO,
                 highlight: true,
                 createdAt: this.game.ticks(),

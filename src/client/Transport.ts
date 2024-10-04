@@ -1,5 +1,5 @@
 import {EventBus, GameEvent} from "../core/EventBus"
-import {AllianceRequest, Cell, Game, Player, PlayerID, PlayerType} from "../core/game/Game"
+import {AllianceRequest, AllPlayers, Cell, Emoji, Player, PlayerID, PlayerType} from "../core/game/Game"
 import {ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema} from "../core/Schemas"
 
 
@@ -9,6 +9,7 @@ export class SendAllianceRequestIntentEvent implements GameEvent {
         public readonly recipient: Player
     ) { }
 }
+
 export class SendBreakAllianceIntentEvent implements GameEvent {
     constructor(
         public readonly requestor: Player,
@@ -49,6 +50,10 @@ export class SendTargetPlayerIntentEvent implements GameEvent {
     ) { }
 }
 
+export class SendEmojiIntentEvent implements GameEvent {
+    constructor(public readonly recipient: Player | typeof AllPlayers, public readonly emoji: Emoji) { }
+}
+
 export class Transport {
 
     public onconnect: () => {}
@@ -68,6 +73,7 @@ export class Transport {
         this.eventBus.on(SendAttackIntentEvent, (e) => this.onSendAttackIntent(e))
         this.eventBus.on(SendBoatAttackIntentEvent, (e) => this.onSendBoatAttackIntent(e))
         this.eventBus.on(SendTargetPlayerIntentEvent, (e) => this.onSendTargetPlayerIntent(e))
+        this.eventBus.on(SendEmojiIntentEvent, (e) => this.onSendEmojiIntent(e))
     }
 
     connect(onconnect: () => void, onmessage: (message: ServerMessage) => void, isActive: () => boolean) {
@@ -197,6 +203,16 @@ export class Transport {
             clientID: this.clientID,
             requestor: this.playerID,
             target: event.targetID,
+        })
+    }
+
+    private onSendEmojiIntent(event: SendEmojiIntentEvent) {
+        this.sendIntent({
+            type: "emoji",
+            clientID: this.clientID,
+            sender: this.playerID,
+            recipient: event.recipient == AllPlayers ? AllPlayers : event.recipient.id(),
+            emoji: event.emoji
         })
     }
 

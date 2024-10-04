@@ -1,9 +1,9 @@
 import {EventBus} from "../../../core/EventBus";
-import {Cell, Game, Player, PlayerID} from "../../../core/game/Game";
+import {AllPlayers, Cell, Emoji, Game, Player, PlayerID} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
 import {and, bfs, dist, manhattanDist, manhattanDistWrapped, sourceDstOceanShore} from "../../../core/Util";
 import {ContextMenuEvent, MouseUpEvent} from "../../InputHandler";
-import {SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendSpawnIntentEvent, SendTargetPlayerIntentEvent} from "../../Transport";
+import {SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendEmojiIntentEvent, SendSpawnIntentEvent, SendTargetPlayerIntentEvent} from "../../Transport";
 import {TransformHandler} from "../TransformHandler";
 import {MessageType} from "./EventsDisplay";
 import {Layer} from "./Layer";
@@ -13,20 +13,14 @@ import allianceIcon from '../../../../resources/images/AllianceIconWhite.png';
 import boatIcon from '../../../../resources/images/BoatIconWhite.png';
 import swordIcon from '../../../../resources/images/SwordIconWhite.png';
 import targetIcon from '../../../../resources/images/TargetIconWhite.png';
+import emojiIcon from '../../../../resources/images/EmojiIconWhite.png';
 
-
-enum RadialElement {
-    RequestAlliance,
-    BreakAlliance,
-    BoatAttack,
-    Target,
-}
 
 enum Slot {
     Alliance,
     Boat,
     Target,
-    FOURTH
+    Emoji
 }
 
 export class RadialMenu implements Layer {
@@ -38,7 +32,7 @@ export class RadialMenu implements Layer {
         [Slot.Alliance, {name: "alliance", disabled: true, action: () => { }, color: null, icon: null, defaultIcon: allianceIcon}],
         [Slot.Boat, {name: "boat", disabled: true, action: () => { }, color: null, icon: null, defaultIcon: boatIcon}],
         [Slot.Target, {name: "target", disabled: true, action: () => { }, defaultIcon: targetIcon}],
-
+        [Slot.Emoji, {name: "emoji", disabled: true, action: () => { }, defaultIcon: emojiIcon}],
     ]);
 
     private readonly menuSize = 190;
@@ -228,6 +222,15 @@ export class RadialMenu implements Layer {
         if (!myPlayer) {
             console.warn('my player not found')
             return
+        }
+
+        if (tile.hasOwner()) {
+            const target = tile.owner() == myPlayer ? AllPlayers : (tile.owner() as Player)
+            this.activateMenuElement(Slot.Emoji, "#ebe250", emojiIcon, () => {
+                this.eventBus.emit(
+                    new SendEmojiIntentEvent(target, Emoji.Fire)
+                )
+            })
         }
 
         if (tile.owner() != myPlayer && tile.isLand() && myPlayer.sharesBorderWith(other)) {

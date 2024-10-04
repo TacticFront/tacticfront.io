@@ -7,6 +7,12 @@ import {pastelTheme} from "./PastelTheme";
 
 
 export class DefaultConfig implements Config {
+    emojiMessageDuration(): Tick {
+        return 5 * 10
+    }
+    emojiMessageCooldown(): Tick {
+        return 15 * 10
+    }
     targetDuration(): Tick {
         return 10 * 10
     }

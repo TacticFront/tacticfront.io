@@ -157,17 +157,17 @@
 * BUG: boat icon appears when click inland DONE 10/2/2024
 * Auto deploy to dev on commit DONE 10/2/2024
 * add emoji button
+* make disabled icon crossed out icon
+* donate troops button
 * Make fake humans spawn by their country
 * BUG: double tap zooms on mobile
 * fake humans target enemies
-* make year clock
+* create private lobby menu
 * block user inputs if too far behind server
 * BUG: FakeHuman don't be enemy if don't share border (or send boat)
 * store cookies
 * BUG: names dissapear on bottom of screen
 * UI: leader board
-* UI: boats
-* UI: current attacks
 * Load terrain dataImage in background
 * BUG: half encircle Antartica causes capture
 

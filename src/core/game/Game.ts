@@ -8,6 +8,26 @@ import {BreakAllianceExecution} from "../execution/alliance/BreakAllianceExecuti
 export type PlayerID = string
 export type Tick = number
 
+export enum Emoji {
+    ThumbsUp = "👍",
+    ThumbsDown = "👎",
+    Smile = "😊",
+    Sad = "😢",
+    Heart = "❤️",
+    Fire = "🔥",
+}
+
+export const AllPlayers = "AllPlayers" as const;
+
+export class EmojiMessage {
+    constructor(
+        public readonly sender: Player,
+        public readonly recipient: Player | typeof AllPlayers,
+        public readonly emoji: Emoji,
+        public readonly createdAt: Tick
+    ) { }
+}
+
 export class Cell {
 
     private strRepr: string
@@ -156,6 +176,8 @@ export interface Player {
     // Targets of player and all allies.
     transitiveTargets(): Player[]
     toString(): string
+    canSendEmoji(recipient: Player | typeof AllPlayers): boolean
+    outgoingEmojis(): EmojiMessage[]
 }
 
 export interface MutablePlayer extends Player {
@@ -178,6 +200,8 @@ export interface MutablePlayer extends Player {
     target(other: Player): void
     targets(): MutablePlayer[]
     transitiveTargets(): MutablePlayer[]
+    // Null means send to all Players
+    sendEmoji(recipient: Player | typeof AllPlayers, emoji: Emoji): void
 }
 
 export interface Game {
@@ -241,4 +265,8 @@ export class AllianceExpiredEvent implements GameEvent {
 
 export class TargetPlayerEvent implements GameEvent {
     constructor(public readonly player: Player, public readonly target: Player) { }
+}
+
+export class EmojiMessageEvent implements GameEvent {
+    constructor(public readonly message: EmojiMessage) { }
 }

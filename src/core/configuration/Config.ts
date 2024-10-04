@@ -51,6 +51,8 @@ export interface Config {
 	allianceRequestCooldown(): Tick
 	targetDuration(): Tick
 	targetCooldown(): Tick
+	emojiMessageCooldown(): Tick
+	emojiMessageDuration(): Tick
 }
 
 export interface Theme {
