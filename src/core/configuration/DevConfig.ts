@@ -1,3 +1,4 @@
+import {PlayerInfo} from "../game/Game";
 import {DefaultConfig} from "./DefaultConfig";
 
 export const devConfig = new class extends DefaultConfig {
@@ -5,14 +6,14 @@ export const devConfig = new class extends DefaultConfig {
         return 95
     }
     numSpawnPhaseTurns(): number {
-        return 80
+        return 40
     }
-    // gameCreationRate(): number {
-    //     return 2 * 1000
-    // }
-    // lobbyLifetime(): number {
-    //     return 2 * 1000
-    // }
+    gameCreationRate(): number {
+        return 2 * 1000
+    }
+    lobbyLifetime(): number {
+        return 2 * 1000
+    }
     turnIntervalMs(): number {
         return 100
     }
@@ -29,12 +30,12 @@ export const devConfig = new class extends DefaultConfig {
     //     return 1
     // }
 
-    // startTroops(playerInfo: PlayerInfo): number {
-    //     if (playerInfo.isBot) {
-    //         return 5000
-    //     }
-    //     return 5000
-    // }
+    startTroops(playerInfo: PlayerInfo): number {
+        // if (playerInfo.isBot) {
+        //     return 5000
+        // }
+        return 50000
+    }
 
     // troopAdditionRate(player: Player): number {
     //     if (player.isBot()) {

@@ -1,4 +1,4 @@
-import {Cell, Game, Player, PlayerType} from "../../../core/game/Game"
+import {AllPlayers, Cell, Game, Player, PlayerType} from "../../../core/game/Game"
 import {PseudoRandom} from "../../../core/PseudoRandom"
 import {calculateBoundingBox} from "../../../core/Util"
 import {Theme} from "../../../core/configuration/Config"
@@ -186,6 +186,18 @@ export class NameLayer implements Layer {
                 iconSize,
                 iconSize
             );
+        }
+
+        if (myPlayer != null) {
+            const emojis = render.player.outgoingEmojis().filter(e => e.recipient == AllPlayers || e.recipient == myPlayer)
+            if (emojis.length > 0) {
+                context.font = `${render.fontSize * 4}px ${this.theme.font()}`;
+                context.fillStyle = this.theme.playerInfoColor(render.player.id()).toHex();
+                context.textAlign = 'center';
+                context.textBaseline = 'middle';
+
+                context.fillText(emojis[0].emoji, nameCenterX, nameCenterY + render.fontSize / 2);
+            }
         }
 
         context.textRendering = "optimizeSpeed";

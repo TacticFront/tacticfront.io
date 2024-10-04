@@ -226,11 +226,13 @@ export class RadialMenu implements Layer {
 
         if (tile.hasOwner()) {
             const target = tile.owner() == myPlayer ? AllPlayers : (tile.owner() as Player)
-            this.activateMenuElement(Slot.Emoji, "#ebe250", emojiIcon, () => {
-                this.eventBus.emit(
-                    new SendEmojiIntentEvent(target, Emoji.Fire)
-                )
-            })
+            if (myPlayer.canSendEmoji(target)) {
+                this.activateMenuElement(Slot.Emoji, "#ebe250", emojiIcon, () => {
+                    this.eventBus.emit(
+                        new SendEmojiIntentEvent(target, Emoji.Fire)
+                    )
+                })
+            }
         }
 
         if (tile.owner() != myPlayer && tile.isLand() && myPlayer.sharesBorderWith(other)) {

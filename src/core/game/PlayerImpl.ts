@@ -219,10 +219,12 @@ export class PlayerImpl implements MutablePlayer {
     }
 
     outgoingEmojis(): EmojiMessage[] {
-        return null
+        return this.outgoingEmojis_
+            .filter(e => this.gs.ticks() - e.createdAt < this.gs.config().emojiMessageDuration())
+            .sort((a, b) => b.createdAt - a.createdAt)
     }
 
-    canSendEmoji(recipient: Player | null): boolean {
+    canSendEmoji(recipient: Player | typeof AllPlayers): boolean {
         const prevMsgs = this.outgoingEmojis_.filter(msg => msg.recipient == recipient)
         for (const msg of prevMsgs) {
             if (this.gs.ticks() - msg.createdAt < this.gs.config().emojiMessageCooldown()) {
