@@ -47,8 +47,14 @@ export interface Lobby {
     numClients: number;
 }
 
-
-
+const EmojiSchema = z.string().refine(
+    (val) => {
+        return /\p{Emoji}/u.test(val);
+    },
+    {
+        message: "Must contain at least one emoji character"
+    }
+);
 // Zod schemas
 const BaseIntentSchema = z.object({
     type: z.enum(['attack', 'spawn', 'boat', 'name', 'targetPlayer', 'emoji']),
@@ -119,12 +125,7 @@ export const EmojiIntentSchema = BaseIntentSchema.extend({
     type: z.literal('emoji'),
     sender: z.string(),
     recipient: z.string(),
-    emoji: z.string().refine(
-        (val) => /^\p{Emoji}$/u.test(val),
-        {
-            message: "Must be a single emoji"
-        }
-    )
+    emoji: EmojiSchema,
 })
 
 const IntentSchema = z.union([

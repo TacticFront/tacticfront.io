@@ -149,12 +149,14 @@ export class FakeHumanExecution implements Execution {
         }
     }
 
-    sendBoat(tries: number = 0) {
-        if (tries > 100) {
+    sendBoat(tries: number = 0, oceanShore: Tile[] = null) {
+        if (tries > 10) {
             return
         }
 
-        const oceanShore = Array.from(this.player.borderTiles()).filter(t => t.isOceanShore())
+        if (oceanShore == null) {
+            oceanShore = Array.from(this.player.borderTiles()).filter(t => t.isOceanShore())
+        }
         if (oceanShore.length == 0) {
             return
         }
@@ -171,7 +173,7 @@ export class FakeHumanExecution implements Execution {
             return
         }
 
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 20; i++) {
             const dst = this.random.randElement(otherShore)
             if (this.isSmallIsland(dst)) {
                 continue
@@ -188,8 +190,7 @@ export class FakeHumanExecution implements Execution {
             ))
             return
         }
-        this.sendBoat(tries + 1)
-
+        this.sendBoat(tries + 1, oceanShore)
     }
 
     randomLand(): Tile {
@@ -216,7 +217,7 @@ export class FakeHumanExecution implements Execution {
     }
 
     isSmallIsland(tile: Tile): boolean {
-        return bfs(tile, and((t) => t.isLand(), dist(tile, 50))).size < 50
+        return bfs(tile, and((t) => t.isLand(), dist(tile, 10))).size < 50
     }
 
     owner(): MutablePlayer {

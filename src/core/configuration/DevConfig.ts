@@ -30,12 +30,12 @@ export const devConfig = new class extends DefaultConfig {
     //     return 1
     // }
 
-    startTroops(playerInfo: PlayerInfo): number {
-        // if (playerInfo.isBot) {
-        //     return 5000
-        // }
-        return 50000
-    }
+    // startTroops(playerInfo: PlayerInfo): number {
+    //     // if (playerInfo.isBot) {
+    //     //     return 5000
+    //     // }
+    //     return 50000
+    // }
 
     // troopAdditionRate(player: Player): number {
     //     if (player.isBot()) {
