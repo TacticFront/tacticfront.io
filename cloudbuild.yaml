@@ -1,11 +1,11 @@
 steps:
   # Build the Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/game-server:$TAG_NAME', '.']
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/game-server:${TAG_NAME}-${SHORT_SHA}', '.']
 
   # Push the image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/game-server:$TAG_NAME']
+    args: ['push', 'us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/game-server:${TAG_NAME}-${SHORT_SHA}']
 
   # Update the GCE instance with the new container image
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -15,7 +15,7 @@ steps:
       - 'update-container'
       - '${_INSTANCE_NAME}'
       - '--container-image'
-      - 'us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/game-server:$TAG_NAME'
+      - 'us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/game-server:${TAG_NAME}-${SHORT_SHA}'
       - '--zone=us-central1-a'
 
 substitutions:
@@ -26,6 +26,5 @@ options:
   substitutionOption: 'ALLOW_LOOSE'
   logging: CLOUD_LOGGING_ONLY
 
-
 images:
-  - 'us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/game-server:$TAG_NAME'
+  - 'us-central1-docker.pkg.dev/$PROJECT_ID/openfrontio/game-server:${TAG_NAME}-${SHORT_SHA}'
