@@ -1,5 +1,5 @@
 import {EventBus, GameEvent} from "../core/EventBus"
-import {AllianceRequest, AllPlayers, Cell, Emoji, Player, PlayerID, PlayerType} from "../core/game/Game"
+import {AllianceRequest, AllPlayers, Cell, Player, PlayerID, PlayerType} from "../core/game/Game"
 import {ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema} from "../core/Schemas"
 
 
@@ -51,7 +51,7 @@ export class SendTargetPlayerIntentEvent implements GameEvent {
 }
 
 export class SendEmojiIntentEvent implements GameEvent {
-    constructor(public readonly recipient: Player | typeof AllPlayers, public readonly emoji: Emoji) { }
+    constructor(public readonly recipient: Player | typeof AllPlayers, public readonly emoji: string) { }
 }
 
 export class Transport {

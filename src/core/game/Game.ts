@@ -8,22 +8,13 @@ import {BreakAllianceExecution} from "../execution/alliance/BreakAllianceExecuti
 export type PlayerID = string
 export type Tick = number
 
-export enum Emoji {
-    ThumbsUp = "👍",
-    ThumbsDown = "👎",
-    Smile = "😊",
-    Sad = "😢",
-    Heart = "❤️",
-    Fire = "🔥",
-}
-
 export const AllPlayers = "AllPlayers" as const;
 
 export class EmojiMessage {
     constructor(
         public readonly sender: Player,
         public readonly recipient: Player | typeof AllPlayers,
-        public readonly emoji: Emoji,
+        public readonly emoji: string,
         public readonly createdAt: Tick
     ) { }
 }
@@ -201,7 +192,7 @@ export interface MutablePlayer extends Player {
     targets(): MutablePlayer[]
     transitiveTargets(): MutablePlayer[]
     // Null means send to all Players
-    sendEmoji(recipient: Player | typeof AllPlayers, emoji: Emoji): void
+    sendEmoji(recipient: Player | typeof AllPlayers, emoji: string): void
 }
 
 export interface Game {

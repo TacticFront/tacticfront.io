@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {Emoji, PlayerType} from './game/Game';
+import {PlayerType} from './game/Game';
 
 export type GameID = string
 export type ClientID = string
@@ -38,8 +38,6 @@ export type ClientJoinMessage = z.infer<typeof ClientJoinMessageSchema>
 export type ClientLeaveMessage = z.infer<typeof ClientLeaveMessageSchema>
 
 const PlayerTypeSchema = z.nativeEnum(PlayerType);
-const EmojiSchema = z.nativeEnum(Emoji);
-
 
 // TODO: create Cell schema
 
@@ -121,7 +119,12 @@ export const EmojiIntentSchema = BaseIntentSchema.extend({
     type: z.literal('emoji'),
     sender: z.string(),
     recipient: z.string(),
-    emoji: EmojiSchema,
+    emoji: z.string().refine(
+        (val) => /^\p{Emoji}$/u.test(val),
+        {
+            message: "Must be a single emoji"
+        }
+    )
 })
 
 const IntentSchema = z.union([

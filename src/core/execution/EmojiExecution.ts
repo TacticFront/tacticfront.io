@@ -1,4 +1,4 @@
-import {AllPlayers, Emoji, Execution, MutableGame, MutablePlayer, PlayerID} from "../game/Game";
+import {AllPlayers, Execution, MutableGame, MutablePlayer, PlayerID} from "../game/Game";
 
 export class EmojiExecution implements Execution {
 
@@ -10,7 +10,7 @@ export class EmojiExecution implements Execution {
     constructor(
         private senderID: PlayerID,
         private recipientID: PlayerID | typeof AllPlayers,
-        private emoji: Emoji
+        private emoji: string
     ) { }
 
 

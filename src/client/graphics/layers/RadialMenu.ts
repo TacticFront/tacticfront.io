@@ -1,5 +1,5 @@
 import {EventBus} from "../../../core/EventBus";
-import {AllPlayers, Cell, Emoji, Game, Player, PlayerID} from "../../../core/game/Game";
+import {AllPlayers, Cell, Game, Player} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
 import {and, bfs, dist, manhattanDist, manhattanDistWrapped, sourceDstOceanShore} from "../../../core/Util";
 import {ContextMenuEvent, MouseUpEvent} from "../../InputHandler";
@@ -89,7 +89,7 @@ export class RadialMenu implements Layer {
                 if (emojiElement.classList.contains('emoji-button')) {
                     const emoji = emojiElement.textContent;
                     this.hideEmojiTable()
-                    this.eventBus.emit(new SendEmojiIntentEvent(recipient, Emoji.Heart))
+                    this.eventBus.emit(new SendEmojiIntentEvent(recipient, emoji))
                 }
             });
         } else {

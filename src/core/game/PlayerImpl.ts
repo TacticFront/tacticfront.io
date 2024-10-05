@@ -1,4 +1,4 @@
-import {MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, MutableGame, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, Emoji, EmojiMessage, EmojiMessageEvent, AllPlayers} from "./Game";
+import {MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers} from "./Game";
 import {ClientID} from "../Schemas";
 import {simpleHash} from "../Util";
 import {CellString, GameImpl} from "./GameImpl";
@@ -209,7 +209,7 @@ export class PlayerImpl implements MutablePlayer {
         return [...new Set(ts)]
     }
 
-    sendEmoji(recipient: Player | typeof AllPlayers, emoji: Emoji): void {
+    sendEmoji(recipient: Player | typeof AllPlayers, emoji: string): void {
         if (recipient == this) {
             throw Error(`Cannot send emoji to oneself: ${this}`)
         }
