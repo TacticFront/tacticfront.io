@@ -86,7 +86,7 @@ export class DefaultConfig implements Config {
                 mag *= .8
             }
             if (attacker.type() == PlayerType.FakeHuman && defender.type() == PlayerType.Bot) {
-                mag *= .6
+                mag *= .8
             }
         }
 
@@ -150,7 +150,7 @@ export class DefaultConfig implements Config {
         // console.log(`to add ${toAdd}`)
 
         if (player.type() == PlayerType.FakeHuman) {
-            toAdd *= 1.1
+            toAdd *= 1.0
         }
         if (player.type() == PlayerType.Bot) {
             toAdd *= .7
