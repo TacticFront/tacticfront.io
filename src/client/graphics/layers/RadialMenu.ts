@@ -57,6 +57,46 @@ export class RadialMenu implements Layer {
         this.createMenuElement();
     }
 
+    private hideEmojiTable(): void {
+        const emojiTable: HTMLTableElement | null = document.getElementById('uniqueEmojiTable') as HTMLTableElement | null;
+
+        if (emojiTable instanceof HTMLTableElement) {
+            if (!emojiTable.classList.contains('hidden')) {
+                emojiTable.classList.add('hidden');
+            }
+        } else {
+            console.error('Emoji table not found');
+        }
+    }
+
+    private showEmojiTable(recipient: Player | typeof AllPlayers): void {
+        const emojiTable: HTMLTableElement | null = document.getElementById('uniqueEmojiTable') as HTMLTableElement | null;
+
+        if (emojiTable instanceof HTMLTableElement) {
+            emojiTable.classList.remove('hidden');
+        } else {
+            console.error('Emoji table not found');
+        }
+        this.setupEmojiButtons(recipient)
+    }
+
+    private setupEmojiButtons(recipient: Player | typeof AllPlayers) {
+        const emojiTable = document.getElementById('uniqueEmojiTable');
+
+        if (emojiTable) {
+            emojiTable.addEventListener('click', (event) => {
+                const emojiElement = event.target as HTMLElement;
+                if (emojiElement.classList.contains('emoji-button')) {
+                    const emoji = emojiElement.textContent;
+                    this.hideEmojiTable()
+                    this.eventBus.emit(new SendEmojiIntentEvent(recipient, Emoji.Heart))
+                }
+            });
+        } else {
+            console.error('Emoji table not found');
+        }
+    }
+
     private createMenuElement() {
         this.menuElement = d3.select(document.body)
             .append('div')
@@ -228,9 +268,7 @@ export class RadialMenu implements Layer {
             const target = tile.owner() == myPlayer ? AllPlayers : (tile.owner() as Player)
             if (myPlayer.canSendEmoji(target)) {
                 this.activateMenuElement(Slot.Emoji, "#ebe250", emojiIcon, () => {
-                    this.eventBus.emit(
-                        new SendEmojiIntentEvent(target, Emoji.Fire)
-                    )
+                    this.showEmojiTable(target)
                 })
             }
         }
@@ -337,6 +375,7 @@ export class RadialMenu implements Layer {
 
     private onPointerUp(event: MouseUpEvent) {
         this.hideRadialMenu()
+        this.hideEmojiTable()
     }
 
     private showRadialMenu(x: number, y: number) {

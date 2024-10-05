@@ -171,9 +171,6 @@
 * Load terrain dataImage in background
 * BUG: half encircle Antartica causes capture
 
---- v4 Release
-
-
 * improve front page (make map larger?)
 * Add additional maps
 * add offline mode
