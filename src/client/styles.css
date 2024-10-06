@@ -1,3 +1,19 @@
+html,
+body {
+    touch-action: manipulation;
+    -ms-touch-action: manipulation;
+}
+
+* {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+
 @font-face {
     font-family: 'Overpass';
     src: url('/resources/fonts/overpass.woff') format('woff');

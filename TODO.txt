@@ -158,17 +158,15 @@
 * Auto deploy to dev on commit DONE 10/2/2024
 * add emoji button DONE 10/4/2024
 * make disabled icon crossed out icon DONE 10/6/2024
-* disable select on mobile
-* disable double tap on mobile
+* disable select on mobile DONE 10/6/2024
+* disable double tap on mobile DONE 10/6/2024
 * donate troops button
 * Make fake humans spawn by their country
-* BUG: double tap zooms on mobile
 * fake humans target enemies
 * create private lobby menu
 * block user inputs if too far behind server
 * BUG: FakeHuman don't be enemy if don't share border (or send boat)
 * store cookies
-* BUG: names dissapear on bottom of screen
 * UI: leader board
 * Load terrain dataImage in background
 * BUG: half encircle Antartica causes capture
