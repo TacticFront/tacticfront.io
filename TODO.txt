@@ -156,8 +156,10 @@
 * BUG: center button should be disabled select island DONE 10/2/2024
 * BUG: boat icon appears when click inland DONE 10/2/2024
 * Auto deploy to dev on commit DONE 10/2/2024
-* add emoji button
-* make disabled icon crossed out icon
+* add emoji button DONE 10/4/2024
+* make disabled icon crossed out icon DONE 10/6/2024
+* disable select on mobile
+* disable double tap on mobile
 * donate troops button
 * Make fake humans spawn by their country
 * BUG: double tap zooms on mobile

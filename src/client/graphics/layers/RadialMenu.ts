@@ -14,6 +14,7 @@ import boatIcon from '../../../../resources/images/BoatIconWhite.png';
 import swordIcon from '../../../../resources/images/SwordIconWhite.png';
 import targetIcon from '../../../../resources/images/TargetIconWhite.png';
 import emojiIcon from '../../../../resources/images/EmojiIconWhite.png';
+import disabledIcon from '../../../../resources/images/DisabledIcon.png';
 
 
 enum Slot {
@@ -29,10 +30,10 @@ export class RadialMenu implements Layer {
     private menuElement: d3.Selection<HTMLDivElement, unknown, null, undefined>;
     private isVisible: boolean = false;
     private readonly menuItems = new Map([
-        [Slot.Alliance, {name: "alliance", disabled: true, action: () => { }, color: null, icon: null, defaultIcon: allianceIcon}],
-        [Slot.Boat, {name: "boat", disabled: true, action: () => { }, color: null, icon: null, defaultIcon: boatIcon}],
-        [Slot.Target, {name: "target", disabled: true, action: () => { }, defaultIcon: targetIcon}],
-        [Slot.Emoji, {name: "emoji", disabled: true, action: () => { }, defaultIcon: emojiIcon}],
+        [Slot.Alliance, {name: "alliance", disabled: true, action: () => { }, color: null, icon: null}],
+        [Slot.Boat, {name: "boat", disabled: true, action: () => { }, color: null, icon: null}],
+        [Slot.Target, {name: "target", disabled: true, action: () => { }}],
+        [Slot.Emoji, {name: "emoji", disabled: true, action: () => { }}],
     ]);
 
     private readonly menuSize = 190;
@@ -243,7 +244,6 @@ export class RadialMenu implements Layer {
         this.renderCenterButton(false)
         for (const item of this.menuItems.values()) {
             item.disabled = true
-            item.icon = item.defaultIcon
             this.updateMenuItemState(item)
         }
 
@@ -427,7 +427,7 @@ export class RadialMenu implements Layer {
             .style('opacity', item.disabled ? 0.5 : 1);
 
         this.menuElement.select(`image[data-name="${item.name}"]`)
-            .attr('xlink:href', item.icon || item.defaultIcon)
+            .attr('xlink:href', item.disabled ? disabledIcon : item.icon)
             .attr('fill', item.disabled ? '#999999' : 'white');
     }
 
