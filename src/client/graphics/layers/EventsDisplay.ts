@@ -1,6 +1,6 @@
 import {nullable} from "zod";
 import {EventBus, GameEvent} from "../../../core/EventBus";
-import {AllianceExpiredEvent, AllianceRequestEvent, AllianceRequestReplyEvent, BrokeAllianceEvent, EmojiMessageEvent, Game, Player, PlayerID, TargetPlayerEvent} from "../../../core/game/Game";
+import {AllianceExpiredEvent, AllianceRequestEvent, AllianceRequestReplyEvent, AllPlayers, BrokeAllianceEvent, EmojiMessageEvent, Game, Player, PlayerID, TargetPlayerEvent} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
 import {Layer} from "./Layer";
 import {SendAllianceReplyIntentEvent} from "../../Transport";
@@ -235,6 +235,14 @@ export class EventsDisplay implements Layer {
         if (event.message.recipient == myPlayer) {
             this.addEvent({
                 description: `${event.message.sender.name()}:${event.message.emoji}`,
+                type: MessageType.INFO,
+                highlight: true,
+                createdAt: this.game.ticks(),
+            })
+        }
+        if (event.message.sender == myPlayer && event.message.recipient != AllPlayers) {
+            this.addEvent({
+                description: `Sent ${event.message.recipient.name()} ${event.message.emoji}`,
                 type: MessageType.INFO,
                 highlight: true,
                 createdAt: this.game.ticks(),

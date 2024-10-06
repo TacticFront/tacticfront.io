@@ -81,9 +81,12 @@ export class RadialMenu implements Layer {
     }
 
     private setupEmojiButtons(recipient: Player | typeof AllPlayers) {
-        const emojiTable = document.getElementById('uniqueEmojiTable');
+        let emojiTable = document.getElementById('uniqueEmojiTable');
 
         if (emojiTable) {
+            // Remove existing listeners
+            emojiTable.replaceWith(emojiTable.cloneNode(true));
+            emojiTable = document.getElementById('uniqueEmojiTable');
             emojiTable.addEventListener('click', (event) => {
                 const emojiElement = event.target as HTMLElement;
                 if (emojiElement.classList.contains('emoji-button')) {
