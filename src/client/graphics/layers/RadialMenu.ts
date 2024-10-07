@@ -5,7 +5,6 @@ import {and, bfs, dist, manhattanDist, manhattanDistWrapped, sourceDstOceanShore
 import {ContextMenuEvent, MouseUpEvent} from "../../InputHandler";
 import {SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendEmojiIntentEvent, SendSpawnIntentEvent, SendTargetPlayerIntentEvent} from "../../Transport";
 import {TransformHandler} from "../TransformHandler";
-import {MessageType} from "./EventsDisplay";
 import {Layer} from "./Layer";
 import * as d3 from 'd3';
 import traitorIcon from '../../../../resources/images/TraitorIconWhite.png';
