@@ -4,6 +4,7 @@ import {GameEvent} from "../EventBus"
 import {ClientID, GameID} from "../Schemas"
 import {DisplayMessageEvent, MessageType} from "../../client/graphics/layers/EventsDisplay"
 import {BreakAllianceExecution} from "../execution/alliance/BreakAllianceExecution"
+import {DonateExecution} from "../execution/DonateExecution"
 
 export type PlayerID = string
 export type Tick = number
@@ -159,6 +160,7 @@ export interface Player {
     isAlliedWith(other: Player): boolean
     allianceWith(other: Player): Alliance | null
     // Includes recent requests that  are in cooldown
+    // TODO: why can't I have "canSendAllyRequest" function instead?
     recentOrPendingAllianceRequestWith(other: Player): boolean
     isTraitor(): boolean
     canTarget(other: Player): boolean
@@ -169,13 +171,14 @@ export interface Player {
     toString(): string
     canSendEmoji(recipient: Player | typeof AllPlayers): boolean
     outgoingEmojis(): EmojiMessage[]
+    canDonate(recipient: Player): boolean
 }
 
 export interface MutablePlayer extends Player {
     setName(name: string): void
     setTroops(troops: number): void
     addTroops(troops: number): void
-    removeTroops(troops: number): void
+    removeTroops(troops: number): number
     conquer(tile: Tile): void
     relinquish(tile: Tile): void
     executions(): Execution[]
@@ -191,8 +194,8 @@ export interface MutablePlayer extends Player {
     target(other: Player): void
     targets(): MutablePlayer[]
     transitiveTargets(): MutablePlayer[]
-    // Null means send to all Players
     sendEmoji(recipient: Player | typeof AllPlayers, emoji: string): void
+    donate(recipient: MutablePlayer, troops: number): void
 }
 
 export interface Game {

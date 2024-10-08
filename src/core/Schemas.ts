@@ -13,6 +13,7 @@ export type Intent = SpawnIntent
     | BreakAllianceIntent
     | TargetPlayerIntent
     | EmojiIntent
+    | DonateIntent
 
 export type AttackIntent = z.infer<typeof AttackIntentSchema>
 export type SpawnIntent = z.infer<typeof SpawnIntentSchema>
@@ -23,6 +24,7 @@ export type AllianceRequestReplyIntent = z.infer<typeof AllianceRequestReplyInte
 export type BreakAllianceIntent = z.infer<typeof BreakAllianceIntentSchema>
 export type TargetPlayerIntent = z.infer<typeof TargetPlayerIntentSchema>
 export type EmojiIntent = z.infer<typeof EmojiIntentSchema>
+export type DonateIntent = z.infer<typeof DonateIntentSchema>
 
 export type Turn = z.infer<typeof TurnSchema>
 
@@ -128,6 +130,13 @@ export const EmojiIntentSchema = BaseIntentSchema.extend({
     emoji: EmojiSchema,
 })
 
+export const DonateIntentSchema = BaseIntentSchema.extend({
+    type: z.literal('donate'),
+    sender: z.string(),
+    recipient: z.string(),
+    troops: z.number().nullable(),
+})
+
 const IntentSchema = z.union([
     AttackIntentSchema,
     SpawnIntentSchema,
@@ -138,6 +147,7 @@ const IntentSchema = z.union([
     BreakAllianceIntentSchema,
     TargetPlayerIntentSchema,
     EmojiIntentSchema,
+    DonateIntentSchema,
 ]);
 
 const TurnSchema = z.object({

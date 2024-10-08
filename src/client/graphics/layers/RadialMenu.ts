@@ -3,7 +3,7 @@ import {AllPlayers, Cell, Game, Player} from "../../../core/game/Game";
 import {ClientID} from "../../../core/Schemas";
 import {and, bfs, dist, manhattanDist, manhattanDistWrapped, sourceDstOceanShore} from "../../../core/Util";
 import {ContextMenuEvent, MouseUpEvent} from "../../InputHandler";
-import {SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendEmojiIntentEvent, SendSpawnIntentEvent, SendTargetPlayerIntentEvent} from "../../Transport";
+import {SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendDonateIntentEvent, SendEmojiIntentEvent, SendSpawnIntentEvent, SendTargetPlayerIntentEvent} from "../../Transport";
 import {TransformHandler} from "../TransformHandler";
 import {Layer} from "./Layer";
 import * as d3 from 'd3';
@@ -14,6 +14,8 @@ import swordIcon from '../../../../resources/images/SwordIconWhite.png';
 import targetIcon from '../../../../resources/images/TargetIconWhite.png';
 import emojiIcon from '../../../../resources/images/EmojiIconWhite.png';
 import disabledIcon from '../../../../resources/images/DisabledIcon.png';
+import donateIcon from '../../../../resources/images/DonateIconWhite.png';
+import {MessageType} from "./EventsDisplay";
 
 
 enum Slot {
@@ -296,6 +298,14 @@ export class RadialMenu implements Layer {
             const other = tile.owner() as Player
             if (other.clientID() == this.clientID) {
                 return
+            }
+
+            if (myPlayer.canDonate(other)) {
+                this.activateMenuElement(Slot.Target, "#53ac75", donateIcon, () => {
+                    this.eventBus.emit(
+                        new SendDonateIntentEvent(myPlayer, other, null)
+                    )
+                })
             }
 
             if (myPlayer.isAlliedWith(other)) {

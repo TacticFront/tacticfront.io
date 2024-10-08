@@ -53,6 +53,8 @@ export interface Config {
 	targetCooldown(): Tick
 	emojiMessageCooldown(): Tick
 	emojiMessageDuration(): Tick
+	donateCooldown(): Tick
+	defaultDonationAmount(sender: Player): number
 }
 
 export interface Theme {

@@ -7,6 +7,12 @@ import {pastelTheme} from "./PastelTheme";
 
 
 export class DefaultConfig implements Config {
+    defaultDonationAmount(sender: Player): number {
+        return Math.floor(sender.troops() / 3)
+    }
+    donateCooldown(): Tick {
+        return 10 * 10
+    }
     emojiMessageDuration(): Tick {
         return 5 * 10
     }
@@ -114,7 +120,7 @@ export class DefaultConfig implements Config {
     }
 
     boatAttackAmount(attacker: Player, defender: Player | TerraNullius): number {
-        return attacker.troops() / 5
+        return Math.floor(attacker.troops() / 5)
     }
 
     attackAmount(attacker: Player, defender: Player | TerraNullius) {

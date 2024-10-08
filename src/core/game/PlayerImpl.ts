@@ -5,11 +5,16 @@ import {CellString, GameImpl} from "./GameImpl";
 import {BoatImpl} from "./BoatImpl";
 import {TileImpl} from "./TileImpl";
 import {TerraNulliusImpl} from "./TerraNulliusImpl";
-import {threadId} from "worker_threads";
+import {MessageType} from "../../client/graphics/layers/EventsDisplay";
+import {renderTroops} from "../../client/graphics/Utils";
 
 interface Target {
     tick: Tick
     target: Player
+}
+
+class Donation {
+    constructor(public readonly recipient: Player, public readonly tick: Tick) { }
 }
 
 export class PlayerImpl implements MutablePlayer {
@@ -27,6 +32,8 @@ export class PlayerImpl implements MutablePlayer {
     private targets_: Target[] = []
 
     private outgoingEmojis_: EmojiMessage[] = []
+
+    private sentDonations: Donation[] = []
 
     constructor(private gs: GameImpl, private readonly playerInfo: PlayerInfo, private _troops) {
         this._name = playerInfo.name;
@@ -99,9 +106,10 @@ export class PlayerImpl implements MutablePlayer {
     addTroops(troops: number): void {
         this._troops += Math.floor(troops);
     }
-    removeTroops(troops: number): void {
-        this._troops -= Math.floor(troops);
-        this._troops = Math.max(this._troops, 0);
+    removeTroops(troops: number): number {
+        const toRemove = Math.floor(Math.min(this._troops, troops))
+        this._troops -= toRemove;
+        return toRemove
     }
 
     isPlayer(): this is MutablePlayer {return true as const;}
@@ -232,6 +240,27 @@ export class PlayerImpl implements MutablePlayer {
             }
         }
         return true
+    }
+
+    canDonate(recipient: Player): boolean {
+        if (!this.isAlliedWith(recipient)) {
+            return false
+        }
+        for (const donation of this.sentDonations) {
+            if (donation.recipient == recipient) {
+                if (this.gs.ticks() - donation.tick < this.gs.config().donateCooldown()) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
+
+    donate(recipient: MutablePlayer, troops: number): void {
+        this.sentDonations.push(new Donation(recipient, this.gs.ticks()))
+        recipient.addTroops(this.removeTroops(troops))
+        this.gs.displayMessage(`Sent ${renderTroops(troops)} troops to ${recipient.name()}`, MessageType.INFO, this.id())
+        this.gs.displayMessage(`Recieved ${renderTroops(troops)} troops from ${this.name()}`, MessageType.SUCCESS, recipient.id())
     }
 
     hash(): number {

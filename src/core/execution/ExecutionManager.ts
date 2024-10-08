@@ -14,6 +14,7 @@ import {AllianceRequestReplyExecution} from "./alliance/AllianceRequestReplyExec
 import {BreakAllianceExecution} from "./alliance/BreakAllianceExecution";
 import {TargetPlayerExecution} from "./TargetPlayerExecution";
 import {EmojiExecution} from "./EmojiExecution";
+import {DonateExecution} from "./DonateExecution";
 
 
 
@@ -70,6 +71,8 @@ export class Executor {
             return new TargetPlayerExecution(intent.requestor, intent.target)
         } else if (intent.type == "emoji") {
             return new EmojiExecution(intent.sender, intent.recipient, intent.emoji)
+        } else if (intent.type == "donate") {
+            return new DonateExecution(intent.sender, intent.recipient, intent.troops)
         }
         else {
             throw new Error(`intent type ${intent} not found`)

@@ -51,7 +51,18 @@ export class SendTargetPlayerIntentEvent implements GameEvent {
 }
 
 export class SendEmojiIntentEvent implements GameEvent {
-    constructor(public readonly recipient: Player | typeof AllPlayers, public readonly emoji: string) { }
+    constructor(
+        public readonly recipient: Player | typeof AllPlayers,
+        public readonly emoji: string
+    ) { }
+}
+
+export class SendDonateIntentEvent implements GameEvent {
+    constructor(
+        public readonly sender: Player,
+        public readonly recipient: Player,
+        public readonly troops: number | null,
+    ) { }
 }
 
 export class Transport {
@@ -74,6 +85,7 @@ export class Transport {
         this.eventBus.on(SendBoatAttackIntentEvent, (e) => this.onSendBoatAttackIntent(e))
         this.eventBus.on(SendTargetPlayerIntentEvent, (e) => this.onSendTargetPlayerIntent(e))
         this.eventBus.on(SendEmojiIntentEvent, (e) => this.onSendEmojiIntent(e))
+        this.eventBus.on(SendDonateIntentEvent, (e) => this.onSendDonateIntent(e))
     }
 
     connect(onconnect: () => void, onmessage: (message: ServerMessage) => void, isActive: () => boolean) {
@@ -213,6 +225,16 @@ export class Transport {
             sender: this.playerID,
             recipient: event.recipient == AllPlayers ? AllPlayers : event.recipient.id(),
             emoji: event.emoji
+        })
+    }
+
+    private onSendDonateIntent(event: SendDonateIntentEvent) {
+        this.sendIntent({
+            type: "donate",
+            clientID: this.clientID,
+            sender: event.sender.id(),
+            recipient: event.recipient.id(),
+            troops: event.troops,
         })
     }
 
