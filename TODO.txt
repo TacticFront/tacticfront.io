@@ -161,8 +161,8 @@
 * disable select on mobile DONE 10/6/2024
 * disable double tap on mobile DONE 10/6/2024
 * donate troops button DONE 10/7/2024
-* rewrite mobile input handling
 * Make fake humans spawn by their country
+* rewrite mobile input handling
 * fake humans target enemies
 * create private lobby menu
 * block user inputs if too far behind server

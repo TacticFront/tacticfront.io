@@ -1,4 +1,0 @@
-clicked cell Cell[375,272] USA
-clicked cell Cell[372,136] Canada
-clicked cell Cell[375,374] Mexico
-clicked cell Cell[500,378] Cuba
