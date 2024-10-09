@@ -1,6 +1,6 @@
 import {Cell, TerrainType} from './Game';
-import binAsString from "!!binary-loader!../../../resources/maps/WorldMap.bin";
-import worldMapInfo from "../../../resources/maps/WorldMap.json"
+import binAsString from "!!binary-loader!../../../resources/maps/Europe.bin";
+import worldMapInfo from "../../../resources/maps/Europe.json"
 
 export interface NationMap {
     name: string;

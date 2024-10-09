@@ -36,9 +36,14 @@ export class FakeHumanExecution implements Execution {
 
         if (this.mg.inSpawnPhase()) {
             if (ticks % this.random.nextInt(5, 30) == 0) {
+                const rl = this.randomLand()
+                if (rl == null) {
+                    console.warn(`cannot spawn ${this.playerInfo.name}`)
+                    return
+                }
                 this.mg.addExecution(new SpawnExecution(
                     this.playerInfo,
-                    this.randomLand().cell()
+                    rl.cell()
                 ))
             }
             return
@@ -195,9 +200,11 @@ export class FakeHumanExecution implements Execution {
         this.sendBoat(tries + 1, oceanShore)
     }
 
-    randomLand(): Tile {
+    randomLand(): Tile | null {
         const delta = 25
-        while (true) {
+        let tries = 0
+        while (tries < 50) {
+            tries++
             const cell = new Cell(
                 this.random.nextInt(this.cell.x - delta, this.cell.x + delta),
                 this.random.nextInt(this.cell.y - delta, this.cell.y + delta)
@@ -213,6 +220,7 @@ export class FakeHumanExecution implements Execution {
                 return tile
             }
         }
+        return null
     }
 
     sendAttack(toAttack: Player | TerraNullius) {

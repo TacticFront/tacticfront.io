@@ -1,0 +1,183 @@
+{
+    "name": "Europe",
+    "width": 2000,
+    "height": 1000,
+    "nations": [
+        {
+            "coordinates": [
+                171,
+                171
+            ],
+            "name": "Iceland",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                477,
+                473
+            ],
+            "name": "Ireland",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                650,
+                500
+            ],
+            "name": "England",
+            "strength": 3
+        },
+        {
+            "coordinates": [
+                560,
+                800
+            ],
+            "name": "Spain",
+            "strength": 2
+        },
+        {
+            "coordinates": [
+                726,
+                616
+            ],
+            "name": "France",
+            "strength": 2
+        },
+        {
+            "coordinates": [
+                1050,
+                745
+            ],
+            "name": "Italy",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                872,
+                634
+            ],
+            "name": "Switzerland",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                960,
+                271
+            ],
+            "name": "Norway",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1095,
+                336
+            ],
+            "name": "Sweden",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1403,
+                235
+            ],
+            "name": "Finland",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                775,
+                541
+            ],
+            "name": "Belgium",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                868,
+                487
+            ],
+            "name": "Netherlands",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                949,
+                548
+            ],
+            "name": "Germany",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1017,
+                628
+            ],
+            "name": "Austria",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1120,
+                477
+            ],
+            "name": "Poland",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1030,
+                589
+            ],
+            "name": "Czechia",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1540,
+                602
+            ],
+            "name": "Ukraine",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1500,
+                440
+            ],
+            "name": "Belarus",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1424,
+                754
+            ],
+            "name": "Romania",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1580,
+                834
+            ],
+            "name": "Turkiye",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                525,
+                955
+            ],
+            "name": "Morocco",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1674,
+                449
+            ],
+            "name": "Russia",
+            "strength": 3
+        }
+    ]
+}

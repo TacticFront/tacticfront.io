@@ -8,7 +8,7 @@ import {fileURLToPath} from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
+const mapName = "Europe"
 
 interface Coord {
     x: number;
@@ -44,7 +44,7 @@ export class Terrain {
 }
 
 export async function loadTerrainMap(): Promise<void> {
-    const imagePath = path.resolve(__dirname, '..', '..', 'resources', 'maps', 'WorldMap.png');
+    const imagePath = path.resolve(__dirname, '..', '..', 'resources', 'maps', mapName + '.png');
 
     const readStream = createReadStream(imagePath);
     const img = await PImage.decodePNGFromStream(readStream);
@@ -92,7 +92,7 @@ export async function loadTerrainMap(): Promise<void> {
     processDistToLand(shorelineWaters, terrain)
     processOcean(terrain)
     const packed = packTerrain(terrain)
-    const outputPath = path.join(__dirname, '..', '..', 'resources', 'maps', 'WorldMap.bin');
+    const outputPath = path.join(__dirname, '..', '..', 'resources', 'maps', mapName + '.bin');
     fs.writeFile(outputPath, packed);
 }
 
