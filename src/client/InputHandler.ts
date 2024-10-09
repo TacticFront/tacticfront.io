@@ -91,7 +91,7 @@ export class InputHandler {
             return
         }
         this.pointerDown = false
-        this.pointers.delete(event.pointerId);
+        this.pointers.clear()
 
         const dist = Math.abs(event.x - this.lastPointerDownX) + Math.abs(event.y - this.lastPointerDownY);
         if (dist < 10) {
