@@ -277,14 +277,6 @@
         },
         {
             "coordinates": [
-                1569,
-                502
-            ],
-            "name": "Belgium",
-            "strength": 1
-        },
-        {
-            "coordinates": [
                 918,
                 342
             ],
@@ -296,7 +288,7 @@
                 1030,
                 332
             ],
-            "name": "Libia",
+            "name": "Libya",
             "strength": 1
         },
         {
