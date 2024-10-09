@@ -46,9 +46,6 @@ export class DefaultConfig implements Config {
     numBots(): number {
         return 400
     }
-    numFakeHumans(gameID: GameID): number {
-        return simpleHash(gameID) % 40
-    }
     turnIntervalMs(): number {
         return 100
     }

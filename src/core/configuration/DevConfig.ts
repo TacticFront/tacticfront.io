@@ -26,10 +26,6 @@ export const devConfig = new class extends DefaultConfig {
     //     return 10 * 10
     // }
 
-    // numFakeHumans(gameID: GameID): number {
-    //     return 1
-    // }
-
     // startTroops(playerInfo: PlayerInfo): number {
     //     // if (playerInfo.isBot) {
     //     //     return 5000

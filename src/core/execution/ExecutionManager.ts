@@ -85,7 +85,7 @@ export class Executor {
         return new BotSpawner(this.gs, this.gameID).spawnBots(numBots).map(i => this.createExec(i))
     }
 
-    fakeHumanExecutions(numFakes: number): Execution[] {
+    fakeHumanExecutions(): Execution[] {
         const execs = []
         for (const nation of this.gs.nations()) {
             execs.push(new FakeHumanExecution(

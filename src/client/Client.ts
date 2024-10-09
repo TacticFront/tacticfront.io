@@ -145,28 +145,6 @@ class Client {
             g.stop();
         });
     }
-
-    numFakeHumans(lobby: Lobby): number {
-        const gameHash = simpleHash(lobby.id)
-        const totalNumFakeHumans = this.config.numFakeHumans(lobby.id)
-        const timeLeft = lobby.msUntilStart
-        const rand = new PseudoRandom(gameHash)
-        const startTimes: number[] = []
-        const lobbyTime = this.config.gameCreationRate()
-        for (let i = 0; i < totalNumFakeHumans; i++) {
-            startTimes.push(rand.nextInt(0, lobbyTime))
-        }
-
-        startTimes.sort()
-
-        let currNumFakeHumans = 0
-        for (const joinTime of startTimes) {
-            if (timeLeft < joinTime) {
-                currNumFakeHumans++
-            }
-        }
-        return currNumFakeHumans
-    }
 }
 
 function refreshUsername(): string {

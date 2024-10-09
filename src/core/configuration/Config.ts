@@ -31,7 +31,6 @@ export interface Config {
 	gameCreationRate(): number
 	lobbyLifetime(): number
 	numBots(): number
-	numFakeHumans(gameID: GameID): number
 	numSpawnPhaseTurns(): number
 
 	startTroops(playerInfo: PlayerInfo): number
