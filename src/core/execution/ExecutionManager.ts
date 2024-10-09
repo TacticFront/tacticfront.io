@@ -26,7 +26,8 @@ export class Executor {
     private random: PseudoRandom = null
 
     constructor(private gs: Game, private gameID: GameID) {
-        this.random = new PseudoRandom(simpleHash(gameID))
+        // Add one to avoid id collisions with bots.
+        this.random = new PseudoRandom(simpleHash(gameID) + 1)
     }
 
     createExecs(turn: Turn): Execution[] {
@@ -86,15 +87,17 @@ export class Executor {
 
     fakeHumanExecutions(numFakes: number): Execution[] {
         const execs = []
-        for (let i = 0; i < numFakes; i++) {
-            execs.push(
-                new FakeHumanExecution(new PlayerInfo(
-                    this.usernames[this.random.nextInt(0, this.usernames.length)],
+        for (const nation of this.gs.nations()) {
+            execs.push(new FakeHumanExecution(
+                new PlayerInfo(
+                    nation.name,
                     PlayerType.FakeHuman,
                     null,
                     this.random.nextID()
-                ))
-            )
+                ),
+                nation.cell,
+                nation.strength
+            ))
         }
         return execs
     }

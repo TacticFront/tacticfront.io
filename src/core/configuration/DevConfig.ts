@@ -18,9 +18,9 @@ export const devConfig = new class extends DefaultConfig {
         return 100
     }
 
-    // numBots(): number {
-    //     return 0
-    // }
+    numBots(): number {
+        return 400
+    }
 
     // allianceDuration(): Tick {
     //     return 10 * 10

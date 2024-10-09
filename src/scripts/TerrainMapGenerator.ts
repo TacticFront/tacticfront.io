@@ -1,7 +1,7 @@
 import PImage from 'pureimage';
 import path from 'path';
 import fs from 'fs/promises';
-import {createReadStream, createWriteStream} from 'fs';
+import {createReadStream} from 'fs';
 import {fileURLToPath} from 'url';
 
 
@@ -44,7 +44,7 @@ export class Terrain {
 }
 
 export async function loadTerrainMap(): Promise<void> {
-    const imagePath = path.resolve(__dirname, '..', '..', 'resources', 'maps', 'TopoWorldMap.png');
+    const imagePath = path.resolve(__dirname, '..', '..', 'resources', 'maps', 'WorldMap.png');
 
     const readStream = createReadStream(imagePath);
     const img = await PImage.decodePNGFromStream(readStream);
@@ -92,7 +92,7 @@ export async function loadTerrainMap(): Promise<void> {
     processDistToLand(shorelineWaters, terrain)
     processOcean(terrain)
     const packed = packTerrain(terrain)
-    const outputPath = path.join(__dirname, '..', '..', 'resources', 'TopoWorldMap.bin');
+    const outputPath = path.join(__dirname, '..', '..', 'resources', 'maps', 'WorldMap.bin');
     fs.writeFile(outputPath, packed);
 }
 

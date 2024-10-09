@@ -11,6 +11,14 @@ export type Tick = number
 
 export const AllPlayers = "AllPlayers" as const;
 
+export class Nation {
+    constructor(
+        public readonly name: string,
+        public readonly cell: Cell,
+        public readonly strength: number,
+    ) { }
+}
+
 export class EmojiMessage {
     constructor(
         public readonly sender: Player,
@@ -217,6 +225,7 @@ export interface Game {
     ticks(): Tick
     inSpawnPhase(): boolean
     addExecution(...exec: Execution[]): void
+    nations(): Nation[]
     config(): Config
     displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void
 }

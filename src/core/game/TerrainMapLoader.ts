@@ -1,8 +1,27 @@
 import {Cell, TerrainType} from './Game';
 import binAsString from "!!binary-loader!../../../resources/maps/WorldMap.bin";
+import worldMapInfo from "../../../resources/maps/WorldMap.json"
+
+export interface NationMap {
+    name: string;
+    width: number;
+    height: number;
+    nations: Nation[];
+}
+
+export interface Nation {
+    coordinates: [number, number];
+    name: string;
+    strength: number;
+}
+
 
 export class TerrainMap {
-    constructor(public readonly tiles: Terrain[][], public readonly numLandTiles: number) { }
+    constructor(
+        public readonly tiles: Terrain[][],
+        public readonly numLandTiles: number,
+        public readonly nationMap: NationMap
+    ) { }
 
     terrain(cell: Cell): Terrain {
         return this.tiles[cell.x][cell.y]
@@ -84,7 +103,7 @@ export async function loadTerrainMap(): Promise<TerrainMap> {
         }
     }
 
-    return new TerrainMap(terrain, numLand);
+    return new TerrainMap(terrain, numLand, worldMapInfo);
 }
 
 function logBinaryAsAscii(data: string, length: number = 8) {

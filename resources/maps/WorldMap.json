@@ -2,14 +2,14 @@
     "name": "World",
     "width": 2000,
     "height": 1000,
-    "countries": [
+    "nations": [
         {
             "coordinates": [
                 375,
                 272
             ],
             "name": "USA",
-            "strength": 1
+            "strength": 3
         },
         {
             "coordinates": [
@@ -17,7 +17,7 @@
                 136
             ],
             "name": "Canada",
-            "strength": 1
+            "strength": 2
         },
         {
             "coordinates": [
@@ -73,7 +73,7 @@
                 975
             ],
             "name": "Antartica",
-            "strength": 1
+            "strength": 3
         },
         {
             "coordinates": [
@@ -81,7 +81,7 @@
                 57
             ],
             "name": "Greenland",
-            "strength": 1
+            "strength": 2
         },
         {
             "coordinates": [
@@ -209,7 +209,7 @@
                 136
             ],
             "name": "Russia",
-            "strength": 1
+            "strength": 3
         },
         {
             "coordinates": [
@@ -225,7 +225,7 @@
                 328
             ],
             "name": "China",
-            "strength": 1
+            "strength": 3
         },
         {
             "coordinates": [
@@ -233,7 +233,7 @@
                 373
             ],
             "name": "India",
-            "strength": 1
+            "strength": 2
         },
         {
             "coordinates": [
@@ -265,7 +265,7 @@
                 657
             ],
             "name": "Australia",
-            "strength": 1
+            "strength": 2
         },
         {
             "coordinates": [
@@ -273,7 +273,7 @@
                 775
             ],
             "name": "New Zealand",
-            "strength": 1
+            "strength": 0.5
         },
         {
             "coordinates": [
@@ -353,7 +353,7 @@
                 627
             ],
             "name": "Madagascar",
-            "strength": 1
+            "strength": 0.5
         },
         {
             "coordinates": [

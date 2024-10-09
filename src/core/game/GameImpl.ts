@@ -1,7 +1,7 @@
 import {info} from "console";
 import {Config} from "../configuration/Config";
 import {EventBus} from "../EventBus";
-import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Boat, BoatEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent, BrokeAllianceEvent, MutableAlliance, Alliance, AllianceExpiredEvent} from "./Game";
+import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Boat, BoatEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent, BrokeAllianceEvent, MutableAlliance, Alliance, AllianceExpiredEvent, Nation} from "./Game";
 import {TerrainMap} from "./TerrainMapLoader";
 import {PlayerImpl} from "./PlayerImpl";
 import {TerraNulliusImpl} from "./TerraNulliusImpl";
@@ -24,6 +24,9 @@ export class GameImpl implements MutableGame {
 
     // idCounter: PlayerID = 1; // Zero reserved for TerraNullius
     map: TileImpl[][]
+
+    private nations_: Nation[] = []
+
     _players: Map<PlayerID, PlayerImpl> = new Map<PlayerID, PlayerImpl>
     private execs: Execution[] = []
     private _width: number
@@ -47,6 +50,15 @@ export class GameImpl implements MutableGame {
                 this.map[x][y] = new TileImpl(this, this._terraNullius, cell, terrainMap.terrain(cell));
             }
         }
+        this.nations_ = terrainMap.nationMap.nations
+            .map(n => new Nation(
+                n.name,
+                new Cell(n.coordinates[0], n.coordinates[1]),
+                n.strength
+            ))
+    }
+    nations(): Nation[] {
+        return this.nations_
     }
 
     createAllianceRequest(requestor: MutablePlayer, recipient: Player): MutableAllianceRequest {

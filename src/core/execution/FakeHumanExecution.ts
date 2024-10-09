@@ -21,7 +21,7 @@ export class FakeHumanExecution implements Execution {
     private isTraitor = false
 
 
-    constructor(private playerInfo: PlayerInfo) {
+    constructor(private playerInfo: PlayerInfo, private cell: Cell, private strength: number) {
         this.random = new PseudoRandom(simpleHash(playerInfo.id))
     }
 
@@ -41,12 +41,14 @@ export class FakeHumanExecution implements Execution {
                     this.randomLand().cell()
                 ))
             }
+            return
         }
         if (this.player == null) {
             this.player = this.mg.players().find(p => p.id() == this.playerInfo.id)
             if (this.player == null) {
-                //console.log(`player with id ${this.playerInfo.id} not found in FakeHumanExecution`)
                 return
+            } else {
+                this.player.setTroops(this.player.troops() * this.strength)
             }
         }
 
@@ -194,8 +196,15 @@ export class FakeHumanExecution implements Execution {
     }
 
     randomLand(): Tile {
+        const delta = 25
         while (true) {
-            const cell = new Cell(this.random.nextInt(0, this.mg.width()), this.random.nextInt(0, this.mg.height()))
+            const cell = new Cell(
+                this.random.nextInt(this.cell.x - delta, this.cell.x + delta),
+                this.random.nextInt(this.cell.y - delta, this.cell.y + delta)
+            )
+            if (!this.mg.isOnMap(cell)) {
+                continue
+            }
             const tile = this.mg.tile(cell)
             if (tile.isLand() && !tile.hasOwner()) {
                 if (tile.terrain() == TerrainType.Mountain && this.random.chance(2)) {
