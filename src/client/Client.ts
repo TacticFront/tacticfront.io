@@ -8,6 +8,7 @@ import {v4 as uuidv4} from 'uuid';
 
 
 import './styles.css';
+
 import {simpleHash} from "../core/Util";
 import {PseudoRandom} from "../core/PseudoRandom";
 
@@ -115,6 +116,14 @@ class Client {
             this.isLobbyHighlighted = !this.isLobbyHighlighted;
             lobbyButton.classList.toggle('highlighted', this.isLobbyHighlighted);
         }
+        if (this.isLobbyHighlighted) {
+            lobbyButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            lobbyButton.classList.add('bg-green-600', 'hover:bg-green-700');
+        } else {
+            lobbyButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+            lobbyButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
+        }
+
         if (!this.isLobbyHighlighted) {
             this.game.stop()
             this.game = null
