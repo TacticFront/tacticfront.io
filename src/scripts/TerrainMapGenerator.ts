@@ -1,5 +1,4 @@
-import PImage from 'pureimage';
-import path from 'path';
+import {decodePNGFromStream} from 'pureimage'; import path from 'path';
 import fs from 'fs/promises';
 import {createReadStream} from 'fs';
 import {fileURLToPath} from 'url';
@@ -47,7 +46,7 @@ export async function loadTerrainMap(): Promise<void> {
     const imagePath = path.resolve(__dirname, '..', '..', 'resources', 'maps', mapName + '.png');
 
     const readStream = createReadStream(imagePath);
-    const img = await PImage.decodePNGFromStream(readStream);
+    const img = await decodePNGFromStream(readStream);
 
     console.log('Image loaded successfully');
     console.log('Image dimensions:', img.width, 'x', img.height);
