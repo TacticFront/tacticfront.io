@@ -50,7 +50,7 @@ export class TerritoryLayer implements Layer {
         })
     }
 
-    render(context: CanvasRenderingContext2D) {
+    renderLayer(context: CanvasRenderingContext2D) {
         this.renderTerritory()
         this.context.putImageData(this.imageData, 0, 0);
         context.drawImage(

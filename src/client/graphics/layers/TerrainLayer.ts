@@ -41,7 +41,7 @@ export class TerrainLayer implements Layer {
         })
     }
 
-    render(context: CanvasRenderingContext2D) {
+    renderLayer(context: CanvasRenderingContext2D) {
         context.drawImage(
             this.canvas,
             -this.game.width() / 2,

@@ -1,21 +1,21 @@
-import {EventBus} from "../../../core/EventBus";
-import {AllPlayers, Cell, Game, Player} from "../../../core/game/Game";
-import {ClientID} from "../../../core/Schemas";
-import {and, bfs, dist, manhattanDist, manhattanDistWrapped, sourceDstOceanShore} from "../../../core/Util";
-import {ContextMenuEvent, MouseUpEvent} from "../../InputHandler";
-import {SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendDonateIntentEvent, SendEmojiIntentEvent, SendSpawnIntentEvent, SendTargetPlayerIntentEvent} from "../../Transport";
-import {TransformHandler} from "../TransformHandler";
-import {Layer} from "./Layer";
+import {EventBus} from "../../../../core/EventBus";
+import {AllPlayers, Cell, Game, Player} from "../../../../core/game/Game";
+import {ClientID} from "../../../../core/Schemas";
+import {and, bfs, dist, manhattanDist, manhattanDistWrapped, sourceDstOceanShore} from "../../../../core/Util";
+import {ContextMenuEvent, MouseUpEvent} from "../../../InputHandler";
+import {SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendDonateIntentEvent, SendEmojiIntentEvent, SendSpawnIntentEvent, SendTargetPlayerIntentEvent} from "../../../Transport";
+import {TransformHandler} from "../../TransformHandler";
+import {Layer} from "../Layer";
 import * as d3 from 'd3';
-import traitorIcon from '../../../../resources/images/TraitorIconWhite.png';
-import allianceIcon from '../../../../resources/images/AllianceIconWhite.png';
-import boatIcon from '../../../../resources/images/BoatIconWhite.png';
-import swordIcon from '../../../../resources/images/SwordIconWhite.png';
-import targetIcon from '../../../../resources/images/TargetIconWhite.png';
-import emojiIcon from '../../../../resources/images/EmojiIconWhite.png';
-import disabledIcon from '../../../../resources/images/DisabledIcon.png';
-import donateIcon from '../../../../resources/images/DonateIconWhite.png';
-import {MessageType} from "./EventsDisplay";
+import traitorIcon from '../../../../../resources/images/TraitorIconWhite.png';
+import allianceIcon from '../../../../../resources/images/AllianceIconWhite.png';
+import boatIcon from '../../../../../resources/images/BoatIconWhite.png';
+import swordIcon from '../../../../../resources/images/SwordIconWhite.png';
+import targetIcon from '../../../../../resources/images/TargetIconWhite.png';
+import emojiIcon from '../../../../../resources/images/EmojiIconWhite.png';
+import disabledIcon from '../../../../../resources/images/DisabledIcon.png';
+import donateIcon from '../../../../../resources/images/DonateIconWhite.png';
+import {EmojiTable} from "./EmojiTable";
 
 
 enum Slot {
@@ -45,61 +45,18 @@ export class RadialMenu implements Layer {
 
     private isCenterButtonEnabled = false
 
-
     constructor(
         private eventBus: EventBus,
         private game: Game,
         private transformHandler: TransformHandler,
         private clientID: ClientID,
+        private emojiTable: EmojiTable
     ) { }
 
     init() {
         this.eventBus.on(ContextMenuEvent, e => this.onContextMenu(e))
         this.eventBus.on(MouseUpEvent, e => this.onPointerUp(e))
         this.createMenuElement();
-    }
-
-    private hideEmojiTable(): void {
-        const emojiTable: HTMLTableElement | null = document.getElementById('uniqueEmojiTable') as HTMLTableElement | null;
-
-        if (emojiTable instanceof HTMLTableElement) {
-            if (!emojiTable.classList.contains('hidden')) {
-                emojiTable.classList.add('hidden');
-            }
-        } else {
-            console.error('Emoji table not found');
-        }
-    }
-
-    private showEmojiTable(recipient: Player | typeof AllPlayers): void {
-        const emojiTable: HTMLTableElement | null = document.getElementById('uniqueEmojiTable') as HTMLTableElement | null;
-
-        if (emojiTable instanceof HTMLTableElement) {
-            emojiTable.classList.remove('hidden');
-        } else {
-            console.error('Emoji table not found');
-        }
-        this.setupEmojiButtons(recipient)
-    }
-
-    private setupEmojiButtons(recipient: Player | typeof AllPlayers) {
-        let emojiTable = document.getElementById('uniqueEmojiTable');
-
-        if (emojiTable) {
-            // Remove existing listeners
-            emojiTable.replaceWith(emojiTable.cloneNode(true));
-            emojiTable = document.getElementById('uniqueEmojiTable');
-            emojiTable.addEventListener('click', (event) => {
-                const emojiElement = event.target as HTMLElement;
-                if (emojiElement.classList.contains('emoji-button')) {
-                    const emoji = emojiElement.textContent;
-                    this.hideEmojiTable()
-                    this.eventBus.emit(new SendEmojiIntentEvent(recipient, emoji))
-                }
-            });
-        } else {
-            console.error('Emoji table not found');
-        }
     }
 
     private createMenuElement() {
@@ -227,7 +184,7 @@ export class RadialMenu implements Layer {
         // Update logic if needed
     }
 
-    render(context: CanvasRenderingContext2D) {
+    renderLayer(context: CanvasRenderingContext2D) {
         // No need to render anything on the canvas
     }
 
@@ -272,7 +229,11 @@ export class RadialMenu implements Layer {
             const target = tile.owner() == myPlayer ? AllPlayers : (tile.owner() as Player)
             if (myPlayer.canSendEmoji(target)) {
                 this.activateMenuElement(Slot.Emoji, "#ebe250", emojiIcon, () => {
-                    this.showEmojiTable(target)
+                    this.emojiTable.onEmojiClicked = (emoji: string) => {
+                        this.emojiTable.hideTable()
+                        this.eventBus.emit(new SendEmojiIntentEvent(target, emoji))
+                    }
+                    this.emojiTable.showTable()
                 })
             }
         }
@@ -387,7 +348,7 @@ export class RadialMenu implements Layer {
 
     private onPointerUp(event: MouseUpEvent) {
         this.hideRadialMenu()
-        this.hideEmojiTable()
+        this.emojiTable.hideTable()
     }
 
     private showRadialMenu(x: number, y: number) {

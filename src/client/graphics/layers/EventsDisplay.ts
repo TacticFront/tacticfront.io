@@ -263,7 +263,7 @@ export class EventsDisplay implements Layer {
         this.events[index] = event;
     }
 
-    render(): void { }
+    renderLayer(): void { }
 
     renderTable(): void {
         if (this.events.length === 0) {
