@@ -8,6 +8,8 @@ export class PublicLobby extends LitElement {
     @state() private isLobbyHighlighted: boolean = false;
     private lobbiesInterval: number | null = null;
 
+    private currLobby: Lobby = null
+
     static styles = css`
     /* Add your styles here, based on your existing CSS */
     .lobby-button {
@@ -91,25 +93,32 @@ export class PublicLobby extends LitElement {
 
         return html`
       <button
-        @click=${() => this.joinLobby(lobby)}
+        @click=${() => this.lobbyClicked(lobby)}
         class="lobby-button ${this.isLobbyHighlighted ? 'highlighted' : ''}"
       >
         <div class="lobby-name">Game ${lobby.id.substring(0, 3)}</div>
         <div class="lobby-timer">Starts in: ${timeRemaining}s</div>
         <div class="player-count">Players: ${lobby.numClients}</div>
       </button>
-      ${this.lobbies.length > 1 ? html`
-        <div id="next-game">Next Game: ${this.lobbies[1].id.substring(0, 3)}</div>
-      ` : ''}
     `;
     }
 
-    private joinLobby(lobby: Lobby) {
+    private lobbyClicked(lobby: Lobby) {
         this.isLobbyHighlighted = !this.isLobbyHighlighted;
-        this.dispatchEvent(new CustomEvent('join-lobby', {
-            detail: lobby,
-            bubbles: true,
-            composed: true
-        }));
+        if (this.currLobby == null) {
+            this.currLobby = lobby
+            this.dispatchEvent(new CustomEvent('join-lobby', {
+                detail: {lobby: lobby},
+                bubbles: true,
+                composed: true
+            }));
+        } else {
+            this.dispatchEvent(new CustomEvent('leave-lobby', {
+                detail: {lobby: this.currLobby},
+                bubbles: true,
+                composed: true
+            }));
+            this.currLobby = null
+        }
     }
 }

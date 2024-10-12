@@ -12,14 +12,13 @@ import './UsernameInput';
 
 import './styles.css';
 import {UsernameInput} from "./UsernameInput";
+import {SinglePlayerModal} from "./SinglePlayerModal";
 
 
 const usernameKey: string = 'username';
 
 
 class Client {
-
-
     private terrainMap: Promise<TerrainMap>
     private game: ClientGame
 
@@ -44,10 +43,23 @@ class Client {
         this.terrainMap = loadTerrainMap()
         this.ip = getClientIP()
         document.addEventListener('join-lobby', this.handleJoinLobby.bind(this));
+        document.addEventListener('leave-lobby', this.handleLeaveLobby.bind(this));
+        document.addEventListener('single-player', this.handleSinglePlayer.bind(this));
+
+
+        const singlePlayerButton = document.getElementById('single-player');
+        const modal = document.querySelector('single-player-modal') as SinglePlayerModal;
+
+        if (singlePlayerButton && modal instanceof SinglePlayerModal) {
+            singlePlayerButton.addEventListener('click', () => {
+                modal.open();
+            });
+        }
+
     }
 
     private async handleJoinLobby(event: CustomEvent) {
-        const lobby = event.detail
+        const lobby = event.detail.lobby
         console.log(`joining lobby ${lobby.id}`)
         const [terrainMap, clientIP] = await Promise.all([
             this.terrainMap,
@@ -70,8 +82,16 @@ class Client {
             g.stop();
         });
     }
-}
 
+    private async handleLeaveLobby(event: CustomEvent) {
+        this.game.stop()
+        this.game = null
+    }
+
+    private async handleSinglePlayer(event: CustomEvent) {
+        alert('coming soon')
+    }
+}
 
 async function getClientIP(timeoutMs: number = 1000): Promise<string | null> {
     const controller = new AbortController();
