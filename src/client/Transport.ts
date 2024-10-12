@@ -1,6 +1,7 @@
 import {EventBus, GameEvent} from "../core/EventBus"
 import {AllianceRequest, AllPlayers, Cell, Player, PlayerID, PlayerType} from "../core/game/Game"
 import {ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema} from "../core/Schemas"
+import {SocketFactory} from "../core/GameSocket"
 
 
 export class SendAllianceRequestIntentEvent implements GameEvent {
@@ -68,9 +69,10 @@ export class SendDonateIntentEvent implements GameEvent {
 export class Transport {
 
     public onconnect: () => {}
+    private socket: WebSocket
 
     constructor(
-        public socket: WebSocket,
+        private socketFactory: SocketFactory,
         private eventBus: EventBus,
         private gameID: GameID,
         private clientID: ClientID,
@@ -89,9 +91,7 @@ export class Transport {
     }
 
     connect(onconnect: () => void, onmessage: (message: ServerMessage) => void, isActive: () => boolean) {
-        const wsHost = process.env.WEBSOCKET_URL || window.location.host;
-        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        this.socket = new WebSocket(`${wsProtocol}//${wsHost}`)
+        this.socket = this.socketFactory.createSocket()
         this.socket.onopen = () => {
             console.log('Connected to game server!');
             onconnect()

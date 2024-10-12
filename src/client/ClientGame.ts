@@ -13,19 +13,29 @@ import {WinCheckExecution} from "../core/execution/WinCheckExecution";
 import {SendAttackIntentEvent, SendSpawnIntentEvent, Transport} from "./Transport";
 import {createCanvas} from "./graphics/Utils";
 import {DisplayMessageEvent, MessageType} from "./graphics/layers/EventsDisplay";
+import {LocalSocket, LocalSocketFactory, SocketFactory, WebsocketFactory as WebSocketFactory} from "../core/GameSocket";
+import {LocalServer} from "../core/LocalServer";
 
 
 
-export function createClientGame(playerName: () => string, clientID: ClientID, playerID: PlayerID, ip: string | null, gameID: GameID, config: Config, terrainMap: TerrainMap): ClientGame {
+export function createClientGame(isLocal: boolean, playerName: () => string, clientID: ClientID, playerID: PlayerID, ip: string | null, gameID: GameID, config: Config, terrainMap: TerrainMap): ClientGame {
     let eventBus = new EventBus()
 
     let game = createGame(terrainMap, eventBus, config)
     const canvas = createCanvas()
     let gameRenderer = createRenderer(canvas, game, eventBus, clientID)
 
+    let wsFactory: SocketFactory = null
 
+    if (isLocal) {
+        wsFactory = new LocalSocketFactory(new LocalServer(config))
+    } else {
+        const wsHost = process.env.WEBSOCKET_URL || window.location.host;
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        wsFactory = new WebSocketFactory(`${wsProtocol}//${wsHost}`)
+    }
 
-    const transport = new Transport(null, eventBus, gameID, clientID, playerID, playerName)
+    const transport = new Transport(wsFactory, eventBus, gameID, clientID, playerID, playerName)
 
 
     return new ClientGame(
