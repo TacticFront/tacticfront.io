@@ -78,3 +78,61 @@ export class LocalSocket implements WebSocket {
     }
 
 }
+
+export class GameMessageEvent implements MessageEvent {
+
+    readonly data: any;
+    readonly origin: string;
+    readonly lastEventId: string;
+    readonly source: WindowProxy | null;
+    readonly ports: ReadonlyArray<MessagePort>;
+
+    constructor(data: any) {
+        this.data = data;
+    }
+    returnValue: boolean;
+    srcElement: EventTarget;
+    initEvent(type: string, bubbles?: boolean, cancelable?: boolean): void {
+        throw new Error("Method not implemented.");
+    }
+    NONE: 0;
+    CAPTURING_PHASE: 1;
+    AT_TARGET: 2;
+    BUBBLING_PHASE: 3;
+
+    // MessageEvent interface methods
+    initMessageEvent(type: string, bubbles?: boolean, cancelable?: boolean, data?: any, origin?: string, lastEventId?: string, source?: WindowProxy | null, ports?: MessagePort[]): void {
+        // This method is deprecated, so we'll leave it as a no-op
+        console.warn('initMessageEvent is deprecated');
+    }
+
+    // Event interface properties and methods
+    readonly bubbles: boolean = false;
+    readonly cancelBubble: boolean = false;
+    readonly cancelable: boolean = false;
+    readonly composed: boolean = false;
+    readonly currentTarget: EventTarget | null = null;
+    readonly defaultPrevented: boolean = false;
+    readonly eventPhase: number = Event.NONE;
+    readonly isTrusted: boolean = false;
+    readonly target: EventTarget | null = null;
+    readonly timeStamp: number = Date.now();
+    readonly type: string = 'message';
+
+    // Event interface methods
+    composedPath(): EventTarget[] {
+        return [];
+    }
+
+    preventDefault(): void {
+        // No-op for this example
+    }
+
+    stopImmediatePropagation(): void {
+        // No-op for this example
+    }
+
+    stopPropagation(): void {
+        // No-op for this example
+    }
+}
