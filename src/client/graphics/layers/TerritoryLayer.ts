@@ -31,7 +31,7 @@ export class TerritoryLayer implements Layer {
     tick() {
     }
 
-    init() {
+    init(game: Game) {
         this.canvas = document.createElement('canvas');
         this.context = this.canvas.getContext("2d")
 

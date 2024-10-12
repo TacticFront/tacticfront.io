@@ -55,7 +55,7 @@ export class UILayer implements Layer {
     tick() {
     }
 
-    init() {
+    init(game: Game) {
         this.createExitButton()
         this.createWinModal()
         this.initRightClickMenu()

@@ -60,7 +60,7 @@ export class NameLayer implements Layer {
         return true
     }
 
-    public init() {
+    public init(game: Game) {
 
     }
 
