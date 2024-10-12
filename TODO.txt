@@ -162,21 +162,22 @@
 * disable double tap on mobile DONE 10/6/2024
 * donate troops button DONE 10/7/2024
 * Make fake humans spawn by their country DONE 10/9/2024
+* UI: leader board DONE 10/12/2024
+* single player menu
+* private game menu
+* optimize sendBoat function
 * Test on android
-* Increase disk size
 * NPC more likely to accept alliance fewer alliance player has
-* fake humans target enemies
-* create private lobby menu
+* better NPC relation logic
+* surface NPC relations
 * block user inputs if too far behind server
 * BUG: FakeHuman don't be enemy if don't share border (or send boat)
 * store cookies
-* UI: leader board
 * Load terrain dataImage in background
 * BUG: half encircle Antartica causes capture
 
 * improve front page (make map larger?)
 * Add additional maps
-* add offline mode
 * REFACTOR: give terranullius an ID, game.player() returns terranullius
 * REFACTOR: ocean is considered TerraNullius ?
 * Make icons svgs

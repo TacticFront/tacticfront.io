@@ -57,15 +57,7 @@
 				</div>
 
 				<h3 class="text-6xl mt-8 tracking-wide pt-8">Public Games</h3>
-				<div id="lobbies-container" class="p-4">
-					<button id="lobby-button"
-						class="w-full max-w-md mx-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-6 px-8 rounded-lg shadow-lg transition duration-300 ease-in-out flex flex-col items-center justify-center space-y-3 group"
-						data-selected="false">
-						<div id="lobby-name" class="text-2xl group-data-[selected=true]:text-green-200"></div>
-						<div id="lobby-timer" class="text-xl group-data-[selected=true]:text-green-200"></div>
-						<div id="player-count" class="text-lg group-data-[selected=true]:text-green-200"></div>
-					</button>
-				</div>
+				<public-lobby></public-lobby>
 			</div>
 		</div>
 		<h3 id="next-game" class="invisible"> </h3>

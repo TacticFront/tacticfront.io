@@ -6,11 +6,10 @@ import backgroundImage from '../../resources/images/TerrainMapFrontPage.png';
 import favicon from '../../resources/images/Favicon.png';
 import {v4 as uuidv4} from 'uuid';
 
+import './PublicLobby';
 
 import './styles.css';
 
-import {simpleHash} from "../core/Util";
-import {PseudoRandom} from "../core/PseudoRandom";
 
 const usernameKey: string = 'username';
 
@@ -20,8 +19,6 @@ class Client {
 
     private terrainMap: Promise<TerrainMap>
     private game: ClientGame
-    private lobbiesInterval: NodeJS.Timeout | null = null;
-    private isLobbyHighlighted: boolean = false;
 
     private ip: Promise<string | null> = null
 
@@ -38,101 +35,17 @@ class Client {
                 usernameInput.value = storedUsername
             }
         }
+
         this.config = getConfig()
         setFavicon()
         this.terrainMap = loadTerrainMap()
-        this.startLobbyPolling()
         this.ip = getClientIP()
+        document.addEventListener('join-lobby', this.handleJoinLobby.bind(this));
     }
 
-    private startLobbyPolling(): void {
-        this.fetchAndUpdateLobbies(); // Fetch immediately on start
-        this.lobbiesInterval = setInterval(() => this.fetchAndUpdateLobbies(), 1000);
-    }
-
-    private async fetchAndUpdateLobbies(): Promise<void> {
-        try {
-            const lobbies = await this.fetchLobbies();
-            this.updateLobbiesDisplay(lobbies);
-        } catch (error) {
-            console.error('Error fetching and updating lobbies:', error);
-        }
-    }
-
-    private updateLobbiesDisplay(lobbies: Lobby[]): void {
-        if (lobbies.length === 0) {
-            document.getElementById('lobby-button').style.display = 'none';
-            return;
-        }
-
-        const lobby = lobbies[0];
-        const lobbyButton = document.getElementById('lobby-button');
-        const nameElement = document.getElementById('lobby-name');
-        const timerElement = document.getElementById('lobby-timer');
-        const playerCountElement = document.getElementById('player-count');
-
-        if (lobbyButton) {
-            lobbyButton.style.display = 'flex';
-            lobbyButton.onclick = () => this.joinLobby(lobby);
-
-            // Preserve the highlighted state
-            lobbyButton.classList.toggle('highlighted', this.isLobbyHighlighted);
-        }
-
-        if (nameElement) nameElement.textContent = `Game ${lobby.id.substring(0, 3)}`;
-        if (timerElement) {
-            const timeRemaining = Math.max(0, Math.floor((lobby.msUntilStart) / 1000));
-            timerElement.textContent = `Starts in: ${timeRemaining}s`;
-        }
-
-        if (playerCountElement) playerCountElement.textContent = `Players: ${lobby.numClients}`;
-
-        if (lobbies.length > 1) {
-            const nextLobby = lobbies[1]
-            const nextGame = document.getElementById('next-game');
-            nextGame.textContent = `Next Game: ${nextLobby.id.substring(0, 3)}`
-        }
-    }
-
-    async fetchLobbies(): Promise<Lobby[]> {
-        const url = '/lobbies';
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}, statusText: ${response.statusText}`);
-            }
-            const data = await response.json();
-            return data.lobbies;
-        } catch (error) {
-            console.error('Error fetching lobbies:', error);
-            throw error;
-        }
-    }
-
-    private async joinLobby(lobby: Lobby) {
+    private async handleJoinLobby(event: CustomEvent) {
+        const lobby = event.detail
         console.log(`joining lobby ${lobby.id}`)
-        const lobbyButton = document.getElementById('lobby-button');
-        if (lobbyButton) {
-            this.isLobbyHighlighted = !this.isLobbyHighlighted;
-            lobbyButton.classList.toggle('highlighted', this.isLobbyHighlighted);
-        }
-        if (this.isLobbyHighlighted) {
-            lobbyButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-            lobbyButton.classList.add('bg-green-600', 'hover:bg-green-700');
-        } else {
-            lobbyButton.classList.remove('bg-green-600', 'hover:bg-green-700');
-            lobbyButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
-        }
-
-        if (!this.isLobbyHighlighted) {
-            this.game.stop()
-            this.game = null
-            return
-        }
-
-        if (this.game != null) {
-            return;
-        }
         const [terrainMap, clientIP] = await Promise.all([
             this.terrainMap,
             this.ip
@@ -223,6 +136,7 @@ async function getClientIP(timeoutMs: number = 1000): Promise<string | null> {
 // Initialize the client when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new Client().initialize();
+
 });
 
 document.body.style.backgroundImage = `url(${backgroundImage})`;
