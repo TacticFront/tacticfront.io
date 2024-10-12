@@ -94,66 +94,6 @@ h3 {
     display: block;
 }
 
-/* #lobbies-container {
-    display: flex;
-    justify-content: center;
-}
-
-.lobby-button {
-    width: 50%;
-    max-width: 300px;
-    max-height: 300px;
-    height: auto;
-    aspect-ratio: 1 / 1;
-    font-size: 18px;
-    font-weight: bold;
-    border: 3px solid #007bff;
-    background-color: rgba(0, 123, 255, 0.2);
-    color: #ffffff;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    padding: 20px;
-    text-align: center;
-    box-sizing: border-box;
-    margin-bottom: 1em;
-}
-
-.lobby-button:hover {
-    background-color: rgba(0, 123, 255, 0.4);
-    transform: translateY(-5px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
-}
-
-.lobby-button.highlighted {
-    background-color: rgba(0, 123, 255, 0.6);
-    transform: translateY(-5px);
-    box-shadow: 0 6px 20px rgba(0, 123, 255, 0.6);
-    border-color: #ffffff;
-}
-
-.lobby-name {
-    font-size: 24px;
-    margin-bottom: 10px;
-    color: #000000;
-}
-
-.lobby-timer {
-    font-size: 20px;
-    margin-bottom: 10px;
-    color: #000000;
-}
-
-.player-count {
-    font-size: 20px;
-    color: #000000;
-} */
-
 .joining-message {
     font-size: 24px;
     color: rgb(0, 0, 0);

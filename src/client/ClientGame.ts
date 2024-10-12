@@ -13,7 +13,6 @@ import {WinCheckExecution} from "../core/execution/WinCheckExecution";
 import {SendAttackIntentEvent, SendSpawnIntentEvent, Transport} from "./Transport";
 import {createCanvas} from "./graphics/Utils";
 import {DisplayMessageEvent, MessageType} from "./graphics/layers/EventsDisplay";
-import {placeName} from "./graphics/NameBoxCalculator";
 
 
 

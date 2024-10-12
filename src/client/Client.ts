@@ -7,8 +7,11 @@ import favicon from '../../resources/images/Favicon.png';
 import {v4 as uuidv4} from 'uuid';
 
 import './PublicLobby';
+import './UsernameInput';
+
 
 import './styles.css';
+import {UsernameInput} from "./UsernameInput";
 
 
 const usernameKey: string = 'username';
@@ -24,16 +27,16 @@ class Client {
 
     private config: Config
 
+    private usernameInput: UsernameInput | null = null;
+
+
     constructor() {
     }
 
     initialize(): void {
-        const storedUsername = localStorage.getItem(usernameKey)
-        if (storedUsername) {
-            const usernameInput = document.getElementById('username') as HTMLInputElement | null;
-            if (usernameInput) {
-                usernameInput.value = storedUsername
-            }
+        this.usernameInput = document.querySelector('username-input') as UsernameInput;
+        if (!this.usernameInput) {
+            console.warn('Username input element not found');
         }
 
         this.config = getConfig()
@@ -52,7 +55,7 @@ class Client {
         ]);
         console.log(`got ip ${clientIP}`)
         this.game = createClientGame(
-            refreshUsername,
+            (): string => {return this.usernameInput.getCurrentUsername()},
             uuidv4(),
             uuidv4(),
             clientIP,
@@ -69,38 +72,6 @@ class Client {
     }
 }
 
-function refreshUsername(): string {
-    const usernameInput = document.getElementById('username') as HTMLInputElement | null;
-    if (usernameInput == null) {
-        console.warn('username element not found')
-        return "Anon"
-    }
-    if (usernameInput && usernameInput.value.trim()) {
-        const trimmedValue = usernameInput.value.trim();
-        localStorage.setItem(usernameKey, trimmedValue)
-        return trimmedValue
-    } else {
-        const storedUsername = localStorage.getItem(usernameKey);
-        if (storedUsername) {
-            return storedUsername
-        }
-        const newUsername = "Anon" + uuidToThreeDigits()
-        localStorage.setItem(usernameKey, newUsername)
-        return newUsername
-    }
-}
-
-function setupUsernameCallback(callback: (username: string) => void): void {
-    const usernameInput = document.getElementById('username') as HTMLInputElement | null;
-    if (usernameInput) {
-        usernameInput.addEventListener('input', () => {
-            const username = refreshUsername();
-            callback(username);
-        });
-    } else {
-        console.error('Username input element not found');
-    }
-}
 
 async function getClientIP(timeoutMs: number = 1000): Promise<string | null> {
     const controller = new AbortController();
@@ -136,7 +107,6 @@ async function getClientIP(timeoutMs: number = 1000): Promise<string | null> {
 // Initialize the client when the DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     new Client().initialize();
-
 });
 
 document.body.style.backgroundImage = `url(${backgroundImage})`;
@@ -147,19 +117,4 @@ function setFavicon(): void {
     link.rel = 'shortcut icon';
     link.href = favicon;
     document.head.appendChild(link);
-}
-
-function uuidToThreeDigits(): string {
-    const uuid = uuidv4()
-    // Remove hyphens and convert to lowercase
-    const cleanUuid = uuid.replace(/-/g, '').toLowerCase();
-
-    // Convert hex string to decimal
-    const decimal = BigInt(`0x${cleanUuid}`);
-
-    // Get last 3 digits
-    const threeDigits = decimal % 1000n;
-
-    // Pad with leading zeros if necessary
-    return threeDigits.toString().padStart(3, '0');
 }
