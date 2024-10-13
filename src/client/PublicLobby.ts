@@ -108,7 +108,7 @@ export class PublicLobby extends LitElement {
         if (this.currLobby == null) {
             this.currLobby = lobby
             this.dispatchEvent(new CustomEvent('join-lobby', {
-                detail: {lobby: lobby},
+                detail: {lobby: lobby, singlePlayer: false},
                 bubbles: true,
                 composed: true
             }));

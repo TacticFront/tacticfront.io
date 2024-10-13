@@ -67,7 +67,7 @@ class Client {
         ]);
         console.log(`got ip ${clientIP}`)
         this.game = createClientGame(
-            false,
+            event.detail.singlePlayer,
             (): string => {return this.usernameInput.getCurrentUsername()},
             uuidv4(),
             uuidv4(),

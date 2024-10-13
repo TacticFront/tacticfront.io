@@ -83,8 +83,13 @@ button:hover {
 
   private startGame() {
     console.log('Starting single player game...');
-    this.dispatchEvent(new CustomEvent('single-player', {
-      detail: {todo: "TODO"},
+    this.dispatchEvent(new CustomEvent('join-lobby', {
+      detail: {
+        singlePlayer: true,
+        lobby: {
+          id: "LOCAL",
+        }
+      },
       bubbles: true,
       composed: true
     }));

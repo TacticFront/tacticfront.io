@@ -1,7 +1,8 @@
+import {Config} from "../core/configuration/Config"
 import {EventBus, GameEvent} from "../core/EventBus"
 import {AllianceRequest, AllPlayers, Cell, Player, PlayerID, PlayerType} from "../core/game/Game"
 import {ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema} from "../core/Schemas"
-import {SocketFactory} from "../core/GameSocket"
+import {LocalServer} from "./LocalServer"
 
 
 export class SendAllianceRequestIntentEvent implements GameEvent {
@@ -68,15 +69,17 @@ export class SendDonateIntentEvent implements GameEvent {
 
 export class Transport {
 
-    public onconnect: () => {}
     private socket: WebSocket
 
+    private localServer: LocalServer
+
     constructor(
-        private socketFactory: SocketFactory,
+        private isLocal: boolean,
         private eventBus: EventBus,
         private gameID: GameID,
         private clientID: ClientID,
         private playerID: PlayerID,
+        private config: Config,
         private playerName: () => string,
     ) {
         this.eventBus.on(SendAllianceRequestIntentEvent, (e) => this.onSendAllianceRequest(e))
@@ -91,7 +94,22 @@ export class Transport {
     }
 
     connect(onconnect: () => void, onmessage: (message: ServerMessage) => void, isActive: () => boolean) {
-        this.socket = this.socketFactory.createSocket()
+        if (this.isLocal) {
+            this.connectLocal(onconnect, onmessage, isActive)
+        } else {
+            this.connectRemote(onconnect, onmessage, isActive)
+        }
+    }
+
+    private connectLocal(onconnect: () => void, onmessage: (message: ServerMessage) => void, isActive: () => boolean) {
+        this.localServer = new LocalServer(this.config, onconnect, onmessage)
+        this.localServer.start()
+    }
+
+    private connectRemote(onconnect: () => void, onmessage: (message: ServerMessage) => void, isActive: () => boolean) {
+        const wsHost = process.env.WEBSOCKET_URL || window.location.host;
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        this.socket = new WebSocket(`${wsProtocol}//${wsHost}`)
         this.socket.onopen = () => {
             console.log('Connected to game server!');
             onconnect()
@@ -115,7 +133,7 @@ export class Transport {
     }
 
     joinGame(clientIP: string | null, numTurns: number) {
-        this.socket.send(
+        this.sendMsg(
             JSON.stringify(
                 ClientJoinMessageSchema.parse({
                     type: "join",
@@ -136,7 +154,7 @@ export class Transport {
                 clientID: this.clientID,
                 gameID: this.gameID,
             })
-            this.socket.send(JSON.stringify(msg))
+            this.sendMsg(JSON.stringify(msg))
         } else {
             console.log('WebSocket is not open. Current state:', this.socket.readyState);
             console.log('attempting reconnect')
@@ -239,17 +257,25 @@ export class Transport {
     }
 
     private sendIntent(intent: Intent) {
-        if (this.socket.readyState === WebSocket.OPEN) {
+        if (this.isLocal || this.socket.readyState === WebSocket.OPEN) {
             const msg = ClientIntentMessageSchema.parse({
                 type: "intent",
                 clientID: this.clientID,
                 gameID: this.gameID,
                 intent: intent
             })
-            this.socket.send(JSON.stringify(msg))
+            this.sendMsg(JSON.stringify(msg))
         } else {
             console.log('WebSocket is not open. Current state:', this.socket.readyState);
             console.log('attempting reconnect')
+        }
+    }
+
+    private sendMsg(msg: string) {
+        if (this.isLocal) {
+            this.localServer.onMessage(msg)
+        } else {
+            this.socket.send(msg)
         }
     }
 }

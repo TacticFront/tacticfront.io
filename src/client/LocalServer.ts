@@ -1,26 +1,26 @@
-import {Config} from "./configuration/Config";
-import {GameMessageEvent, LocalSocket} from "./GameSocket";
-import {ClientMessage, ClientMessageSchema, Intent, ServerTurnMessageSchema, Turn} from "./Schemas";
+import {Config} from "../core/configuration/Config";
+import {ClientMessage, ClientMessageSchema, Intent, ServerMessage, ServerTurnMessageSchema, Turn} from "../core/Schemas";
 
 export class LocalServer {
 
     private gameID = "LOCAL"
 
-    public localSocket: LocalSocket
 
     private turns: Turn[] = []
     private intents: Intent[] = []
 
     private endTurnIntervalID
 
-
-
-    constructor(private config: Config) {
-        this.endTurnIntervalID = setInterval(() => this.endTurn(), this.config.turnIntervalMs());
+    constructor(private config: Config, private clientConnect: () => void, private clientMessage: (message: ServerMessage) => void) {
     }
 
-    onConnect() {
-
+    start() {
+        this.endTurnIntervalID = setInterval(() => this.endTurn(), this.config.turnIntervalMs());
+        this.clientConnect()
+        this.clientMessage({
+            type: "start",
+            turns: [],
+        })
     }
 
     onMessage(message: string) {
@@ -38,13 +38,9 @@ export class LocalServer {
         }
         this.turns.push(pastTurn)
         this.intents = []
-
-        const msg = JSON.stringify(ServerTurnMessageSchema.parse(
-            {
-                type: "turn",
-                turn: pastTurn
-            }
-        ))
-        this.localSocket.onmessage(new GameMessageEvent(msg))
+        this.clientMessage({
+            type: "turn",
+            turn: pastTurn
+        })
     }
 }

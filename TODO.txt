@@ -163,8 +163,10 @@
 * donate troops button DONE 10/7/2024
 * Make fake humans spawn by their country DONE 10/9/2024
 * UI: leader board DONE 10/12/2024
-* single player menu
-* private game menu
+* single player mode DONE 10/12/2024
+* single player select map
+* implement private game
+* private game can select map
 * optimize sendBoat function
 * Test on android
 * NPC more likely to accept alliance fewer alliance player has
