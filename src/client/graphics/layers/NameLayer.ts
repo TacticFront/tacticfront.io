@@ -60,7 +60,7 @@ export class NameLayer implements Layer {
         return true
     }
 
-    public init() {
+    public init(game: Game) {
 
     }
 
@@ -100,7 +100,7 @@ export class NameLayer implements Layer {
         }
     }
 
-    public render(mainContex: CanvasRenderingContext2D) {
+    public renderLayer(mainContex: CanvasRenderingContext2D) {
         const [upperLeft, bottomRight] = this.transformHandler.screenBoundingRect()
         for (const render of this.renders) {
             render.isVisible = this.isVisible(render, upperLeft, bottomRight)

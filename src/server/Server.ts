@@ -4,11 +4,11 @@ import {WebSocketServer} from 'ws';
 import path from 'path';
 import {fileURLToPath} from 'url';
 import {GameManager} from './GameManager';
-import {Client} from './Client';
 import {ClientMessage, ClientMessageSchema} from '../core/Schemas';
-import {GamePhase} from './GameServer';
 import {getConfig} from '../core/configuration/Config';
 import {LogSeverity, slog} from './StructuredLog';
+import {Client} from './Client';
+import {GamePhase} from './GameServer';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

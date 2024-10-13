@@ -30,7 +30,7 @@ export class UILayer implements Layer {
 
     }
 
-    render(context: CanvasRenderingContext2D) {
+    renderLayer(context: CanvasRenderingContext2D) {
         if (!this.game.inSpawnPhase()) {
             return
         }
@@ -55,7 +55,7 @@ export class UILayer implements Layer {
     tick() {
     }
 
-    init() {
+    init(game: Game) {
         this.createExitButton()
         this.createWinModal()
         this.initRightClickMenu()

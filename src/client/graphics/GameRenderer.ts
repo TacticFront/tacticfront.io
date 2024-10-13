@@ -8,11 +8,24 @@ import {EventBus} from "../../core/EventBus";
 import {TransformHandler} from "./TransformHandler";
 import {Layer} from "./layers/Layer";
 import {EventsDisplay} from "./layers/EventsDisplay";
-import {RadialMenu} from "./layers/RadialMenu";
+import {RadialMenu} from "./layers/radial/RadialMenu";
+import {EmojiTable} from "./layers/radial/EmojiTable";
+import {Leaderboard} from "./layers/Leaderboard";
 
 
 export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: EventBus, clientID: ClientID): GameRenderer {
 	const transformHandler = new TransformHandler(game, eventBus, canvas)
+
+	const emojiTable = document.querySelector('emoji-table') as EmojiTable;
+	if (!emojiTable || !(emojiTable instanceof EmojiTable)) {
+		console.error('EmojiTable element not found in the DOM');
+	}
+
+	const leaderboard = document.querySelector('leader-board') as Leaderboard;
+	if (!emojiTable || !(leaderboard instanceof Leaderboard)) {
+		console.error('EmojiTable element not found in the DOM');
+	}
+	leaderboard.clientID = clientID
 
 	const layers: Layer[] = [
 		new TerrainLayer(game),
@@ -20,7 +33,8 @@ export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: 
 		new NameLayer(game, game.config().theme(), transformHandler, clientID),
 		new UILayer(eventBus, game, clientID, transformHandler),
 		new EventsDisplay(eventBus, game, clientID),
-		new RadialMenu(eventBus, game, transformHandler, clientID),
+		new RadialMenu(eventBus, game, transformHandler, clientID, emojiTable as EmojiTable),
+		leaderboard,
 	]
 
 	return new GameRenderer(game, eventBus, canvas, transformHandler, layers)
@@ -36,7 +50,7 @@ export class GameRenderer {
 	}
 
 	initialize() {
-		this.layers.forEach(l => l.init())
+		this.layers.forEach(l => l.init(this.game))
 
 		document.body.appendChild(this.canvas);
 		window.addEventListener('resize', () => this.resizeCanvas());
@@ -65,7 +79,7 @@ export class GameRenderer {
 
 		this.layers.forEach(l => {
 			if (l.shouldTransform()) {
-				l.render(this.context)
+				l.renderLayer(this.context)
 			}
 		})
 
@@ -73,7 +87,7 @@ export class GameRenderer {
 
 		this.layers.forEach(l => {
 			if (!l.shouldTransform()) {
-				l.render(this.context)
+				l.renderLayer(this.context)
 			}
 		})
 

@@ -1,8 +1,9 @@
+import {Game} from "../../../core/game/Game"
 import {TransformHandler} from "../TransformHandler"
 
 export interface Layer {
-    init()
+    init(game: Game)
     tick()
-    render(context: CanvasRenderingContext2D)
+    renderLayer(context: CanvasRenderingContext2D)
     shouldTransform(): boolean
 }

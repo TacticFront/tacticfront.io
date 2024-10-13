@@ -31,10 +31,7 @@
 		<h2 class="text-6xl	mb-2">(v0.6.5)</h2>
 		<div class="flex justify-center items-start">
 			<div class="w-full max-w-3xl p-4 space-y-4">
-				<!-- Username input -->
-				<input type="text" id="username" placeholder="Enter your username"
-					class="w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-
+				<username-input></username-input>
 				<!-- Button layout -->
 				<div class="flex space-x-4 max-w-xs mx-auto">
 					<!-- Single Player button -->
@@ -57,18 +54,9 @@
 				</div>
 
 				<h3 class="text-6xl mt-8 tracking-wide pt-8">Public Games</h3>
-				<div id="lobbies-container" class="p-4">
-					<button id="lobby-button"
-						class="w-full max-w-md mx-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-6 px-8 rounded-lg shadow-lg transition duration-300 ease-in-out flex flex-col items-center justify-center space-y-3 group"
-						data-selected="false">
-						<div id="lobby-name" class="text-2xl group-data-[selected=true]:text-green-200"></div>
-						<div id="lobby-timer" class="text-xl group-data-[selected=true]:text-green-200"></div>
-						<div id="player-count" class="text-lg group-data-[selected=true]:text-green-200"></div>
-					</button>
-				</div>
+				<public-lobby></public-lobby>
 			</div>
 		</div>
-		<h3 id="next-game" class="invisible"> </h3>
 	</div>
 
 	<div id="customMenu">
@@ -79,71 +67,10 @@
 	<div id="app"></div>
 	<div id="radialMenu" class="radial-menu"></div>
 
-	<table id="uniqueEmojiTable" class="emoji-table hidden">
-		<tr>
-			<td><button class="emoji-button">😀</button></td>
-			<td><button class="emoji-button">😱</button></td>
-			<td><button class="emoji-button">🤩</button></td>
-			<td><button class="emoji-button">🎯</button></td>
-			<td><button class="emoji-button">🥺</button></td>
-		</tr>
-		<tr>
-			<td><button class="emoji-button">🪦</button></td>
-			<td><button class="emoji-button">👏</button></td>
-			<td><button class="emoji-button">🥉</button></td>
-			<td><button class="emoji-button">🥈</button></td>
-			<td><button class="emoji-button">🥇</button></td>
-		</tr>
-		<tr>
-			<td><button class="emoji-button">🤙</button></td>
-			<td><button class="emoji-button">🥰</button></td>
-			<td><button class="emoji-button">😇</button></td>
-			<td><button class="emoji-button">😊</button></td>
-			<td><button class="emoji-button">🔥</button></td>
-		</tr>
-		<tr>
-			<td><button class="emoji-button">💪</button></td>
-			<td><button class="emoji-button">🥳</button></td>
-			<td><button class="emoji-button">💀</button></td>
-			<td><button class="emoji-button">😭</button></td>
-			<td><button class="emoji-button">🤦‍♂️</button></td>
-		</tr>
-		<tr>
-			<td><button class="emoji-button">😎</button></td>
-			<td><button class="emoji-button">👎</button></td>
-			<td><button class="emoji-button">👍</button></td>
-			<td><button class="emoji-button">🥱</button></td>
-			<td><button class="emoji-button">💔</button></td>
-		</tr>
-		<tr>
-			<td><button class="emoji-button">❤️</button></td>
-			<td><button class="emoji-button">💰</button></td>
-			<td><button class="emoji-button">🤝</button></td>
-			<td><button class="emoji-button">🛡️</button></td>
-			<td><button class="emoji-button">💥</button></td>
-		</tr>
-		<tr>
-			<td><button class="emoji-button">🆘</button></td>
-			<td><button class="emoji-button">🕊️</button></td>
-			<td><button class="emoji-button">➡️</button></td>
-			<td><button class="emoji-button">⬅️</button></td>
-			<td><button class="emoji-button">↙️</button></td>
-		</tr>
-		<tr>
-			<td><button class="emoji-button">↖️</button></td>
-			<td><button class="emoji-button">↗️</button></td>
-			<td><button class="emoji-button">⬆️</button></td>
-			<td><button class="emoji-button">↘️</button></td>
-			<td><button class="emoji-button">⬇️</button></td>
-		</tr>
-	</table>
+	<single-player-modal></single-player-modal>
+	<emoji-table></emoji-table>
+	<leader-board></leader-board>
 
-	<style>
-		body {
-			visibility: hidden;
-			opacity: 0;
-		}
-	</style>
 	<script>
 		window.addEventListener('DOMContentLoaded', (event) => {
 			document.body.style.visibility = 'visible';

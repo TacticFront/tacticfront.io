@@ -17,7 +17,7 @@ export class TerrainLayer implements Layer {
     tick() {
     }
 
-    init() {
+    init(game: Game) {
         this.canvas = document.createElement('canvas');
         this.context = this.canvas.getContext("2d")
 
@@ -41,7 +41,7 @@ export class TerrainLayer implements Layer {
         })
     }
 
-    render(context: CanvasRenderingContext2D) {
+    renderLayer(context: CanvasRenderingContext2D) {
         context.drawImage(
             this.canvas,
             -this.game.width() / 2,
