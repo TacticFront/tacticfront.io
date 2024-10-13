@@ -1,39 +1,52 @@
 import {Executor} from "../core/execution/ExecutionManager";
-import {Cell, MutableGame, PlayerEvent, PlayerID, MutablePlayer, TileEvent, Player, Game, BoatEvent, Tile, PlayerType} from "../core/game/Game";
+import {Cell, MutableGame, PlayerEvent, PlayerID, MutablePlayer, TileEvent, Player, Game, BoatEvent, Tile, PlayerType, GameMap} from "../core/game/Game";
 import {createGame} from "../core/game/GameImpl";
 import {EventBus} from "../core/EventBus";
-import {Config} from "../core/configuration/Config";
+import {Config, getConfig} from "../core/configuration/Config";
 import {createRenderer, GameRenderer} from "./graphics/GameRenderer";
 import {InputHandler, MouseUpEvent, ZoomEvent, DragEvent, MouseDownEvent} from "./InputHandler"
 import {ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema, ClientMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ServerSyncMessage, Turn} from "../core/Schemas";
-import {TerrainMap} from "../core/game/TerrainMapLoader";
+import {loadTerrainMap, TerrainMap} from "../core/game/TerrainMapLoader";
 import {and, bfs, dist, manhattanDist} from "../core/Util";
-import {TerrainLayer} from "./graphics/layers/TerrainLayer";
 import {WinCheckExecution} from "../core/execution/WinCheckExecution";
 import {SendAttackIntentEvent, SendSpawnIntentEvent, Transport} from "./Transport";
 import {createCanvas} from "./graphics/Utils";
 import {DisplayMessageEvent, MessageType} from "./graphics/layers/EventsDisplay";
+import {v4 as uuidv4} from 'uuid';
 
 
-export function createClientGame(isLocal: boolean, playerName: () => string, clientID: ClientID, playerID: PlayerID, ip: string | null, gameID: GameID, config: Config, terrainMap: TerrainMap): ClientGame {
+export interface GameConfig {
+    isLocal: boolean
+    playerName: () => string
+    gameID: GameID
+    ip: string | null
+    map: GameMap
+}
+
+export async function createClientGame(gameConfig: GameConfig): Promise<ClientGame> {
     let eventBus = new EventBus()
+    const config = getConfig()
+
+    const clientID = uuidv4()
+    const playerID = uuidv4()
+
+    const terrainMap = await loadTerrainMap(gameConfig.map)
 
     let game = createGame(terrainMap, eventBus, config)
     const canvas = createCanvas()
     let gameRenderer = createRenderer(canvas, game, eventBus, clientID)
 
-    const transport = new Transport(isLocal, eventBus, gameID, clientID, playerID, config, playerName)
+    const transport = new Transport(gameConfig.isLocal, eventBus, gameConfig.gameID, clientID, playerID, config, gameConfig.playerName)
 
 
     return new ClientGame(
         clientID,
-        ip,
-        gameID,
+        gameConfig.ip,
         eventBus,
         game,
         gameRenderer,
         new InputHandler(canvas, eventBus),
-        new Executor(game, gameID),
+        new Executor(game, gameConfig.gameID),
         transport,
     )
 }
@@ -52,7 +65,6 @@ export class ClientGame {
     constructor(
         private id: ClientID,
         private clientIP: string | null,
-        private gameID: GameID,
         private eventBus: EventBus,
         private gs: Game,
         private renderer: GameRenderer,

@@ -1,6 +1,13 @@
-import {Cell, TerrainType} from './Game';
-import binAsString from "!!binary-loader!../../../resources/maps/Europe.bin";
-import worldMapInfo from "../../../resources/maps/Europe.json"
+import {Cell, GameMap, TerrainType} from './Game';
+import europeBin from "!!binary-loader!../../../resources/maps/Europe.bin";
+import europeInfo from "../../../resources/maps/Europe.json"
+
+import worldBin from "!!binary-loader!../../../resources/maps/WorldMap.bin";
+import worldInfo from "../../../resources/maps/WorldMap.json"
+
+const maps = new Map()
+    .set(GameMap.World, {bin: worldBin, info: worldInfo})
+    .set(GameMap.Europe, {bin: europeBin, info: europeInfo});
 
 export interface NationMap {
     name: string;
@@ -44,10 +51,13 @@ export class Terrain {
     constructor(public type: TerrainType) { }
 }
 
-export async function loadTerrainMap(): Promise<TerrainMap> {
+export async function loadTerrainMap(map: GameMap): Promise<TerrainMap> {
+
+    const mapData = maps.get(map)
+
     // Simulate an asynchronous file load
     const fileData = await new Promise<string>((resolve) => {
-        setTimeout(() => resolve(binAsString), 100);
+        setTimeout(() => resolve(mapData.bin), 100);
     });
 
     console.log(`Loaded data length: ${fileData.length} bytes`);
@@ -103,7 +113,7 @@ export async function loadTerrainMap(): Promise<TerrainMap> {
         }
     }
 
-    return new TerrainMap(terrain, numLand, worldMapInfo);
+    return new TerrainMap(terrain, numLand, mapData.info);
 }
 
 function logBinaryAsAscii(data: string, length: number = 8) {

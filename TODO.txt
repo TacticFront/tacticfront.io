@@ -164,7 +164,7 @@
 * Make fake humans spawn by their country DONE 10/9/2024
 * UI: leader board DONE 10/12/2024
 * single player mode DONE 10/12/2024
-* single player select map
+* single player select map DONE 10/12/2024
 * implement private game
 * private game can select map
 * optimize sendBoat function

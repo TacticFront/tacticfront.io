@@ -1,10 +1,6 @@
-import {Config, getConfig} from "../core/configuration/Config";
-import {GameID, Lobby, ServerMessage, ServerMessageSchema} from "../core/Schemas";
-import {loadTerrainMap, TerrainMap} from "../core/game/TerrainMapLoader";
 import {ClientGame, createClientGame} from "./ClientGame";
 import backgroundImage from '../../resources/images/TerrainMapFrontPage.png';
 import favicon from '../../resources/images/Favicon.png';
-import {v4 as uuidv4} from 'uuid';
 
 import './PublicLobby';
 import './UsernameInput';
@@ -13,18 +9,16 @@ import './UsernameInput';
 import './styles.css';
 import {UsernameInput} from "./UsernameInput";
 import {SinglePlayerModal} from "./SinglePlayerModal";
+import {GameMap} from "../core/game/Game";
 
 
 const usernameKey: string = 'username';
 
 
 class Client {
-    private terrainMap: Promise<TerrainMap>
     private game: ClientGame
 
     private ip: Promise<string | null> = null
-
-    private config: Config
 
     private usernameInput: UsernameInput | null = null;
 
@@ -38,9 +32,7 @@ class Client {
             console.warn('Username input element not found');
         }
 
-        this.config = getConfig()
         setFavicon()
-        this.terrainMap = loadTerrainMap()
         this.ip = getClientIP()
         document.addEventListener('join-lobby', this.handleJoinLobby.bind(this));
         document.addEventListener('leave-lobby', this.handleLeaveLobby.bind(this));
@@ -61,23 +53,19 @@ class Client {
     private async handleJoinLobby(event: CustomEvent) {
         const lobby = event.detail.lobby
         console.log(`joining lobby ${lobby.id}`)
-        const [terrainMap, clientIP] = await Promise.all([
-            this.terrainMap,
-            this.ip
-        ]);
+        const clientIP = await this.ip
         console.log(`got ip ${clientIP}`)
         if (this.game != null) {
             this.game.stop()
         }
-        this.game = createClientGame(
-            event.detail.singlePlayer,
-            (): string => {return this.usernameInput.getCurrentUsername()},
-            uuidv4(),
-            uuidv4(),
-            clientIP,
-            lobby.id,
-            this.config,
-            terrainMap
+        this.game = await createClientGame(
+            {
+                isLocal: event.detail.singlePlayer,
+                playerName: (): string => this.usernameInput.getCurrentUsername(),
+                gameID: lobby.id,
+                ip: clientIP,
+                map: event.detail.map,
+            }
         );
         this.game.join();
         const g = this.game;
