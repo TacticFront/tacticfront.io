@@ -1,10 +1,10 @@
-import {GamePhase, GameServer} from "./GameServer";
 import {Config} from "../core/configuration/Config";
 import {PseudoRandom} from "../core/PseudoRandom";
 import WebSocket from 'ws';
 import {ClientID, GameID} from "../core/Schemas";
-import {Client} from "./Client";
 import {v4 as uuidv4} from 'uuid';
+import {Client} from "./Client";
+import {GamePhase, GameServer} from "./GameServer";
 
 
 

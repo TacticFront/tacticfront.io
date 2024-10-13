@@ -11,6 +11,11 @@ export type Tick = number
 
 export const AllPlayers = "AllPlayers" as const;
 
+export enum GameMap {
+    World,
+    Europe
+}
+
 export class Nation {
     constructor(
         public readonly name: string,

@@ -31,7 +31,7 @@ export class TerritoryLayer implements Layer {
     tick() {
     }
 
-    init() {
+    init(game: Game) {
         this.canvas = document.createElement('canvas');
         this.context = this.canvas.getContext("2d")
 
@@ -50,7 +50,7 @@ export class TerritoryLayer implements Layer {
         })
     }
 
-    render(context: CanvasRenderingContext2D) {
+    renderLayer(context: CanvasRenderingContext2D) {
         this.renderTerritory()
         this.context.putImageData(this.imageData, 0, 0);
         context.drawImage(

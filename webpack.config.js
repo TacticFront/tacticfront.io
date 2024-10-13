@@ -10,7 +10,7 @@ export default (env, argv) => {
 	const isProduction = argv.mode === 'production';
 
 	return {
-		entry: './src/client/Client.ts',
+		entry: './src/client/Main.ts',
 		output: {
 			filename: 'bundle.js',
 			path: path.resolve(__dirname, 'out'),
