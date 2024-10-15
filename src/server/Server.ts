@@ -8,7 +8,8 @@ import {ClientMessage, ClientMessageSchema} from '../core/Schemas';
 import {getConfig} from '../core/configuration/Config';
 import {LogSeverity, slog} from './StructuredLog';
 import {Client} from './Client';
-import {GamePhase} from './GameServer';
+import {GamePhase, GameServer} from './GameServer';
+import {v4 as uuidv4} from 'uuid';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,6 +23,8 @@ app.use(express.static(path.join(__dirname, '../../out')));
 app.use(express.json())
 const gm = new GameManager(getConfig())
 
+const privateGames = new Map<string, GameServer>()
+
 // New GET endpoint to list lobbies
 app.get('/lobbies', (req, res) => {
     const now = Date.now()
@@ -29,6 +32,30 @@ app.get('/lobbies', (req, res) => {
         lobbies: gm.gamesByPhase(GamePhase.Lobby)
             .map(g => ({id: g.id, msUntilStart: g.startTime() - now, numClients: g.numClients()}))
         // .sort((a, b) => a.startTime - b.startTime),
+    });
+});
+
+app.post('/private_lobby', (req, res) => {
+    const id = gm.createPrivateGame()
+    console.log('creating private lobby with id ${id}')
+    res.json({
+        id: id
+    });
+});
+
+app.post('/start_private_lobby/:id', (req, res) => {
+    console.log(`starting private lobby with id ${req.params.id}`)
+    gm.startPrivateGame(req.params.id)
+});
+
+
+app.put('/private_lobby/:id', (req, res) => {
+
+});
+
+app.get('/private_lobby/:id', (req, res) => {
+    res.json({
+        hi: '5'
     });
 });
 
@@ -61,4 +88,3 @@ server.listen(PORT, () => {
 });
 
 runGame()
-

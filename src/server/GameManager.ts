@@ -1,6 +1,4 @@
 import {Config} from "../core/configuration/Config";
-import {PseudoRandom} from "../core/PseudoRandom";
-import WebSocket from 'ws';
 import {ClientID, GameID} from "../core/Schemas";
 import {v4 as uuidv4} from 'uuid';
 import {Client} from "./Client";
@@ -13,8 +11,6 @@ export class GameManager {
     private lastNewLobby: number = 0
 
     private games: GameServer[] = []
-
-    private random = new PseudoRandom(123)
 
     constructor(private config: Config) { }
 
@@ -31,6 +27,23 @@ export class GameManager {
         game.addClient(client, lastTurn)
     }
 
+    createPrivateGame(): string {
+        const id = genSmallGameID()
+        this.games.push(new GameServer(id, Date.now(), false, this.config))
+        return id
+    }
+
+    // TODO: stop private games to prevent memory leak.
+    startPrivateGame(gameID: GameID) {
+        const game = this.games.find(g => g.id == gameID)
+        console.log(`found game ${game}`)
+        if (game) {
+            game.start()
+        } else {
+            throw new Error(`cannot start private game, game ${gameID} not found`)
+        }
+    }
+
     tick() {
         const lobbies = this.gamesByPhase(GamePhase.Lobby)
         const active = this.gamesByPhase(GamePhase.Active)
@@ -40,10 +53,10 @@ export class GameManager {
         if (now > this.lastNewLobby + this.config.gameCreationRate()) {
             this.lastNewLobby = now
             const id = uuidv4()
-            lobbies.push(new GameServer(id, now, this.config))
+            lobbies.push(new GameServer(id, now, true, this.config))
         }
 
-        active.filter(g => !g.hasStarted()).forEach(g => {
+        active.filter(g => !g.hasStarted() && g.isPublic).forEach(g => {
             g.start()
         })
         finished.forEach(g => {
@@ -51,4 +64,15 @@ export class GameManager {
         })
         this.games = [...lobbies, ...active]
     }
+}
+
+function genSmallGameID(): string {
+    // Generate a UUID
+    const uuid: string = uuidv4();
+
+    // Convert UUID to base64
+    const base64: string = btoa(uuid);
+
+    // Take the first 4 characters of the base64 string
+    return base64.slice(0, 4);
 }

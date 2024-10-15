@@ -26,6 +26,7 @@ export class GameServer {
     constructor(
         public readonly id: string,
         public readonly createdAt: number,
+        public readonly isPublic: boolean,
         private config: Config,
     ) { }
 
@@ -129,16 +130,27 @@ export class GameServer {
     }
 
     phase(): GamePhase {
+        if (Date.now() > this.createdAt + this.config.lobbyLifetime() + this.maxGameDuration) {
+            console.warn(`game past max duration ${this.id}`)
+            return GamePhase.Finished
+        }
+        if (!this.isPublic) {
+            if (this._hasStarted) {
+                if (this.clients.length == 0) {
+                    return GamePhase.Finished
+                } else {
+                    return GamePhase.Active
+                }
+            } else {
+                return GamePhase.Lobby
+            }
+        }
+
         if (Date.now() - this.createdAt < this.config.lobbyLifetime()) {
             return GamePhase.Lobby
         }
 
         if (this.clients.length == 0 && Date.now() > this.createdAt + this.config.lobbyLifetime() + 30 * 60) { // wait at least 30s before ending game
-            return GamePhase.Finished
-        }
-
-        if (Date.now() > this.createdAt + this.config.lobbyLifetime() + this.maxGameDuration) {
-            console.warn(`game past max duration ${this.id}`)
             return GamePhase.Finished
         }
 

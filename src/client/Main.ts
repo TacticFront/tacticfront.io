@@ -4,15 +4,13 @@ import favicon from '../../resources/images/Favicon.png';
 
 import './PublicLobby';
 import './UsernameInput';
-
-
 import './styles.css';
 import {UsernameInput} from "./UsernameInput";
 import {SinglePlayerModal} from "./SinglePlayerModal";
-import {GameMap} from "../core/game/Game";
+import {HostLobbyModal as HostPrivateLobbyModal} from "./HostLobbyModal";
+import {JoinPrivateLobbyModal} from "./JoinPrivateLobbyModal";
 
 
-const usernameKey: string = 'username';
 
 
 class Client {
@@ -39,14 +37,24 @@ class Client {
         document.addEventListener('single-player', this.handleSinglePlayer.bind(this));
 
 
-        const singlePlayerButton = document.getElementById('single-player');
-        const modal = document.querySelector('single-player-modal') as SinglePlayerModal;
+        const spModal = document.querySelector('single-player-modal') as SinglePlayerModal;
+        spModal instanceof SinglePlayerModal
+        document.getElementById('single-player').addEventListener('click', () => {
+            spModal.open();
+        })
 
-        if (singlePlayerButton && modal instanceof SinglePlayerModal) {
-            singlePlayerButton.addEventListener('click', () => {
-                modal.open();
-            });
-        }
+        const hostModal = document.querySelector('host-lobby-modal') as HostPrivateLobbyModal;
+        hostModal instanceof HostPrivateLobbyModal
+        document.getElementById('host-lobby-button').addEventListener('click', () => {
+            hostModal.open();
+        })
+
+        const joinModal = document.querySelector('join-private-lobby-modal') as JoinPrivateLobbyModal;
+        joinModal instanceof JoinPrivateLobbyModal
+        document.getElementById('join-private-lobby-button').addEventListener('click', () => {
+            joinModal.open();
+        })
+
 
     }
 

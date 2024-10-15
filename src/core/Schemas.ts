@@ -45,8 +45,8 @@ const PlayerTypeSchema = z.nativeEnum(PlayerType);
 
 export interface Lobby {
     id: string;
-    msUntilStart: number;
-    numClients: number;
+    msUntilStart?: number;
+    numClients?: number;
 }
 
 const EmojiSchema = z.string().refine(
