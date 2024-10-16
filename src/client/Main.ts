@@ -81,7 +81,7 @@ class Client {
             }
         );
         this.game.join(() => {
-            this.joinModal.closeAndLeave()
+            this.joinModal.close()
         });
         const g = this.game;
     }
