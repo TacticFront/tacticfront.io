@@ -69,6 +69,7 @@ class Client {
         const clientIP = await this.ip
         console.log(`got ip ${clientIP}`)
         if (this.game != null) {
+            console.log('joining lobby, stopping existing game')
             this.game.stop()
         }
         this.game = await createClientGame(
@@ -96,6 +97,7 @@ class Client {
         if (this.game == null) {
             return
         }
+        console.log('leaving lobby, cancelling game')
         this.game.stop()
         this.game = null
     }
