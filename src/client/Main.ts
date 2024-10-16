@@ -20,7 +20,7 @@ class Client {
 
     private usernameInput: UsernameInput | null = null;
 
-
+    private joinModal: JoinPrivateLobbyModal
     constructor() {
     }
 
@@ -49,10 +49,10 @@ class Client {
             hostModal.open();
         })
 
-        const joinModal = document.querySelector('join-private-lobby-modal') as JoinPrivateLobbyModal;
-        joinModal instanceof JoinPrivateLobbyModal
+        this.joinModal = document.querySelector('join-private-lobby-modal') as JoinPrivateLobbyModal;
+        this.joinModal instanceof JoinPrivateLobbyModal
         document.getElementById('join-private-lobby-button').addEventListener('click', () => {
-            joinModal.open();
+            this.joinModal.open();
         })
 
 
@@ -75,7 +75,9 @@ class Client {
                 map: event.detail.map,
             }
         );
-        this.game.join();
+        this.game.join(() => {
+            this.joinModal.close()
+        });
         const g = this.game;
         window.addEventListener('beforeunload', function (event) {
             console.log('Browser is closing');
@@ -84,6 +86,9 @@ class Client {
     }
 
     private async handleLeaveLobby(event: CustomEvent) {
+        if (this.game == null) {
+            return
+        }
         this.game.stop()
         this.game = null
     }

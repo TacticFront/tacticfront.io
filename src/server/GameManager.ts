@@ -33,6 +33,11 @@ export class GameManager {
         return id
     }
 
+    hasActiveGame(gameID: GameID): boolean {
+        const game = this.games.filter(g => g.phase() == GamePhase.Lobby || g.phase() == GamePhase.Active).find(g => g.id == gameID)
+        return game != null
+    }
+
     // TODO: stop private games to prevent memory leak.
     startPrivateGame(gameID: GameID) {
         const game = this.games.find(g => g.id == gameID)

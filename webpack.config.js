@@ -95,7 +95,7 @@ export default (env, argv) => {
 					ws: true,
 				},
 				{
-					context: ['/lobbies', '/join_game', '/join_lobby', '/private_lobby', '/start_private_lobby'],
+					context: ['/lobbies', '/join_game', '/join_lobby', '/private_lobby', '/start_private_lobby', '/lobby'],
 					target: 'http://localhost:3000',
 					secure: false,
 					changeOrigin: true,
