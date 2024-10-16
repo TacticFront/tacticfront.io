@@ -73,7 +73,7 @@ export class ClientGame {
         private transport: Transport,
     ) { }
 
-    public join() {
+    public join(onstart: () => void) {
         const onconnect = () => {
             console.log('Connected to game server!');
             this.transport.joinGame(this.clientIP, this.turns.length)
@@ -81,6 +81,7 @@ export class ClientGame {
         const onmessage = (message: ServerMessage) => {
             if (message.type == "start") {
                 console.log("starting game!")
+                onstart()
                 for (const turn of message.turns) {
                     if (turn.turnNumber < this.turns.length) {
                         continue

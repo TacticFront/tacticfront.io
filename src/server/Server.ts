@@ -50,8 +50,18 @@ app.post('/start_private_lobby/:id', (req, res) => {
 
 
 app.put('/private_lobby/:id', (req, res) => {
-
 });
+
+app.get('/lobby/:id/exists', (req, res) => {
+    const lobbyId = req.params.id;
+    console.log(`checking lobby ${lobbyId} exists`)
+    const lobbyExists = gm.hasActiveGame(lobbyId);
+
+    res.json({
+        exists: lobbyExists
+    });
+});
+
 
 app.get('/private_lobby/:id', (req, res) => {
     res.json({
