@@ -123,11 +123,11 @@ export class Transport {
         };
         this.socket.onclose = (event: CloseEvent) => {
             console.log(`WebSocket closed. Code: ${event.code}, Reason: ${event.reason}`);
-            if (!isActive()) {
-                return
-            }
             if (event.code != 1000) {
+                console.log(`reconnecting`)
                 this.connect(onconnect, onmessage, isActive)
+            } else {
+                console.log('normal websocket closure')
             }
         };
     }
@@ -147,6 +147,9 @@ export class Transport {
     }
 
     leaveGame() {
+        if (this.isLocal) {
+            return
+        }
         if (this.socket.readyState === WebSocket.OPEN) {
             console.log('on stop: leaving game')
             const msg = ClientLeaveMessageSchema.parse({
@@ -159,6 +162,7 @@ export class Transport {
             console.log('WebSocket is not open. Current state:', this.socket.readyState);
             console.log('attempting reconnect')
         }
+        this.socket = null
     }
 
     private onSendAllianceRequest(event: SendAllianceRequestIntentEvent) {

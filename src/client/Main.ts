@@ -29,6 +29,11 @@ class Client {
         if (!this.usernameInput) {
             console.warn('Username input element not found');
         }
+        const s = this.stopGame
+        window.addEventListener('beforeunload', function (event) {
+            console.log('Browser is closing');
+            s()
+        });
 
         setFavicon()
         this.ip = getClientIP()
@@ -76,13 +81,15 @@ class Client {
             }
         );
         this.game.join(() => {
-            this.joinModal.close()
+            this.joinModal.closeAndLeave()
         });
         const g = this.game;
-        window.addEventListener('beforeunload', function (event) {
-            console.log('Browser is closing');
-            g.stop();
-        });
+    }
+
+    private stopGame() {
+        if (this.game != null) {
+            this.game.stop()
+        }
     }
 
     private async handleLeaveLobby(event: CustomEvent) {

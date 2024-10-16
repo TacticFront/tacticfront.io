@@ -7,6 +7,7 @@ export class JoinPrivateLobbyModal extends LitElement {
   @state() private isModalOpen = false;
   @state() private message: string = '';
   @query('#lobbyIdInput') private lobbyIdInput!: HTMLInputElement;
+  @state() private hasJoined = false
 
   static styles = css`
     .modal-overlay {
@@ -108,7 +109,7 @@ export class JoinPrivateLobbyModal extends LitElement {
     return html`
     <div class="modal-overlay" style="display: ${this.isModalOpen ? 'block' : 'none'}">
       <div class="modal-content">
-        <span class="close" @click=${this.close}>&times;</span>
+        <span class="close" @click=${this.closeAndLeave}>&times;</span>
         <h2>Join Private Lobby</h2>
         <div class="lobby-id-container">
           <input type="text" id="lobbyIdInput" placeholder="Enter Lobby ID">
@@ -117,7 +118,7 @@ export class JoinPrivateLobbyModal extends LitElement {
         <div class="message-area ${this.message ? 'show' : ''}">
           ${this.message}
         </div>
-        <button class="join-button" @click=${this.joinLobby}>Join Lobby</button>
+        ${!this.hasJoined ? html`<button class="join-button" @click=${this.joinLobby}>Join Lobby</button>` : ''}
       </div>
     </div>
   `;
@@ -129,13 +130,18 @@ export class JoinPrivateLobbyModal extends LitElement {
 
   public close() {
     this.isModalOpen = false;
+    this.lobbyIdInput.value = null
+  }
+
+  public closeAndLeave() {
+    this.close()
+    this.hasJoined = false
+    this.message = ""
     this.dispatchEvent(new CustomEvent('leave-lobby', {
       detail: {lobby: this.lobbyIdInput.value},
       bubbles: true,
       composed: true
     }));
-    this.lobbyIdInput.value = null
-
   }
 
   private async pasteFromClipboard() {
@@ -162,6 +168,7 @@ export class JoinPrivateLobbyModal extends LitElement {
       .then(data => {
         if (data.exists) {
           this.message = 'Joined successfully! Waiting for game to start...';
+          this.hasJoined = true
           this.dispatchEvent(new CustomEvent('join-lobby', {
             detail: {
               lobby: {id: lobbyId},

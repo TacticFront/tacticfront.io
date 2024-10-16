@@ -111,7 +111,7 @@ export class HostLobbyModal extends LitElement {
           <div>
             <label for="map-select">Map: </label>
             <select id="map-select" @change=${this.handleMapChange}>
-              ${Object.entries(GameMap)
+              ${Object.entries(new Set())
         .filter(([key]) => isNaN(Number(key)))
         .map(([key, value]) => html`
                   <option value=${value} ?selected=${this.selectedMap === value}>

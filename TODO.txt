@@ -165,8 +165,10 @@
 * UI: leader board DONE 10/12/2024
 * single player mode DONE 10/12/2024
 * single player select map DONE 10/12/2024
-* implement private game
+* implement private game DONE 10/15/2024
+* private game shows how many players joined
 * private game can select map
+* BUG: memory leak: game not deleted when leaving game
 * optimize sendBoat function
 * Test on android
 * NPC more likely to accept alliance fewer alliance player has

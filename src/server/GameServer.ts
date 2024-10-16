@@ -137,6 +137,7 @@ export class GameServer {
         if (!this.isPublic) {
             if (this._hasStarted) {
                 if (this.clients.length == 0) {
+                    console.log(`game ${this.id} is finisehd`)
                     return GamePhase.Finished
                 } else {
                     return GamePhase.Active
