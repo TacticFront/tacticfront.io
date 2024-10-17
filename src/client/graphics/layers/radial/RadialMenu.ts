@@ -199,7 +199,7 @@ export class RadialMenu implements Layer {
         } else {
             this.showRadialMenu(event.x, event.y);
         }
-        this.renderCenterButton(false)
+        this.enableCenterButton(false)
         for (const item of this.menuItems.values()) {
             item.disabled = true
             this.updateMenuItemState(item)
@@ -214,7 +214,7 @@ export class RadialMenu implements Layer {
 
         if (this.game.inSpawnPhase()) {
             if (tile.isLand() && !tile.hasOwner()) {
-                this.renderCenterButton(true)
+                this.enableCenterButton(true)
             }
             return
         }
@@ -241,13 +241,13 @@ export class RadialMenu implements Layer {
         if (tile.owner() != myPlayer && tile.isLand() && myPlayer.sharesBorderWith(other)) {
             if (other.isPlayer()) {
                 if (!myPlayer.isAlliedWith(other)) {
-                    this.renderCenterButton(true)
+                    this.enableCenterButton(true)
                 }
             } else {
                 outer_loop: for (const t of bfs(tile, and(t => !t.hasOwner() && t.isLand(), dist(tile, 200)))) {
                     for (const n of t.neighbors()) {
                         if (n.owner() == myPlayer) {
-                            this.renderCenterButton(true)
+                            this.enableCenterButton(true)
                             break outer_loop
                         }
                     }
@@ -352,11 +352,14 @@ export class RadialMenu implements Layer {
     }
 
     private showRadialMenu(x: number, y: number) {
-        this.menuElement
-            .style('left', `${x - this.menuSize / 2}px`)
-            .style('top', `${y - this.menuSize / 2}px`)
-            .style('display', 'block');
-        this.isVisible = true;
+        // Delay so center button isn't clicked immediately on press.
+        setTimeout(() => {
+            this.menuElement
+                .style('left', `${x - this.menuSize / 2}px`)
+                .style('top', `${y - this.menuSize / 2}px`)
+                .style('display', 'block');
+            this.isVisible = true;
+        }, 50)
     }
 
     private hideRadialMenu() {
@@ -412,20 +415,17 @@ export class RadialMenu implements Layer {
         this.menuElement.select('.center-button-text').transition().duration(200).style('font-size', fontSize);
     }
 
-    private renderCenterButton(enabled: boolean) {
+    private enableCenterButton(enabled: boolean) {
         this.isCenterButtonEnabled = enabled
-        // Add delay so center button is clicked immediately on creation.
-        setTimeout(() => {
-            const centerButton = this.menuElement.select('.center-button');
+        const centerButton = this.menuElement.select('.center-button');
 
-            centerButton.select('.center-button-hitbox')
-                .style('cursor', enabled ? 'pointer' : 'not-allowed');
+        centerButton.select('.center-button-hitbox')
+            .style('cursor', enabled ? 'pointer' : 'not-allowed');
 
-            centerButton.select('.center-button-visible')
-                .attr('fill', enabled ? '#2c3e50' : '#999999');
+        centerButton.select('.center-button-visible')
+            .attr('fill', enabled ? '#2c3e50' : '#999999');
 
-            centerButton.select('.center-button-text')
-                .attr('fill', enabled ? 'white' : '#cccccc');
-        }, 25);
+        centerButton.select('.center-button-text')
+            .attr('fill', enabled ? 'white' : '#cccccc');
     }
 }
