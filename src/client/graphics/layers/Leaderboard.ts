@@ -85,58 +85,61 @@ export class Leaderboard extends LitElement implements Layer {
   }
 
   static styles = css`
-    :host {
-      display: block;
-    }
+  :host {
+    display: block;
+  }
+  .leaderboard {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 9999;
+    background-color: rgba(30, 30, 30, 0.7); /* Added transparency */
+    padding: 15px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
+    max-width: 300px;
+    max-height: 80vh;
+    overflow-y: auto;
+    width: 300px;
+    backdrop-filter: blur(5px); /* Optional: adds a blur effect to content behind the leaderboard */
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid rgba(51, 51, 51, 0.2); /* Made border slightly transparent */
+    color: white;
+  }
+  th {
+    background-color: rgba(44, 44, 44, 0.5); /* Made header slightly transparent */
+    color: white;
+  }
+  .myPlayer {
+    font-weight: bold;
+    font-size: 1.4em;
+  }
+  .otherPlayer {
+    font-size: 1.2em;
+  }
+  tr:nth-child(even) {
+    background-color: rgba(44, 44, 44, 0.5); /* Made alternating rows slightly transparent */
+  }
+  tr:hover {
+    background-color: rgba(58, 58, 58, 0.6); /* Made hover effect slightly transparent */
+  }
+  .hidden {
+    display: none !important;
+  }
+  @media (max-width: 1000px) {
     .leaderboard {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      z-index: 9999;
-      background-color: #1E1E1E;
-      padding: 15px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-      border-radius: 10px;
-      max-width: 300px;
-      max-height: 80vh;
-      overflow-y: auto;
-      width: 300px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 8px;
-      text-align: left;
-      border-bottom: 1px solid #333;
-      color: white;
-    }
-    th {
-      background-color: #2C2C2C;
-      color: white;
-    }
-    .myPlayer {
-      font-weight: bold;
-      font-size: 1.2em;
-    }
-    tr:nth-child(even) {
-      background-color: #2C2C2C;
-    }
-    tr:hover {
-      background-color: #3A3A3A;
-    }
-    .hidden {
       display: none !important;
     }
-    @media (max-width: 1000px) {
-      .leaderboard {
-        display: none !important;
-      }
-    }
-  `;
+  }
+`;
 
-  @property({type: Array})
   players: Entry[] = [];
 
   @state()
@@ -156,7 +159,7 @@ export class Leaderboard extends LitElement implements Layer {
           <tbody>
             ${this.players
         .map((player, index) => html`
-                <tr class="${player.isMyPlayer ? 'myPlayer' : 'none'}">
+                <tr class="${player.isMyPlayer ? 'myPlayer' : 'otherPlayer'}">
                   <td>${player.position}</td>
                   <td>${player.name.slice(0, 12)}</td>
                   <td>${player.score}</td>

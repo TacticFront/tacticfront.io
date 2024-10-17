@@ -1,4 +1,3 @@
-import {EventBus} from "../EventBus";
 import {Cell, Execution, MutableGame, MutablePlayer, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tile} from "../game/Game"
 import {PseudoRandom} from "../PseudoRandom"
 import {and, bfs, dist, simpleHash} from "../Util";
@@ -21,13 +20,14 @@ export class FakeHumanExecution implements Execution {
     private isTraitor = false
 
 
+
     constructor(private playerInfo: PlayerInfo, private cell: Cell, private strength: number) {
         this.random = new PseudoRandom(simpleHash(playerInfo.id))
     }
 
     init(mg: MutableGame, ticks: number) {
         this.mg = mg
-        if (this.random.chance(2)) {
+        if (this.random.chance(5)) {
             this.isTraitor = true
         }
     }
