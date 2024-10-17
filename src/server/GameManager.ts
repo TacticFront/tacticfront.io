@@ -1,8 +1,9 @@
 import {Config} from "../core/configuration/Config";
-import {ClientID, GameID} from "../core/Schemas";
+import {ClientID, GameConfig, GameID} from "../core/Schemas";
 import {v4 as uuidv4} from 'uuid';
 import {Client} from "./Client";
 import {GamePhase, GameServer} from "./GameServer";
+import {GameMap} from "../core/game/Game";
 
 
 
@@ -27,9 +28,18 @@ export class GameManager {
         game.addClient(client, lastTurn)
     }
 
+    updateGameConfig(gameID: GameID, gameConfig: GameConfig) {
+        const game = this.games.find(g => g.id == gameID)
+        if (game == null) {
+            console.warn(`game ${gameID} not found`)
+            return
+        }
+        game.updateGameConfig(gameConfig)
+    }
+
     createPrivateGame(): string {
         const id = genSmallGameID()
-        this.games.push(new GameServer(id, Date.now(), false, this.config))
+        this.games.push(new GameServer(id, Date.now(), false, this.config, {gameMap: GameMap.World}))
         return id
     }
 
@@ -58,7 +68,7 @@ export class GameManager {
         if (now > this.lastNewLobby + this.config.gameCreationRate()) {
             this.lastNewLobby = now
             const id = uuidv4()
-            lobbies.push(new GameServer(id, now, true, this.config))
+            lobbies.push(new GameServer(id, now, true, this.config, {gameMap: GameMap.World}))
         }
 
         active.filter(g => !g.hasStarted() && g.isPublic).forEach(g => {

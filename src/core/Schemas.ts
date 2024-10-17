@@ -1,5 +1,5 @@
 import {z} from 'zod';
-import {PlayerType} from './game/Game';
+import {GameMap, PlayerType} from './game/Game';
 
 export type GameID = string
 export type ClientID = string
@@ -27,6 +27,7 @@ export type EmojiIntent = z.infer<typeof EmojiIntentSchema>
 export type DonateIntent = z.infer<typeof DonateIntentSchema>
 
 export type Turn = z.infer<typeof TurnSchema>
+export type GameConfig = z.infer<typeof GameConfigSchema>
 
 export type ClientMessage = ClientIntentMessage | ClientJoinMessage | ClientLeaveMessage
 export type ServerMessage = ServerSyncMessage | ServerStartGameMessage
@@ -48,6 +49,10 @@ export interface Lobby {
     msUntilStart?: number;
     numClients?: number;
 }
+
+const GameConfigSchema = z.object({
+    gameMap: z.nativeEnum(GameMap)
+})
 
 const EmojiSchema = z.string().refine(
     (val) => {
@@ -170,7 +175,8 @@ export const ServerTurnMessageSchema = ServerBaseMessageSchema.extend({
 export const ServerStartGameMessageSchema = ServerBaseMessageSchema.extend({
     type: z.literal('start'),
     // Turns the client missed if they are late to the game.
-    turns: z.array(TurnSchema)
+    turns: z.array(TurnSchema),
+    config: GameConfigSchema
 })
 
 

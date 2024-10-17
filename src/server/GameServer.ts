@@ -1,4 +1,4 @@
-import {ClientMessage, ClientMessageSchema, Intent, ServerStartGameMessage, ServerStartGameMessageSchema, ServerTurnMessageSchema, Turn} from "../core/Schemas";
+import {ClientMessage, ClientMessageSchema, GameConfig, Intent, ServerStartGameMessage, ServerStartGameMessageSchema, ServerTurnMessageSchema, Turn} from "../core/Schemas";
 import {Config} from "../core/configuration/Config";
 import {Client} from "./Client";
 import WebSocket from 'ws';
@@ -23,12 +23,20 @@ export class GameServer {
 
     private endTurnIntervalID
 
+
     constructor(
         public readonly id: string,
         public readonly createdAt: number,
         public readonly isPublic: boolean,
         private config: Config,
+        private gameConfig: GameConfig,
     ) { }
+
+    public updateGameConfig(gameConfig: GameConfig): void {
+        if (gameConfig.gameMap != null) {
+            this.gameConfig.gameMap = gameConfig.gameMap
+        }
+    }
 
     public addClient(client: Client, lastTurn: number) {
         console.log(`game ${this.id} adding client ${client.id}`)
@@ -93,7 +101,8 @@ export class GameServer {
         ws.send(JSON.stringify(ServerStartGameMessageSchema.parse(
             {
                 type: "start",
-                turns: this.turns.slice(lastTurn)
+                turns: this.turns.slice(lastTurn),
+                config: this.gameConfig
             }
         )))
     }
@@ -137,7 +146,7 @@ export class GameServer {
         if (!this.isPublic) {
             if (this._hasStarted) {
                 if (this.clients.length == 0) {
-                    console.log(`game ${this.id} is finisehd`)
+                    console.log()
                     return GamePhase.Finished
                 } else {
                     return GamePhase.Active

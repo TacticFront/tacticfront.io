@@ -46,7 +46,7 @@ export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => v
             console.log('lobby: game started')
             onjoin()
             const gameConfig = {
-                map: GameMap.World,
+                map: message.config?.gameMap || lobbyConfig.map,
                 clientID: clientID,
                 gameID: lobbyConfig.gameID,
                 ip: lobbyConfig.ip,
@@ -93,6 +93,7 @@ export class GameRunner {
     private intervalID: NodeJS.Timeout
 
     private isProcessingTurn = false
+    private hasJoined = false
 
     constructor(
         private id: ClientID,
@@ -125,6 +126,7 @@ export class GameRunner {
         };
         const onmessage = (message: ServerMessage) => {
             if (message.type == "start") {
+                this.hasJoined = true
                 console.log("starting game!")
                 for (const turn of message.turns) {
                     if (turn.turnNumber < this.turns.length) {
@@ -134,6 +136,9 @@ export class GameRunner {
                 }
             }
             if (message.type == "turn") {
+                if (!this.hasJoined) {
+                    return
+                }
                 if (this.turns.length != message.turn.turnNumber) {
                     console.error(`got wrong turn have turns ${this.turns.length}, received turn ${message.turn.turnNumber}`)
                 } else {

@@ -23,8 +23,6 @@ app.use(express.static(path.join(__dirname, '../../out')));
 app.use(express.json())
 const gm = new GameManager(getConfig())
 
-const privateGames = new Map<string, GameServer>()
-
 // New GET endpoint to list lobbies
 app.get('/lobbies', (req, res) => {
     const now = Date.now()
@@ -34,6 +32,7 @@ app.get('/lobbies', (req, res) => {
         // .sort((a, b) => a.startTime - b.startTime),
     });
 });
+
 
 app.post('/private_lobby', (req, res) => {
     const id = gm.createPrivateGame()
@@ -48,8 +47,9 @@ app.post('/start_private_lobby/:id', (req, res) => {
     gm.startPrivateGame(req.params.id)
 });
 
-
 app.put('/private_lobby/:id', (req, res) => {
+    const lobbyID = req.params.id
+    gm.updateGameConfig(lobbyID, {gameMap: req.body.gameMap})
 });
 
 app.get('/lobby/:id/exists', (req, res) => {

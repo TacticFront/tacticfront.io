@@ -111,7 +111,7 @@ export class HostLobbyModal extends LitElement {
           <div>
             <label for="map-select">Map: </label>
             <select id="map-select" @change=${this.handleMapChange}>
-              ${Object.entries(new Set())
+              ${Object.entries(GameMap)
         .filter(([key]) => isNaN(Number(key)))
         .map(([key, value]) => html`
                   <option value=${value} ?selected=${this.selectedMap === value}>
@@ -152,8 +152,17 @@ export class HostLobbyModal extends LitElement {
     this.copySuccess = false;
   }
 
-  private handleMapChange(e: Event) {
+  private async handleMapChange(e: Event) {
     this.selectedMap = Number((e.target as HTMLSelectElement).value) as GameMap;
+    console.log(`updating map to ${this.selectedMap}`)
+    const response = await fetch(`/private_lobby/${this.lobbyId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({gameMap: this.selectedMap})
+    });
+
   }
   private async startGame() {
     console.log(`Starting private game with map: ${GameMap[this.selectedMap]}`);
@@ -165,6 +174,7 @@ export class HostLobbyModal extends LitElement {
       }
     });
   }
+
 
   private async copyToClipboard() {
     try {
@@ -179,6 +189,7 @@ export class HostLobbyModal extends LitElement {
   }
 
 }
+
 
 async function createLobby(): Promise<Lobby> {
   try {
