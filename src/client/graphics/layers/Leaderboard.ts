@@ -129,6 +129,11 @@ export class Leaderboard extends LitElement implements Layer {
     .hidden {
       display: none !important;
     }
+    @media (max-width: 1000px) {
+      .leaderboard {
+        display: none !important;
+      }
+    }
   `;
 
   @property({type: Array})

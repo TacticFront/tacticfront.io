@@ -66,6 +66,28 @@ export class EmojiTable extends LitElement {
         .hidden {
             display: none !important;
         }
+            
+        @media (max-width: 600px) {
+            .emoji-button {
+                font-size: 32px;
+                /* Slightly smaller font size for mobile */
+                width: 60px;
+                /* Smaller width for mobile */
+                height: 60px;
+                /* Smaller height for mobile */
+                margin: 5px;
+                /* Smaller margin for mobile */
+            }
+        }
+
+        @media (max-width: 400px) {
+            .emoji-button {
+                font-size: 28px;
+                width: 50px;
+                height: 50px;
+                margin: 3px;
+            }
+        }
     `;
 
     @state()
