@@ -40,9 +40,6 @@ export class Leaderboard extends LitElement implements Layer {
       return
     }
     const myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
-    if (myPlayer == null) {
-      return
-    }
 
     const sorted = this.game.players()
       .sort((a, b) => b.numTilesOwned() - a.numTilesOwned())
@@ -56,7 +53,7 @@ export class Leaderboard extends LitElement implements Layer {
         isMyPlayer: player == myPlayer
       }));
 
-    if (this.players.find(p => p.isMyPlayer) == null) {
+    if (myPlayer != null && this.players.find(p => p.isMyPlayer) == null) {
       let place = 0
       for (const p of sorted) {
         place++
