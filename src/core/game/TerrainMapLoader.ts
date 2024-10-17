@@ -9,6 +9,8 @@ const maps = new Map()
     .set(GameMap.World, {bin: worldBin, info: worldInfo})
     .set(GameMap.Europe, {bin: europeBin, info: europeInfo});
 
+const loadedMaps = new Map<GameMap, TerrainMap>()
+
 export interface NationMap {
     name: string;
     width: number;
@@ -52,6 +54,9 @@ export class Terrain {
 }
 
 export async function loadTerrainMap(map: GameMap): Promise<TerrainMap> {
+    if (loadedMaps.has(map)) {
+        return loadedMaps.get(map)
+    }
 
     const mapData = maps.get(map)
 
@@ -112,8 +117,9 @@ export async function loadTerrainMap(map: GameMap): Promise<TerrainMap> {
             terrain[x][y].land = land
         }
     }
-
-    return new TerrainMap(terrain, numLand, mapData.info);
+    const m = new TerrainMap(terrain, numLand, mapData.info);
+    loadedMaps.set(map, m)
+    return m
 }
 
 function logBinaryAsAscii(data: string, length: number = 8) {

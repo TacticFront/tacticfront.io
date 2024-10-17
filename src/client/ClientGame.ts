@@ -15,32 +15,64 @@ import {DisplayMessageEvent, MessageType} from "./graphics/layers/EventsDisplay"
 import {v4 as uuidv4} from 'uuid';
 
 
-export interface GameConfig {
+export interface LobbyConfig {
     isLocal: boolean
     playerName: () => string
     gameID: GameID
     ip: string | null
-    map: GameMap
+    map: GameMap | null
 }
 
-export async function createClientGame(gameConfig: GameConfig): Promise<ClientGame> {
-    let eventBus = new EventBus()
-    const config = getConfig()
+export interface GameConfig {
+    map: GameMap
+    clientID: ClientID,
+    gameID: GameID,
+    ip: string | null,
+}
 
+export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => void {
     const clientID = uuidv4()
     const playerID = uuidv4()
+    const eventBus = new EventBus()
+    const config = getConfig()
+    const transport = new Transport(lobbyConfig.isLocal, eventBus, lobbyConfig.gameID, clientID, playerID, config, lobbyConfig.playerName)
+
+    const onconnect = () => {
+        console.log('Joined game lobby!');
+        transport.joinGame(clientID, 0)
+    };
+    const onmessage = (message: ServerMessage) => {
+        if (message.type == "start") {
+            console.log('lobby: game started')
+            onjoin()
+            const gameConfig = {
+                map: GameMap.World,
+                clientID: clientID,
+                gameID: lobbyConfig.gameID,
+                ip: lobbyConfig.ip,
+            }
+            createClientGame(gameConfig, eventBus, transport).then(r => r.start())
+        };
+    }
+    transport.connect(onconnect, onmessage)
+    return () => {
+        console.log('leaving game')
+        transport.leaveGame()
+    }
+}
+
+
+export async function createClientGame(gameConfig: GameConfig, eventBus: EventBus, transport: Transport): Promise<GameRunner> {
+    const config = getConfig()
 
     const terrainMap = await loadTerrainMap(gameConfig.map)
 
     let game = createGame(terrainMap, eventBus, config)
     const canvas = createCanvas()
-    let gameRenderer = createRenderer(canvas, game, eventBus, clientID)
+    let gameRenderer = createRenderer(canvas, game, eventBus, gameConfig.clientID)
 
-    const transport = new Transport(gameConfig.isLocal, eventBus, gameConfig.gameID, clientID, playerID, config, gameConfig.playerName)
-
-
-    return new ClientGame(
-        clientID,
+    return new GameRunner(
+        gameConfig.clientID,
         gameConfig.ip,
         eventBus,
         game,
@@ -51,7 +83,7 @@ export async function createClientGame(gameConfig: GameConfig): Promise<ClientGa
     )
 }
 
-export class ClientGame {
+export class GameRunner {
     private myPlayer: Player
     private turns: Turn[] = []
     private isActive = false
@@ -73,33 +105,8 @@ export class ClientGame {
         private transport: Transport,
     ) { }
 
-    public join(onstart: () => void) {
-        const onconnect = () => {
-            console.log('Connected to game server!');
-            this.transport.joinGame(this.clientIP, this.turns.length)
-        };
-        const onmessage = (message: ServerMessage) => {
-            if (message.type == "start") {
-                console.log("starting game!")
-                onstart()
-                for (const turn of message.turns) {
-                    if (turn.turnNumber < this.turns.length) {
-                        continue
-                    }
-                    this.turns.push(turn)
-                }
-                if (!this.isActive) {
-                    this.start()
-                }
-            }
-            if (message.type == "turn") {
-                this.addTurn(message.turn)
-            }
-        };
-        this.transport.connect(onconnect, onmessage, () => this.isActive)
-    }
-
     public start() {
+        console.log('starting client game')
         this.isActive = true
         this.eventBus.on(PlayerEvent, (e) => this.playerEvent(e))
         this.eventBus.on(MouseUpEvent, (e) => this.inputEvent(e))
@@ -111,19 +118,37 @@ export class ClientGame {
         this.gs.addExecution(new WinCheckExecution(this.eventBus))
 
         this.intervalID = setInterval(() => this.tick(), 10);
+
+        const onconnect = () => {
+            console.log('Connected to game server!');
+            this.transport.joinGame(this.clientIP, this.turns.length)
+        };
+        const onmessage = (message: ServerMessage) => {
+            if (message.type == "start") {
+                console.log("starting game!")
+                for (const turn of message.turns) {
+                    if (turn.turnNumber < this.turns.length) {
+                        continue
+                    }
+                    this.turns.push(turn)
+                }
+            }
+            if (message.type == "turn") {
+                if (this.turns.length != message.turn.turnNumber) {
+                    console.error(`got wrong turn have turns ${this.turns.length}, received turn ${message.turn.turnNumber}`)
+                } else {
+                    this.turns.push(message.turn)
+                }
+            }
+        };
+        this.transport.connect(onconnect, onmessage)
+
     }
 
     public stop() {
         clearInterval(this.intervalID)
         this.isActive = false
         this.transport.leaveGame()
-    }
-
-    public addTurn(turn: Turn): void {
-        if (this.turns.length != turn.turnNumber) {
-            console.error(`got wrong turn have turns ${this.turns.length}, received turn ${turn.turnNumber}`)
-        }
-        this.turns.push(turn)
     }
 
     public tick() {

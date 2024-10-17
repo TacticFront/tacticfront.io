@@ -156,7 +156,7 @@ export class HostLobbyModal extends LitElement {
     this.selectedMap = Number((e.target as HTMLSelectElement).value) as GameMap;
   }
   private async startGame() {
-    console.log(`Starting single player game with map: ${GameMap[this.selectedMap]}`);
+    console.log(`Starting private game with map: ${GameMap[this.selectedMap]}`);
     this.close();
     const response = await fetch(`/start_private_lobby/${this.lobbyId}`, {
       method: 'POST',

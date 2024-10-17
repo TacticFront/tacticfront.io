@@ -73,6 +73,12 @@ export class Transport {
 
     private localServer: LocalServer
 
+    private buffer: string[] = []
+
+
+    private onconnect: () => void
+    private onmessage: (msg: ServerMessage) => void
+
     constructor(
         private isLocal: boolean,
         private eventBus: EventBus,
@@ -93,25 +99,34 @@ export class Transport {
         this.eventBus.on(SendDonateIntentEvent, (e) => this.onSendDonateIntent(e))
     }
 
-    connect(onconnect: () => void, onmessage: (message: ServerMessage) => void, isActive: () => boolean) {
+    connect(onconnect: () => void, onmessage: (message: ServerMessage) => void) {
         if (this.isLocal) {
-            this.connectLocal(onconnect, onmessage, isActive)
+            this.connectLocal(onconnect, onmessage)
         } else {
-            this.connectRemote(onconnect, onmessage, isActive)
+            this.connectRemote(onconnect, onmessage)
         }
     }
 
-    private connectLocal(onconnect: () => void, onmessage: (message: ServerMessage) => void, isActive: () => boolean) {
+    private connectLocal(onconnect: () => void, onmessage: (message: ServerMessage) => void) {
         this.localServer = new LocalServer(this.config, onconnect, onmessage)
         this.localServer.start()
     }
 
-    private connectRemote(onconnect: () => void, onmessage: (message: ServerMessage) => void, isActive: () => boolean) {
-        const wsHost = process.env.WEBSOCKET_URL || window.location.host;
-        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        this.socket = new WebSocket(`${wsProtocol}//${wsHost}`)
+    private connectRemote(onconnect: () => void, onmessage: (message: ServerMessage) => void) {
+        const isFirstConnect = this.socket == null
+        if (isFirstConnect) {
+            const wsHost = process.env.WEBSOCKET_URL || window.location.host;
+            const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            this.socket = new WebSocket(`${wsProtocol}//${wsHost}`)
+        }
+        this.onconnect = onconnect
+        this.onmessage = onmessage
         this.socket.onopen = () => {
             console.log('Connected to game server!');
+            while (this.buffer.length > 0) {
+                console.log('sending dropped message')
+                this.sendMsg(this.buffer.pop())
+            }
             onconnect()
         };
         this.socket.onmessage = (event: MessageEvent) => {
@@ -123,13 +138,13 @@ export class Transport {
         };
         this.socket.onclose = (event: CloseEvent) => {
             console.log(`WebSocket closed. Code: ${event.code}, Reason: ${event.reason}`);
-            if (event.code != 1000) {
-                console.log(`reconnecting`)
-                this.connect(onconnect, onmessage, isActive)
-            } else {
-                console.log('normal websocket closure')
-            }
+            console.log(`reconnecting`)
+            this.connect(onconnect, onmessage)
         };
+        if (!isFirstConnect) {
+            // Socket has already been opened, so simulate new connection.
+            onconnect()
+        }
     }
 
     joinGame(clientIP: string | null, numTurns: number) {
@@ -158,11 +173,12 @@ export class Transport {
                 gameID: this.gameID,
             })
             this.sendMsg(JSON.stringify(msg))
+            this.socket.close()
         } else {
             console.log('WebSocket is not open. Current state:', this.socket.readyState);
             console.log('attempting reconnect')
         }
-        this.socket = null
+        this.socket.onclose = (event: CloseEvent) => { }
     }
 
     private onSendAllianceRequest(event: SendAllianceRequestIntentEvent) {
@@ -279,7 +295,15 @@ export class Transport {
         if (this.isLocal) {
             this.localServer.onMessage(msg)
         } else {
-            this.socket.send(msg)
+            if (this.socket.readyState == WebSocket.CLOSED || this.socket.readyState == WebSocket.CLOSED) {
+                console.warn('socket not ready, closing and trying later')
+                this.socket.close()
+                this.socket = null
+                this.connectRemote(this.onconnect, this.onmessage)
+                this.buffer.push(msg)
+            } else {
+                this.socket.send(msg)
+            }
         }
     }
 }

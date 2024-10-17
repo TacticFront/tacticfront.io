@@ -1,4 +1,4 @@
-import {ClientGame, createClientGame} from "./ClientGame";
+import {GameRunner, joinLobby} from "./ClientGame";
 import backgroundImage from '../../resources/images/TerrainMapFrontPage.png';
 import favicon from '../../resources/images/Favicon.png';
 
@@ -14,7 +14,7 @@ import {JoinPrivateLobbyModal} from "./JoinPrivateLobbyModal";
 
 
 class Client {
-    private game: ClientGame
+    private gameStop: () => void
 
     private ip: Promise<string | null> = null
 
@@ -59,8 +59,6 @@ class Client {
         document.getElementById('join-private-lobby-button').addEventListener('click', () => {
             this.joinModal.open();
         })
-
-
     }
 
     private async handleJoinLobby(event: CustomEvent) {
@@ -68,38 +66,35 @@ class Client {
         console.log(`joining lobby ${lobby.id}`)
         const clientIP = await this.ip
         console.log(`got ip ${clientIP}`)
-        if (this.game != null) {
+        if (this.gameStop != null) {
             console.log('joining lobby, stopping existing game')
-            this.game.stop()
+            this.gameStop()
         }
-        this.game = await createClientGame(
+        this.gameStop = joinLobby(
             {
                 isLocal: event.detail.singlePlayer,
                 playerName: (): string => this.usernameInput.getCurrentUsername(),
                 gameID: lobby.id,
                 ip: clientIP,
                 map: event.detail.map,
-            }
+            },
+            () => this.joinModal.close()
         );
-        this.game.join(() => {
-            this.joinModal.close()
-        });
-        const g = this.game;
     }
 
     private stopGame() {
-        if (this.game != null) {
-            this.game.stop()
+        if (this.gameStop != null) {
+            this.gameStop()
         }
     }
 
     private async handleLeaveLobby(event: CustomEvent) {
-        if (this.game == null) {
+        if (this.gameStop == null) {
             return
         }
         console.log('leaving lobby, cancelling game')
-        this.game.stop()
-        this.game = null
+        this.gameStop()
+        this.gameStop = null
     }
 
     private async handleSinglePlayer(event: CustomEvent) {
