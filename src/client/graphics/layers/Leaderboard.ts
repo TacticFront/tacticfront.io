@@ -7,7 +7,7 @@ import {ClientID} from '../../../core/Schemas';
 interface Entry {
   name: string
   position: number
-  score: number
+  score: string
   isMyPlayer: boolean
 }
 
@@ -49,7 +49,7 @@ export class Leaderboard extends LitElement implements Layer {
       .map((player, index) => ({
         name: player.name(),
         position: index + 1,
-        score: player.numTilesOwned(),
+        score: formatPercentage(player.numTilesOwned() / this.game.numLandTiles()),
         isMyPlayer: player == myPlayer
       }));
 
@@ -66,7 +66,7 @@ export class Leaderboard extends LitElement implements Layer {
       this.players.push({
         name: myPlayer.name(),
         position: place,
-        score: myPlayer.numTilesOwned(),
+        score: formatPercentage(myPlayer.numTilesOwned() / this.game.numLandTiles()),
         isMyPlayer: true,
       })
     }
@@ -91,7 +91,7 @@ export class Leaderboard extends LitElement implements Layer {
     left: 10px;
     z-index: 9999;
     background-color: rgba(30, 30, 30, 0.7); /* Added transparency */
-    padding: 15px;
+    padding: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     border-radius: 10px;
     max-width: 300px;
@@ -116,10 +116,10 @@ export class Leaderboard extends LitElement implements Layer {
   }
   .myPlayer {
     font-weight: bold;
-    font-size: 1.4em;
+    font-size: 1.5em;
   }
   .otherPlayer {
-    font-size: 1.2em;
+    font-size: 1.3em;
   }
   tr:nth-child(even) {
     background-color: rgba(44, 44, 44, 0.5); /* Made alternating rows slightly transparent */
@@ -150,7 +150,7 @@ export class Leaderboard extends LitElement implements Layer {
             <tr>
               <th>Rank</th>
               <th>Player</th>
-              <th>Score</th>
+              <th>Owned</th>
             </tr>
           </thead>
           <tbody>
@@ -181,4 +181,15 @@ export class Leaderboard extends LitElement implements Layer {
   get isVisible() {
     return !this._hidden;
   }
+}
+
+function formatPercentage(value: number): string {
+  const perc = value * 100
+  if (perc < .01) {
+    return "0%"
+  }
+  if (perc < .1) {
+    return (perc).toPrecision(1) + '%'
+  }
+  return perc.toPrecision(2) + '%';
 }

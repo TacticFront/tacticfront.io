@@ -19,7 +19,7 @@ export class FakeHumanExecution implements Execution {
     private rejected: Set<Player> = new Set<Player>
     private isTraitor = false
 
-
+    private relations = new Map<Player, number>()
 
     constructor(private playerInfo: PlayerInfo, private cell: Cell, private strength: number) {
         this.random = new PseudoRandom(simpleHash(playerInfo.id))
@@ -131,10 +131,8 @@ export class FakeHumanExecution implements Execution {
 
     handleAllianceRequests() {
         for (const req of this.player.incomingAllianceRequests()) {
-            if (this.rejected.has(req.requestor())) {
-                continue
-            }
-            if (req.requestor().numTilesOwned() > this.player.numTilesOwned() * 2) {
+
+           if (req.requestor().numTilesOwned() > this.player.numTilesOwned() * 2) {
                 req.accept()
                 continue
             }
