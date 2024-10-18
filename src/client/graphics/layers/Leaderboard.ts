@@ -158,7 +158,7 @@ export class Leaderboard extends LitElement implements Layer {
         .map((player, index) => html`
                 <tr class="${player.isMyPlayer ? 'myPlayer' : 'otherPlayer'}">
                   <td>${player.position}</td>
-                  <td>${player.name.slice(0, 12)}</td>
+                  <td>${player.name.slice(0, 10)}</td>
                   <td>${player.score}</td>
                 </tr>
               `)}
