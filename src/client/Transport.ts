@@ -67,6 +67,14 @@ export class SendDonateIntentEvent implements GameEvent {
     ) { }
 }
 
+export class SendNukeIntentEvent implements GameEvent {
+    constructor(
+        public readonly sender: Player,
+        public readonly cell: Cell,
+        public readonly magnitude: number | null,
+    ) { }
+}
+
 export class Transport {
 
     private socket: WebSocket
@@ -97,6 +105,7 @@ export class Transport {
         this.eventBus.on(SendTargetPlayerIntentEvent, (e) => this.onSendTargetPlayerIntent(e))
         this.eventBus.on(SendEmojiIntentEvent, (e) => this.onSendEmojiIntent(e))
         this.eventBus.on(SendDonateIntentEvent, (e) => this.onSendDonateIntent(e))
+        this.eventBus.on(SendNukeIntentEvent, (e) => this.onSendNukeIntent(e))
     }
 
     connect(onconnect: () => void, onmessage: (message: ServerMessage) => void) {
@@ -273,6 +282,17 @@ export class Transport {
             sender: event.sender.id(),
             recipient: event.recipient.id(),
             troops: event.troops,
+        })
+    }
+
+    private onSendNukeIntent(event: SendNukeIntentEvent) {
+        this.sendIntent({
+            type: "nuke",
+            clientID: this.clientID,
+            sender: event.sender.id(),
+            x: event.cell.x,
+            y: event.cell.y,
+            magnitude: event.magnitude,
         })
     }
 

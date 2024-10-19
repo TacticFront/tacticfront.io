@@ -7,6 +7,10 @@ export function manhattanDist(c1: Cell, c2: Cell): number {
     return Math.abs(c1.x - c2.x) + Math.abs(c1.y - c2.y);
 }
 
+export function euclideanDist(c1: Cell, c2: Cell): number {
+    return Math.sqrt(Math.pow(c1.x - c2.x, 2) + Math.pow(c1.y - c2.y, 2));
+}
+
 export function manhattanDistWrapped(c1: Cell, c2: Cell, width: number): number {
     // Calculate x distance
     let dx = Math.abs(c1.x - c2.x);

@@ -3,7 +3,7 @@ import {AllPlayers, Cell, Game, Player} from "../../../../core/game/Game";
 import {ClientID} from "../../../../core/Schemas";
 import {and, bfs, dist, manhattanDist, manhattanDistWrapped, sourceDstOceanShore} from "../../../../core/Util";
 import {ContextMenuEvent, MouseUpEvent} from "../../../InputHandler";
-import {SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendDonateIntentEvent, SendEmojiIntentEvent, SendSpawnIntentEvent, SendTargetPlayerIntentEvent} from "../../../Transport";
+import {SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendDonateIntentEvent, SendEmojiIntentEvent, SendNukeIntentEvent, SendSpawnIntentEvent, SendTargetPlayerIntentEvent} from "../../../Transport";
 import {TransformHandler} from "../../TransformHandler";
 import {Layer} from "../Layer";
 import * as d3 from 'd3';
@@ -15,6 +15,7 @@ import targetIcon from '../../../../../resources/images/TargetIconWhite.png';
 import emojiIcon from '../../../../../resources/images/EmojiIconWhite.png';
 import disabledIcon from '../../../../../resources/images/DisabledIcon.png';
 import donateIcon from '../../../../../resources/images/DonateIconWhite.png';
+import nukeIcon from '../../../../../resources/images/NukeIconWhite.png';
 import {EmojiTable} from "./EmojiTable";
 
 
@@ -22,7 +23,8 @@ enum Slot {
     Alliance,
     Boat,
     Target,
-    Emoji
+    Emoji,
+    Nuke,
 }
 
 export class RadialMenu implements Layer {
@@ -35,6 +37,7 @@ export class RadialMenu implements Layer {
         [Slot.Boat, {name: "boat", disabled: true, action: () => { }, color: null, icon: null}],
         [Slot.Target, {name: "target", disabled: true, action: () => { }}],
         [Slot.Emoji, {name: "emoji", disabled: true, action: () => { }}],
+        [Slot.Nuke, {name: "nuke", disabled: true, action: () => { }}],
     ]);
 
     private readonly menuSize = 190;
@@ -225,10 +228,14 @@ export class RadialMenu implements Layer {
             return
         }
 
+        this.activateMenuElement(Slot.Nuke, "#ebe250", nukeIcon, () => {
+            this.eventBus.emit(new SendNukeIntentEvent(myPlayer, this.clickedCell, null))
+        })
+
         if (tile.hasOwner()) {
             const target = tile.owner() == myPlayer ? AllPlayers : (tile.owner() as Player)
             if (myPlayer.canSendEmoji(target)) {
-                this.activateMenuElement(Slot.Emoji, "#ebe250", emojiIcon, () => {
+                this.activateMenuElement(Slot.Emoji, "#00a6a4", emojiIcon, () => {
                     this.emojiTable.onEmojiClicked = (emoji: string) => {
                         this.emojiTable.hideTable()
                         this.eventBus.emit(new SendEmojiIntentEvent(target, emoji))
