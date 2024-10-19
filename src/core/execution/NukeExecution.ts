@@ -38,7 +38,9 @@ export class NukeExecution implements Execution {
         for (const tile of this.toDestroy) {
             const owner = tile.owner()
             if (owner.isPlayer()) {
-                this.mg.player(owner.id()).relinquish(tile)
+                const mp = this.mg.player(owner.id())
+                mp.relinquish(tile)
+                mp.removeTroops(mp.troops() / mp.numTilesOwned())
             }
         }
         this.active = false
