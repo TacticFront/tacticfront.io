@@ -29,7 +29,7 @@ export class DefaultConfig implements Config {
         return 30 * 10
     }
     allianceDuration(): Tick {
-        return 200 * 10
+        return 400 * 10
     }
     percentageTilesOwnedToWin(): number {
         return 95
@@ -50,10 +50,10 @@ export class DefaultConfig implements Config {
         return 100
     }
     gameCreationRate(): number {
-        return 10 * 1000
+        return 60 * 1000
     }
     lobbyLifetime(): number {
-        return 20 * 1000
+        return 120 * 1000
     }
     theme(): Theme {return pastelTheme;}
 
