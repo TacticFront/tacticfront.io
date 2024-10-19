@@ -14,6 +14,7 @@ export type Intent = SpawnIntent
     | TargetPlayerIntent
     | EmojiIntent
     | DonateIntent
+    | NukeIntent
 
 export type AttackIntent = z.infer<typeof AttackIntentSchema>
 export type SpawnIntent = z.infer<typeof SpawnIntentSchema>
@@ -25,6 +26,7 @@ export type BreakAllianceIntent = z.infer<typeof BreakAllianceIntentSchema>
 export type TargetPlayerIntent = z.infer<typeof TargetPlayerIntentSchema>
 export type EmojiIntent = z.infer<typeof EmojiIntentSchema>
 export type DonateIntent = z.infer<typeof DonateIntentSchema>
+export type NukeIntent = z.infer<typeof NukeIntentSchema>
 
 export type Turn = z.infer<typeof TurnSchema>
 export type GameConfig = z.infer<typeof GameConfigSchema>
@@ -142,6 +144,14 @@ export const DonateIntentSchema = BaseIntentSchema.extend({
     troops: z.number().nullable(),
 })
 
+export const NukeIntentSchema = BaseIntentSchema.extend({
+    type: z.literal('nuke'),
+    sender: z.string(),
+    x: z.number(),
+    y: z.number(),
+    magnitude: z.number().nullable(),
+})
+
 const IntentSchema = z.union([
     AttackIntentSchema,
     SpawnIntentSchema,
@@ -153,6 +163,7 @@ const IntentSchema = z.union([
     TargetPlayerIntentSchema,
     EmojiIntentSchema,
     DonateIntentSchema,
+    NukeIntentSchema,
 ]);
 
 const TurnSchema = z.object({

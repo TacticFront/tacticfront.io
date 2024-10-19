@@ -15,6 +15,7 @@ import {BreakAllianceExecution} from "./alliance/BreakAllianceExecution";
 import {TargetPlayerExecution} from "./TargetPlayerExecution";
 import {EmojiExecution} from "./EmojiExecution";
 import {DonateExecution} from "./DonateExecution";
+import {NukeExecution} from "./NukeExecution";
 
 
 
@@ -74,8 +75,9 @@ export class Executor {
             return new EmojiExecution(intent.sender, intent.recipient, intent.emoji)
         } else if (intent.type == "donate") {
             return new DonateExecution(intent.sender, intent.recipient, intent.troops)
-        }
-        else {
+        } else if (intent.type == "nuke") {
+            return new NukeExecution(intent.sender, new Cell(intent.x, intent.y), intent.magnitude)
+        } else {
             throw new Error(`intent type ${intent} not found`)
         }
     }
