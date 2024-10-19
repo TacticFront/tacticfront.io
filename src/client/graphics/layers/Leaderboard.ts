@@ -185,6 +185,9 @@ export class Leaderboard extends LitElement implements Layer {
 
 function formatPercentage(value: number): string {
   const perc = value * 100
+  if (perc > 99.5) {
+    return "100%"
+  }
   if (perc < .01) {
     return "0%"
   }
