@@ -98,6 +98,10 @@ export class BoatAttackExecution implements Execution {
         if (!this.active) {
             return
         }
+        if (!this.boat.isActive()) {
+            this.active = false
+            return
+        }
         if (ticks - this.lastMove < this.ticksPerMove) {
             return
         }

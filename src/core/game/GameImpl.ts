@@ -10,6 +10,7 @@ import {AllianceRequestImpl} from "./AllianceRequestImpl";
 import {AllianceImpl} from "./AllianceImpl";
 import {ClientID} from "../Schemas";
 import {DisplayMessageEvent, MessageType} from "../../client/graphics/layers/EventsDisplay";
+import {BoatImpl} from "./BoatImpl";
 
 export function createGame(terrainMap: TerrainMap, eventBus: EventBus, config: Config): Game {
     return new GameImpl(terrainMap, eventBus, config)
@@ -56,6 +57,9 @@ export class GameImpl implements MutableGame {
                 new Cell(n.coordinates[0], n.coordinates[1]),
                 n.strength
             ))
+    }
+    boats(): BoatImpl[] {
+        return Array.from(this._players.values()).flatMap(p => p._boats)
     }
     nations(): Nation[] {
         return this.nations_

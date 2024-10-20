@@ -233,6 +233,7 @@ export interface Game {
     nations(): Nation[]
     config(): Config
     displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void
+    boats(): Boat[]
 }
 
 export interface MutableGame extends Game {
@@ -241,6 +242,7 @@ export interface MutableGame extends Game {
     players(): MutablePlayer[]
     addPlayer(playerInfo: PlayerInfo, troops: number): MutablePlayer
     executions(): Execution[]
+    boats(): MutableBoat[]
 }
 
 export class TileEvent implements GameEvent {

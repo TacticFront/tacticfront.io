@@ -8,8 +8,6 @@ export class NukeExecution implements Execution {
 
     private active = true
 
-    private toDestroy: Set<Tile> = new Set()
-
     private mg: MutableGame
 
     constructor(
@@ -25,17 +23,17 @@ export class NukeExecution implements Execution {
         if (this.magnitude == null) {
             this.magnitude = 70
         }
-        const rand = new PseudoRandom(mg.ticks())
-        const tile = mg.tile(this.cell)
-        this.toDestroy = bfs(tile, (n: Tile) => {
+    }
+
+    tick(ticks: number): void {
+        const rand = new PseudoRandom(this.mg.ticks())
+        const tile = this.mg.tile(this.cell)
+        const toDestroy = bfs(tile, (n: Tile) => {
             const d = euclideanDist(tile.cell(), n.cell())
             return (d <= this.magnitude || rand.chance(2)) && d <= this.magnitude + 30
         })
-    }
 
-
-    tick(ticks: number): void {
-        for (const tile of this.toDestroy) {
+        for (const tile of toDestroy) {
             const owner = tile.owner()
             if (owner.isPlayer()) {
                 const mp = this.mg.player(owner.id())
@@ -43,6 +41,7 @@ export class NukeExecution implements Execution {
                 mp.removeTroops(mp.troops() / mp.numTilesOwned())
             }
         }
+        this.mg.boats().filter(b => euclideanDist(this.cell, b.tile().cell()) < this.magnitude).forEach(b => b.delete())
         this.active = false
     }
 
