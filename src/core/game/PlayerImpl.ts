@@ -1,4 +1,4 @@
-import {MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers} from "./Game";
+import {MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers, Currency} from "./Game";
 import {ClientID} from "../Schemas";
 import {simpleHash} from "../Util";
 import {CellString, GameImpl} from "./GameImpl";
@@ -18,6 +18,9 @@ class Donation {
 }
 
 export class PlayerImpl implements MutablePlayer {
+
+    private _currency: number
+
     isTraitor_ = false
 
     public _borderTiles: Set<Tile> = new Set();
@@ -261,6 +264,21 @@ export class PlayerImpl implements MutablePlayer {
         recipient.addTroops(this.removeTroops(troops))
         this.gs.displayMessage(`Sent ${renderTroops(troops)} troops to ${recipient.name()}`, MessageType.INFO, this.id())
         this.gs.displayMessage(`Recieved ${renderTroops(troops)} troops from ${this.name()}`, MessageType.SUCCESS, recipient.id())
+    }
+
+    currency(): Currency {
+        return this._currency
+    }
+
+    addCurrency(toAdd: Currency): void {
+        this._currency += toAdd
+    }
+
+    removeCurrency(toRemove: Currency): void {
+        if (toRemove > this._currency) {
+            throw Error(`cannot remove ${toRemove} from ${this} because only has ${this._currency}`)
+        }
+        this._currency -= toRemove
     }
 
     hash(): number {
