@@ -11,6 +11,7 @@ import {EventsDisplay} from "./layers/EventsDisplay";
 import {RadialMenu} from "./layers/radial/RadialMenu";
 import {EmojiTable} from "./layers/radial/EmojiTable";
 import {Leaderboard} from "./layers/Leaderboard";
+import {ControlPanel} from "./layers/ControlPanel";
 
 
 export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: EventBus, clientID: ClientID): GameRenderer {
@@ -27,6 +28,12 @@ export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: 
 	}
 	leaderboard.clientID = clientID
 
+
+	const controlPanel = document.querySelector('control-panel') as ControlPanel;
+	if (!(controlPanel instanceof ControlPanel)) {
+		console.error('ControlPanel element not found in the DOM');
+	}
+
 	const layers: Layer[] = [
 		new TerrainLayer(game),
 		new TerritoryLayer(game, eventBus),
@@ -35,6 +42,7 @@ export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: 
 		new EventsDisplay(eventBus, game, clientID),
 		new RadialMenu(eventBus, game, transformHandler, clientID, emojiTable as EmojiTable),
 		leaderboard,
+		controlPanel,
 	]
 
 	return new GameRenderer(game, eventBus, canvas, transformHandler, layers)
