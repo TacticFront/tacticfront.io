@@ -21,7 +21,7 @@ export class NukeExecution implements Execution {
         this.mg = mg
         this.sender = mg.player(this.senderID)
         if (this.magnitude == null) {
-            this.magnitude = 70
+            this.magnitude = 50
         }
     }
 
@@ -30,7 +30,7 @@ export class NukeExecution implements Execution {
         const tile = this.mg.tile(this.cell)
         const toDestroy = bfs(tile, (n: Tile) => {
             const d = euclideanDist(tile.cell(), n.cell())
-            return (d <= this.magnitude || rand.chance(2)) && d <= this.magnitude + 30
+            return (d <= this.magnitude || rand.chance(2)) && d <= this.magnitude + 40
         })
 
         for (const tile of toDestroy) {
@@ -41,7 +41,7 @@ export class NukeExecution implements Execution {
                 mp.removeTroops(mp.troops() / mp.numTilesOwned())
             }
         }
-        this.mg.boats().filter(b => euclideanDist(this.cell, b.tile().cell()) < this.magnitude).forEach(b => b.delete())
+        this.mg.boats().filter(b => euclideanDist(this.cell, b.tile().cell()) < this.magnitude + 50).forEach(b => b.delete())
         this.active = false
     }
 
