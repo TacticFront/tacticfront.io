@@ -30,11 +30,15 @@ export class GameServer {
         public readonly isPublic: boolean,
         private config: Config,
         private gameConfig: GameConfig,
+        
     ) { }
 
     public updateGameConfig(gameConfig: GameConfig): void {
         if (gameConfig.gameMap != null) {
             this.gameConfig.gameMap = gameConfig.gameMap
+        }
+        if(gameConfig.difficulty != null) {
+            this.gameConfig.difficulty = gameConfig.difficulty
         }
     }
 

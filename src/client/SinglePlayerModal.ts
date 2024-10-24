@@ -1,11 +1,12 @@
-import {LitElement, html, css} from 'lit';
-import {customElement, property, state} from 'lit/decorators.js';
-import {GameMap} from '../core/game/Game';
+import { LitElement, html, css } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
+import { Difficulty, GameMap } from '../core/game/Game';
 
 @customElement('single-player-modal')
 export class SinglePlayerModal extends LitElement {
   @state() private isModalOpen = false;
   @state() private selectedMap: GameMap = GameMap.World;
+  @state() private selectedDifficulty: Difficulty = Difficulty.Medium;
 
   static styles = css`
     .modal-overlay {
@@ -87,6 +88,19 @@ export class SinglePlayerModal extends LitElement {
                 `)}
             </select>
           </div>
+          <div>
+            <label for="map-select">Difficulty: </label>
+            <select id="map-select" @change=${this.handleDifficultyChange}>
+              ${Object.entries(Difficulty)
+        .filter(([key]) => isNaN(Number(key)))
+        .map(([key, value]) => html`
+                  <option value=${value} ?selected=${this.selectedDifficulty === value}>
+                    ${key}
+                  </option>
+                `)}
+            </select>
+          </div>
+
           <button @click=${this.startGame}>Start Game</button>
         </div>
       </div>
@@ -104,7 +118,9 @@ export class SinglePlayerModal extends LitElement {
   private handleMapChange(e: Event) {
     this.selectedMap = Number((e.target as HTMLSelectElement).value) as GameMap;
   }
-
+  private handleDifficultyChange(e: Event) {
+    this.selectedDifficulty = Number((e.target as HTMLSelectElement).value) as Difficulty;
+  }
   private startGame() {
     console.log(`Starting single player game with map: ${GameMap[this.selectedMap]}`);
     this.dispatchEvent(new CustomEvent('join-lobby', {
@@ -114,6 +130,7 @@ export class SinglePlayerModal extends LitElement {
           id: "LOCAL",
         },
         map: this.selectedMap,
+        difficulty: this.selectedDifficulty
       },
       bubbles: true,
       composed: true

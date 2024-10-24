@@ -1,4 +1,4 @@
-import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerInfo, TerraNullius, Tile, PlayerType, Alliance, AllianceRequestReplyEvent} from "../game/Game";
+import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerInfo, TerraNullius, Tile, PlayerType, Alliance, AllianceRequestReplyEvent, Difficulty} from "../game/Game";
 import {AttackIntent, BoatAttackIntentSchema, GameID, Intent, Turn} from "../Schemas";
 import {AttackExecution} from "./AttackExecution";
 import {SpawnExecution} from "./SpawnExecution";
@@ -26,7 +26,7 @@ export class Executor {
     // private random = new PseudoRandom(999)
     private random: PseudoRandom = null
 
-    constructor(private gs: Game, private gameID: GameID) {
+    constructor(private gs: Game, private difficulty: Difficulty, private gameID: GameID) {
         // Add one to avoid id collisions with bots.
         this.random = new PseudoRandom(simpleHash(gameID) + 1)
     }
@@ -98,7 +98,7 @@ export class Executor {
                     this.random.nextID()
                 ),
                 nation.cell,
-                nation.strength
+                nation.strength * this.difficulty
             ))
         }
         return execs

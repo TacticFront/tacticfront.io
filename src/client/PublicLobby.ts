@@ -1,7 +1,7 @@
-import {LitElement, html, css} from 'lit';
-import {customElement, state} from 'lit/decorators.js';
-import {Lobby} from "../core/Schemas";
-import {GameMap} from '../core/game/Game';
+import { LitElement, html, css } from 'lit';
+import { customElement, state } from 'lit/decorators.js';
+import { Lobby } from "../core/Schemas";
+import { Difficulty, GameMap } from '../core/game/Game';
 
 @customElement('public-lobby')
 export class PublicLobby extends LitElement {
@@ -113,13 +113,14 @@ export class PublicLobby extends LitElement {
                     lobby: lobby,
                     singlePlayer: false,
                     map: GameMap.World,
+                    difficulty: Difficulty.Medium,
                 },
                 bubbles: true,
                 composed: true
             }));
         } else {
             this.dispatchEvent(new CustomEvent('leave-lobby', {
-                detail: {lobby: this.currLobby},
+                detail: { lobby: this.currLobby },
                 bubbles: true,
                 composed: true
             }));

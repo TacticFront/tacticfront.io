@@ -1,12 +1,13 @@
-import {LitElement, html, css} from 'lit';
-import {customElement, property, state} from 'lit/decorators.js';
-import {GameMap} from '../core/game/Game';
-import {Lobby} from '../core/Schemas';
+import { LitElement, html, css } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
+import { Difficulty, GameMap } from '../core/game/Game';
+import { Lobby } from '../core/Schemas';
 
 @customElement('host-lobby-modal')
 export class HostLobbyModal extends LitElement {
   @state() private isModalOpen = false;
   @state() private selectedMap: GameMap = GameMap.World;
+  @state() private selectedDiffculty: Difficulty = Difficulty.Medium;
   @state() private lobbyId = 'a345d';
   @state() private copySuccess = false;
 
@@ -120,6 +121,18 @@ export class HostLobbyModal extends LitElement {
                 `)}
             </select>
           </div>
+          <div>
+            <label for="map-select">Difficulty: </label>
+            <select id="map-select" @change=${this.handleDifficultyChange}>
+              ${Object.entries(Difficulty)
+        .filter(([key]) => isNaN(Number(key)))
+        .map(([key, value]) => html`
+                  <option value=${value} ?selected=${this.selectedDiffculty === value}>
+                    ${key}
+                  </option>
+                `)}
+            </select>
+          </div>
           <button @click=${this.startGame}>Start Game</button>
         </div>
       </div>
@@ -138,6 +151,7 @@ export class HostLobbyModal extends LitElement {
             id: this.lobbyId,
           },
           map: this.selectedMap,
+          difficulty: this.selectedDiffculty,
         },
         bubbles: true,
         composed: true
@@ -155,15 +169,25 @@ export class HostLobbyModal extends LitElement {
   private async handleMapChange(e: Event) {
     this.selectedMap = Number((e.target as HTMLSelectElement).value) as GameMap;
     console.log(`updating map to ${this.selectedMap}`)
+    this.putGameConfig()
+  }
+
+  private async handleDifficultyChange(e: Event) {
+    this.selectedDiffculty = Number((e.target as HTMLSelectElement).value) as Difficulty;
+    console.log(`updating difficulty to ${this.selectedDiffculty}`)
+    this.putGameConfig()
+  }
+
+  private async putGameConfig() {
     const response = await fetch(`/private_lobby/${this.lobbyId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({gameMap: this.selectedMap})
+      body: JSON.stringify({ gameMap: this.selectedMap, difficulty: this.selectedDiffculty })
     });
-
   }
+
   private async startGame() {
     console.log(`Starting private game with map: ${GameMap[this.selectedMap]}`);
     this.close();

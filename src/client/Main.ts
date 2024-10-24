@@ -1,14 +1,14 @@
-import {GameRunner, joinLobby} from "./ClientGame";
+import { GameRunner, joinLobby } from "./ClientGame";
 import backgroundImage from '../../resources/images/TerrainMapFrontPage.png';
 import favicon from '../../resources/images/Favicon.png';
 
 import './PublicLobby';
 import './UsernameInput';
 import './styles.css';
-import {UsernameInput} from "./UsernameInput";
-import {SinglePlayerModal} from "./SinglePlayerModal";
-import {HostLobbyModal as HostPrivateLobbyModal} from "./HostLobbyModal";
-import {JoinPrivateLobbyModal} from "./JoinPrivateLobbyModal";
+import { UsernameInput } from "./UsernameInput";
+import { SinglePlayerModal } from "./SinglePlayerModal";
+import { HostLobbyModal as HostPrivateLobbyModal } from "./HostLobbyModal";
+import { JoinPrivateLobbyModal } from "./JoinPrivateLobbyModal";
 
 
 
@@ -77,6 +77,7 @@ class Client {
                 gameID: lobby.id,
                 ip: clientIP,
                 map: event.detail.map,
+                difficulty: event.detail.difficulty,
             },
             () => this.joinModal.close()
         );
@@ -115,7 +116,7 @@ async function getClientIP(timeoutMs: number = 1000): Promise<string | null> {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const data: {ip: string} = await response.json();
+        const data: { ip: string } = await response.json();
         return data.ip;
     } catch (error) {
         if (error instanceof Error) {

@@ -1,8 +1,8 @@
-import {Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tick, Tile} from "../game/Game";
-import {GameID} from "../Schemas";
-import {simpleHash, within} from "../Util";
-import {Config, Theme} from "./Config";
-import {pastelTheme} from "./PastelTheme";
+import { Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tick, Tile } from "../game/Game";
+import { GameID } from "../Schemas";
+import { simpleHash, within } from "../Util";
+import { Config, Theme } from "./Config";
+import { pastelTheme } from "./PastelTheme";
 
 
 
@@ -55,9 +55,9 @@ export class DefaultConfig implements Config {
     lobbyLifetime(): number {
         return 120 * 1000
     }
-    theme(): Theme {return pastelTheme;}
+    theme(): Theme { return pastelTheme; }
 
-    attackLogic(attackTroops: number, attacker: Player, defender: Player | TerraNullius, tileToConquer: Tile): {attackerTroopLoss: number; defenderTroopLoss: number; tilesPerTickUsed: number} {
+    attackLogic(attackTroops: number, attacker: Player, defender: Player | TerraNullius, tileToConquer: Tile): { attackerTroopLoss: number; defenderTroopLoss: number; tilesPerTickUsed: number } {
         let mag = 0
         let speed = 0
         switch (tileToConquer.terrain()) {
@@ -125,7 +125,7 @@ export class DefaultConfig implements Config {
             return 10000
         }
         if (playerInfo.playerType == PlayerType.FakeHuman) {
-            return 25000
+            return 2500 // start troops * strength * difficulty
         }
         return 25000
     }

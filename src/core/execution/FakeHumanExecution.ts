@@ -1,11 +1,13 @@
-import {Cell, Execution, MutableGame, MutablePlayer, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tile} from "../game/Game"
-import {PseudoRandom} from "../PseudoRandom"
-import {and, bfs, dist, simpleHash} from "../Util";
-import {AttackExecution} from "./AttackExecution";
-import {BoatAttackExecution} from "./BoatAttackExecution";
-import {SpawnExecution} from "./SpawnExecution";
+import { Cell, Execution, MutableGame, MutablePlayer, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tile } from "../game/Game"
+import { PseudoRandom } from "../PseudoRandom"
+import { and, bfs, dist, simpleHash } from "../Util";
+import { AttackExecution } from "./AttackExecution";
+import { BoatAttackExecution } from "./BoatAttackExecution";
+import { SpawnExecution } from "./SpawnExecution";
 
 export class FakeHumanExecution implements Execution {
+
+    private firstMove = true
 
     private active = true
     private random: PseudoRandom;
@@ -55,6 +57,11 @@ export class FakeHumanExecution implements Execution {
             } else {
                 this.player.setTroops(this.player.troops() * this.strength)
             }
+        }
+        if (this.firstMove) {
+            this.firstMove = false
+            this.sendAttack(this.mg.terraNullius())
+            return
         }
 
         if (this.player.troops() < this.mg.config().maxTroops(this.player) / 4) {
@@ -132,7 +139,7 @@ export class FakeHumanExecution implements Execution {
     handleAllianceRequests() {
         for (const req of this.player.incomingAllianceRequests()) {
 
-           if (req.requestor().numTilesOwned() > this.player.numTilesOwned() * 2) {
+            if (req.requestor().numTilesOwned() > this.player.numTilesOwned() * 2) {
                 req.accept()
                 continue
             }

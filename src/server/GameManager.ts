@@ -1,9 +1,9 @@
-import {Config} from "../core/configuration/Config";
-import {ClientID, GameConfig, GameID} from "../core/Schemas";
-import {v4 as uuidv4} from 'uuid';
-import {Client} from "./Client";
-import {GamePhase, GameServer} from "./GameServer";
-import {GameMap} from "../core/game/Game";
+import { Config } from "../core/configuration/Config";
+import { ClientID, GameConfig, GameID } from "../core/Schemas";
+import { v4 as uuidv4 } from 'uuid';
+import { Client } from "./Client";
+import { GamePhase, GameServer } from "./GameServer";
+import { Difficulty, GameMap } from "../core/game/Game";
 
 
 
@@ -39,7 +39,7 @@ export class GameManager {
 
     createPrivateGame(): string {
         const id = genSmallGameID()
-        this.games.push(new GameServer(id, Date.now(), false, this.config, {gameMap: GameMap.World}))
+        this.games.push(new GameServer(id, Date.now(), false, this.config, { gameMap: GameMap.World, difficulty: Difficulty.Medium }))
         return id
     }
 
@@ -68,7 +68,7 @@ export class GameManager {
         if (now > this.lastNewLobby + this.config.gameCreationRate()) {
             this.lastNewLobby = now
             const id = uuidv4()
-            lobbies.push(new GameServer(id, now, true, this.config, {gameMap: GameMap.World}))
+            lobbies.push(new GameServer(id, now, true, this.config, { gameMap: GameMap.World, difficulty: Difficulty.Medium }))
         }
 
         active.filter(g => !g.hasStarted() && g.isPublic).forEach(g => {

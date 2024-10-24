@@ -1,18 +1,18 @@
-import {Executor} from "../core/execution/ExecutionManager";
-import {Cell, MutableGame, PlayerEvent, PlayerID, MutablePlayer, TileEvent, Player, Game, BoatEvent, Tile, PlayerType, GameMap} from "../core/game/Game";
-import {createGame} from "../core/game/GameImpl";
-import {EventBus} from "../core/EventBus";
-import {Config, getConfig} from "../core/configuration/Config";
-import {createRenderer, GameRenderer} from "./graphics/GameRenderer";
-import {InputHandler, MouseUpEvent, ZoomEvent, DragEvent, MouseDownEvent} from "./InputHandler"
-import {ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema, ClientMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ServerSyncMessage, Turn} from "../core/Schemas";
-import {loadTerrainMap, TerrainMap} from "../core/game/TerrainMapLoader";
-import {and, bfs, dist, manhattanDist} from "../core/Util";
-import {WinCheckExecution} from "../core/execution/WinCheckExecution";
-import {SendAttackIntentEvent, SendSpawnIntentEvent, Transport} from "./Transport";
-import {createCanvas} from "./graphics/Utils";
-import {DisplayMessageEvent, MessageType} from "./graphics/layers/EventsDisplay";
-import {v4 as uuidv4} from 'uuid';
+import { Executor } from "../core/execution/ExecutionManager";
+import { Cell, MutableGame, PlayerEvent, PlayerID, MutablePlayer, TileEvent, Player, Game, BoatEvent, Tile, PlayerType, GameMap, Difficulty } from "../core/game/Game";
+import { createGame } from "../core/game/GameImpl";
+import { EventBus } from "../core/EventBus";
+import { Config, getConfig } from "../core/configuration/Config";
+import { createRenderer, GameRenderer } from "./graphics/GameRenderer";
+import { InputHandler, MouseUpEvent, ZoomEvent, DragEvent, MouseDownEvent } from "./InputHandler"
+import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema, ClientMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ServerSyncMessage, Turn } from "../core/Schemas";
+import { loadTerrainMap, TerrainMap } from "../core/game/TerrainMapLoader";
+import { and, bfs, dist, manhattanDist } from "../core/Util";
+import { WinCheckExecution } from "../core/execution/WinCheckExecution";
+import { SendAttackIntentEvent, SendSpawnIntentEvent, Transport } from "./Transport";
+import { createCanvas } from "./graphics/Utils";
+import { DisplayMessageEvent, MessageType } from "./graphics/layers/EventsDisplay";
+import { v4 as uuidv4 } from 'uuid';
 
 
 export interface LobbyConfig {
@@ -21,13 +21,14 @@ export interface LobbyConfig {
     gameID: GameID
     ip: string | null
     map: GameMap | null
+    difficulty: Difficulty | null
 }
 
 export interface GameConfig {
     map: GameMap
+    difficulty: Difficulty
     clientID: ClientID,
     gameID: GameID,
-    ip: string | null,
 }
 
 export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => void {
@@ -35,11 +36,11 @@ export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => v
     const playerID = uuidv4()
     const eventBus = new EventBus()
     const config = getConfig()
-    const transport = new Transport(lobbyConfig.isLocal, eventBus, lobbyConfig.gameID, clientID, playerID, config, lobbyConfig.playerName)
+    const transport = new Transport(lobbyConfig.isLocal, eventBus, lobbyConfig.gameID, lobbyConfig.ip, clientID, playerID, config, lobbyConfig.playerName)
 
     const onconnect = () => {
         console.log('Joined game lobby!');
-        transport.joinGame(clientID, 0)
+        transport.joinGame(0)
     };
     const onmessage = (message: ServerMessage) => {
         if (message.type == "start") {
@@ -47,6 +48,7 @@ export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => v
             onjoin()
             const gameConfig = {
                 map: message.config?.gameMap || lobbyConfig.map,
+                difficulty: message.config?.difficulty || lobbyConfig.difficulty,
                 clientID: clientID,
                 gameID: lobbyConfig.gameID,
                 ip: lobbyConfig.ip,
@@ -71,14 +73,16 @@ export async function createClientGame(gameConfig: GameConfig, eventBus: EventBu
     const canvas = createCanvas()
     let gameRenderer = createRenderer(canvas, game, eventBus, gameConfig.clientID)
 
+
+    console.log(`creating private game got difficulty: ${gameConfig.difficulty}`)
+
     return new GameRunner(
-        gameConfig.clientID,
-        gameConfig.ip,
+        gameConfig,
         eventBus,
         game,
         gameRenderer,
         new InputHandler(canvas, eventBus),
-        new Executor(game, gameConfig.gameID),
+        new Executor(game, gameConfig.difficulty, gameConfig.gameID),
         transport,
     )
 }
@@ -96,8 +100,7 @@ export class GameRunner {
     private hasJoined = false
 
     constructor(
-        private id: ClientID,
-        private clientIP: string | null,
+        private gameConfig: GameConfig,
         private eventBus: EventBus,
         private gs: Game,
         private renderer: GameRenderer,
@@ -122,7 +125,7 @@ export class GameRunner {
 
         const onconnect = () => {
             console.log('Connected to game server!');
-            this.transport.joinGame(this.clientIP, this.turns.length)
+            this.transport.joinGame(this.turns.length)
         };
         const onmessage = (message: ServerMessage) => {
             if (message.type == "start") {
@@ -170,7 +173,7 @@ export class GameRunner {
 
     private playerEvent(event: PlayerEvent) {
         console.log('received new player event!')
-        if (event.player.clientID() == this.id) {
+        if (event.player.clientID() == this.gameConfig.clientID) {
             console.log('setting name')
             this.myPlayer = event.player
         }

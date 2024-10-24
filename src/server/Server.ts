@@ -49,7 +49,7 @@ app.post('/start_private_lobby/:id', (req, res) => {
 
 app.put('/private_lobby/:id', (req, res) => {
     const lobbyID = req.params.id
-    gm.updateGameConfig(lobbyID, {gameMap: req.body.gameMap})
+    gm.updateGameConfig(lobbyID, {gameMap: req.body.gameMap, difficulty: req.body.difficulty})
 });
 
 app.get('/lobby/:id/exists', (req, res) => {

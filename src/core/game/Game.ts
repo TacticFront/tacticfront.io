@@ -1,16 +1,23 @@
-import {info} from "console"
-import {Config} from "../configuration/Config"
-import {GameEvent} from "../EventBus"
-import {ClientID, GameID} from "../Schemas"
-import {DisplayMessageEvent, MessageType} from "../../client/graphics/layers/EventsDisplay"
-import {BreakAllianceExecution} from "../execution/alliance/BreakAllianceExecution"
-import {DonateExecution} from "../execution/DonateExecution"
+import { info } from "console"
+import { Config } from "../configuration/Config"
+import { GameEvent } from "../EventBus"
+import { ClientID, GameID } from "../Schemas"
+import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/EventsDisplay"
+import { BreakAllianceExecution } from "../execution/alliance/BreakAllianceExecution"
+import { DonateExecution } from "../execution/DonateExecution"
 
 export type PlayerID = string
 export type Tick = number
 export type Currency = number
 
 export const AllPlayers = "AllPlayers" as const;
+
+export enum Difficulty {
+    Easy = 1,
+    Medium = 3,
+    Hard = 6,
+    Impossible = 12,
+}
 
 export enum GameMap {
     World,
@@ -45,7 +52,7 @@ export class Cell {
         this.strRepr = `Cell[${this.x},${this.y}]`
     }
 
-    toString(): string {return this.strRepr}
+    toString(): string { return this.strRepr }
 }
 
 export enum TerrainType {

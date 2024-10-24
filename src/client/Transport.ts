@@ -91,6 +91,7 @@ export class Transport {
         private isLocal: boolean,
         private eventBus: EventBus,
         private gameID: GameID,
+        private clientIP: string | null,
         private clientID: ClientID,
         private playerID: PlayerID,
         private config: Config,
@@ -156,14 +157,14 @@ export class Transport {
         }
     }
 
-    joinGame(clientIP: string | null, numTurns: number) {
+    joinGame(numTurns: number) {
         this.sendMsg(
             JSON.stringify(
                 ClientJoinMessageSchema.parse({
                     type: "join",
                     gameID: this.gameID,
                     clientID: this.clientID,
-                    clientIP: clientIP,
+                    clientIP: this.clientIP,
                     lastTurn: numTurns
                 })
             )
