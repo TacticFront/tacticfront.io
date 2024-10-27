@@ -142,9 +142,9 @@ export class DefaultConfig implements Config {
     manpowerAdditionRate(player: Player): number {
         let max = this.maxManpower(player)
 
-        let toAdd = 10 + (player.troops() + Math.sqrt(player.troops() * player.numTilesOwned())) / 100
+        let toAdd = 10 + (player.manpowerReserve() + Math.sqrt(player.manpowerReserve() * player.numTilesOwned())) / 100
 
-        const ratio = 1 - (player.troops() / max)
+        const ratio = 1 - (player.manpowerReserve() / max)
         toAdd *= ratio
         toAdd *= .5
         // console.log(`to add ${toAdd}`)
@@ -161,8 +161,8 @@ export class DefaultConfig implements Config {
         return player.numTilesOwned() / 100
     }
     troopAdjustmentRate(player: Player): number {
-        const maxDiff = player.manpower() / 250 + this.manpowerAdditionRate(player)
-        const target = player.manpower() * player.targetTroopRatio()
+        const maxDiff = player.totalManpower() / 250 + this.manpowerAdditionRate(player)
+        const target = player.totalManpower() * player.targetTroopRatio()
         const diff = target - player.troops()
         if (Math.abs(diff) < maxDiff) {
             return diff

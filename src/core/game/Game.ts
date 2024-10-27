@@ -196,7 +196,8 @@ export interface Player {
     outgoingEmojis(): EmojiMessage[]
     canDonate(recipient: Player): boolean
     gold(): Gold
-    manpower(): number
+    totalManpower(): number
+    manpowerReserve(): number
     // Number between 0, 1
     targetTroopRatio(): number
 }
@@ -224,8 +225,8 @@ export interface MutablePlayer extends Player {
     donate(recipient: MutablePlayer, troops: number): void
     addGold(toAdd: Gold): void
     removeGold(toRemove: Gold): void
-    addManpower(toAdd: number): void
-    removeManpower(toRemove: number): void
+    addManpowerReserve(toAdd: number): void
+    removeManpowerReserve(toRemove: number): void
     setTargetTroopRatio(target: number): void
 }
 

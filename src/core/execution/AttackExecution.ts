@@ -159,7 +159,6 @@ export class AttackExecution implements Execution {
             this.troops -= attackerTroopLoss
             if (this.target.isPlayer()) {
                 this.target.removeTroops(defenderTroopLoss)
-                this.target.removeManpower(defenderTroopLoss)
             }
             this._owner.conquer(tileToConquer)
             this.checkDefenderDead()

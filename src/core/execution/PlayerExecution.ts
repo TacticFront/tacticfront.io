@@ -30,7 +30,7 @@ export class PlayerExecution implements Execution {
         if (ticks < this.config.numSpawnPhaseTurns()) {
             return
         }
-        this.player.addManpower(this.config.manpowerAdditionRate(this.player))
+        this.player.addManpowerReserve(this.config.manpowerAdditionRate(this.player))
         this.player.addGold(this.config.goldAdditionRate(this.player))
         this.player.addTroops(this.config.troopAdjustmentRate(this.player))
 

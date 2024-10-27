@@ -22,7 +22,8 @@ export class PlayerImpl implements MutablePlayer {
 
     private _gold: Gold
     private _troops: number
-    private _targetTroopRatio = .5
+    private _reserves: number
+    private _targetTroopRatio: number
 
     isTraitor_ = false
 
@@ -42,9 +43,12 @@ export class PlayerImpl implements MutablePlayer {
 
     private sentDonations: Donation[] = []
 
-    constructor(private gs: GameImpl, private readonly playerInfo: PlayerInfo, private _manpower: number) {
+    constructor(private gs: GameImpl, private readonly playerInfo: PlayerInfo, manpower: number) {
         this._name = playerInfo.name;
-        this._displayerName = processName(this._name)
+        this._targetTroopRatio = .5
+        this._troops = manpower * this._targetTroopRatio;
+        this._reserves = manpower * (1 - this._targetTroopRatio)
+        this._gold = manpower
     }
 
     name(): string {
@@ -294,14 +298,17 @@ export class PlayerImpl implements MutablePlayer {
         this._gold -= toRemove
     }
 
-    manpower(): number {
-        return this._manpower
+    totalManpower(): number {
+        return this._troops + this._reserves
     }
-    addManpower(toAdd: number): void {
-        this._manpower += toAdd
+    manpowerReserve(): number {
+        return Math.max(1, this._reserves)
     }
-    removeManpower(toRemove: number): void {
-        this._manpower = Math.max(1, this._manpower - toRemove)
+    addManpowerReserve(toAdd: number): void {
+        this._reserves += toAdd
+    }
+    removeManpowerReserve(toRemove: number): void {
+        this._reserves = Math.max(1, this._reserves - toRemove)
     }
 
     targetTroopRatio(): number {
@@ -316,7 +323,7 @@ export class PlayerImpl implements MutablePlayer {
     }
 
     hash(): number {
-        return simpleHash(this.id()) * (this.manpower() + this.numTilesOwned());
+        return simpleHash(this.id()) * (this.totalManpower() + this.numTilesOwned());
     }
     toString(): string {
         return `Player:{name:${this.info().name},clientID:${this.info().clientID},isAlive:${this.isAlive()},troops:${this._troops},numTileOwned:${this.numTilesOwned()}}]`;
