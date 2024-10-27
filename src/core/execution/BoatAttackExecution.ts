@@ -1,8 +1,8 @@
-import {PriorityQueue} from "@datastructures-js/priority-queue";
-import {Boat, Cell, Execution, MutableBoat, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, Tile, TileEvent} from "../game/Game";
-import {and, bfs, manhattanDistWrapped, sourceDstOceanShore} from "../Util";
-import {AttackExecution} from "./AttackExecution";
-import {DisplayMessageEvent, MessageType} from "../../client/graphics/layers/EventsDisplay";
+import { PriorityQueue } from "@datastructures-js/priority-queue";
+import { Boat, Cell, Execution, MutableBoat, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, Tile, TileEvent } from "../game/Game";
+import { and, bfs, manhattanDistWrapped, sourceDstOceanShore } from "../Util";
+import { AttackExecution } from "./AttackExecution";
+import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/EventsDisplay";
 
 export class BoatAttackExecution implements Execution {
 
@@ -145,14 +145,14 @@ export class BoatAttackExecution implements Execution {
 }
 
 export class AStar {
-    private openSet: PriorityQueue<{tile: Tile, fScore: number}>;
+    private openSet: PriorityQueue<{ tile: Tile, fScore: number }>;
     private cameFrom: Map<Tile, Tile>;
     private gScore: Map<Tile, number>;
     private current: Tile | null;
     public completed: boolean;
 
     constructor(private src: Tile, private dst: Tile) {
-        this.openSet = new PriorityQueue<{tile: Tile, fScore: number}>(
+        this.openSet = new PriorityQueue<{ tile: Tile, fScore: number }>(
             (a, b) => a.fScore - b.fScore
         );
         this.cameFrom = new Map<Tile, Tile>();
@@ -161,7 +161,7 @@ export class AStar {
         this.completed = false;
 
         this.gScore.set(src, 0);
-        this.openSet.enqueue({tile: src, fScore: this.heuristic(src, dst)});
+        this.openSet.enqueue({ tile: src, fScore: this.heuristic(src, dst) });
     }
 
     compute(iterations: number): boolean {
@@ -189,7 +189,7 @@ export class AStar {
                     this.gScore.set(neighbor, tentativeGScore);
                     const fScore = tentativeGScore + this.heuristic(neighbor, this.dst);
 
-                    this.openSet.enqueue({tile: neighbor, fScore: fScore});
+                    this.openSet.enqueue({ tile: neighbor, fScore: fScore });
                 }
             }
         }

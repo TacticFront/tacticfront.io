@@ -64,7 +64,7 @@ export class FakeHumanExecution implements Execution {
             return
         }
 
-        if (this.player.troops() < this.mg.config().maxTroops(this.player) / 4) {
+        if (this.player.troops() < this.mg.config().maxManpower(this.player) / 4) {
             return
         }
 

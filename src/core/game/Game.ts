@@ -8,7 +8,7 @@ import { DonateExecution } from "../execution/DonateExecution"
 
 export type PlayerID = string
 export type Tick = number
-export type Currency = number
+export type Gold = number
 
 export const AllPlayers = "AllPlayers" as const;
 
@@ -195,11 +195,13 @@ export interface Player {
     canSendEmoji(recipient: Player | typeof AllPlayers): boolean
     outgoingEmojis(): EmojiMessage[]
     canDonate(recipient: Player): boolean
-    currency(): Currency
+    gold(): Gold
+    manpower(): number
+    // Number between 0, 1
+    targetTroopRatio(): number
 }
 
 export interface MutablePlayer extends Player {
-    setName(name: string): void
     setTroops(troops: number): void
     addTroops(troops: number): void
     removeTroops(troops: number): number
@@ -220,8 +222,11 @@ export interface MutablePlayer extends Player {
     transitiveTargets(): MutablePlayer[]
     sendEmoji(recipient: Player | typeof AllPlayers, emoji: string): void
     donate(recipient: MutablePlayer, troops: number): void
-    addCurrency(toAdd: Currency): void
-    removeCurrency(toRemove: Currency): void
+    addGold(toAdd: Gold): void
+    removeGold(toRemove: Gold): void
+    addManpower(toAdd: number): void
+    removeManpower(toRemove: number): void
+    setTargetTroopRatio(target: number): void
 }
 
 export interface Game {
@@ -253,7 +258,7 @@ export interface MutableGame extends Game {
     player(id: PlayerID): MutablePlayer
     playerByClientID(id: ClientID): MutablePlayer | null
     players(): MutablePlayer[]
-    addPlayer(playerInfo: PlayerInfo, troops: number): MutablePlayer
+    addPlayer(playerInfo: PlayerInfo, manpower: number): MutablePlayer
     executions(): Execution[]
     boats(): MutableBoat[]
 }

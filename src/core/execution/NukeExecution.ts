@@ -1,6 +1,6 @@
-import {Cell, Execution, MutableGame, MutablePlayer, PlayerID, Tile} from "../game/Game";
-import {PseudoRandom} from "../PseudoRandom";
-import {bfs, dist, euclideanDist, manhattanDist} from "../Util";
+import { Cell, Execution, MutableGame, MutablePlayer, PlayerID, Tile } from "../game/Game";
+import { PseudoRandom } from "../PseudoRandom";
+import { bfs, dist, euclideanDist, manhattanDist } from "../Util";
 
 export class NukeExecution implements Execution {
 

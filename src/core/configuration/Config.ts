@@ -1,8 +1,8 @@
-import {Player, PlayerID, PlayerInfo, TerraNullius, Tick, Tile} from "../game/Game";
-import {Colord, colord} from "colord";
-import {devConfig} from "./DevConfig";
-import {defaultConfig} from "./DefaultConfig";
-import {GameID} from "../Schemas";
+import { Player, PlayerID, PlayerInfo, TerraNullius, Tick, Tile } from "../game/Game";
+import { Colord, colord } from "colord";
+import { devConfig } from "./DevConfig";
+import { defaultConfig } from "./DefaultConfig";
+import { GameID } from "../Schemas";
 
 export enum GameEnv {
 	Dev,
@@ -33,8 +33,10 @@ export interface Config {
 	numBots(): number
 	numSpawnPhaseTurns(): number
 
-	startTroops(playerInfo: PlayerInfo): number
-	troopAdditionRate(player: Player): number
+	startManpower(playerInfo: PlayerInfo): number
+	manpowerAdditionRate(player: Player): number
+	goldAdditionRate(player: Player): number
+	troopAdjustmentRate(player: Player): number
 	attackTilesPerTick(attacker: Player, defender: Player | TerraNullius, numAdjacentTilesWithEnemy: number): number
 	attackLogic(attackTroops: number, attacker: Player, defender: Player | TerraNullius, tileToConquer: Tile): {
 		attackerTroopLoss: number,
@@ -42,7 +44,7 @@ export interface Config {
 		tilesPerTickUsed: number
 	}
 	attackAmount(attacker: Player, defender: Player | TerraNullius): number
-	maxTroops(player: Player): number
+	maxManpower(player: Player): number
 	boatAttackAmount(attacker: Player, defender: Player | TerraNullius): number
 	boatMaxDistance(): number
 	boatMaxNumber(): number

@@ -71,6 +71,8 @@ export class Executor {
             return new DonateExecution(intent.sender, intent.recipient, intent.troops)
         } else if (intent.type == "nuke") {
             return new NukeExecution(intent.sender, new Cell(intent.x, intent.y), intent.magnitude)
+        } else if (intent.type == "troop_ratio") {
+            return new SetTargetTroopRatioExecution(intent.player, intent.ratio)
         } else {
             throw new Error(`intent type ${intent} not found`)
         }

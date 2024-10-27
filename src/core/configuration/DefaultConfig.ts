@@ -95,7 +95,7 @@ export class DefaultConfig implements Config {
             return {
                 attackerTroopLoss: attacker.type() == PlayerType.Bot ? mag / 10 : mag / 5,
                 defenderTroopLoss: 0,
-                tilesPerTickUsed: within(this.startTroops(attacker.info()) / (attackTroops * 5), .2, 3) * Math.max(10, speed / 1.5)
+                tilesPerTickUsed: within(this.startManpower(attacker.info()) / (attackTroops * 5), .2, 3) * Math.max(10, speed / 1.5)
             }
         }
     }
@@ -120,7 +120,7 @@ export class DefaultConfig implements Config {
         }
     }
 
-    startTroops(playerInfo: PlayerInfo): number {
+    startManpower(playerInfo: PlayerInfo): number {
         if (playerInfo.playerType == PlayerType.Bot) {
             return 10000
         }
@@ -130,16 +130,17 @@ export class DefaultConfig implements Config {
         return 25000
     }
 
-    maxTroops(player: Player): number {
-        const troops = Math.sqrt(player.numTilesOwned()) * 3000 + 50000
+    maxManpower(player: Player): number {
+        let max = Math.sqrt(player.numTilesOwned()) * 3000 + 50000
+        const troops = Math.min(max, 2_000_000)
         if (player.type() == PlayerType.Bot) {
             return troops
         }
         return troops * 2
     }
 
-    troopAdditionRate(player: Player): number {
-        let max = this.maxTroops(player)
+    manpowerAdditionRate(player: Player): number {
+        let max = this.maxManpower(player)
 
         let toAdd = 10 + (player.troops() + Math.sqrt(player.troops() * player.numTilesOwned())) / 100
 
@@ -154,10 +155,27 @@ export class DefaultConfig implements Config {
         if (player.type() == PlayerType.Bot) {
             toAdd *= .7
         }
-
-        return Math.min(player.troops() + toAdd, max)
+        return toAdd
+    }
+    goldAdditionRate(player: Player): number {
+        return player.numTilesOwned() / 100
+    }
+    troopAdjustmentRate(player: Player): number {
+        const maxDiff = player.manpower() / 250 + this.manpowerAdditionRate(player)
+        const target = player.manpower() * player.targetTroopRatio()
+        const diff = target - player.troops()
+        if (Math.abs(diff) < maxDiff) {
+            return diff
+        }
+        const adjustment = maxDiff * Math.sign(diff)
+        // Can ramp down troops much faster
+        if (adjustment < 0) {
+            return adjustment * 5
+        }
+        return adjustment
     }
 }
+
 
 
 export const defaultConfig = new DefaultConfig()

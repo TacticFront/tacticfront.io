@@ -210,8 +210,8 @@ export class GameImpl implements MutableGame {
         return this.player(id)
     }
 
-    addPlayer(playerInfo: PlayerInfo, troops: number): MutablePlayer {
-        let player = new PlayerImpl(this, playerInfo, troops)
+    addPlayer(playerInfo: PlayerInfo, manpower: number): MutablePlayer {
+        let player = new PlayerImpl(this, playerInfo, manpower)
         this._players.set(playerInfo.id, player)
         this.eventBus.emit(new PlayerEvent(player))
         return player
