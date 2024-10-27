@@ -32,7 +32,9 @@ export class PlayerExecution implements Execution {
         }
         this.player.addManpowerReserve(this.config.manpowerAdditionRate(this.player))
         this.player.addGold(this.config.goldAdditionRate(this.player))
-        this.player.addTroops(this.config.troopAdjustmentRate(this.player))
+        const adjustRate = this.config.troopAdjustmentRate(this.player)
+        this.player.addTroops(adjustRate)
+        this.player.removeManpowerReserve(adjustRate)
 
         const alliances = Array.from(this.player.alliances())
         for (const alliance of alliances) {

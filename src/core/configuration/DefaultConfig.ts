@@ -132,19 +132,19 @@ export class DefaultConfig implements Config {
 
     maxManpower(player: Player): number {
         let max = Math.sqrt(player.numTilesOwned()) * 3000 + 50000
-        const troops = Math.min(max, 2_000_000)
+        const manpower = Math.min(max, 2_000_000)
         if (player.type() == PlayerType.Bot) {
-            return troops
+            return manpower
         }
-        return troops * 2
+        return manpower * 2
     }
 
     manpowerAdditionRate(player: Player): number {
         let max = this.maxManpower(player)
 
-        let toAdd = 10 + (player.manpowerReserve() + Math.sqrt(player.manpowerReserve() * player.numTilesOwned())) / 100
+        let toAdd = 10 + (player.totalManpower() + Math.sqrt(player.totalManpower() * player.numTilesOwned())) / 100
 
-        const ratio = 1 - (player.manpowerReserve() / max)
+        const ratio = 1 - (player.totalManpower() / max)
         toAdd *= ratio
         toAdd *= .5
         // console.log(`to add ${toAdd}`)
@@ -158,7 +158,7 @@ export class DefaultConfig implements Config {
         return toAdd
     }
     goldAdditionRate(player: Player): number {
-        return player.numTilesOwned() / 100
+        return (player.manpowerReserve() - player.troops()) / 1000
     }
     troopAdjustmentRate(player: Player): number {
         const maxDiff = player.totalManpower() / 250 + this.manpowerAdditionRate(player)

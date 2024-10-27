@@ -48,7 +48,7 @@ export class PlayerImpl implements MutablePlayer {
         this._targetTroopRatio = .5
         this._troops = manpower * this._targetTroopRatio;
         this._reserves = manpower * (1 - this._targetTroopRatio)
-        this._gold = manpower
+        this._gold = 0
     }
 
     name(): string {
@@ -292,9 +292,6 @@ export class PlayerImpl implements MutablePlayer {
     }
 
     removeGold(toRemove: Gold): void {
-        if (toRemove > this._gold) {
-            throw Error(`cannot remove ${toRemove} from ${this} because only has ${this._gold}`)
-        }
         this._gold -= toRemove
     }
 

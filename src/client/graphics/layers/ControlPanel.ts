@@ -15,7 +15,7 @@ export class ControlPanel extends LitElement implements Layer {
     public uiState: UIState
 
     @state()
-    private attackRatio: number = .2;
+    private targetTroopRatio = 50;
 
     @state()
     private _troops: number;
@@ -67,7 +67,7 @@ export class ControlPanel extends LitElement implements Layer {
     }
 
     targetTroops(): number {
-        return this._maxTroops * this.attackRatio
+        return this._manpower * this.targetTroopRatio / 100
     }
 
 
@@ -134,11 +134,11 @@ export class ControlPanel extends LitElement implements Layer {
                     </div>
                 </div>
                 <div class="slider-container">
-                    <label for="numTroops">Attack Ratio: ${this.attackRatio * 100}%</label>
-                    <input type="range" id="numTroops" min="1" max="10" value=${this.attackRatio * 10}
+                    <label for="numTroops">Troops: ${this.targetTroopRatio}% (${renderTroops(this.targetTroops()) + ", delta: " + renderTroops(this.delta())})</label>
+                    <input type="range" id="numTroops" min="0" max="100" .value=${this.targetTroopRatio}
                            @input=${(e: Event) => {
-                this.attackRatio = parseInt((e.target as HTMLInputElement).value) / 10;
-                this.onAttackRatioChange(this.attackRatio);
+                this.targetTroopRatio = parseInt((e.target as HTMLInputElement).value);
+                this.onTroopChange(this.targetTroopRatio / 100);
             }}>
                 </div>
             </div>
