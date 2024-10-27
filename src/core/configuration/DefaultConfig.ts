@@ -158,10 +158,10 @@ export class DefaultConfig implements Config {
         return toAdd
     }
     goldAdditionRate(player: Player): number {
-        return (player.manpowerReserve() - player.troops()) / 1000
+        return (player.manpowerReserve() * 1.2 - player.troops()) / 1000
     }
     troopAdjustmentRate(player: Player): number {
-        const maxDiff = player.totalManpower() / 250 + this.manpowerAdditionRate(player)
+        const maxDiff = player.totalManpower() / 300
         const target = player.totalManpower() * player.targetTroopRatio()
         const diff = target - player.troops()
         if (Math.abs(diff) < maxDiff) {
