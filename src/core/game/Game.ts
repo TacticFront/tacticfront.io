@@ -200,6 +200,7 @@ export interface Player {
     manpowerReserve(): number
     // Number between 0, 1
     targetTroopRatio(): number
+    maxTroops(): number
 }
 
 export interface MutablePlayer extends Player {
@@ -228,6 +229,7 @@ export interface MutablePlayer extends Player {
     addManpowerReserve(toAdd: number): void
     removeManpowerReserve(toRemove: number): void
     setTargetTroopRatio(target: number): void
+    setMaxTroops(maxTroops: number): void
 }
 
 export interface Game {

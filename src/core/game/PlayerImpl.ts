@@ -24,6 +24,7 @@ export class PlayerImpl implements MutablePlayer {
     private _troops: number
     private _reserves: number
     private _targetTroopRatio: number
+    private _maxTroops: number
 
     isTraitor_ = false
 
@@ -49,6 +50,7 @@ export class PlayerImpl implements MutablePlayer {
         this._troops = manpower * this._targetTroopRatio;
         this._reserves = manpower * (1 - this._targetTroopRatio)
         this._gold = 0
+        this._maxTroops = 0
     }
 
     name(): string {
@@ -317,6 +319,13 @@ export class PlayerImpl implements MutablePlayer {
             throw new Error(`invalid targetTroopRatio ${target} set on player ${PlayerImpl}`)
         }
         this._targetTroopRatio = target
+    }
+
+    maxTroops(): number {
+        return this._maxTroops
+    }
+    setMaxTroops(maxTroops: number): void {
+        this._maxTroops = maxTroops
     }
 
     hash(): number {

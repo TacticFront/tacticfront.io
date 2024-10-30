@@ -30,7 +30,9 @@ export class PlayerExecution implements Execution {
         if (ticks < this.config.numSpawnPhaseTurns()) {
             return
         }
+
         this.player.addManpowerReserve(this.config.manpowerAdditionRate(this.player))
+        this.player.setMaxTroops(Math.max(this.player.numTilesOwned() * 100, 50000))
         this.player.addGold(this.config.goldAdditionRate(this.player))
         const adjustRate = this.config.troopAdjustmentRate(this.player)
         this.player.addTroops(adjustRate)
