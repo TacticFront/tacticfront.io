@@ -24,13 +24,7 @@ export class ControlPanel extends LitElement implements Layer {
     private _maxTroops: number;
 
     @state()
-    private _manpower: number = 0;
-
-    @state()
-    private _reserve: number = 0;
-
-    @state()
-    private _gold: number = 0
+    private troopRate: number;
 
     @state()
     private _isVisible = false;
@@ -52,6 +46,7 @@ export class ControlPanel extends LitElement implements Layer {
             return
         }
         this._troops = player.troops()
+        this._maxTroops = this.game.config().maxTroops(player)
     }
 
     onAttackRatioChange(newRatio: number) {
@@ -135,7 +130,7 @@ export class ControlPanel extends LitElement implements Layer {
                 <div class="control-panel-info">
                     <div class="info-row">
                         <span class="info-label">Troops:</span>
-                        <span>${renderTroops(this._troops)}</span>
+                        <span>${renderTroops(this._troops)} / ${renderTroops(this._maxTroops)}</span>
                     </div>
                 </div>
                 <div class="slider-container">

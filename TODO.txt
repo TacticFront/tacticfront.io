@@ -168,6 +168,9 @@
 * implement private game DONE 10/15/2024
 * private game can select map DONE 10/16/2024
 * Test on android DONE 10/17/2024
+* add troop max 
+* use twitter emojis
+* create build menu
 * NPC has relations
 * private game shows how many players joined
 * optimize sendBoat function
