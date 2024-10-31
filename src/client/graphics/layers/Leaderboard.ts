@@ -1,8 +1,12 @@
-import {LitElement, html, css} from 'lit';
-import {customElement, property, state} from 'lit/decorators.js';
-import {Layer} from './Layer';
-import {Game, Player} from '../../../core/game/Game';
-import {ClientID} from '../../../core/Schemas';
+import { LitElement, html, css } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
+import { Layer } from './Layer';
+import { Game, Player } from '../../../core/game/Game';
+import { ClientID } from '../../../core/Schemas';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { processName } from '../Utils';
+
+
 
 interface Entry {
   name: string
@@ -85,6 +89,10 @@ export class Leaderboard extends LitElement implements Layer {
   :host {
     display: block;
   }
+  img.emoji {
+    height: 1em;  // Match text height
+    width: auto;  // Maintain aspect ratio
+  }
   .leaderboard {
     position: fixed;
     top: 10px;
@@ -158,7 +166,7 @@ export class Leaderboard extends LitElement implements Layer {
         .map((player, index) => html`
                 <tr class="${player.isMyPlayer ? 'myPlayer' : 'otherPlayer'}">
                   <td>${player.position}</td>
-                  <td>${player.name.slice(0, 10)}</td>
+                  <td>${unsafeHTML(processName(player.name))}</td>
                   <td>${player.score}</td>
                 </tr>
               `)}

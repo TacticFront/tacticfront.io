@@ -8,7 +8,7 @@
                 375,
                 272
             ],
-            "name": "USA",
+            "name": "USA 🇺🇸",
             "strength": 3
         },
         {
@@ -16,7 +16,7 @@
                 372,
                 136
             ],
-            "name": "Canada",
+            "name": "Canada 🇨🇦",
             "strength": 2
         },
         {
@@ -24,7 +24,7 @@
                 375,
                 374
             ],
-            "name": "Mexico",
+            "name": "Mexico 🇲🇽",
             "strength": 1
         },
         {
@@ -32,7 +32,7 @@
                 500,
                 378
             ],
-            "name": "Cuba",
+            "name": "Cuba 🇨🇺",
             "strength": 1
         },
         {
@@ -40,7 +40,7 @@
                 524,
                 474
             ],
-            "name": "Columbia",
+            "name": "Columbia 🇨🇴",
             "strength": 1
         },
         {
@@ -48,7 +48,7 @@
                 593,
                 473
             ],
-            "name": "Venezuala",
+            "name": "Venezuala 🇻🇪",
             "strength": 1
         },
         {
@@ -56,7 +56,7 @@
                 596,
                 705
             ],
-            "name": "Argentina",
+            "name": "Argentina 🇦🇷",
             "strength": 1
         },
         {
@@ -64,7 +64,7 @@
                 637,
                 567
             ],
-            "name": "Brazil",
+            "name": "Brazil 🇧🇷",
             "strength": 1
         },
         {
@@ -72,7 +72,7 @@
                 1280,
                 975
             ],
-            "name": "Antartica",
+            "name": "Antartica 🇦🇶",
             "strength": 3
         },
         {
@@ -80,7 +80,7 @@
                 709,
                 57
             ],
-            "name": "Greenland",
+            "name": "Greenland 🇬🇱",
             "strength": 2
         },
         {
@@ -88,7 +88,7 @@
                 831,
                 112
             ],
-            "name": "Iceland",
+            "name": "Iceland 🇮🇸",
             "strength": 1
         },
         {
@@ -96,7 +96,7 @@
                 925,
                 186
             ],
-            "name": "England",
+            "name": "England 🏴󠁧󠁢󠁥󠁮󠁧󠁿",
             "strength": 3
         },
         {
@@ -104,7 +104,7 @@
                 887,
                 183
             ],
-            "name": "Ireland",
+            "name": "Ireland 🇮🇪",
             "strength": 1
         },
         {
@@ -112,7 +112,7 @@
                 908,
                 264
             ],
-            "name": "Spain",
+            "name": "Spain 🇪🇸",
             "strength": 1
         },
         {
@@ -120,7 +120,7 @@
                 1004,
                 250
             ],
-            "name": "Italy",
+            "name": "Italy 🇮🇹",
             "strength": 1
         },
         {
@@ -128,7 +128,7 @@
                 958,
                 220
             ],
-            "name": "France",
+            "name": "France 🇫🇷",
             "strength": 2
         },
         {
@@ -136,7 +136,7 @@
                 997,
                 205
             ],
-            "name": "Germany",
+            "name": "Germany 🇩🇪",
             "strength": 1
         },
         {
@@ -144,7 +144,7 @@
                 1064,
                 101
             ],
-            "name": "Sweden",
+            "name": "Sweden 🇸🇪",
             "strength": 1
         },
         {
@@ -152,7 +152,7 @@
                 1046,
                 193
             ],
-            "name": "Poland",
+            "name": "Poland 🇵🇱",
             "strength": 1
         },
         {
@@ -160,7 +160,7 @@
                 1061,
                 188
             ],
-            "name": "Belarus",
+            "name": "Belarus 🇧🇾",
             "strength": 1
         },
         {
@@ -168,7 +168,7 @@
                 1073,
                 243
             ],
-            "name": "Romania",
+            "name": "Romania 🇷🇴",
             "strength": 1
         },
         {
@@ -176,7 +176,7 @@
                 1161,
                 274
             ],
-            "name": "Turkiye",
+            "name": "Turkiye 🇹🇷",
             "strength": 1
         },
         {
@@ -184,7 +184,7 @@
                 969,
                 133
             ],
-            "name": "Norway",
+            "name": "Norway 🇳🇴",
             "strength": 1
         },
         {
@@ -192,7 +192,7 @@
                 1062,
                 133
             ],
-            "name": "Finland",
+            "name": "Finland 🇫🇮",
             "strength": 1
         },
         {
@@ -200,7 +200,7 @@
                 1099,
                 211
             ],
-            "name": "Ukraine",
+            "name": "Ukraine 🇺🇦",
             "strength": 1
         },
         {
@@ -208,7 +208,7 @@
                 1344,
                 136
             ],
-            "name": "Russia",
+            "name": "Russia 🇷🇺",
             "strength": 3
         },
         {
@@ -216,7 +216,7 @@
                 1537,
                 186
             ],
-            "name": "Mongolia",
+            "name": "Mongolia 🇲🇳",
             "strength": 1
         },
         {
@@ -224,7 +224,7 @@
                 1524,
                 328
             ],
-            "name": "China",
+            "name": "China 🇨🇳",
             "strength": 3
         },
         {
@@ -232,7 +232,7 @@
                 1368,
                 373
             ],
-            "name": "India",
+            "name": "India 🇮🇳",
             "strength": 2
         },
         {
@@ -240,7 +240,7 @@
                 1276,
                 239
             ],
-            "name": "Kazakhstan",
+            "name": "Kazakhstan 🇰🇿",
             "strength": 1
         },
         {
@@ -248,7 +248,7 @@
                 1238,
                 309
             ],
-            "name": "Iran",
+            "name": "Iran 🇮🇷",
             "strength": 1
         },
         {
@@ -256,7 +256,7 @@
                 1178,
                 351
             ],
-            "name": "Saudi Arabia",
+            "name": "Saudi Arabia 🇸🇦",
             "strength": 1
         },
         {
@@ -264,7 +264,7 @@
                 1679,
                 657
             ],
-            "name": "Australia",
+            "name": "Australia 🇦🇺",
             "strength": 2
         },
         {
@@ -272,7 +272,7 @@
                 1890,
                 775
             ],
-            "name": "New Zealand",
+            "name": "New Zealand 🇳🇿",
             "strength": 0.5
         },
         {
@@ -280,7 +280,7 @@
                 918,
                 342
             ],
-            "name": "Algeria",
+            "name": "Algeria 🇩🇿",
             "strength": 1
         },
         {
@@ -288,7 +288,7 @@
                 1030,
                 332
             ],
-            "name": "Libya",
+            "name": "Libya 🇱🇾",
             "strength": 1
         },
         {
@@ -296,7 +296,7 @@
                 1092,
                 335
             ],
-            "name": "Egypt",
+            "name": "Egypt 🇪🇬",
             "strength": 1
         },
         {
@@ -304,7 +304,7 @@
                 963,
                 410
             ],
-            "name": "Niger",
+            "name": "Niger 🇳🇪",
             "strength": 1
         },
         {
@@ -312,7 +312,7 @@
                 1112,
                 406
             ],
-            "name": "Sudan",
+            "name": "Sudan 🇸🇩",
             "strength": 1
         },
         {
@@ -320,7 +320,7 @@
                 1074,
                 508
             ],
-            "name": "DRC",
+            "name": "DRC 🇨🇩",
             "strength": 1
         },
         {
@@ -328,7 +328,7 @@
                 1154,
                 443
             ],
-            "name": "Ethiopia",
+            "name": "Ethiopia 🇪🇹",
             "strength": 1
         },
         {
@@ -336,7 +336,7 @@
                 1075,
                 707
             ],
-            "name": "South Africa",
+            "name": "South Africa 🇿🇦",
             "strength": 1
         },
         {
@@ -344,7 +344,7 @@
                 1194,
                 627
             ],
-            "name": "Madagascar",
+            "name": "Madagascar 🇲🇬",
             "strength": 0.5
         },
         {
@@ -352,7 +352,7 @@
                 1052,
                 420
             ],
-            "name": "Chad",
+            "name": "Chad 🇹🇩",
             "strength": 1
         }
     ]

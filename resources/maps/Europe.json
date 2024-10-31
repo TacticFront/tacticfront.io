@@ -8,7 +8,7 @@
                 171,
                 171
             ],
-            "name": "Iceland",
+            "name": "Iceland 🇮🇸",
             "strength": 1
         },
         {
@@ -16,7 +16,7 @@
                 477,
                 473
             ],
-            "name": "Ireland",
+            "name": "Ireland 🇮🇪",
             "strength": 1
         },
         {
@@ -24,7 +24,7 @@
                 650,
                 500
             ],
-            "name": "England",
+            "name": "England 🏴󠁧󠁢󠁥󠁮󠁧󠁿",
             "strength": 3
         },
         {
@@ -32,7 +32,7 @@
                 560,
                 800
             ],
-            "name": "Spain",
+            "name": "Spain 🇪🇸",
             "strength": 2
         },
         {
@@ -40,7 +40,7 @@
                 726,
                 616
             ],
-            "name": "France",
+            "name": "France 🇫🇷",
             "strength": 2
         },
         {
@@ -48,7 +48,7 @@
                 1050,
                 745
             ],
-            "name": "Italy",
+            "name": "Italy 🇮🇹",
             "strength": 1
         },
         {
@@ -56,7 +56,7 @@
                 872,
                 634
             ],
-            "name": "Switzerland",
+            "name": "Switzerland 🇨🇭",
             "strength": 1
         },
         {
@@ -64,7 +64,7 @@
                 960,
                 271
             ],
-            "name": "Norway",
+            "name": "Norway 🇳🇴",
             "strength": 1
         },
         {
@@ -72,7 +72,7 @@
                 1095,
                 336
             ],
-            "name": "Sweden",
+            "name": "Sweden 🇸🇪",
             "strength": 1
         },
         {
@@ -80,7 +80,7 @@
                 1403,
                 235
             ],
-            "name": "Finland",
+            "name": "Finland 🇫🇮",
             "strength": 1
         },
         {
@@ -88,7 +88,7 @@
                 775,
                 541
             ],
-            "name": "Belgium",
+            "name": "Belgium 🇧🇪",
             "strength": 1
         },
         {
@@ -96,7 +96,7 @@
                 868,
                 487
             ],
-            "name": "Netherlands",
+            "name": "Netherlands 🇳🇱",
             "strength": 1
         },
         {
@@ -104,7 +104,7 @@
                 949,
                 548
             ],
-            "name": "Germany",
+            "name": "Germany 🇩🇪",
             "strength": 1
         },
         {
@@ -112,7 +112,7 @@
                 1017,
                 628
             ],
-            "name": "Austria",
+            "name": "Austria 🇦🇹",
             "strength": 1
         },
         {
@@ -120,7 +120,7 @@
                 1120,
                 477
             ],
-            "name": "Poland",
+            "name": "Poland 🇵🇱",
             "strength": 1
         },
         {
@@ -128,7 +128,7 @@
                 1030,
                 589
             ],
-            "name": "Czechia",
+            "name": "Czechia 🇨🇿",
             "strength": 1
         },
         {
@@ -136,7 +136,7 @@
                 1540,
                 602
             ],
-            "name": "Ukraine",
+            "name": "Ukraine 🇺🇦",
             "strength": 1
         },
         {
@@ -144,7 +144,7 @@
                 1500,
                 440
             ],
-            "name": "Belarus",
+            "name": "Belarus 🇧🇾",
             "strength": 1
         },
         {
@@ -152,7 +152,7 @@
                 1424,
                 754
             ],
-            "name": "Romania",
+            "name": "Romania 🇷🇴",
             "strength": 1
         },
         {
@@ -160,7 +160,7 @@
                 1580,
                 834
             ],
-            "name": "Turkiye",
+            "name": "Turkiye 🇹🇷",
             "strength": 1
         },
         {
@@ -168,7 +168,7 @@
                 525,
                 955
             ],
-            "name": "Morocco",
+            "name": "Morocco 🇲🇦",
             "strength": 1
         },
         {
@@ -176,7 +176,7 @@
                 1674,
                 449
             ],
-            "name": "Russia",
+            "name": "Russia 🇷🇺",
             "strength": 3
         }
     ]

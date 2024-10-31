@@ -1,3 +1,6 @@
+import twemoji from 'twemoji';
+import DOMPurify from 'dompurify';
+
 export function renderTroops(troops: number): string {
     let troopsStr = ''
 
@@ -28,4 +31,22 @@ export function createCanvas(): HTMLCanvasElement {
     canvas.style.touchAction = 'none';
 
     return canvas
+}
+
+export function processName(name: string): string {
+  const sanitized = Array.from(name).slice(0, 10).join('').replace(/[^\p{L}\p{N}\s\p{Emoji}\p{Emoji_Component}]/gu, '');
+
+  // First sanitize the raw input - strip everything except text and emojis
+  const withEmojis = twemoji.parse(sanitized, {
+    base: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/',  // Use jsDelivr CDN
+    folder: 'svg',  // or 'png' if you prefer
+    ext: '.svg'     // or '.png' if you prefer
+  });
+  return DOMPurify.sanitize(withEmojis, {
+    ALLOWED_TAGS: ['img'],
+    ALLOWED_ATTR: ['src', 'alt', 'class'],
+    // Only allow twemoji CDN URLs
+    ALLOWED_URI_REGEXP: /^https:\/\/cdn\.jsdelivr\.net\/gh\/twitter\/twemoji/
+  });
+
 }
