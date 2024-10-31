@@ -1,13 +1,13 @@
-import {decodePNGFromStream} from 'pureimage'; import path from 'path';
+import { decodePNGFromStream } from 'pureimage'; import path from 'path';
 import fs from 'fs/promises';
-import {createReadStream} from 'fs';
-import {fileURLToPath} from 'url';
+import { createReadStream } from 'fs';
+import { fileURLToPath } from 'url';
 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const mapName = "Europe"
+const mapName = "Mena"
 
 interface Coord {
     x: number;
@@ -108,7 +108,7 @@ function processShore(map: Terrain[][]): Coord[] {
             } else {
                 if (ns.filter(t => t.type == TerrainType.Land).length > 0) {
                     terrain.shoreline = true
-                    shorelineWaters.push({x, y})
+                    shorelineWaters.push({ x, y })
                 }
             }
         }
@@ -136,7 +136,7 @@ function processDistToLand(shorelineWaters: Coord[], map: Terrain[][]) {
                 const newY = coord.y + dy;
 
                 if (newX >= 0 && newX < map.length && newY >= 0 && newY < map[0].length) {
-                    queue.push([{x: newX, y: newY}, distance + 1]);
+                    queue.push([{ x: newX, y: newY }, distance + 1]);
                 }
             }
         }
@@ -200,7 +200,7 @@ function packTerrain(map: Terrain[][]): Uint8Array {
 }
 
 function processOcean(map: Terrain[][]) {
-    const queue: Coord[] = [{x: 0, y: 0}];
+    const queue: Coord[] = [{ x: 0, y: 0 }];
     const visited = new Set<string>();
 
     while (queue.length > 0) {
@@ -220,7 +220,7 @@ function processOcean(map: Terrain[][]) {
                 const newY = coord.y + dy;
 
                 if (newX >= 0 && newX < map.length && newY >= 0 && newY < map[0].length) {
-                    queue.push({x: newX, y: newY});
+                    queue.push({ x: newX, y: newY });
                 }
             }
         }

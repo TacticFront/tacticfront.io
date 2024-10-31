@@ -21,7 +21,8 @@ export enum Difficulty {
 
 export enum GameMap {
     World,
-    Europe
+    Europe,
+    Mena
 }
 
 export class Nation {

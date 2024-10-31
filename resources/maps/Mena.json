@@ -1,0 +1,279 @@
+{
+    "name": "MENA",
+    "width": 2000,
+    "height": 1000,
+    "nations": [
+        {
+            "coordinates": [
+                200,
+                100
+            ],
+            "name": "Spain 🇪🇸",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                50,
+                135
+            ],
+            "name": "Portugal 🇵🇹",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                125,
+                375
+            ],
+            "name": "Morocco 🇲🇦",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                425,
+                300
+            ],
+            "name": "Algeria 🇩🇿",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                600,
+                275
+            ],
+            "name": "Tunisia 🇹🇳",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                750,
+                450
+            ],
+            "name": "Libya 🇱🇾",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1200,
+                450
+            ],
+            "name": "Egypt 🇪🇬",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1333,
+                333
+            ],
+            "name": "Israel 🇮🇱",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1338,
+                388
+            ],
+            "name": "Palestine 🇵🇸",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1370,
+                325
+            ],
+            "name": "Lebanon 🇱🇧",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1228,
+                728
+            ],
+            "name": "Sudan 🇸🇩",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1450,
+                275
+            ],
+            "name": "Syria 🇸🇾",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1600,
+                300
+            ],
+            "name": "Iraq 🇮🇶",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1550,
+                600
+            ],
+            "name": "Saudi Arabia 🇸🇦",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1700,
+                850
+            ],
+            "name": "Yemen 🇾🇪",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1950,
+                725
+            ],
+            "name": "Oman 🇴🇲",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1950,
+                600
+            ],
+            "name": "UAE 🇦🇪",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1825,
+                575
+            ],
+            "name": "Qatar 🇶🇦",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1900,
+                350
+            ],
+            "name": "Iran 🇮🇷",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1300,
+                150
+            ],
+            "name": "Turkey 🇹🇷",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                675,
+                50
+            ],
+            "name": "Italy 🇮🇹",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                950,
+                125
+            ],
+            "name": "Greece 🇬🇷",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1000,
+                25
+            ],
+            "name": "Bulgaria 🇧🇬",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                2000,
+                100
+            ],
+            "name": "Turkmenistan 🇹🇲",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1400,
+                400
+            ],
+            "name": "Jordan 🇯🇴",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                875,
+                725
+            ],
+            "name": "Chad 🇹🇩",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                600,
+                725
+            ],
+            "name": "Niger 🇳🇪",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                300,
+                750
+            ],
+            "name": "Mali 🇲🇱",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                50,
+                700
+            ],
+            "name": "Mauritania 🇲🇷",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                950,
+                925
+            ],
+            "name": "Eritrea 🇪🇷",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1700,
+                450
+            ],
+            "name": "Kuwait 🇰🇼",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1550,
+                25
+            ],
+            "name": "Georgia 🇬🇪",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1750,
+                125
+            ],
+            "name": "Azerbaijan 🇦🇿",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1285,
+                277
+            ],
+            "name": "Cyprus 🇨🇾",
+            "strength": 1
+        }
+    ]
+}

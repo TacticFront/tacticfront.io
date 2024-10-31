@@ -1,13 +1,17 @@
-import {Cell, GameMap, TerrainType} from './Game';
+import { Cell, GameMap, TerrainType } from './Game';
 import europeBin from "!!binary-loader!../../../resources/maps/Europe.bin";
 import europeInfo from "../../../resources/maps/Europe.json"
 
 import worldBin from "!!binary-loader!../../../resources/maps/WorldMap.bin";
 import worldInfo from "../../../resources/maps/WorldMap.json"
 
+import menaBin from "!!binary-loader!../../../resources/maps/Mena.bin"
+import menaInfo from "../../../resources/maps/Mena.json"
+
 const maps = new Map()
-    .set(GameMap.World, {bin: worldBin, info: worldInfo})
-    .set(GameMap.Europe, {bin: europeBin, info: europeInfo});
+    .set(GameMap.World, { bin: worldBin, info: worldInfo })
+    .set(GameMap.Europe, { bin: europeBin, info: europeInfo })
+    .set(GameMap.Mena, { bin: menaBin, info: menaInfo });
 
 const loadedMaps = new Map<GameMap, TerrainMap>()
 
