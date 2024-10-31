@@ -1,11 +1,11 @@
-import {EventBus} from "../../../../core/EventBus";
-import {AllPlayers, Cell, Game, Player} from "../../../../core/game/Game";
-import {ClientID} from "../../../../core/Schemas";
-import {and, bfs, dist, manhattanDist, manhattanDistWrapped, sourceDstOceanShore} from "../../../../core/Util";
-import {ContextMenuEvent, MouseUpEvent} from "../../../InputHandler";
-import {SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendDonateIntentEvent, SendEmojiIntentEvent, SendNukeIntentEvent, SendSpawnIntentEvent, SendTargetPlayerIntentEvent} from "../../../Transport";
-import {TransformHandler} from "../../TransformHandler";
-import {Layer} from "../Layer";
+import { EventBus } from "../../../../core/EventBus";
+import { AllPlayers, Cell, Game, Player } from "../../../../core/game/Game";
+import { ClientID } from "../../../../core/Schemas";
+import { and, bfs, dist, manhattanDist, manhattanDistWrapped, sourceDstOceanShore } from "../../../../core/Util";
+import { ContextMenuEvent, MouseUpEvent } from "../../../InputHandler";
+import { SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendDonateIntentEvent, SendEmojiIntentEvent, SendNukeIntentEvent, SendSpawnIntentEvent, SendTargetPlayerIntentEvent } from "../../../Transport";
+import { TransformHandler } from "../../TransformHandler";
+import { Layer } from "../Layer";
 import * as d3 from 'd3';
 import traitorIcon from '../../../../../resources/images/TraitorIconWhite.png';
 import allianceIcon from '../../../../../resources/images/AllianceIconWhite.png';
@@ -16,7 +16,8 @@ import emojiIcon from '../../../../../resources/images/EmojiIconWhite.png';
 import disabledIcon from '../../../../../resources/images/DisabledIcon.png';
 import donateIcon from '../../../../../resources/images/DonateIconWhite.png';
 import nukeIcon from '../../../../../resources/images/NukeIconWhite.png';
-import {EmojiTable} from "./EmojiTable";
+import { EmojiTable } from "./EmojiTable";
+import { UIState } from "../../UIState";
 
 
 enum Slot {
@@ -33,11 +34,11 @@ export class RadialMenu implements Layer {
     private menuElement: d3.Selection<HTMLDivElement, unknown, null, undefined>;
     private isVisible: boolean = false;
     private readonly menuItems = new Map([
-        [Slot.Alliance, {name: "alliance", disabled: true, action: () => { }, color: null, icon: null}],
-        [Slot.Boat, {name: "boat", disabled: true, action: () => { }, color: null, icon: null}],
-        [Slot.Target, {name: "target", disabled: true, action: () => { }}],
-        [Slot.Emoji, {name: "emoji", disabled: true, action: () => { }}],
-        [Slot.Nuke, {name: "nuke", disabled: true, action: () => { }}],
+        [Slot.Alliance, { name: "alliance", disabled: true, action: () => { }, color: null, icon: null }],
+        [Slot.Boat, { name: "boat", disabled: true, action: () => { }, color: null, icon: null }],
+        [Slot.Target, { name: "target", disabled: true, action: () => { } }],
+        [Slot.Emoji, { name: "emoji", disabled: true, action: () => { } }],
+        [Slot.Nuke, { name: "nuke", disabled: true, action: () => { } }],
     ]);
 
     private readonly menuSize = 190;
@@ -53,7 +54,8 @@ export class RadialMenu implements Layer {
         private game: Game,
         private transformHandler: TransformHandler,
         private clientID: ClientID,
-        private emojiTable: EmojiTable
+        private emojiTable: EmojiTable,
+        private uiState: UIState
     ) { }
 
     init() {
@@ -345,7 +347,7 @@ export class RadialMenu implements Layer {
                 if (manhattanDistWrapped(src.cell(), dst.cell(), this.game.width()) < this.game.config().boatMaxDistance()) {
                     this.activateMenuElement(Slot.Boat, "#3f6ab1", boatIcon, () => {
                         this.eventBus.emit(
-                            new SendBoatAttackIntentEvent(other.id(), this.clickedCell, null)
+                            new SendBoatAttackIntentEvent(other.id(), this.clickedCell, this.uiState.attackRatio * myPlayer.troops())
                         )
                     })
                 }
@@ -384,7 +386,8 @@ export class RadialMenu implements Layer {
             this.eventBus.emit(new SendSpawnIntentEvent(this.clickedCell))
         } else {
             if (clicked.owner().clientID() != this.clientID) {
-                this.eventBus.emit(new SendAttackIntentEvent(clicked.owner().id()))
+                const myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
+                this.eventBus.emit(new SendAttackIntentEvent(clicked.owner().id(), this.uiState.attackRatio * myPlayer.troops()))
             }
         }
         this.hideRadialMenu();

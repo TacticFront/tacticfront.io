@@ -1,29 +1,61 @@
-import {LitElement, html, css} from 'lit';
-import {customElement, property, state} from 'lit/decorators.js';
-import {Layer} from './Layer';
-import {Game} from '../../../core/game/Game';
-import {ClientID} from '../../../core/Schemas';
+import { LitElement, html, css } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
+import { Layer } from './Layer';
+import { Game } from '../../../core/game/Game';
+import { ClientID } from '../../../core/Schemas';
+import { renderTroops } from '../Utils';
+import { EventBus } from '../../../core/EventBus';
+import { UIState } from '../UIState';
 
 @customElement('control-panel')
 export class ControlPanel extends LitElement implements Layer {
     private game: Game
     public clientID: ClientID
+    public eventBus: EventBus
+    public uiState: UIState
 
     @state()
-    private _numTroops = 50;
+    private attackRatio: number = .2;
+
+    @state()
+    private _troops: number;
+
+    @state()
+    private _maxTroops: number;
+
+    @state()
+    private _manpower: number = 0;
+
+    @state()
+    private _reserve: number = 0;
+
+    @state()
+    private _gold: number = 0
 
     @state()
     private _isVisible = false;
 
     init(game: Game) {
-        this.game = game
+        this.game = game;
+        this.attackRatio = .20
+        this.uiState.attackRatio = this.attackRatio
     }
 
     tick() {
         // Update game state based on numTroops value if needed
         if (!this._isVisible && !this.game.inSpawnPhase()) {
-            this.toggleVisibility()
+            this.toggleVisibility();
         }
+
+        const player = this.game.playerByClientID(this.clientID)
+        if (player == null) {
+            return
+        }
+        this._troops = player.troops()
+    }
+
+    onAttackRatioChange(newRatio: number) {
+        this.uiState.attackRatio = newRatio
     }
 
     renderLayer(context: CanvasRenderingContext2D) {
@@ -31,13 +63,18 @@ export class ControlPanel extends LitElement implements Layer {
     }
 
     shouldTransform(): boolean {
-        return false
+        return false;
     }
 
     toggleVisibility() {
         this._isVisible = !this._isVisible;
         this.requestUpdate();
     }
+
+    targetTroops(): number {
+        return this._maxTroops * this.attackRatio
+    }
+
 
     static styles = css`
         :host {
@@ -63,6 +100,21 @@ export class ControlPanel extends LitElement implements Layer {
         .slider-container {
             margin-bottom: 15px;
         }
+        .control-panel-info {
+            color: white;
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .info-label {
+            font-weight: bold;
+        }
         label {
             display: block;
             color: white;
@@ -80,10 +132,19 @@ export class ControlPanel extends LitElement implements Layer {
     render() {
         return html`
             <div class="control-panel ${this._isVisible ? '' : 'hidden'}">
+                <div class="control-panel-info">
+                    <div class="info-row">
+                        <span class="info-label">Troops:</span>
+                        <span>${renderTroops(this._troops)}</span>
+                    </div>
+                </div>
                 <div class="slider-container">
-                    <label for="numTroops">Number of Troops</label>
-                    <input type="range" id="numTroops" min="0" max="100" .value=${this._numTroops}
-                           @input=${(e: Event) => this._numTroops = parseInt((e.target as HTMLInputElement).value)}>
+                    <label for="numTroops">Attack Ratio: ${this.attackRatio * 100}%</label>
+                    <input type="range" id="numTroops" min="1" max="10" value=${this.attackRatio * 10}
+                           @input=${(e: Event) => {
+                this.attackRatio = parseInt((e.target as HTMLInputElement).value) / 10;
+                this.onAttackRatioChange(this.attackRatio);
+            }}>
                 </div>
             </div>
         `;

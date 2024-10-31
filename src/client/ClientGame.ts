@@ -214,14 +214,13 @@ export class GameRunner {
         if (tile.isLand()) {
             if (tile.hasOwner()) {
                 if (this.myPlayer.sharesBorderWith(tile.owner())) {
-                    this.eventBus.emit(new SendAttackIntentEvent(targetID))
+                    this.eventBus.emit(new SendAttackIntentEvent(targetID, this.myPlayer.troops() * this.renderer.uiState.attackRatio))
                 }
             } else {
-
                 outer_loop: for (const t of bfs(tile, and(t => !t.hasOwner() && t.isLand(), dist(tile, 200)))) {
                     for (const n of t.neighbors()) {
                         if (n.owner() == this.myPlayer) {
-                            this.eventBus.emit(new SendAttackIntentEvent(targetID))
+                            this.eventBus.emit(new SendAttackIntentEvent(targetID, this.myPlayer.troops() * this.renderer.uiState.attackRatio))
                             break outer_loop
                         }
                     }

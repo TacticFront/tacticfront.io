@@ -35,6 +35,7 @@ export class SendSpawnIntentEvent implements GameEvent {
 export class SendAttackIntentEvent implements GameEvent {
     constructor(
         public readonly targetID: PlayerID,
+        public readonly troops: number,
     ) { }
 }
 
@@ -237,7 +238,7 @@ export class Transport {
             clientID: this.clientID,
             attackerID: this.playerID,
             targetID: event.targetID,
-            troops: null,
+            troops: event.troops,
             sourceX: null,
             sourceY: null,
             targetX: null,
