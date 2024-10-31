@@ -131,8 +131,7 @@ export class DefaultConfig implements Config {
     }
 
     maxTroops(player: Player): number {
-        let max = Math.sqrt(player.numTilesOwned()) * 3000 + 50000
-        const troops = Math.min(max, 2_000_000)
+        const troops = Math.sqrt(player.numTilesOwned()) * 3000 + 50000
         if (player.type() == PlayerType.Bot) {
             return troops
         }
