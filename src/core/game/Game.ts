@@ -163,6 +163,7 @@ export interface TerraNullius {
 export interface Player {
     info(): PlayerInfo
     name(): string
+    displayName(): string
     clientID(): ClientID
     id(): PlayerID
     type(): PlayerType

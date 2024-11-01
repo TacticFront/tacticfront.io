@@ -4,9 +4,6 @@ import { Layer } from './Layer';
 import { Game, Player } from '../../../core/game/Game';
 import { ClientID } from '../../../core/Schemas';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import { processName } from '../Utils';
-
-
 
 interface Entry {
   name: string
@@ -68,7 +65,7 @@ export class Leaderboard extends LitElement implements Layer {
 
       this.players.pop()
       this.players.push({
-        name: myPlayer.name(),
+        name: myPlayer.displayName(),
         position: place,
         score: formatPercentage(myPlayer.numTilesOwned() / this.game.numLandTiles()),
         isMyPlayer: true,
@@ -166,7 +163,7 @@ export class Leaderboard extends LitElement implements Layer {
         .map((player, index) => html`
                 <tr class="${player.isMyPlayer ? 'myPlayer' : 'otherPlayer'}">
                   <td>${player.position}</td>
-                  <td>${unsafeHTML(processName(player.name))}</td>
+                  <td>${unsafeHTML(player.name)}</td>
                   <td>${player.score}</td>
                 </tr>
               `)}

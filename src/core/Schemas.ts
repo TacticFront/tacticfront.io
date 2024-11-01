@@ -7,7 +7,6 @@ export type ClientID = string
 export type Intent = SpawnIntent
     | AttackIntent
     | BoatAttackIntent
-    | UpdateNameIntent
     | AllianceRequestIntent
     | AllianceRequestReplyIntent
     | BreakAllianceIntent
@@ -19,7 +18,6 @@ export type Intent = SpawnIntent
 export type AttackIntent = z.infer<typeof AttackIntentSchema>
 export type SpawnIntent = z.infer<typeof SpawnIntentSchema>
 export type BoatAttackIntent = z.infer<typeof BoatAttackIntentSchema>
-export type UpdateNameIntent = z.infer<typeof UpdateNameIntentSchema>
 export type AllianceRequestIntent = z.infer<typeof AllianceRequestIntentSchema>
 export type AllianceRequestReplyIntent = z.infer<typeof AllianceRequestReplyIntentSchema>
 export type BreakAllianceIntent = z.infer<typeof BreakAllianceIntentSchema>
@@ -101,11 +99,6 @@ export const BoatAttackIntentSchema = BaseIntentSchema.extend({
     y: z.number(),
 })
 
-export const UpdateNameIntentSchema = BaseIntentSchema.extend({
-    type: z.literal('updateName'),
-    name: z.string(),
-})
-
 export const AllianceRequestIntentSchema = BaseIntentSchema.extend({
     type: z.literal('allianceRequest'),
     requestor: z.string(),
@@ -157,7 +150,6 @@ const IntentSchema = z.union([
     AttackIntentSchema,
     SpawnIntentSchema,
     BoatAttackIntentSchema,
-    UpdateNameIntentSchema,
     AllianceRequestIntentSchema,
     AllianceRequestReplyIntentSchema,
     BreakAllianceIntentSchema,

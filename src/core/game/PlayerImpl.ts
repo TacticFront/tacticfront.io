@@ -1,12 +1,12 @@
-import {MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers, Currency} from "./Game";
-import {ClientID} from "../Schemas";
-import {simpleHash} from "../Util";
-import {CellString, GameImpl} from "./GameImpl";
-import {BoatImpl} from "./BoatImpl";
-import {TileImpl} from "./TileImpl";
-import {TerraNulliusImpl} from "./TerraNulliusImpl";
-import {MessageType} from "../../client/graphics/layers/EventsDisplay";
-import {renderTroops} from "../../client/graphics/Utils";
+import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers, Currency } from "./Game";
+import { ClientID } from "../Schemas";
+import { processName, simpleHash } from "../Util";
+import { CellString, GameImpl } from "./GameImpl";
+import { BoatImpl } from "./BoatImpl";
+import { TileImpl } from "./TileImpl";
+import { TerraNulliusImpl } from "./TerraNulliusImpl";
+import { MessageType } from "../../client/graphics/layers/EventsDisplay";
+import { renderTroops } from "../../client/graphics/Utils";
 
 interface Target {
     tick: Tick
@@ -29,6 +29,7 @@ export class PlayerImpl implements MutablePlayer {
     public _tiles: Map<CellString, Tile> = new Map<CellString, Tile>();
 
     private _name: string;
+    private _displayerName: string;
 
     public pastOutgoingAllianceRequests: AllianceRequest[] = []
 
@@ -40,10 +41,14 @@ export class PlayerImpl implements MutablePlayer {
 
     constructor(private gs: GameImpl, private readonly playerInfo: PlayerInfo, private _troops) {
         this._name = playerInfo.name;
+        this._displayerName = processName(this._name)
     }
 
     name(): string {
         return this._name;
+    }
+    displayName(): string {
+        return this._displayerName
     }
 
     clientID(): ClientID {
@@ -115,19 +120,19 @@ export class PlayerImpl implements MutablePlayer {
         return toRemove
     }
 
-    isPlayer(): this is MutablePlayer {return true as const;}
-    ownsTile(cell: Cell): boolean {return this._tiles.has(cell.toString());}
-    setTroops(troops: number) {this._troops = Math.floor(troops);}
-    conquer(tile: Tile) {this.gs.conquer(this, tile);}
+    isPlayer(): this is MutablePlayer { return true as const; }
+    ownsTile(cell: Cell): boolean { return this._tiles.has(cell.toString()); }
+    setTroops(troops: number) { this._troops = Math.floor(troops); }
+    conquer(tile: Tile) { this.gs.conquer(this, tile); }
     relinquish(tile: Tile) {
         if (tile.owner() != this) {
             throw new Error(`Cannot relinquish tile not owned by this player`);
         }
         this.gs.relinquish(tile);
     }
-    info(): PlayerInfo {return this.playerInfo;}
-    troops(): number {return this._troops;}
-    isAlive(): boolean {return this._tiles.size > 0;}
+    info(): PlayerInfo { return this.playerInfo; }
+    troops(): number { return this._troops; }
+    isAlive(): boolean { return this._tiles.size > 0; }
     executions(): Execution[] {
         return this.gs.executions().filter(exec => exec.owner().id() == this.id());
     }
@@ -204,7 +209,7 @@ export class PlayerImpl implements MutablePlayer {
     }
 
     target(other: Player): void {
-        this.targets_.push({tick: this.gs.ticks(), target: other})
+        this.targets_.push({ tick: this.gs.ticks(), target: other })
         this.gs.eventBus.emit(new TargetPlayerEvent(this, other))
     }
 

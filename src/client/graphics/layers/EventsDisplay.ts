@@ -1,9 +1,9 @@
-import {nullable} from "zod";
-import {EventBus, GameEvent} from "../../../core/EventBus";
-import {AllianceExpiredEvent, AllianceRequestEvent, AllianceRequestReplyEvent, AllPlayers, BrokeAllianceEvent, EmojiMessageEvent, Game, Player, PlayerID, TargetPlayerEvent} from "../../../core/game/Game";
-import {ClientID} from "../../../core/Schemas";
-import {Layer} from "./Layer";
-import {SendAllianceReplyIntentEvent} from "../../Transport";
+import { nullable } from "zod";
+import { EventBus, GameEvent } from "../../../core/EventBus";
+import { AllianceExpiredEvent, AllianceRequestEvent, AllianceRequestReplyEvent, AllPlayers, BrokeAllianceEvent, EmojiMessageEvent, Game, Player, PlayerID, TargetPlayerEvent } from "../../../core/game/Game";
+import { ClientID } from "../../../core/Schemas";
+import { Layer } from "./Layer";
+import { SendAllianceReplyIntentEvent } from "../../Transport";
 
 export enum MessageType {
     SUCCESS,
@@ -234,7 +234,7 @@ export class EventsDisplay implements Layer {
         }
         if (event.message.recipient == myPlayer) {
             this.addEvent({
-                description: `${event.message.sender.name()}:${event.message.emoji}`,
+                description: `${event.message.sender.displayName()}:${event.message.emoji}`,
                 type: MessageType.INFO,
                 highlight: true,
                 createdAt: this.game.ticks(),
@@ -242,7 +242,7 @@ export class EventsDisplay implements Layer {
         }
         if (event.message.sender == myPlayer && event.message.recipient != AllPlayers) {
             this.addEvent({
-                description: `Sent ${event.message.recipient.name()} ${event.message.emoji}`,
+                description: `Sent ${event.message.recipient.displayName()} ${event.message.emoji}`,
                 type: MessageType.INFO,
                 highlight: true,
                 createdAt: this.game.ticks(),

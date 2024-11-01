@@ -1,7 +1,9 @@
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
+import twemoji from 'twemoji';
+import DOMPurify from 'dompurify';
 
 
-import {Cell, Game, Player, TerraNullius, Tile} from "./game/Game";
+import { Cell, Game, Player, TerraNullius, Tile } from "./game/Game";
 
 export function manhattanDist(c1: Cell, c2: Cell): number {
     return Math.abs(c1.x - c2.x) + Math.abs(c1.y - c2.y);
@@ -97,7 +99,7 @@ export function simpleHash(str: string): number {
     return Math.abs(hash);
 }
 
-export function calculateBoundingBox(borderTiles: ReadonlySet<Tile>): {min: Cell; max: Cell} {
+export function calculateBoundingBox(borderTiles: ReadonlySet<Tile>): { min: Cell; max: Cell } {
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
     borderTiles.forEach((tile: Tile) => {
@@ -108,10 +110,10 @@ export function calculateBoundingBox(borderTiles: ReadonlySet<Tile>): {min: Cell
         maxY = Math.max(maxY, cell.y);
     });
 
-    return {min: new Cell(minX, minY), max: new Cell(maxX, maxY)}
+    return { min: new Cell(minX, minY), max: new Cell(maxX, maxY) }
 }
 
-export function inscribed(outer: {min: Cell; max: Cell}, inner: {min: Cell; max: Cell}): boolean {
+export function inscribed(outer: { min: Cell; max: Cell }, inner: { min: Cell; max: Cell }): boolean {
     return (
         outer.min.x <= inner.min.x &&
         outer.min.y <= inner.min.y &&
@@ -122,7 +124,7 @@ export function inscribed(outer: {min: Cell; max: Cell}, inner: {min: Cell; max:
 
 export function getMode(list: string[]): string {
     // Count occurrences
-    const counts: {[key: string]: number} = {};
+    const counts: { [key: string]: number } = {};
     for (const item of list) {
         counts[item] = (counts[item] || 0) + 1;
     }
@@ -139,4 +141,24 @@ export function getMode(list: string[]): string {
     }
 
     return mode;
+}
+
+export function sanitize(name: string): string {
+    return Array.from(name).slice(0, 10).join('').replace(/[^\p{L}\p{N}\s\p{Emoji}\p{Emoji_Component}]/gu, '');
+}
+
+export function processName(name: string): string {
+    // First sanitize the raw input - strip everything except text and emojis
+    const withEmojis = twemoji.parse(sanitize(name), {
+        base: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/',  // Use jsDelivr CDN
+        folder: 'svg',  // or 'png' if you prefer
+        ext: '.svg'     // or '.png' if you prefer
+    });
+    return DOMPurify.sanitize(withEmojis, {
+        ALLOWED_TAGS: ['img'],
+        ALLOWED_ATTR: ['src', 'alt', 'class'],
+        // Only allow twemoji CDN URLs
+        ALLOWED_URI_REGEXP: /^https:\/\/cdn\.jsdelivr\.net\/gh\/twitter\/twemoji/
+    });
+
 }

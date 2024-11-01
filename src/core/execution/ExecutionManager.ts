@@ -1,21 +1,20 @@
-import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerInfo, TerraNullius, Tile, PlayerType, Alliance, AllianceRequestReplyEvent, Difficulty} from "../game/Game";
-import {AttackIntent, BoatAttackIntentSchema, GameID, Intent, Turn} from "../Schemas";
-import {AttackExecution} from "./AttackExecution";
-import {SpawnExecution} from "./SpawnExecution";
-import {BotSpawner} from "./BotSpawner";
-import {BoatAttackExecution} from "./BoatAttackExecution";
-import {PseudoRandom} from "../PseudoRandom";
-import {UpdateNameExecution} from "./UpdateNameExecution";
-import {FakeHumanExecution} from "./FakeHumanExecution";
+import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerInfo, TerraNullius, Tile, PlayerType, Alliance, AllianceRequestReplyEvent, Difficulty } from "../game/Game";
+import { AttackIntent, BoatAttackIntentSchema, GameID, Intent, Turn } from "../Schemas";
+import { AttackExecution } from "./AttackExecution";
+import { SpawnExecution } from "./SpawnExecution";
+import { BotSpawner } from "./BotSpawner";
+import { BoatAttackExecution } from "./BoatAttackExecution";
+import { PseudoRandom } from "../PseudoRandom";
+import { FakeHumanExecution } from "./FakeHumanExecution";
 import Usernames from '../../../resources/Usernames.txt'
-import {simpleHash} from "../Util";
-import {AllianceRequestExecution} from "./alliance/AllianceRequestExecution";
-import {AllianceRequestReplyExecution} from "./alliance/AllianceRequestReplyExecution";
-import {BreakAllianceExecution} from "./alliance/BreakAllianceExecution";
-import {TargetPlayerExecution} from "./TargetPlayerExecution";
-import {EmojiExecution} from "./EmojiExecution";
-import {DonateExecution} from "./DonateExecution";
-import {NukeExecution} from "./NukeExecution";
+import { processName, sanitize, simpleHash } from "../Util";
+import { AllianceRequestExecution } from "./alliance/AllianceRequestExecution";
+import { AllianceRequestReplyExecution } from "./alliance/AllianceRequestReplyExecution";
+import { BreakAllianceExecution } from "./alliance/BreakAllianceExecution";
+import { TargetPlayerExecution } from "./TargetPlayerExecution";
+import { EmojiExecution } from "./EmojiExecution";
+import { DonateExecution } from "./DonateExecution";
+import { NukeExecution } from "./NukeExecution";
 
 
 
@@ -48,7 +47,7 @@ export class Executor {
             )
         } else if (intent.type == "spawn") {
             return new SpawnExecution(
-                new PlayerInfo(intent.name.slice(0, 18), intent.playerType, intent.clientID, intent.playerID),
+                new PlayerInfo(sanitize(intent.name), intent.playerType, intent.clientID, intent.playerID),
                 new Cell(intent.x, intent.y)
             )
         } else if (intent.type == "boat") {
@@ -57,11 +56,6 @@ export class Executor {
                 intent.targetID,
                 new Cell(intent.x, intent.y),
                 intent.troops
-            )
-        } else if (intent.type == "updateName") {
-            return new UpdateNameExecution(
-                intent.name,
-                intent.clientID
             )
         } else if (intent.type == "allianceRequest") {
             return new AllianceRequestExecution(intent.requestor, intent.recipient)
