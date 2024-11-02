@@ -53,7 +53,7 @@
         },
         {
             "coordinates": [
-                1200,
+                1100,
                 450
             ],
             "name": "Egypt 🇪🇬",
@@ -133,16 +133,16 @@
         },
         {
             "coordinates": [
-                1950,
-                600
+                1860,
+                620
             ],
             "name": "UAE 🇦🇪",
             "strength": 1
         },
         {
             "coordinates": [
-                1825,
-                575
+                1730,
+                580
             ],
             "name": "Qatar 🇶🇦",
             "strength": 1
@@ -189,10 +189,10 @@
         },
         {
             "coordinates": [
-                2000,
-                100
+                1980,
+                45
             ],
-            "name": "Turkmenistan 🇹🇲",
+            "name": "Uzbekistan 🇺🇿",
             "strength": 1
         },
         {
@@ -205,48 +205,48 @@
         },
         {
             "coordinates": [
-                875,
-                725
+                750,
+                930
             ],
             "name": "Chad 🇹🇩",
             "strength": 1
         },
         {
             "coordinates": [
-                600,
-                725
+                500,
+                900
             ],
             "name": "Niger 🇳🇪",
             "strength": 1
         },
         {
             "coordinates": [
-                300,
-                750
+                230,
+                940
             ],
             "name": "Mali 🇲🇱",
             "strength": 1
         },
         {
             "coordinates": [
-                50,
-                700
+                40,
+                830
             ],
             "name": "Mauritania 🇲🇷",
             "strength": 1
         },
         {
             "coordinates": [
-                950,
-                925
+                1490,
+                980
             ],
             "name": "Eritrea 🇪🇷",
             "strength": 1
         },
         {
             "coordinates": [
-                1700,
-                450
+                1630,
+                460
             ],
             "name": "Kuwait 🇰🇼",
             "strength": 1
@@ -261,18 +261,26 @@
         },
         {
             "coordinates": [
-                1750,
-                125
+                1640,
+                100
             ],
             "name": "Azerbaijan 🇦🇿",
             "strength": 1
         },
         {
             "coordinates": [
-                1285,
-                277
+                1226,
+                280
             ],
             "name": "Cyprus 🇨🇾",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1800,
+                40
+            ],
+            "name": "Kazakhstan 🇰🇿",
             "strength": 1
         }
     ]

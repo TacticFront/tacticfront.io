@@ -169,6 +169,9 @@
 * private game can select map DONE 10/16/2024
 * Test on android DONE 10/17/2024
 * add troop max DONE 10/31/2024
+* rewrite EventsDisplay DONE 11/1/2024
+* update Mena NPC locations DONE 11/1/2024
+* fix name rendering
 * use twitter emojis
 * create build menu
 * NPC has relations
