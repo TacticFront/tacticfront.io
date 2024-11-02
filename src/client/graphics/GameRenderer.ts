@@ -40,12 +40,21 @@ export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: 
 	controlPanel.eventBus = eventBus
 	controlPanel.uiState = uiState
 
+	const eventsDisplay = document.querySelector('events-display') as EventsDisplay;
+	if (!(eventsDisplay instanceof EventsDisplay)) {
+		console.error('events display not found')
+	}
+	eventsDisplay.eventBus = eventBus
+	eventsDisplay.game = game
+	eventsDisplay.clientID = clientID
+
+
 	const layers: Layer[] = [
 		new TerrainLayer(game),
 		new TerritoryLayer(game, eventBus),
 		new NameLayer(game, game.config().theme(), transformHandler, clientID),
 		new UILayer(eventBus, game, clientID, transformHandler),
-		new EventsDisplay(eventBus, game, clientID),
+		eventsDisplay,
 		new RadialMenu(eventBus, game, transformHandler, clientID, emojiTable as EmojiTable, uiState),
 		leaderboard,
 		controlPanel,

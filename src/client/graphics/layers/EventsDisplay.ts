@@ -1,325 +1,359 @@
-import { nullable } from "zod";
+import { LitElement, html, css } from 'lit';
+import { customElement, property, state } from 'lit/decorators.js';
 import { EventBus, GameEvent } from "../../../core/EventBus";
-import { AllianceExpiredEvent, AllianceRequestEvent, AllianceRequestReplyEvent, AllPlayers, BrokeAllianceEvent, EmojiMessageEvent, Game, Player, PlayerID, TargetPlayerEvent } from "../../../core/game/Game";
+import {
+  AllianceExpiredEvent,
+  AllianceRequestEvent,
+  AllianceRequestReplyEvent,
+  AllPlayers,
+  BrokeAllianceEvent,
+  EmojiMessageEvent,
+  Game,
+  Player,
+  PlayerID,
+  TargetPlayerEvent
+} from "../../../core/game/Game";
 import { ClientID } from "../../../core/Schemas";
 import { Layer } from "./Layer";
 import { SendAllianceReplyIntentEvent } from "../../Transport";
 
 export enum MessageType {
-    SUCCESS,
-    INFO,
-    WARN,
-    ERROR,
+  SUCCESS,
+  INFO,
+  WARN,
+  ERROR,
 }
 
 export class DisplayMessageEvent implements GameEvent {
-    constructor(
-        public readonly message: string,
-        public readonly type: MessageType,
-        public readonly playerID: PlayerID | null = null
-    ) { }
+  constructor(
+    public readonly message: string,
+    public readonly type: MessageType,
+    public readonly playerID: PlayerID | null = null
+  ) { }
 }
 
 interface Event {
-    description: string;
-    buttons?: {
-        text: string
-        className: string
-        action: () => void
-    }[];
-    type: MessageType;
-    highlight?: boolean;
-    createdAt: number
-    onDelete?: () => void
+  description: string;
+  buttons?: {
+    text: string;
+    className: string;
+    action: () => void;
+  }[];
+  type: MessageType;
+  highlight?: boolean;
+  createdAt: number;
+  onDelete?: () => void;
 }
 
-export class EventsDisplay implements Layer {
-    private events: Event[];
-    private tableContainer: HTMLDivElement;
+@customElement('events-display')
+export class EventsDisplay extends LitElement implements Layer {
+  public eventBus: EventBus;
+  public game: Game;
+  public clientID: ClientID;
 
+  private events: Event[] = [];
 
-    constructor(private eventBus: EventBus, private game: Game, private clientID: ClientID) {
-        const element = document.getElementById("app");
-        element.style.zIndex = "1000"
-        if (!element) throw new Error(`Container element with id app not found`);
-        this.events = [];
-        this.createTableContainer()
+  static styles = css`
+    :host {
+      display: block;
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      z-index: 1000;
+      max-width: 400px;
     }
 
-    init() {
-        this.eventBus.on(AllianceRequestEvent, a => this.onAllianceRequestEvent(a))
-        this.eventBus.on(AllianceRequestReplyEvent, a => this.onAllianceRequestReplyEvent(a))
-        this.eventBus.on(DisplayMessageEvent, e => this.onDisplayMessageEvent(e))
-        this.eventBus.on(BrokeAllianceEvent, e => this.onBrokeAllianceEvent(e))
-        this.eventBus.on(AllianceExpiredEvent, e => this.onAllianceExpiredEvent(e))
-        this.eventBus.on(TargetPlayerEvent, e => this.onTargetPlayerEvent(e))
-        this.eventBus.on(EmojiMessageEvent, e => this.onEmojiMessageEvent(e))
-        this.renderTable()
+    .events-table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: white;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      font-size: 1.2em;
     }
 
-    tick() {
-        let remainingEvents: Event[] = []
-        for (const event of this.events) {
-            if (this.game.ticks() - event.createdAt < 50) {
-                remainingEvents.push(event)
-            } else if (event.onDelete != null) {
-                event.onDelete()
-            }
-        }
-        if (remainingEvents.length > 5) {
-            remainingEvents = remainingEvents.slice(-5)
-        }
-
-        let shouldRender = false
-        if (this.events.length != remainingEvents.length) {
-            shouldRender = true
-        }
-        this.events = remainingEvents
-        if (shouldRender) {
-            this.renderTable()
-        }
+    .events-table th,
+    .events-table td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.0);
+      z-index: 1000;
     }
 
-    private createTableContainer() {
-        this.tableContainer = document.createElement('div');
-        this.tableContainer.id = 'table-container';
-        this.tableContainer.className = 'events-display';
-        this.tableContainer.style.display = "none";
-        document.body.appendChild(this.tableContainer);
+    .events-table th {
+      background-color: rgba(0, 0, 0, 0.0);
+      font-size: 1.2em;
+      text-transform: uppercase;
     }
 
-    shouldTransform(): boolean {
-        return false
+    .events-table tr:hover {
+      background-color: rgba(255, 255, 255, 0.0);
     }
 
-    onDisplayMessageEvent(event: DisplayMessageEvent) {
-        if (event.playerID != null) {
-            const myPlayer = this.game.playerByClientID(this.clientID)
-            if (myPlayer == null) {
-                return
-            }
-            if (myPlayer == null) {
-                return
-            }
-            if (myPlayer.id() != event.playerID) {
-                return
-            }
-        }
-        this.addEvent({
-            description: event.message,
-            createdAt: this.game.ticks(),
-            highlight: true,
-            type: event.type,
-        })
-        this.renderTable()
+    .btn {
+      display: inline-block;
+      padding: 8px 16px;
+      margin: 5px 10px 5px 0;
+      background-color: #4CAF50;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+      border: none;
+      cursor: pointer;
     }
 
-    onAllianceRequestEvent(event: AllianceRequestEvent): void {
-        const myPlayer = this.game.playerByClientID(this.clientID)
-        if (myPlayer == null) {
-            return
-        }
-
-        if (event.allianceRequest.recipient() != myPlayer) {
-            return
-        }
-
-        this.addEvent({
-            description: `${event.allianceRequest.requestor().name()} requests an alliance!`,
-            buttons: [
-                {
-                    text: "Accept",
-                    className: "btn",
-                    action: () => this.eventBus.emit(new SendAllianceReplyIntentEvent(event.allianceRequest, true)),
-                },
-                {
-                    text: "Reject",
-                    className: "btn btn-info",
-                    action: () => this.eventBus.emit(new SendAllianceReplyIntentEvent(event.allianceRequest, false)),
-                }
-            ],
-            highlight: true,
-            type: MessageType.INFO,
-            createdAt: this.game.ticks(),
-            onDelete: () => this.eventBus.emit(new SendAllianceReplyIntentEvent(event.allianceRequest, false))
-        });
+    .btn:hover {
+      background-color: #45a049;
     }
 
-    // TODO: move this to DisplayMessageEvent
-    onAllianceRequestReplyEvent(event: AllianceRequestReplyEvent) {
-        const myPlayer = this.game.playerByClientID(this.clientID)
-        if (myPlayer == null) {
-            return
-        }
-
-        if (event.allianceRequest.requestor() != myPlayer) {
-            return
-        }
-        this.addEvent({
-            description: `${event.allianceRequest.recipient().name()} ${event.accepted ? "accepted" : "rejected"} your alliance request`,
-            type: event.accepted ? MessageType.SUCCESS : MessageType.ERROR,
-            highlight: true,
-            createdAt: this.game.ticks(),
-        });
+    .btn-info {
+      background-color: #2196F3;
     }
 
-    onBrokeAllianceEvent(event: BrokeAllianceEvent) {
-        const myPlayer = this.game.playerByClientID(this.clientID)
-        if (myPlayer == null) {
-            return
-        }
-        if (event.traitor == myPlayer) {
-            this.addEvent({
-                description: `You broke your alliance with ${event.betrayed.name()}, making you a TRAITOR`,
-                type: MessageType.ERROR,
-                highlight: true,
-                createdAt: this.game.ticks(),
-            })
-        }
-        if (event.betrayed == myPlayer) {
-            this.addEvent({
-                description: `${event.traitor.name()}, broke their alliance with you`,
-                type: MessageType.ERROR,
-                highlight: true,
-                createdAt: this.game.ticks(),
-            })
-        }
+    .btn-info:hover {
+      background-color: #0b7dda;
     }
 
-    onAllianceExpiredEvent(event: AllianceExpiredEvent) {
-        const myPlayer = this.game.playerByClientID(this.clientID)
-        if (myPlayer == null) {
-            return
-        }
-        let other: Player = null
-        if (event.player1 == myPlayer) {
-            other = event.player2
-        }
-        if (event.player2 == myPlayer) {
-            other = event.player1
-        }
-        if (other == null) {
-            return
-        }
-        if (!myPlayer.isAlive() || !other.isAlive()) {
-            return
-        }
-        this.addEvent({
-            description: `Your alliance with ${other.name()} expired`,
-            type: MessageType.WARN,
-            highlight: true,
-            createdAt: this.game.ticks(),
-        })
+    .success td { color: rgb(120, 255, 140); }
+    .info td { color: rgb(230, 230, 230); }
+    .warn td { color: rgb(255, 220, 80) }
+    .error td { color: rgb(255, 100, 100); }
+
+    @media (max-width: 600px) {
+      .events-table th,
+      .events-table td {
+        padding: 10px;
+      }
+      
+      .btn {
+        display: block;
+        margin: 5px 0;
+      }
     }
 
-    onTargetPlayerEvent(event: TargetPlayerEvent) {
-        const myPlayer = this.game.playerByClientID(this.clientID)
-        if (myPlayer == null) {
-            return
-        }
-        if (myPlayer.isAlliedWith(event.player)) {
-            this.addEvent({
-                description: `${event.player.name()} requests you attack ${event.target.name()}`,
-                type: MessageType.INFO,
-                highlight: true,
-                createdAt: this.game.ticks(),
-            })
-        }
+    .button-container {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
-    onEmojiMessageEvent(event: EmojiMessageEvent) {
-        const myPlayer = this.game.playerByClientID(this.clientID)
-        if (myPlayer == null) {
-            return
-        }
-        if (event.message.recipient == myPlayer) {
-            this.addEvent({
-                description: `${event.message.sender.displayName()}:${event.message.emoji}`,
-                type: MessageType.INFO,
-                highlight: true,
-                createdAt: this.game.ticks(),
-            })
-        }
-        if (event.message.sender == myPlayer && event.message.recipient != AllPlayers) {
-            this.addEvent({
-                description: `Sent ${event.message.recipient.displayName()} ${event.message.emoji}`,
-                type: MessageType.INFO,
-                highlight: true,
-                createdAt: this.game.ticks(),
-            })
-        }
+    @media (max-width: 600px) {
+      .button-container {
+        flex-direction: column;
+      }
+    }
+  `;
+
+  constructor() {
+    super();
+    this.events = [];
+  }
+
+  init() {
+    this.eventBus.on(AllianceRequestEvent, a => this.onAllianceRequestEvent(a));
+    this.eventBus.on(AllianceRequestReplyEvent, a => this.onAllianceRequestReplyEvent(a));
+    this.eventBus.on(DisplayMessageEvent, e => this.onDisplayMessageEvent(e));
+    this.eventBus.on(BrokeAllianceEvent, e => this.onBrokeAllianceEvent(e));
+    this.eventBus.on(AllianceExpiredEvent, e => this.onAllianceExpiredEvent(e));
+    this.eventBus.on(TargetPlayerEvent, e => this.onTargetPlayerEvent(e));
+    this.eventBus.on(EmojiMessageEvent, e => this.onEmojiMessageEvent(e));
+  }
+
+  tick() {
+    let remainingEvents = this.events.filter(event => {
+      const shouldKeep = this.game.ticks() - event.createdAt < 50;
+      if (!shouldKeep && event.onDelete) {
+        event.onDelete();
+      }
+      return shouldKeep;
+    });
+
+    if (remainingEvents.length > 5) {
+      remainingEvents = remainingEvents.slice(-5);
     }
 
-    addEvent(event: Event): void {
-        this.events.push(event);
-        this.renderTable()
+    if (this.events.length !== remainingEvents.length) {
+      this.events = remainingEvents;
+      this.requestUpdate()
+    }
+  }
+
+  private addEvent(event: Event) {
+    this.events = [...this.events, event];
+    this.requestUpdate()
+  }
+
+  private removeEvent(index: number) {
+    this.events = [
+      ...this.events.slice(0, index),
+      ...this.events.slice(index + 1)
+    ];
+  }
+
+  shouldTransform(): boolean {
+    return false;
+  }
+
+  renderLayer(): void { }
+
+  onDisplayMessageEvent(event: DisplayMessageEvent) {
+    const myPlayer = this.game.playerByClientID(this.clientID);
+    if (event.playerID != null && (!myPlayer || myPlayer.id() !== event.playerID)) {
+      return;
     }
 
-    removeEvent(index: number): void {
-        this.events.splice(index, 1);
+    this.addEvent({
+      description: event.message,
+      createdAt: this.game.ticks(),
+      highlight: true,
+      type: event.type,
+    });
+  }
+
+  onAllianceRequestEvent(event: AllianceRequestEvent) {
+    const myPlayer = this.game.playerByClientID(this.clientID);
+    if (!myPlayer || event.allianceRequest.recipient() !== myPlayer) {
+      return;
     }
 
-    updateEvent(index: number, event: Event): void {
-        this.events[index] = event;
-    }
-
-    renderLayer(): void { }
-
-    renderTable(): void {
-        if (this.events.length === 0) {
-            this.tableContainer.innerHTML = "";
-            this.tableContainer.style.display = "none";
-            return;
+    this.addEvent({
+      description: `${event.allianceRequest.requestor().name()} requests an alliance!`,
+      buttons: [
+        {
+          text: "Accept",
+          className: "btn",
+          action: () => this.eventBus.emit(new SendAllianceReplyIntentEvent(event.allianceRequest, true)),
+        },
+        {
+          text: "Reject",
+          className: "btn btn-info",
+          action: () => this.eventBus.emit(new SendAllianceReplyIntentEvent(event.allianceRequest, false)),
         }
+      ],
+      highlight: true,
+      type: MessageType.INFO,
+      createdAt: this.game.ticks(),
+      onDelete: () => this.eventBus.emit(new SendAllianceReplyIntentEvent(event.allianceRequest, false))
+    });
+  }
 
-        this.tableContainer.style.display = "block";
+  onAllianceRequestReplyEvent(event: AllianceRequestReplyEvent) {
+    const myPlayer = this.game.playerByClientID(this.clientID);
+    if (!myPlayer || event.allianceRequest.requestor() !== myPlayer) {
+      return;
+    }
 
+    this.addEvent({
+      description: `${event.allianceRequest.recipient().name()} ${event.accepted ? "accepted" : "rejected"} your alliance request`,
+      type: event.accepted ? MessageType.SUCCESS : MessageType.ERROR,
+      highlight: true,
+      createdAt: this.game.ticks(),
+    });
+  }
 
-        let tableHtml = `
-        <table class="events-table">
-            <tbody>
-    `;
+  onBrokeAllianceEvent(event: BrokeAllianceEvent) {
+    const myPlayer = this.game.playerByClientID(this.clientID);
+    if (!myPlayer) return;
 
-        this.events.forEach((event, eventIndex) => {
-            const typeClass = MessageType[event.type].toLowerCase();
-            tableHtml += `
-            <tr class="${event.highlight ? 'highlight' : ''} ${typeClass}">
-                <td>
-                    ${event.description}
-                    ${event.buttons ? '<div class="button-container">' + event.buttons.map((btn, btnIndex) =>
-                `<button class="${btn.className}" data-event-index="${eventIndex}" data-button-index="${btnIndex}">${btn.text}</button>`
-            ).join('') + '</div>' : ''}
-                </td>
+    if (event.traitor === myPlayer) {
+      this.addEvent({
+        description: `You broke your alliance with ${event.betrayed.name()}, making you a TRAITOR`,
+        type: MessageType.ERROR,
+        highlight: true,
+        createdAt: this.game.ticks(),
+      });
+    } else if (event.betrayed === myPlayer) {
+      this.addEvent({
+        description: `${event.traitor.name()}, broke their alliance with you`,
+        type: MessageType.ERROR,
+        highlight: true,
+        createdAt: this.game.ticks(),
+      });
+    }
+  }
+
+  onAllianceExpiredEvent(event: AllianceExpiredEvent) {
+    const myPlayer = this.game.playerByClientID(this.clientID);
+    if (!myPlayer) return;
+
+    const other = event.player1 === myPlayer ? event.player2 : event.player2 === myPlayer ? event.player1 : null;
+    if (!other || !myPlayer.isAlive() || !other.isAlive()) return;
+
+    this.addEvent({
+      description: `Your alliance with ${other.name()} expired`,
+      type: MessageType.WARN,
+      highlight: true,
+      createdAt: this.game.ticks(),
+    });
+  }
+
+  onTargetPlayerEvent(event: TargetPlayerEvent) {
+    const myPlayer = this.game.playerByClientID(this.clientID);
+    if (!myPlayer || !myPlayer.isAlliedWith(event.player)) return;
+
+    this.addEvent({
+      description: `${event.player.name()} requests you attack ${event.target.name()}`,
+      type: MessageType.INFO,
+      highlight: true,
+      createdAt: this.game.ticks(),
+    });
+  }
+
+  onEmojiMessageEvent(event: EmojiMessageEvent) {
+    const myPlayer = this.game.playerByClientID(this.clientID);
+    if (!myPlayer) return;
+
+    if (event.message.recipient === myPlayer) {
+      this.addEvent({
+        description: `${event.message.sender.displayName()}:${event.message.emoji}`,
+        type: MessageType.INFO,
+        highlight: true,
+        createdAt: this.game.ticks(),
+      });
+    } else if (event.message.sender === myPlayer && event.message.recipient !== AllPlayers) {
+      this.addEvent({
+        description: `Sent ${event.message.recipient.displayName()} ${event.message.emoji}`,
+        type: MessageType.INFO,
+        highlight: true,
+        createdAt: this.game.ticks(),
+      });
+    }
+  }
+
+  render() {
+    if (this.events.length === 0) {
+      return html``;
+    }
+
+    return html`
+      <table class="events-table">
+        <tbody>
+          ${this.events.map((event, index) => html`
+            <tr class="${event.highlight ? 'highlight' : ''} ${MessageType[event.type].toLowerCase()}">
+              <td>
+                ${event.description}
+                ${event.buttons ? html`
+                  <div class="button-container">
+                    ${event.buttons.map(btn => html`
+                      <button 
+                        class="${btn.className}"
+                        @click=${() => {
+        btn.action();
+        this.removeEvent(index);
+        this.requestUpdate()
+      }}
+                      >
+                        ${btn.text}
+                      </button>
+                    `)}
+                  </div>
+                ` : ''}
+              </td>
             </tr>
-        `;
-        });
-
-        tableHtml += `
-            </tbody>
-        </table>
+          `)}
+        </tbody>
+      </table>
     `;
-        this.tableContainer.innerHTML = tableHtml;
-
-
-        // Add event listeners to buttons
-        this.tableContainer.querySelectorAll('button').forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const target = e.target as HTMLElement;
-                const eventIndex = parseInt(target.getAttribute('data-event-index') || '');
-                const buttonIndex = parseInt(target.getAttribute('data-button-index') || '');
-
-                if (!isNaN(eventIndex) && !isNaN(buttonIndex)) {
-                    const event = this.events[eventIndex];
-                    const buttonAction = event.buttons?.[buttonIndex]?.action;
-                    if (buttonAction) {
-                        buttonAction();
-                        this.removeEvent(eventIndex);
-                        this.renderTable();
-                    }
-                }
-            });
-        });
-    }
+  }
 }

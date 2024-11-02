@@ -1,5 +1,5 @@
-import {PlayerInfo} from "../game/Game";
-import {DefaultConfig} from "./DefaultConfig";
+import { PlayerInfo } from "../game/Game";
+import { DefaultConfig } from "./DefaultConfig";
 
 export const devConfig = new class extends DefaultConfig {
     percentageTilesOwnedToWin(): number {
@@ -22,22 +22,4 @@ export const devConfig = new class extends DefaultConfig {
         return 400
     }
 
-    // allianceDuration(): Tick {
-    //     return 10 * 10
-    // }
-
-    // startTroops(playerInfo: PlayerInfo): number {
-    //     // if (playerInfo.isBot) {
-    //     //     return 5000
-    //     // }
-    //     return 50000
-    // }
-
-    // troopAdditionRate(player: Player): number {
-    //     if (player.isBot()) {
-    //         return 1000
-    //     } else {
-    //         return 1000000
-    //     }
-    // }
 }
