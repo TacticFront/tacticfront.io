@@ -3,19 +3,21 @@ import { customElement, state } from 'lit/decorators.js';
 import { EventBus } from '../../../../core/EventBus';
 import { Cell, Game, Player } from '../../../../core/game/Game';
 import { SendNukeIntentEvent } from '../../../Transport';
+import nukeIcon from '../../../../../resources/images/NukeIconWhite.svg';
+import goldCoinIcon from '../../../../../resources/images/GoldCoinIcon.svg';
+import { renderNumber } from '../../Utils';
 
 interface BuildItem {
     id: string;
     name: string;
     icon: string;
     cost: number;
-    buildTime: number;
 }
 
 const buildTable: BuildItem[][] = [
     [
-        { id: 'missile', name: 'Missile', icon: '🚀', cost: 100, buildTime: 5 },
-        { id: 'battleship', name: 'Battleship', icon: '🚢', cost: 500, buildTime: 20 }
+        { id: 'nuke', name: 'Nuke', icon: nukeIcon, cost: 1_000_000 },
+        // { id: 'battleship', name: 'Battleship', icon: '🚢', cost: 500, buildTime: 20 }
     ]
 ];
 
@@ -89,8 +91,7 @@ export class BuildMenu extends LitElement {
             margin-bottom: 5px;
         }
         .build-cost {
-            font-size: 12px;
-            color: #FFD700;
+            font-size: 14px;
         }
         .hidden {
             display: none !important;
@@ -138,11 +139,14 @@ export class BuildMenu extends LitElement {
                 ${buildTable.map(row => html`
                     <div class="build-row">
                         ${row.map(item => html`
-                            <button class="build-button" @click=${() => this.onBuildSelected(item)}>
-                                <span class="build-icon">${item.icon}</span>
-                                <span class="build-name">${item.name}</span>
-                                <span class="build-cost">${item.cost} 💰</span>
-                            </button>
+                       <button class="build-button" @click=${() => this.onBuildSelected(item)}>
+                            <img src=${item.icon} alt="${item.name}" width="40" height="40">
+                            <span class="build-name">${item.name}</span>
+                            <span class="build-cost">
+                                ${renderNumber(item.cost)}
+                                <img src=${goldCoinIcon} alt="gold" width="12" height="12" style="vertical-align: middle;">
+                            </span>
+                        </button> 
                         `)}
                     </div>
                 `)}

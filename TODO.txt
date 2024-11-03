@@ -171,7 +171,10 @@
 * add troop max DONE 10/31/2024
 * rewrite EventsDisplay DONE 11/1/2024
 * update Mena NPC locations DONE 11/1/2024
-* create build menu
+* create build menu DONE 11/3/2024
+* add gold
+* add troop/worker slider
+* add battleship
 * NPC has relations
 * fix name rendering
 * use twitter emojis

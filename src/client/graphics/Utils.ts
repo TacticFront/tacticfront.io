@@ -1,20 +1,24 @@
 
 export function renderTroops(troops: number): string {
-    let troopsStr = ''
+    return renderNumber(troops / 10)
+}
 
-    troops = troops / 10
-
-    if (troops > 100000) {
-        troopsStr = String(Math.floor(troops / 1000)) + "K"
-    } else if (troops > 10000) {
-        troopsStr = String((troops / 1000).toFixed(1)) + "K"
-    } else if (troops > 1000) {
-        troopsStr = String((troops / 1000).toFixed(2)) + "K"
+export function renderNumber(num: number) {
+    let numStr = ''
+    if (num >= 10_000_000) {
+        numStr = (num / 1000000).toFixed(1) + "M"
+    } else if (num >= 1_000_000) {
+        numStr = (num / 1000000).toFixed(2) + "M"
+    } else if (num >= 100000) {
+        numStr = Math.floor(num / 1000) + "K"
+    } else if (num >= 10000) {
+        numStr = (num / 1000).toFixed(1) + "K"
+    } else if (num >= 1000) {
+        numStr = (num / 1000).toFixed(2) + "K"
+    } else {
+        numStr = Math.floor(num).toString()
     }
-    else {
-        troopsStr = String(Math.floor(troops))
-    }
-    return troopsStr
+    return numStr
 }
 
 export function createCanvas(): HTMLCanvasElement {

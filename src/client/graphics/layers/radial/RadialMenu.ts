@@ -15,7 +15,7 @@ import targetIcon from '../../../../../resources/images/TargetIconWhite.png';
 import emojiIcon from '../../../../../resources/images/EmojiIconWhite.png';
 import disabledIcon from '../../../../../resources/images/DisabledIcon.png';
 import donateIcon from '../../../../../resources/images/DonateIconWhite.png';
-import buildIcon from '../../../../../resources/images/BuildIcon.svg';
+import buildIcon from '../../../../../resources/images/BuildIconWhite.svg';
 import { EmojiTable } from "./EmojiTable";
 import { UIState } from "../../UIState";
 import { BuildMenu } from "./BuildMenu";
