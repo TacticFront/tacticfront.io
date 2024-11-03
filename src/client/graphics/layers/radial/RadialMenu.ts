@@ -15,9 +15,10 @@ import targetIcon from '../../../../../resources/images/TargetIconWhite.png';
 import emojiIcon from '../../../../../resources/images/EmojiIconWhite.png';
 import disabledIcon from '../../../../../resources/images/DisabledIcon.png';
 import donateIcon from '../../../../../resources/images/DonateIconWhite.png';
-import nukeIcon from '../../../../../resources/images/NukeIconWhite.png';
+import buildIcon from '../../../../../resources/images/BuildIcon.svg';
 import { EmojiTable } from "./EmojiTable";
 import { UIState } from "../../UIState";
+import { BuildMenu } from "./BuildMenu";
 
 
 enum Slot {
@@ -25,7 +26,7 @@ enum Slot {
     Boat,
     Target,
     Emoji,
-    Nuke,
+    Build,
 }
 
 export class RadialMenu implements Layer {
@@ -38,7 +39,7 @@ export class RadialMenu implements Layer {
         [Slot.Boat, { name: "boat", disabled: true, action: () => { }, color: null, icon: null }],
         [Slot.Target, { name: "target", disabled: true, action: () => { } }],
         [Slot.Emoji, { name: "emoji", disabled: true, action: () => { } }],
-        [Slot.Nuke, { name: "nuke", disabled: true, action: () => { } }],
+        [Slot.Build, { name: "build", disabled: true, action: () => { } }],
     ]);
 
     private readonly menuSize = 190;
@@ -55,6 +56,7 @@ export class RadialMenu implements Layer {
         private transformHandler: TransformHandler,
         private clientID: ClientID,
         private emojiTable: EmojiTable,
+        private buildMenu: BuildMenu,
         private uiState: UIState
     ) { }
 
@@ -230,8 +232,8 @@ export class RadialMenu implements Layer {
             return
         }
 
-        this.activateMenuElement(Slot.Nuke, "#ebe250", nukeIcon, () => {
-            this.eventBus.emit(new SendNukeIntentEvent(myPlayer, this.clickedCell, null))
+        this.activateMenuElement(Slot.Build, "#ebe250", buildIcon, () => {
+            this.buildMenu.showMenu(myPlayer, this.clickedCell)
         })
 
         if (tile.hasOwner()) {
@@ -358,6 +360,7 @@ export class RadialMenu implements Layer {
     private onPointerUp(event: MouseUpEvent) {
         this.hideRadialMenu()
         this.emojiTable.hideTable()
+        this.buildMenu.hideMenu()
     }
 
     private showRadialMenu(x: number, y: number) {

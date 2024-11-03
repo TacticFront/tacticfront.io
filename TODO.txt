@@ -171,24 +171,20 @@
 * add troop max DONE 10/31/2024
 * rewrite EventsDisplay DONE 11/1/2024
 * update Mena NPC locations DONE 11/1/2024
-* fix name rendering
-* use twitter emojis
 * create build menu
 * NPC has relations
+* fix name rendering
+* use twitter emojis
 * private game shows how many players joined
 * optimize sendBoat function
 * NPC more likely to accept alliance fewer alliance player has
-* better NPC relation logic
 * surface NPC relations
+* use SVGs for icons
 * block user inputs if too far behind server
 * BUG: FakeHuman don't be enemy if don't share border (or send boat)
 * store cookies
-* Load terrain dataImage in background
 * BUG: half encircle Antartica causes capture
 
 * improve front page (make map larger?)
-* Add additional maps
 * REFACTOR: give terranullius an ID, game.player() returns terranullius
 * REFACTOR: ocean is considered TerraNullius ?
-* Make icons svgs
-testing webhook

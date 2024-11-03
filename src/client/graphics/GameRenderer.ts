@@ -13,6 +13,7 @@ import { EmojiTable } from "./layers/radial/EmojiTable";
 import { Leaderboard } from "./layers/Leaderboard";
 import { ControlPanel } from "./layers/ControlPanel";
 import { UIState } from "./UIState";
+import { BuildMenu } from "./layers/radial/BuildMenu";
 
 
 export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: EventBus, clientID: ClientID): GameRenderer {
@@ -20,10 +21,17 @@ export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: 
 
 	const uiState = { attackRatio: 20 }
 
+	// TODO maybe append this to dcoument instead of querying for them?
 	const emojiTable = document.querySelector('emoji-table') as EmojiTable;
 	if (!emojiTable || !(emojiTable instanceof EmojiTable)) {
 		console.error('EmojiTable element not found in the DOM');
 	}
+	const buildMenu = document.querySelector('build-menu') as BuildMenu;
+	if (!buildMenu || !(buildMenu instanceof BuildMenu)) {
+		console.error('BuildMenu element not found in the DOM')
+	}
+	buildMenu.game = game
+	buildMenu.eventBus = eventBus
 
 	const leaderboard = document.querySelector('leader-board') as Leaderboard;
 	if (!emojiTable || !(leaderboard instanceof Leaderboard)) {
@@ -55,7 +63,7 @@ export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: 
 		new NameLayer(game, game.config().theme(), transformHandler, clientID),
 		new UILayer(eventBus, game, clientID, transformHandler),
 		eventsDisplay,
-		new RadialMenu(eventBus, game, transformHandler, clientID, emojiTable as EmojiTable, uiState),
+		new RadialMenu(eventBus, game, transformHandler, clientID, emojiTable as EmojiTable, buildMenu, uiState),
 		leaderboard,
 		controlPanel,
 	]
