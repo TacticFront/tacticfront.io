@@ -1,8 +1,8 @@
-import {PriorityQueue} from "@datastructures-js/priority-queue";
-import {Cell, Execution, MutableGame, MutablePlayer, Player, PlayerID, TerrainType, TerraNullius, Tile} from "../game/Game";
-import {PseudoRandom} from "../PseudoRandom";
-import {manhattanDist} from "../Util";
-import {Terrain} from "../game/TerrainMapLoader";
+import { PriorityQueue } from "@datastructures-js/priority-queue";
+import { Cell, Execution, MutableGame, MutablePlayer, Player, PlayerID, TerrainType, TerraNullius, Tile } from "../game/Game";
+import { PseudoRandom } from "../PseudoRandom";
+import { manhattanDist } from "../Util";
+import { Terrain } from "../game/TerrainMapLoader";
 
 export class AttackExecution implements Execution {
     private breakAlliance = false
@@ -32,6 +32,7 @@ export class AttackExecution implements Execution {
         private _targetID: PlayerID | null,
         private sourceCell: Cell | null,
         private targetCell: Cell | null,
+        private removeTroops: boolean = true,
     ) { }
 
     public targetID(): PlayerID {
@@ -57,7 +58,9 @@ export class AttackExecution implements Execution {
             this.troops = this.mg.config().attackAmount(this._owner, this.target)
         }
         this.troops = Math.min(this._owner.troops(), this.troops)
-        this._owner.removeTroops(this.troops)
+        if (this.removeTroops) {
+            this._owner.removeTroops(this.troops)
+        }
 
         for (const exec of mg.executions()) {
             if (exec.isActive() && exec instanceof AttackExecution && exec != this) {
@@ -151,7 +154,7 @@ export class AttackExecution implements Execution {
                 continue
             }
             this.addNeighbors(tileToConquer)
-            const {attackerTroopLoss, defenderTroopLoss, tilesPerTickUsed} = this.mg.config().attackLogic(this.troops, this._owner, this.target, tileToConquer)
+            const { attackerTroopLoss, defenderTroopLoss, tilesPerTickUsed } = this.mg.config().attackLogic(this.troops, this._owner, this.target, tileToConquer)
             numTilesPerTick -= tilesPerTickUsed
             this.troops -= attackerTroopLoss
             if (this.target.isPlayer()) {

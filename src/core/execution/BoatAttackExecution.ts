@@ -123,7 +123,7 @@ export class BoatAttackExecution implements Execution {
                 return
             }
             this.attacker.conquer(this.dst)
-            this.mg.addExecution(new AttackExecution(this.troops, this.attacker.id(), this.targetID, this.dst.cell(), null))
+            this.mg.addExecution(new AttackExecution(this.troops, this.attacker.id(), this.targetID, this.dst.cell(), null, false))
             this.boat.delete()
             this.active = false
             return
