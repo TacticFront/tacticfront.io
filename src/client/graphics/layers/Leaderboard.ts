@@ -48,7 +48,7 @@ export class Leaderboard extends LitElement implements Layer {
     this.players = sorted
       .slice(0, 5)
       .map((player, index) => ({
-        name: player.name(),
+        name: player.displayName(),
         position: index + 1,
         score: formatPercentage(player.numTilesOwned() / this.game.numLandTiles()),
         isMyPlayer: player == myPlayer
