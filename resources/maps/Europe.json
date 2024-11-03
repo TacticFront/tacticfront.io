@@ -101,8 +101,8 @@
         },
         {
             "coordinates": [
-                949,
-                548
+                1000,
+                480
             ],
             "name": "Germany 🇩🇪",
             "strength": 1
@@ -125,8 +125,8 @@
         },
         {
             "coordinates": [
-                1030,
-                589
+                1060,
+                530
             ],
             "name": "Czechia 🇨🇿",
             "strength": 1
@@ -149,8 +149,8 @@
         },
         {
             "coordinates": [
-                1424,
-                754
+                1400,
+                670
             ],
             "name": "Romania 🇷🇴",
             "strength": 1
@@ -178,6 +178,78 @@
             ],
             "name": "Russia 🇷🇺",
             "strength": 3
+        },
+        {
+            "coordinates": [
+                1750,
+                950
+            ],
+            "name": "Syria 🇸🇾",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1930,
+                950
+            ],
+            "name": "Iraq 🇮🇶",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1900,
+                720
+            ],
+            "name": "Georgia 🇬🇪",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                950,
+                930
+            ],
+            "name": "Tunisia 🇹🇳",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                740,
+                940
+            ],
+            "name": "Algeria 🇩🇿",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                460,
+                830
+            ],
+            "name": "Portugal 🇵🇹",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1300,
+                830
+            ],
+            "name": "Greece 🇬🇷",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1270,
+                700
+            ],
+            "name": "Serbia 🇷🇸",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1200,
+                630
+            ],
+            "name": "Hungary 🇭🇺",
+            "strength": 1
         }
     ]
 }
