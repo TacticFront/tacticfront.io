@@ -130,21 +130,20 @@ export class DefaultConfig implements Config {
         return 25000
     }
 
-    maxManpower(player: Player): number {
-        let max = Math.sqrt(player.numTilesOwned()) * 3000 + 50000
-        const manpower = Math.min(max, 2_000_000)
+    maxPopulation(player: Player): number {
+        let maxPop = Math.sqrt(player.numTilesOwned()) * 3000 + 50000
         if (player.type() == PlayerType.Bot) {
-            return manpower
+            return maxPop
         }
-        return manpower * 2
+        return maxPop * 2
     }
 
-    manpowerAdditionRate(player: Player): number {
-        let max = this.maxManpower(player)
+    populationIncreaseRate(player: Player): number {
+        let max = this.maxPopulation(player)
 
-        let toAdd = 10 + (player.totalManpower() + Math.sqrt(player.totalManpower() * player.numTilesOwned())) / 100
+        let toAdd = 10 + (player.population() + Math.sqrt(player.population() * player.numTilesOwned())) / 100
 
-        const ratio = 1 - (player.totalManpower() / max)
+        const ratio = 1 - (player.population() / max)
         toAdd *= ratio
         toAdd *= .5
         // console.log(`to add ${toAdd}`)
@@ -155,14 +154,17 @@ export class DefaultConfig implements Config {
         if (player.type() == PlayerType.Bot) {
             toAdd *= .7
         }
-        return toAdd
+
+        return Math.min(player.troops() + toAdd, max) - player.troops()
     }
+
     goldAdditionRate(player: Player): number {
-        return (player.manpowerReserve() * 1.2 - player.troops()) / 1000
+        return Math.sqrt(player.workers() * player.numTilesOwned()) / 1000 + player.gold() * .001
     }
+
     troopAdjustmentRate(player: Player): number {
-        const maxDiff = player.maxTroops() / 300
-        const target = player.maxTroops() * player.targetTroopRatio()
+        const maxDiff = this.maxPopulation(player) / 300
+        const target = player.population() * player.targetTroopRatio()
         const diff = target - player.troops()
         if (Math.abs(diff) < maxDiff) {
             return diff

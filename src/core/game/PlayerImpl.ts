@@ -1,4 +1,4 @@
-import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers, Currency } from "./Game";
+import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers, Gold } from "./Game";
 import { ClientID } from "../Schemas";
 import { processName, simpleHash } from "../Util";
 import { CellString, GameImpl } from "./GameImpl";
@@ -22,9 +22,8 @@ export class PlayerImpl implements MutablePlayer {
 
     private _gold: Gold
     private _troops: number
-    private _reserves: number
-    private _targetTroopRatio: number
-    private _maxTroops: number
+    private _workers: number
+    private _targetTroopRatio: number = 1
 
     isTraitor_ = false
 
@@ -34,7 +33,7 @@ export class PlayerImpl implements MutablePlayer {
     public _tiles: Map<CellString, Tile> = new Map<CellString, Tile>();
 
     private _name: string;
-    private _displayerName: string;
+    private _displayName: string;
 
     public pastOutgoingAllianceRequests: AllianceRequest[] = []
 
@@ -44,20 +43,21 @@ export class PlayerImpl implements MutablePlayer {
 
     private sentDonations: Donation[] = []
 
-    constructor(private gs: GameImpl, private readonly playerInfo: PlayerInfo, manpower: number) {
+    constructor(private gs: GameImpl, private readonly playerInfo: PlayerInfo, startPopulation: number) {
         this._name = playerInfo.name;
-        this._targetTroopRatio = .5
-        this._troops = manpower * this._targetTroopRatio;
-        this._reserves = manpower * (1 - this._targetTroopRatio)
+        this._targetTroopRatio = 1
+        this._troops = startPopulation * this._targetTroopRatio;
+        this._workers = startPopulation * (1 - this._targetTroopRatio)
         this._gold = 0
-        this._maxTroops = 0
+        this._displayName = processName(this._name)
+
     }
 
     name(): string {
         return this._name;
     }
     displayName(): string {
-        return this._displayerName
+        return this._displayName
     }
 
     clientID(): ClientID {
@@ -118,22 +118,6 @@ export class PlayerImpl implements MutablePlayer {
         return Array.from(ns);
     }
 
-    addTroops(troops: number): void {
-        if (troops < 0) {
-            this.removeTroops(-1 * troops)
-            return
-        }
-        this._troops += Math.floor(troops);
-    }
-    removeTroops(troops: number): number {
-        if (troops <= 1) {
-            return 0
-        }
-        const toRemove = Math.floor(Math.min(this._troops - 1, troops))
-        this._troops -= toRemove;
-        return toRemove
-    }
-
     isPlayer(): this is MutablePlayer { return true as const; }
     ownsTile(cell: Cell): boolean { return this._tiles.has(cell.toString()); }
     setTroops(troops: number) { this._troops = Math.floor(troops); }
@@ -145,7 +129,6 @@ export class PlayerImpl implements MutablePlayer {
         this.gs.relinquish(tile);
     }
     info(): PlayerInfo { return this.playerInfo; }
-    troops(): number { return this._troops; }
     isAlive(): boolean { return this._tiles.size > 0; }
     executions(): Execution[] {
         return this.gs.executions().filter(exec => exec.owner().id() == this.id());
@@ -297,17 +280,17 @@ export class PlayerImpl implements MutablePlayer {
         this._gold -= toRemove
     }
 
-    totalManpower(): number {
-        return this._troops + this._reserves
+    population(): number {
+        return this._troops + this._workers
     }
-    manpowerReserve(): number {
-        return Math.max(1, this._reserves)
+    workers(): number {
+        return Math.max(1, this._workers)
     }
-    addManpowerReserve(toAdd: number): void {
-        this._reserves += toAdd
+    addWorkers(toAdd: number): void {
+        this._workers += toAdd
     }
-    removeManpowerReserve(toRemove: number): void {
-        this._reserves = Math.max(1, this._reserves - toRemove)
+    removeWorkers(toRemove: number): void {
+        this._workers = Math.max(1, this._workers - toRemove)
     }
 
     targetTroopRatio(): number {
@@ -321,15 +304,27 @@ export class PlayerImpl implements MutablePlayer {
         this._targetTroopRatio = target
     }
 
-    maxTroops(): number {
-        return this._maxTroops
+    troops(): number { return this._troops; }
+
+    addTroops(troops: number): void {
+        if (troops < 0) {
+            this.removeTroops(-1 * troops)
+            return
+        }
+        this._troops += Math.floor(troops);
     }
-    setMaxTroops(maxTroops: number): void {
-        this._maxTroops = maxTroops
+    removeTroops(troops: number): number {
+        if (troops <= 1) {
+            return 0
+        }
+        const toRemove = Math.floor(Math.min(this._troops - 1, troops))
+        this._troops -= toRemove;
+        return toRemove
     }
 
+
     hash(): number {
-        return simpleHash(this.id()) * (this.totalManpower() + this.numTilesOwned());
+        return simpleHash(this.id()) * (this.population() + this.numTilesOwned());
     }
     toString(): string {
         return `Player:{name:${this.info().name},clientID:${this.info().clientID},isAlive:${this.isAlive()},troops:${this._troops},numTileOwned:${this.numTilesOwned()}}]`;

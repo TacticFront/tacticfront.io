@@ -34,7 +34,7 @@ export interface Config {
 	numSpawnPhaseTurns(): number
 
 	startManpower(playerInfo: PlayerInfo): number
-	manpowerAdditionRate(player: Player): number
+	populationIncreaseRate(player: Player): number
 	goldAdditionRate(player: Player): number
 	troopAdjustmentRate(player: Player): number
 	attackTilesPerTick(attacker: Player, defender: Player | TerraNullius, numAdjacentTilesWithEnemy: number): number
@@ -44,7 +44,7 @@ export interface Config {
 		tilesPerTickUsed: number
 	}
 	attackAmount(attacker: Player, defender: Player | TerraNullius): number
-	maxManpower(player: Player): number
+	maxPopulation(player: Player): number
 	boatAttackAmount(attacker: Player, defender: Player | TerraNullius): number
 	boatMaxDistance(): number
 	boatMaxNumber(): number

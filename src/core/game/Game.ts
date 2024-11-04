@@ -167,7 +167,6 @@ export interface Player {
     clientID(): ClientID
     id(): PlayerID
     type(): PlayerType
-    troops(): number
     boats(): Boat[]
     ownsTile(cell: Cell): boolean
     isAlive(): boolean
@@ -196,17 +195,15 @@ export interface Player {
     outgoingEmojis(): EmojiMessage[]
     canDonate(recipient: Player): boolean
     gold(): Gold
-    totalManpower(): number
-    manpowerReserve(): number
+    // Population = troops + workers
+    population(): number
+    workers(): number
     // Number between 0, 1
     targetTroopRatio(): number
-    maxTroops(): number
+    troops(): number
 }
 
 export interface MutablePlayer extends Player {
-    setTroops(troops: number): void
-    addTroops(troops: number): void
-    removeTroops(troops: number): number
     conquer(tile: Tile): void
     relinquish(tile: Tile): void
     executions(): Execution[]
@@ -224,12 +221,16 @@ export interface MutablePlayer extends Player {
     transitiveTargets(): MutablePlayer[]
     sendEmoji(recipient: Player | typeof AllPlayers, emoji: string): void
     donate(recipient: MutablePlayer, troops: number): void
+
     addGold(toAdd: Gold): void
     removeGold(toRemove: Gold): void
-    addManpowerReserve(toAdd: number): void
-    removeManpowerReserve(toRemove: number): void
+
+    addWorkers(toAdd: number): void
+    removeWorkers(toRemove: number): void
     setTargetTroopRatio(target: number): void
-    setMaxTroops(maxTroops: number): void
+    setTroops(troops: number): void
+    addTroops(troops: number): void
+    removeTroops(troops: number): number
 }
 
 export interface Game {

@@ -30,13 +30,14 @@ export class PlayerExecution implements Execution {
         if (ticks < this.config.numSpawnPhaseTurns()) {
             return
         }
+        const popInc = this.config.populationIncreaseRate(this.player)
 
-        this.player.addManpowerReserve(this.config.manpowerAdditionRate(this.player))
-        this.player.setMaxTroops(Math.max(this.player.numTilesOwned() * 100, 50000))
+        this.player.addWorkers(popInc * (1 - this.player.targetTroopRatio()))// (1 - this.player.targetTroopRatio()))
+        this.player.addTroops(popInc * this.player.targetTroopRatio())
         this.player.addGold(this.config.goldAdditionRate(this.player))
         const adjustRate = this.config.troopAdjustmentRate(this.player)
         this.player.addTroops(adjustRate)
-        this.player.removeManpowerReserve(adjustRate)
+        this.player.removeWorkers(adjustRate)
 
         const alliances = Array.from(this.player.alliances())
         for (const alliance of alliances) {

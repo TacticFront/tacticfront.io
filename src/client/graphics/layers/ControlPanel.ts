@@ -3,9 +3,10 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { Layer } from './Layer';
 import { Game } from '../../../core/game/Game';
 import { ClientID } from '../../../core/Schemas';
-import { renderTroops } from '../Utils';
+import { renderNumber, renderTroops } from '../Utils';
 import { EventBus } from '../../../core/EventBus';
 import { UIState } from '../UIState';
+import { SendSetTargetTroopRatioEvent } from '../../Transport';
 
 @customElement('control-panel')
 export class ControlPanel extends LitElement implements Layer {
@@ -15,19 +16,38 @@ export class ControlPanel extends LitElement implements Layer {
     public uiState: UIState
 
     @state()
-    private targetTroopRatio = 50;
+    private attackRatio: number = .2;
+
+    @state()
+    private targetTroopRatio = 1;
+
+    @state()
+    private _population: number;
+
+    @state()
+    private _maxPopulation: number;
+
+    @state()
+    private popRate: number;
 
     @state()
     private _troops: number;
 
     @state()
-    private _maxTroops: number;
-
-    @state()
-    private troopRate: number;
+    private _workers: number;
 
     @state()
     private _isVisible = false;
+
+    @state()
+    private _manpower: number = 0;
+
+    @state()
+    private _gold: number
+
+
+    @state()
+    private _goldPerSecond: number
 
     init(game: Game) {
         this.game = game;
@@ -43,10 +63,16 @@ export class ControlPanel extends LitElement implements Layer {
 
         const player = this.game.playerByClientID(this.clientID)
         if (player == null) {
+            this._isVisible = false
             return
         }
+        this._population = player.population()
+        this._maxPopulation = this.game.config().maxPopulation(player)
+        this._gold = player.gold()
         this._troops = player.troops()
-        this._maxTroops = this.game.config().maxTroops(player)
+        this._workers = player.workers()
+        this.popRate = this.game.config().populationIncreaseRate(player) * 10
+        this._goldPerSecond = this.game.config().goldAdditionRate(player) * 10
     }
 
     onAttackRatioChange(newRatio: number) {
@@ -67,7 +93,19 @@ export class ControlPanel extends LitElement implements Layer {
     }
 
     targetTroops(): number {
-        return this._manpower * this.targetTroopRatio / 100
+        return this._manpower * this.targetTroopRatio
+    }
+
+    onTroopChange(newRatio: number) {
+        this.eventBus.emit(new SendSetTargetTroopRatioEvent(newRatio))
+    }
+
+    delta(): number {
+        const d = this._population - this.targetTroops()
+        // if (Math.abs(d) < this._manpower / 200) {
+        //     return 0
+        // }
+        return d
     }
 
 
@@ -129,16 +167,36 @@ export class ControlPanel extends LitElement implements Layer {
             <div class="control-panel ${this._isVisible ? '' : 'hidden'}">
                 <div class="control-panel-info">
                     <div class="info-row">
-                        <span class="info-label">Troops:</span>
-                        <span>${renderTroops(this._troops)} / ${renderTroops(this._maxTroops)}</span>
+                        <span class="info-label">Population:</span>
+                        <span>${renderTroops(this._population)} / ${renderTroops(this._maxPopulation)}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Population/s:</span>
+                        <span>${renderTroops(this.popRate)}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Gold:</span>
+                        <span>${renderNumber(this._gold)}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Gold/s:</span>
+                        <span>${renderNumber(this._goldPerSecond)}</span>
                     </div>
                 </div>
                 <div class="slider-container">
-                    <label for="numTroops">Troops: ${this.targetTroopRatio}% (${renderTroops(this.targetTroops()) + ", delta: " + renderTroops(this.delta())})</label>
-                    <input type="range" id="numTroops" min="0" max="100" .value=${this.targetTroopRatio}
+                    <label for="numTroops">Troops: ${renderTroops(this._troops)}   |   Workers: ${renderTroops(this._workers)}</label>
+                    <input type="range" id="numTroops" min="1" max="10" .value=${this.targetTroopRatio * 10}
                            @input=${(e: Event) => {
-                this.targetTroopRatio = parseInt((e.target as HTMLInputElement).value);
-                this.onTroopChange(this.targetTroopRatio / 100);
+                this.targetTroopRatio = parseInt((e.target as HTMLInputElement).value) / 10;
+                this.onTroopChange(this.targetTroopRatio);
+            }}>
+                </div>
+               <div class="slider-container">
+                    <label for="numTroops">Attack Ratio: ${this.attackRatio * 100}%</label>
+                    <input type="range" id="numTroops" min="1" max="10" value=${this.attackRatio * 10}
+                           @input=${(e: Event) => {
+                this.attackRatio = parseInt((e.target as HTMLInputElement).value) / 10;
+                this.onAttackRatioChange(this.attackRatio);
             }}>
                 </div>
             </div>

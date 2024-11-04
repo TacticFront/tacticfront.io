@@ -15,6 +15,7 @@ import { TargetPlayerExecution } from "./TargetPlayerExecution";
 import { EmojiExecution } from "./EmojiExecution";
 import { DonateExecution } from "./DonateExecution";
 import { NukeExecution } from "./NukeExecution";
+import { SetTargetTroopRatioExecution } from "./SetTargetTroopRatioExecution";
 
 
 
