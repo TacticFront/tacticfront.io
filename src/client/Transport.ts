@@ -1,8 +1,8 @@
-import {Config} from "../core/configuration/Config"
-import {EventBus, GameEvent} from "../core/EventBus"
-import {AllianceRequest, AllPlayers, Cell, Player, PlayerID, PlayerType} from "../core/game/Game"
-import {ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema} from "../core/Schemas"
-import {LocalServer} from "./LocalServer"
+import { Config } from "../core/configuration/Config"
+import { EventBus, GameEvent } from "../core/EventBus"
+import { AllianceRequest, AllPlayers, Cell, Player, PlayerID, PlayerType } from "../core/game/Game"
+import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema } from "../core/Schemas"
+import { LocalServer } from "./LocalServer"
 
 
 export class SendAllianceRequestIntentEvent implements GameEvent {
@@ -76,6 +76,12 @@ export class SendNukeIntentEvent implements GameEvent {
     ) { }
 }
 
+export class SendSetTargetTroopRatioEvent implements GameEvent {
+    constructor(
+        public readonly ratio: number,
+    ) { }
+}
+
 export class Transport {
 
     private socket: WebSocket
@@ -108,6 +114,7 @@ export class Transport {
         this.eventBus.on(SendEmojiIntentEvent, (e) => this.onSendEmojiIntent(e))
         this.eventBus.on(SendDonateIntentEvent, (e) => this.onSendDonateIntent(e))
         this.eventBus.on(SendNukeIntentEvent, (e) => this.onSendNukeIntent(e))
+        this.eventBus.on(SendSetTargetTroopRatioEvent, (e) => this.onSendSetTargetTroopRatioEvent(e))
     }
 
     connect(onconnect: () => void, onmessage: (message: ServerMessage) => void) {
@@ -295,6 +302,15 @@ export class Transport {
             x: event.cell.x,
             y: event.cell.y,
             magnitude: event.magnitude,
+        })
+    }
+
+    private onSendSetTargetTroopRatioEvent(event: SendSetTargetTroopRatioEvent) {
+        this.sendIntent({
+            type: "troop_ratio",
+            clientID: this.clientID,
+            player: this.playerID,
+            ratio: event.ratio,
         })
     }
 

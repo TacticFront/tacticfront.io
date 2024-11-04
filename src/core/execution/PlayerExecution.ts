@@ -1,7 +1,7 @@
-import {Config} from "../configuration/Config"
-import {Execution, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, Tile} from "../game/Game"
-import {bfs, calculateBoundingBox, getMode, inscribed, simpleHash} from "../Util"
-import {GameImpl} from "../game/GameImpl"
+import { Config } from "../configuration/Config"
+import { Execution, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, Tile } from "../game/Game"
+import { bfs, calculateBoundingBox, getMode, inscribed, simpleHash } from "../Util"
+import { GameImpl } from "../game/GameImpl"
 
 export class PlayerExecution implements Execution {
 
@@ -30,7 +30,14 @@ export class PlayerExecution implements Execution {
         if (ticks < this.config.numSpawnPhaseTurns()) {
             return
         }
-        this.player.setTroops(this.config.troopAdditionRate(this.player))
+        const popInc = this.config.populationIncreaseRate(this.player)
+
+        this.player.addWorkers(popInc * (1 - this.player.targetTroopRatio()))// (1 - this.player.targetTroopRatio()))
+        this.player.addTroops(popInc * this.player.targetTroopRatio())
+        this.player.addGold(this.config.goldAdditionRate(this.player))
+        const adjustRate = this.config.troopAdjustmentRate(this.player)
+        this.player.addTroops(adjustRate)
+        this.player.removeWorkers(adjustRate)
 
         const alliances = Array.from(this.player.alliances())
         for (const alliance of alliances) {

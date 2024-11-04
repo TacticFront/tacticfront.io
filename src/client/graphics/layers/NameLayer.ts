@@ -1,16 +1,16 @@
-import {AllPlayers, Cell, Game, Player, PlayerType} from "../../../core/game/Game"
-import {PseudoRandom} from "../../../core/PseudoRandom"
-import {calculateBoundingBox} from "../../../core/Util"
-import {Theme} from "../../../core/configuration/Config"
-import {Layer} from "./Layer"
-import {placeName} from "../NameBoxCalculator"
-import {TransformHandler} from "../TransformHandler"
-import {renderTroops} from "../Utils"
+import { AllPlayers, Cell, Game, Player, PlayerType } from "../../../core/game/Game"
+import { PseudoRandom } from "../../../core/PseudoRandom"
+import { calculateBoundingBox } from "../../../core/Util"
+import { Theme } from "../../../core/configuration/Config"
+import { Layer } from "./Layer"
+import { placeName } from "../NameBoxCalculator"
+import { TransformHandler } from "../TransformHandler"
+import { renderTroops } from "../Utils"
 import traitorIcon from '../../../../resources/images/TraitorIcon.png';
 import allianceIcon from '../../../../resources/images/AllianceIcon.png';
 import crownIcon from '../../../../resources/images/CrownIcon.png';
 import targetIcon from '../../../../resources/images/TargetIcon.png';
-import {ClientID} from "../../../core/Schemas"
+import { ClientID } from "../../../core/Schemas"
 
 
 class RenderInfo {
@@ -19,7 +19,7 @@ class RenderInfo {
         public player: Player,
         public lastRenderCalc: number,
         public lastBoundingCalculated: number,
-        public boundingBox: {min: Cell, max: Cell},
+        public boundingBox: { min: Cell, max: Cell },
         public location: Cell,
         public fontSize: number
     ) { }

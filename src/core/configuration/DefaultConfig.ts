@@ -95,7 +95,7 @@ export class DefaultConfig implements Config {
             return {
                 attackerTroopLoss: attacker.type() == PlayerType.Bot ? mag / 10 : mag / 5,
                 defenderTroopLoss: 0,
-                tilesPerTickUsed: within(this.startTroops(attacker.info()) / (attackTroops * 5), .2, 3) * Math.max(10, speed / 1.5)
+                tilesPerTickUsed: within(this.startManpower(attacker.info()) / (attackTroops * 5), .2, 3) * Math.max(10, speed / 1.5)
             }
         }
     }
@@ -120,7 +120,7 @@ export class DefaultConfig implements Config {
         }
     }
 
-    startTroops(playerInfo: PlayerInfo): number {
+    startManpower(playerInfo: PlayerInfo): number {
         if (playerInfo.playerType == PlayerType.Bot) {
             return 10000
         }
@@ -130,20 +130,20 @@ export class DefaultConfig implements Config {
         return 25000
     }
 
-    maxTroops(player: Player): number {
-        const troops = Math.sqrt(player.numTilesOwned()) * 3000 + 50000
+    maxPopulation(player: Player): number {
+        let maxPop = Math.sqrt(player.numTilesOwned()) * 3000 + 50000
         if (player.type() == PlayerType.Bot) {
-            return troops
+            return maxPop
         }
-        return troops * 2
+        return maxPop * 2
     }
 
-    troopAdditionRate(player: Player): number {
-        let max = this.maxTroops(player)
+    populationIncreaseRate(player: Player): number {
+        let max = this.maxPopulation(player)
 
-        let toAdd = 10 + (player.troops() + Math.sqrt(player.troops() * player.numTilesOwned())) / 100
+        let toAdd = 10 + (player.population() + Math.sqrt(player.population() * player.numTilesOwned())) / 100
 
-        const ratio = 1 - (player.troops() / max)
+        const ratio = 1 - (player.population() / max)
         toAdd *= ratio
         toAdd *= .5
         // console.log(`to add ${toAdd}`)
@@ -155,9 +155,29 @@ export class DefaultConfig implements Config {
             toAdd *= .7
         }
 
-        return Math.min(player.troops() + toAdd, max)
+        return Math.min(player.troops() + toAdd, max) - player.troops()
+    }
+
+    goldAdditionRate(player: Player): number {
+        return Math.sqrt(player.workers() * player.numTilesOwned()) / 1000 + player.gold() * .001
+    }
+
+    troopAdjustmentRate(player: Player): number {
+        const maxDiff = this.maxPopulation(player) / 300
+        const target = player.population() * player.targetTroopRatio()
+        const diff = target - player.troops()
+        if (Math.abs(diff) < maxDiff) {
+            return diff
+        }
+        const adjustment = maxDiff * Math.sign(diff)
+        // Can ramp down troops much faster
+        if (adjustment < 0) {
+            return adjustment * 5
+        }
+        return adjustment
     }
 }
+
 
 
 export const defaultConfig = new DefaultConfig()

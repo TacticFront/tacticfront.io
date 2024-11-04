@@ -1,4 +1,4 @@
-import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers, Currency } from "./Game";
+import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers, Gold } from "./Game";
 import { ClientID } from "../Schemas";
 import { processName, simpleHash } from "../Util";
 import { CellString, GameImpl } from "./GameImpl";
@@ -19,7 +19,11 @@ class Donation {
 
 export class PlayerImpl implements MutablePlayer {
 
-    private _currency: number
+
+    private _gold: Gold
+    private _troops: number
+    private _workers: number
+    private _targetTroopRatio: number = 1
 
     isTraitor_ = false
 
@@ -29,7 +33,7 @@ export class PlayerImpl implements MutablePlayer {
     public _tiles: Map<CellString, Tile> = new Map<CellString, Tile>();
 
     private _name: string;
-    private _displayerName: string;
+    private _displayName: string;
 
     public pastOutgoingAllianceRequests: AllianceRequest[] = []
 
@@ -39,16 +43,21 @@ export class PlayerImpl implements MutablePlayer {
 
     private sentDonations: Donation[] = []
 
-    constructor(private gs: GameImpl, private readonly playerInfo: PlayerInfo, private _troops) {
+    constructor(private gs: GameImpl, private readonly playerInfo: PlayerInfo, startPopulation: number) {
         this._name = playerInfo.name;
-        this._displayerName = processName(this._name)
+        this._targetTroopRatio = 1
+        this._troops = startPopulation * this._targetTroopRatio;
+        this._workers = startPopulation * (1 - this._targetTroopRatio)
+        this._gold = 0
+        this._displayName = processName(this._name)
+
     }
 
     name(): string {
         return this._name;
     }
     displayName(): string {
-        return this._displayerName
+        return this._displayName
     }
 
     clientID(): ClientID {
@@ -63,8 +72,6 @@ export class PlayerImpl implements MutablePlayer {
         return this.playerInfo.playerType;
     }
 
-    setName(name: string) {
-    }
 
     addBoat(troops: number, tile: Tile, target: Player | TerraNullius): BoatImpl {
         const b = new BoatImpl(this.gs, tile, troops, this, target as PlayerImpl | TerraNulliusImpl);
@@ -111,15 +118,6 @@ export class PlayerImpl implements MutablePlayer {
         return Array.from(ns);
     }
 
-    addTroops(troops: number): void {
-        this._troops += Math.floor(troops);
-    }
-    removeTroops(troops: number): number {
-        const toRemove = Math.floor(Math.min(this._troops, troops))
-        this._troops -= toRemove;
-        return toRemove
-    }
-
     isPlayer(): this is MutablePlayer { return true as const; }
     ownsTile(cell: Cell): boolean { return this._tiles.has(cell.toString()); }
     setTroops(troops: number) { this._troops = Math.floor(troops); }
@@ -131,7 +129,6 @@ export class PlayerImpl implements MutablePlayer {
         this.gs.relinquish(tile);
     }
     info(): PlayerInfo { return this.playerInfo; }
-    troops(): number { return this._troops; }
     isAlive(): boolean { return this._tiles.size > 0; }
     executions(): Execution[] {
         return this.gs.executions().filter(exec => exec.owner().id() == this.id());
@@ -271,23 +268,63 @@ export class PlayerImpl implements MutablePlayer {
         this.gs.displayMessage(`Recieved ${renderTroops(troops)} troops from ${this.name()}`, MessageType.SUCCESS, recipient.id())
     }
 
-    currency(): Currency {
-        return this._currency
+    gold(): Gold {
+        return this._gold
     }
 
-    addCurrency(toAdd: Currency): void {
-        this._currency += toAdd
+    addGold(toAdd: Gold): void {
+        this._gold += toAdd
     }
 
-    removeCurrency(toRemove: Currency): void {
-        if (toRemove > this._currency) {
-            throw Error(`cannot remove ${toRemove} from ${this} because only has ${this._currency}`)
+    removeGold(toRemove: Gold): void {
+        this._gold -= toRemove
+    }
+
+    population(): number {
+        return this._troops + this._workers
+    }
+    workers(): number {
+        return Math.max(1, this._workers)
+    }
+    addWorkers(toAdd: number): void {
+        this._workers += toAdd
+    }
+    removeWorkers(toRemove: number): void {
+        this._workers = Math.max(1, this._workers - toRemove)
+    }
+
+    targetTroopRatio(): number {
+        return this._targetTroopRatio
+    }
+
+    setTargetTroopRatio(target: number): void {
+        if (target < 0 || target > 1) {
+            throw new Error(`invalid targetTroopRatio ${target} set on player ${PlayerImpl}`)
         }
-        this._currency -= toRemove
+        this._targetTroopRatio = target
     }
+
+    troops(): number { return this._troops; }
+
+    addTroops(troops: number): void {
+        if (troops < 0) {
+            this.removeTroops(-1 * troops)
+            return
+        }
+        this._troops += Math.floor(troops);
+    }
+    removeTroops(troops: number): number {
+        if (troops <= 1) {
+            return 0
+        }
+        const toRemove = Math.floor(Math.min(this._troops - 1, troops))
+        this._troops -= toRemove;
+        return toRemove
+    }
+
 
     hash(): number {
-        return simpleHash(this.id()) * (this.troops() + this.numTilesOwned());
+        return simpleHash(this.id()) * (this.population() + this.numTilesOwned());
     }
     toString(): string {
         return `Player:{name:${this.info().name},clientID:${this.info().clientID},isAlive:${this.isAlive()},troops:${this._troops},numTileOwned:${this.numTilesOwned()}}]`;
