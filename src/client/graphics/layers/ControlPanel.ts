@@ -58,12 +58,12 @@ export class ControlPanel extends LitElement implements Layer {
     tick() {
         // Update game state based on numTroops value if needed
         if (!this._isVisible && !this.game.inSpawnPhase()) {
-            this.toggleVisibility();
+            this.setVisibile(true)
         }
 
         const player = this.game.playerByClientID(this.clientID)
-        if (player == null) {
-            this._isVisible = false
+        if (player == null || !player.isAlive()) {
+            this.setVisibile(false)
             return
         }
         this._population = player.population()
@@ -87,10 +87,11 @@ export class ControlPanel extends LitElement implements Layer {
         return false;
     }
 
-    toggleVisibility() {
-        this._isVisible = !this._isVisible;
+    setVisibile(visible: boolean) {
+        this._isVisible = visible
         this.requestUpdate();
     }
+
 
     targetTroops(): number {
         return this._manpower * this.targetTroopRatio
