@@ -10,16 +10,19 @@ import { SendSetTargetTroopRatioEvent } from '../../Transport';
 
 @customElement('control-panel')
 export class ControlPanel extends LitElement implements Layer {
-    private game: Game
-    public clientID: ClientID
-    public eventBus: EventBus
-    public uiState: UIState
+    private game: Game;
+    public clientID: ClientID;
+    public eventBus: EventBus;
+    public uiState: UIState;
 
     @state()
     private attackRatio: number = .2;
 
     @state()
     private targetTroopRatio = 1;
+
+    @state()
+    private currentTroopRatio = 1;
 
     @state()
     private _population: number;
@@ -43,40 +46,42 @@ export class ControlPanel extends LitElement implements Layer {
     private _manpower: number = 0;
 
     @state()
-    private _gold: number
-
+    private _gold: number;
 
     @state()
-    private _goldPerSecond: number
+    private _goldPerSecond: number;
 
     init(game: Game) {
         this.game = game;
-        this.attackRatio = .20
-        this.uiState.attackRatio = this.attackRatio
+        this.attackRatio = .20;
+        this.uiState.attackRatio = this.attackRatio;
+        this.currentTroopRatio = this.targetTroopRatio;
     }
 
     tick() {
-        // Update game state based on numTroops value if needed
         if (!this._isVisible && !this.game.inSpawnPhase()) {
-            this.setVisibile(true)
+            this.setVisibile(true);
         }
 
-        const player = this.game.playerByClientID(this.clientID)
+        const player = this.game.playerByClientID(this.clientID);
         if (player == null || !player.isAlive()) {
-            this.setVisibile(false)
-            return
+            this.setVisibile(false);
+            return;
         }
-        this._population = player.population()
-        this._maxPopulation = this.game.config().maxPopulation(player)
-        this._gold = player.gold()
-        this._troops = player.troops()
-        this._workers = player.workers()
-        this.popRate = this.game.config().populationIncreaseRate(player) * 10
-        this._goldPerSecond = this.game.config().goldAdditionRate(player) * 10
+
+        this._population = player.population();
+        this._maxPopulation = this.game.config().maxPopulation(player);
+        this._gold = player.gold();
+        this._troops = player.troops();
+        this._workers = player.workers();
+        this.popRate = this.game.config().populationIncreaseRate(player) * 10;
+        this._goldPerSecond = this.game.config().goldAdditionRate(player) * 10;
+
+        this.currentTroopRatio = player.troops() / player.population();
     }
 
     onAttackRatioChange(newRatio: number) {
-        this.uiState.attackRatio = newRatio
+        this.uiState.attackRatio = newRatio;
     }
 
     renderLayer(context: CanvasRenderingContext2D) {
@@ -88,32 +93,28 @@ export class ControlPanel extends LitElement implements Layer {
     }
 
     setVisibile(visible: boolean) {
-        this._isVisible = visible
+        this._isVisible = visible;
         this.requestUpdate();
     }
 
-
     targetTroops(): number {
-        return this._manpower * this.targetTroopRatio
+        return this._manpower * this.targetTroopRatio;
     }
 
     onTroopChange(newRatio: number) {
-        this.eventBus.emit(new SendSetTargetTroopRatioEvent(newRatio))
+        this.eventBus.emit(new SendSetTargetTroopRatioEvent(newRatio));
     }
 
     delta(): number {
-        const d = this._population - this.targetTroops()
-        // if (Math.abs(d) < this._manpower / 200) {
-        //     return 0
-        // }
-        return d
+        const d = this._population - this.targetTroops();
+        return d;
     }
-
 
     static styles = css`
         :host {
             display: block;
         }
+        
         .control-panel {
             position: fixed;
             bottom: 10px;
@@ -127,13 +128,62 @@ export class ControlPanel extends LitElement implements Layer {
             backdrop-filter: blur(5px);
             transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
         }
+        
         .hidden {
             opacity: 0;
             visibility: hidden;
         }
+        
         .slider-container {
+            position: relative;
             margin-bottom: 15px;
+            height: 48px;
         }
+        
+        .slider-track {
+            position: absolute;
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            top: 20px;
+        }
+        
+        .slider-fill {
+            position: absolute;
+            height: 8px;
+            background: rgba(0, 150, 255, 0.6);
+            border-radius: 4px;
+            top: 20px;
+            transition: width 0.3s ease-out;
+        }
+        
+        .slider-thumb {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border: 2px solid rgb(0, 150, 255);
+            border-radius: 50%;
+            top: 16px;
+            transform: translateX(-50%);
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        
+        .slider-thumb:hover {
+            transform: translateX(-50%) scale(1.1);
+        }
+        
+        input[type="range"] {
+            position: absolute;
+            width: 100%;
+            top: 12px;
+            margin: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+        
         .control-panel-info {
             color: white;
             margin-bottom: 15px;
@@ -141,25 +191,76 @@ export class ControlPanel extends LitElement implements Layer {
             background-color: rgba(0, 0, 0, 0.3);
             border-radius: 5px;
         }
+        
         .info-row {
             display: flex;
             justify-content: space-between;
             margin-bottom: 5px;
         }
+        
         .info-label {
             font-weight: bold;
         }
+        
         label {
             display: block;
             color: white;
             margin-bottom: 5px;
         }
-        input[type="range"] {
-            width: 100%;
-        }
+        
         .slider-value {
             color: white;
             text-align: right;
+        }
+        
+        .attack-slider {
+            position: relative;
+            margin-bottom: 15px;
+            height: 48px;
+        }
+        
+        .attack-slider .slider-track {
+            position: absolute;
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            top: 20px;
+        }
+        
+        .attack-slider .slider-fill {
+            position: absolute;
+            height: 8px;
+            background: rgba(255, 0, 0, 0.6);
+            border-radius: 4px;
+            top: 20px;
+            transition: width 0.3s ease-out;
+        }
+        
+        .attack-slider .slider-thumb {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border: 2px solid rgb(255, 0, 0);
+            border-radius: 50%;
+            top: 16px;
+            transform: translateX(-50%);
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        
+        .attack-slider .slider-thumb:hover {
+            transform: translateX(-50%) scale(1.1);
+        }
+        
+        .attack-slider input[type="range"] {
+            position: absolute;
+            width: 100%;
+            top: 12px;
+            margin: 0;
+            opacity: 0;
+            cursor: pointer;
         }
     `;
 
@@ -184,21 +285,39 @@ export class ControlPanel extends LitElement implements Layer {
                         <span>${renderNumber(this._goldPerSecond)}</span>
                     </div>
                 </div>
+                
                 <div class="slider-container">
-                    <label for="numTroops">Troops: ${renderTroops(this._troops)}   |   Workers: ${renderTroops(this._workers)}</label>
-                    <input type="range" id="numTroops" min="1" max="10" .value=${this.targetTroopRatio * 10}
-                           @input=${(e: Event) => {
-                this.targetTroopRatio = parseInt((e.target as HTMLInputElement).value) / 10;
+                    <label>Troops: ${renderTroops(this._troops)} | Workers: ${renderTroops(this._workers)}</label>
+                    <div class="slider-track"></div>
+                    <div class="slider-fill" style="width: ${this.currentTroopRatio * 100}%"></div>
+                    <div class="slider-thumb" style="left: ${this.targetTroopRatio * 100}%"></div>
+                    <input 
+                        type="range" 
+                        min="1" 
+                        max="100" 
+                        .value=${this.targetTroopRatio * 100}
+                        @input=${(e: Event) => {
+                this.targetTroopRatio = parseInt((e.target as HTMLInputElement).value) / 100;
                 this.onTroopChange(this.targetTroopRatio);
-            }}>
+            }}
+                    >
                 </div>
-               <div class="slider-container">
-                    <label for="numTroops">Attack Ratio: ${this.attackRatio * 100}%</label>
-                    <input type="range" id="numTroops" min="1" max="10" value=${this.attackRatio * 10}
-                           @input=${(e: Event) => {
-                this.attackRatio = parseInt((e.target as HTMLInputElement).value) / 10;
+                
+                <div class="attack-slider">
+                    <label>Attack Ratio: ${(this.attackRatio * 100).toFixed(0)}%</label>
+                    <div class="slider-track"></div>
+                    <div class="slider-fill" style="width: ${this.attackRatio * 100}%"></div>
+                    <div class="slider-thumb" style="left: ${this.attackRatio * 100}%"></div>
+                    <input 
+                        type="range" 
+                        min="1" 
+                        max="100"
+                        .value=${this.attackRatio * 100}
+                        @input=${(e: Event) => {
+                this.attackRatio = parseInt((e.target as HTMLInputElement).value) / 100;
                 this.onAttackRatioChange(this.attackRatio);
-            }}>
+            }}
+                    >
                 </div>
             </div>
         `;
