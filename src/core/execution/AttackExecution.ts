@@ -2,7 +2,6 @@ import { PriorityQueue } from "@datastructures-js/priority-queue";
 import { Cell, Execution, MutableGame, MutablePlayer, Player, PlayerID, TerrainType, TerraNullius, Tile } from "../game/Game";
 import { PseudoRandom } from "../PseudoRandom";
 import { manhattanDist } from "../Util";
-import { Terrain } from "../game/TerrainMapLoader";
 
 export class AttackExecution implements Execution {
     private breakAlliance = false

@@ -1,4 +1,4 @@
-import { Cell, Execution, MutableGame, MutablePlayer, PlayerID, Tile } from "../game/Game";
+import { Cell, Execution, Items, MutableGame, MutablePlayer, PlayerID, Tile } from "../game/Game";
 import { PseudoRandom } from "../PseudoRandom";
 import { bfs, dist, euclideanDist, manhattanDist } from "../Util";
 
@@ -26,6 +26,13 @@ export class NukeExecution implements Execution {
     }
 
     tick(ticks: number): void {
+        if (this.sender.gold() < Items.Nuke.cost) {
+            console.warn(`player ${this.sender} insufficient gold for nuke`)
+            this.active = false
+            return
+        }
+        this.sender.removeGold(Items.Nuke.cost)
+
         const rand = new PseudoRandom(this.mg.ticks())
         const tile = this.mg.tile(this.cell)
         const toDestroy = bfs(tile, (n: Tile) => {
