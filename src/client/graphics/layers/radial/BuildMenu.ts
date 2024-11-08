@@ -1,22 +1,20 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { EventBus } from '../../../../core/EventBus';
-import { Cell, Game, Player } from '../../../../core/game/Game';
+import { Cell, Game, Item, Items, Player } from '../../../../core/game/Game';
 import { SendNukeIntentEvent } from '../../../Transport';
 import nukeIcon from '../../../../../resources/images/NukeIconWhite.svg';
 import goldCoinIcon from '../../../../../resources/images/GoldCoinIcon.svg';
 import { renderNumber } from '../../Utils';
 
 interface BuildItem {
-    id: string;
-    name: string;
+    item: Item
     icon: string;
-    cost: number;
 }
 
 const buildTable: BuildItem[][] = [
     [
-        { id: 'nuke', name: 'Nuke', icon: nukeIcon, cost: 1_000_000 },
+        { item: Items.Nuke, icon: nukeIcon },
         // { id: 'battleship', name: 'Battleship', icon: '🚢', cost: 500, buildTime: 20 }
     ]
 ];
@@ -24,11 +22,10 @@ const buildTable: BuildItem[][] = [
 @customElement('build-menu')
 export class BuildMenu extends LitElement {
     public game: Game;
-    public eventBus: EventBus
+    public eventBus: EventBus;
 
-
-    private myPlayer: Player
-    private clickedCell: Cell
+    private myPlayer: Player;
+    private clickedCell: Cell;
 
     static styles = css`
         :host {
@@ -72,14 +69,26 @@ export class BuildMenu extends LitElement {
             margin: 8px;
             padding: 10px;
         }
-        .build-button:hover {
+        .build-button:not(:disabled):hover {
             background-color: #3A3A3A;
             transform: scale(1.05);
             border-color: #666;
         }
-        .build-button:active {
+        .build-button:not(:disabled):active {
             background-color: #4A4A4A;
             transform: scale(0.95);
+        }
+        .build-button:disabled {
+            background-color: #1A1A1A;
+            border-color: #333;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .build-button:disabled img {
+            opacity: 0.5;
+        }
+        .build-button:disabled .build-cost {
+            color: #FF4444;
         }
         .build-icon {
             font-size: 40px;
@@ -128,6 +137,10 @@ export class BuildMenu extends LitElement {
     @state()
     private _hidden = true;
 
+    private canAfford(item: BuildItem): boolean {
+        return this.myPlayer && this.myPlayer.gold() >= item.item.cost;
+    }
+
     public onBuildSelected: (item: BuildItem) => void = () => {
         this.eventBus.emit(new SendNukeIntentEvent(this.myPlayer, this.clickedCell, null))
         this.hideMenu()
@@ -139,11 +152,16 @@ export class BuildMenu extends LitElement {
                 ${buildTable.map(row => html`
                     <div class="build-row">
                         ${row.map(item => html`
-                       <button class="build-button" @click=${() => this.onBuildSelected(item)}>
-                            <img src=${item.icon} alt="${item.name}" width="40" height="40">
-                            <span class="build-name">${item.name}</span>
+                       <button 
+                           class="build-button" 
+                           @click=${() => this.onBuildSelected(item)}
+                           ?disabled=${!this.canAfford(item)}
+                           title=${!this.canAfford(item) ? 'Not enough money' : ''}
+                       >
+                            <img src=${item.icon} alt="${item.item.name}" width="40" height="40">
+                            <span class="build-name">${item.item.name}</span>
                             <span class="build-cost">
-                                ${renderNumber(item.cost)}
+                                ${renderNumber(item.item.cost)}
                                 <img src=${goldCoinIcon} alt="gold" width="12" height="12" style="vertical-align: middle;">
                             </span>
                         </button> 
@@ -160,8 +178,8 @@ export class BuildMenu extends LitElement {
     }
 
     showMenu(player: Player, clickedCell: Cell) {
-        this.myPlayer = player
-        this.clickedCell = clickedCell
+        this.myPlayer = player;
+        this.clickedCell = clickedCell;
         this._hidden = false;
         this.requestUpdate();
     }

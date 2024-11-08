@@ -25,6 +25,14 @@ export enum GameMap {
     Mena
 }
 
+export class Item {
+    constructor(public readonly name: string, public readonly cost: Gold) { }
+}
+
+export const Items = {
+    Nuke: new Item("Nuke", 1_000_000),
+} as const;
+
 export class Nation {
     constructor(
         public readonly name: string,
