@@ -149,16 +149,39 @@ export function sanitize(name: string): string {
 
 export function processName(name: string): string {
     // First sanitize the raw input - strip everything except text and emojis
-    const withEmojis = twemoji.parse(sanitize(name), {
-        base: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/',  // Use jsDelivr CDN
-        folder: 'svg',  // or 'png' if you prefer
-        ext: '.svg'     // or '.png' if you prefer
-    });
-    return DOMPurify.sanitize(withEmojis, {
-        ALLOWED_TAGS: ['img'],
-        ALLOWED_ATTR: ['src', 'alt', 'class'],
-        // Only allow twemoji CDN URLs
-        ALLOWED_URI_REGEXP: /^https:\/\/cdn\.jsdelivr\.net\/gh\/twitter\/twemoji/
+    const sanitizedName = sanitize(name);
+
+    // Process emojis with twemoji
+    const withEmojis = twemoji.parse(sanitizedName, {
+        base: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/',
+        folder: 'svg',
+        ext: '.svg'
     });
 
+    // Add CSS styles inline to the wrapper span
+    const styledHTML = `
+        <span class="player-name" style="
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-weight: 500;
+            vertical-align: middle;
+        ">
+            ${withEmojis}
+        </span>
+    `;
+
+    // Add CSS for the emoji images
+    const withEmojiStyles = styledHTML.replace(
+        /<img/g,
+        '<img style="height: 1.2em; width: 1.2em; vertical-align: -0.2em; margin: 0 0.05em 0 0.1em;"'
+    );
+
+    // Sanitize the final HTML, allowing styles and specific attributes
+    return DOMPurify.sanitize(withEmojiStyles, {
+        ALLOWED_TAGS: ['span', 'img'],
+        ALLOWED_ATTR: ['src', 'alt', 'class', 'style'],
+        ALLOWED_URI_REGEXP: /^https:\/\/cdn\.jsdelivr\.net\/gh\/twitter\/twemoji/,
+        ADD_ATTR: ['style']
+    });
 }

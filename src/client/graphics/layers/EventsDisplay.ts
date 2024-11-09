@@ -16,6 +16,7 @@ import {
 import { ClientID } from "../../../core/Schemas";
 import { Layer } from "./Layer";
 import { SendAllianceReplyIntentEvent } from "../../Transport";
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 export enum MessageType {
   SUCCESS,
@@ -34,6 +35,7 @@ export class DisplayMessageEvent implements GameEvent {
 
 interface Event {
   description: string;
+  unsafeDescription?: boolean
   buttons?: {
     text: string;
     className: string;
@@ -313,7 +315,8 @@ export class EventsDisplay extends LitElement implements Layer {
       });
     } else if (event.message.sender === myPlayer && event.message.recipient !== AllPlayers) {
       this.addEvent({
-        description: `Sent ${event.message.recipient.displayName()} ${event.message.emoji}`,
+        description: `Sent ${event.message.recipient.displayName()}: ${event.message.emoji}`,
+        unsafeDescription: true,
         type: MessageType.INFO,
         highlight: true,
         createdAt: this.game.ticks(),
@@ -332,7 +335,7 @@ export class EventsDisplay extends LitElement implements Layer {
           ${this.events.map((event, index) => html`
             <tr class="${event.highlight ? 'highlight' : ''} ${MessageType[event.type].toLowerCase()}">
               <td>
-                ${event.description}
+                ${event.unsafeDescription ? unsafeHTML(event.description) : event.description}
                 ${event.buttons ? html`
                   <div class="button-container">
                     ${event.buttons.map(btn => html`
