@@ -256,7 +256,7 @@ export class EventsDisplay extends LitElement implements Layer {
     const myPlayer = this.game.playerByClientID(this.clientID);
     if (!myPlayer) return;
 
-    if (event.traitor === myPlayer) {
+    if (!event.betrayed.isTraitor() && event.traitor === myPlayer) {
       this.addEvent({
         description: `You broke your alliance with ${event.betrayed.name()}, making you a TRAITOR`,
         type: MessageType.ERROR,
