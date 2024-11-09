@@ -172,11 +172,12 @@
 * rewrite EventsDisplay DONE 11/1/2024
 * update Mena NPC locations DONE 11/1/2024
 * create build menu DONE 11/3/2024
-* add gold
-* add troop/worker slider
-* add battleship
+* add gold DONE 11/4/2024
+* add troop/worker slider DONE 11/4/2024
+* create Unit layer DONE 11/9/2024
+* create Unit interface
+* add destroyer
 * NPC has relations
-* fix name rendering
 * use twitter emojis
 * private game shows how many players joined
 * optimize sendBoat function
