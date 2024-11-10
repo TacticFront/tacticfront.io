@@ -1,5 +1,5 @@
 import { PriorityQueue } from "@datastructures-js/priority-queue";
-import { Boat, Cell, Execution, MutableBoat, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, Tile, TileEvent } from "../game/Game";
+import { Unit, Cell, Execution, MutableUnit, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, Tile, TileEvent, UnitType } from "../game/Game";
 import { and, bfs, manhattanDistWrapped, sourceDstOceanShore } from "../Util";
 import { AttackExecution } from "./AttackExecution";
 import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/EventsDisplay";
@@ -24,7 +24,7 @@ export class BoatAttackExecution implements Execution {
 
     private currTileIndex: number = 0
 
-    private boat: MutableBoat
+    private boat: MutableUnit
 
     private aStarPre: AStar
     private aStarComplete: AStar
@@ -48,7 +48,7 @@ export class BoatAttackExecution implements Execution {
 
         this.attacker = mg.player(this.attackerID)
 
-        if (this.attacker.boats().length >= mg.config().boatMaxNumber()) {
+        if (this.attacker.units(UnitType.TransportShip).length >= mg.config().boatMaxNumber()) {
             mg.displayMessage(`No boats available, max ${mg.config().boatMaxNumber()}`, MessageType.WARN, this.attackerID)
             this.active = false
             this.attacker.addTroops(this.troops)

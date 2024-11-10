@@ -25,6 +25,10 @@ export enum GameMap {
     Mena
 }
 
+export enum UnitType {
+    TransportShip
+}
+
 export class Item {
     constructor(public readonly name: string, public readonly cost: Gold) { }
 }
@@ -145,18 +149,17 @@ export interface Tile {
     onShore(): boolean
 }
 
-export interface Boat {
+export interface Unit {
+    type(): UnitType
     troops(): number
     tile(): Tile
     owner(): Player
-    target(): Player | TerraNullius
     isActive(): boolean
 }
 
-export interface MutableBoat extends Boat {
+export interface MutableUnit extends Unit {
     move(tile: Tile): void
     owner(): MutablePlayer
-    target(): MutablePlayer | TerraNullius
     setTroops(troops: number): void
     delete(): void
 }
@@ -175,7 +178,7 @@ export interface Player {
     clientID(): ClientID
     id(): PlayerID
     type(): PlayerType
-    boats(): Boat[]
+    units(...types: UnitType[]): Unit[]
     ownsTile(cell: Cell): boolean
     isAlive(): boolean
     borderTiles(): ReadonlySet<Tile>
@@ -216,14 +219,14 @@ export interface MutablePlayer extends Player {
     relinquish(tile: Tile): void
     executions(): Execution[]
     neighbors(): (MutablePlayer | TerraNullius)[]
-    boats(): MutableBoat[]
+    units(...types: UnitType[]): MutableUnit[]
     incomingAllianceRequests(): MutableAllianceRequest[]
     outgoingAllianceRequests(): MutableAllianceRequest[]
     alliances(): MutableAlliance[]
     allianceWith(other: Player): MutableAlliance | null
     breakAlliance(alliance: Alliance): void
     createAllianceRequest(recipient: Player): MutableAllianceRequest
-    addBoat(troops: number, tile: Tile, target: Player | TerraNullius): MutableBoat
+    addBoat(troops: number, tile: Tile, target: Player | TerraNullius): MutableUnit
     target(other: Player): void
     targets(): MutablePlayer[]
     transitiveTargets(): MutablePlayer[]
@@ -263,7 +266,7 @@ export interface Game {
     nations(): Nation[]
     config(): Config
     displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void
-    boats(): Boat[]
+    boats(): Unit[]
 }
 
 export interface MutableGame extends Game {
@@ -272,7 +275,7 @@ export interface MutableGame extends Game {
     players(): MutablePlayer[]
     addPlayer(playerInfo: PlayerInfo, manpower: number): MutablePlayer
     executions(): Execution[]
-    boats(): MutableBoat[]
+    boats(): MutableUnit[]
 }
 
 export class TileEvent implements GameEvent {
@@ -284,7 +287,7 @@ export class PlayerEvent implements GameEvent {
 }
 
 export class BoatEvent implements GameEvent {
-    constructor(public readonly boat: Boat, public oldTile: Tile) { }
+    constructor(public readonly boat: Unit, public oldTile: Tile) { }
 }
 
 export class AllianceRequestEvent implements GameEvent {

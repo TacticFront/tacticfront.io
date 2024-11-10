@@ -1,24 +1,28 @@
-import {MutableBoat, Tile, TerraNullius} from "./Game";
-import {GameImpl} from "./GameImpl";
-import {PlayerImpl} from "./PlayerImpl";
-import {TerraNulliusImpl} from "./TerraNulliusImpl";
+import { MutableUnit, Tile, TerraNullius, UnitType } from "./Game";
+import { GameImpl } from "./GameImpl";
+import { PlayerImpl } from "./PlayerImpl";
+import { TerraNulliusImpl } from "./TerraNulliusImpl";
 
 
-export class BoatImpl implements MutableBoat {
+export class UnitImpl implements MutableUnit {
     private _active = true;
 
     constructor(
+        private _type: UnitType,
         private g: GameImpl,
         private _tile: Tile,
         private _troops: number,
         private _owner: PlayerImpl,
-        private _target: PlayerImpl | TerraNulliusImpl
     ) { }
+
+    type(): UnitType {
+        return this._type
+    }
 
     move(tile: Tile): void {
         const oldTile = this._tile;
         this._tile = tile;
-        this.g.fireBoatUpdateEvent(this, oldTile);
+        this.g.fireUnitUpdateEvent(this, oldTile);
     }
     setTroops(troops: number): void {
         this._troops = troops;
@@ -32,13 +36,11 @@ export class BoatImpl implements MutableBoat {
     owner(): PlayerImpl {
         return this._owner;
     }
-    target(): PlayerImpl | TerraNullius {
-        return this._target;
-    }
+
     delete(): void {
-        this._owner._boats = this._owner._boats.filter(b => b != this);
+        this._owner._units = this._owner._units.filter(b => b != this);
         this._active = false;
-        this.g.fireBoatUpdateEvent(this, this._tile);
+        this.g.fireUnitUpdateEvent(this, this._tile);
     }
     isActive(): boolean {
         return this._active;

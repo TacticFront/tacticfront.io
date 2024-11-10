@@ -1,6 +1,6 @@
 import { Colord } from "colord";
 import { Theme } from "../../../core/configuration/Config";
-import { Boat, BoatEvent, Cell, Game, Tile } from "../../../core/game/Game";
+import { Unit, BoatEvent, Cell, Game, Tile } from "../../../core/game/Game";
 import { bfs, dist } from "../../../core/Util";
 import { Layer } from "./Layer";
 import { EventBus } from "../../../core/EventBus";
@@ -10,7 +10,7 @@ export class UnitLayer implements Layer {
     private context: CanvasRenderingContext2D
     private imageData: ImageData
 
-    private boatToTrail = new Map<Boat, Set<Tile>>()
+    private boatToTrail = new Map<Unit, Set<Tile>>()
 
     private theme: Theme = null
 

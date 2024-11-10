@@ -1,16 +1,16 @@
-import {info} from "console";
-import {Config} from "../configuration/Config";
-import {EventBus} from "../EventBus";
-import {Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Boat, BoatEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent, BrokeAllianceEvent, MutableAlliance, Alliance, AllianceExpiredEvent, Nation} from "./Game";
-import {TerrainMap} from "./TerrainMapLoader";
-import {PlayerImpl} from "./PlayerImpl";
-import {TerraNulliusImpl} from "./TerraNulliusImpl";
-import {TileImpl} from "./TileImpl";
-import {AllianceRequestImpl} from "./AllianceRequestImpl";
-import {AllianceImpl} from "./AllianceImpl";
-import {ClientID} from "../Schemas";
-import {DisplayMessageEvent, MessageType} from "../../client/graphics/layers/EventsDisplay";
-import {BoatImpl} from "./BoatImpl";
+import { info } from "console";
+import { Config } from "../configuration/Config";
+import { EventBus } from "../EventBus";
+import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Unit, BoatEvent as UnitEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent, BrokeAllianceEvent, MutableAlliance, Alliance, AllianceExpiredEvent, Nation } from "./Game";
+import { TerrainMap } from "./TerrainMapLoader";
+import { PlayerImpl } from "./PlayerImpl";
+import { TerraNulliusImpl } from "./TerraNulliusImpl";
+import { TileImpl } from "./TileImpl";
+import { AllianceRequestImpl } from "./AllianceRequestImpl";
+import { AllianceImpl } from "./AllianceImpl";
+import { ClientID } from "../Schemas";
+import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/EventsDisplay";
+import { UnitImpl } from "./UnitImpl";
 
 export function createGame(terrainMap: TerrainMap, eventBus: EventBus, config: Config): Game {
     return new GameImpl(terrainMap, eventBus, config)
@@ -58,8 +58,8 @@ export class GameImpl implements MutableGame {
                 n.strength
             ))
     }
-    boats(): BoatImpl[] {
-        return Array.from(this._players.values()).flatMap(p => p._boats)
+    boats(): UnitImpl[] {
+        return Array.from(this._players.values()).flatMap(p => p._units)
     }
     nations(): Nation[] {
         return this.nations_
@@ -354,8 +354,8 @@ export class GameImpl implements MutableGame {
         return false
     }
 
-    public fireBoatUpdateEvent(boat: Boat, oldTile: Tile) {
-        this.eventBus.emit(new BoatEvent(boat, oldTile))
+    public fireUnitUpdateEvent(boat: Unit, oldTile: Tile) {
+        this.eventBus.emit(new UnitEvent(boat, oldTile))
     }
 
     public breakAlliance(breaker: Player, alliance: Alliance) {
