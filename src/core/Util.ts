@@ -30,6 +30,10 @@ export function within(value: number, min: number, max: number): number {
     return Math.min(Math.max(value, min), max);
 }
 
+export function euclDist(root: Tile, dist: number): (tile: Tile) => boolean {
+    return (n: Tile) => euclideanDist(root.cell(), n.cell()) <= dist;
+}
+
 export function dist(root: Tile, dist: number): (tile: Tile) => boolean {
     return (n: Tile) => manhattanDist(root.cell(), n.cell()) <= dist;
 }

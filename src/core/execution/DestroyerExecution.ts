@@ -21,7 +21,9 @@ export class DestroyerExecution implements Execution {
     tick(ticks: number): void {
         if (this.destroyer == null) {
             this.destroyer = this._owner.addUnit(UnitType.Destroyer, 0, this.mg.tile(this.cell))
+            return
         }
+        this.destroyer.move(this.destroyer.tile().neighbors()[0])
     }
 
     owner(): MutablePlayer {
