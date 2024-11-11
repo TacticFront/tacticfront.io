@@ -26,7 +26,8 @@ export enum GameMap {
 }
 
 export enum UnitType {
-    TransportShip
+    TransportShip,
+    Destroyer
 }
 
 export class Item {
@@ -35,6 +36,7 @@ export class Item {
 
 export const Items = {
     Nuke: new Item("Nuke", 1_000_000),
+    Destroyer: new Item("Destroyer", 100_000)
 } as const;
 
 export class Nation {
@@ -226,7 +228,6 @@ export interface MutablePlayer extends Player {
     allianceWith(other: Player): MutableAlliance | null
     breakAlliance(alliance: Alliance): void
     createAllianceRequest(recipient: Player): MutableAllianceRequest
-    addBoat(troops: number, tile: Tile, target: Player | TerraNullius): MutableUnit
     target(other: Player): void
     targets(): MutablePlayer[]
     transitiveTargets(): MutablePlayer[]
@@ -242,6 +243,8 @@ export interface MutablePlayer extends Player {
     setTroops(troops: number): void
     addTroops(troops: number): void
     removeTroops(troops: number): number
+
+    addUnit(type: UnitType, troops: number, tile: Tile): MutableUnit
 }
 
 export interface Game {
@@ -266,7 +269,7 @@ export interface Game {
     nations(): Nation[]
     config(): Config
     displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void
-    boats(): Unit[]
+    units(...types: UnitType[]): Unit[]
 }
 
 export interface MutableGame extends Game {
@@ -275,7 +278,7 @@ export interface MutableGame extends Game {
     players(): MutablePlayer[]
     addPlayer(playerInfo: PlayerInfo, manpower: number): MutablePlayer
     executions(): Execution[]
-    boats(): MutableUnit[]
+    units(...types: UnitType[]): MutableUnit[]
 }
 
 export class TileEvent implements GameEvent {
@@ -286,8 +289,8 @@ export class PlayerEvent implements GameEvent {
     constructor(public readonly player: Player) { }
 }
 
-export class BoatEvent implements GameEvent {
-    constructor(public readonly boat: Unit, public oldTile: Tile) { }
+export class UnitEvent implements GameEvent {
+    constructor(public readonly unit: Unit, public oldTile: Tile) { }
 }
 
 export class AllianceRequestEvent implements GameEvent {

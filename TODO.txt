@@ -175,7 +175,7 @@
 * add gold DONE 11/4/2024
 * add troop/worker slider DONE 11/4/2024
 * create Unit layer DONE 11/9/2024
-* create Unit interface
+* create Unit interface DONE 11/10/2024
 * add destroyer
 * NPC has relations
 * use twitter emojis

@@ -3,7 +3,7 @@ import { AttackIntent, BoatAttackIntentSchema, GameID, Intent, Turn } from "../S
 import { AttackExecution } from "./AttackExecution";
 import { SpawnExecution } from "./SpawnExecution";
 import { BotSpawner } from "./BotSpawner";
-import { BoatAttackExecution } from "./BoatAttackExecution";
+import { TransportShipExecution } from "./TransportShipExecution";
 import { PseudoRandom } from "../PseudoRandom";
 import { FakeHumanExecution } from "./FakeHumanExecution";
 import Usernames from '../../../resources/Usernames.txt'
@@ -52,7 +52,7 @@ export class Executor {
                 new Cell(intent.x, intent.y)
             )
         } else if (intent.type == "boat") {
-            return new BoatAttackExecution(
+            return new TransportShipExecution(
                 intent.attackerID,
                 intent.targetID,
                 new Cell(intent.x, intent.y),

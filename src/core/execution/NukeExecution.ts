@@ -48,7 +48,9 @@ export class NukeExecution implements Execution {
                 mp.removeTroops(mp.troops() / mp.numTilesOwned())
             }
         }
-        this.mg.boats().filter(b => euclideanDist(this.cell, b.tile().cell()) < this.magnitude + 50).forEach(b => b.delete())
+        this.mg.units()
+            .filter(b => euclideanDist(this.cell, b.tile().cell()) < this.magnitude + 50)
+            .forEach(b => b.delete())
         this.active = false
     }
 

@@ -2,8 +2,9 @@ import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { EventBus } from '../../../../core/EventBus';
 import { Cell, Game, Item, Items, Player } from '../../../../core/game/Game';
-import { SendNukeIntentEvent } from '../../../Transport';
+import { SendCreateDestroyerIntentEvent, SendNukeIntentEvent } from '../../../Transport';
 import nukeIcon from '../../../../../resources/images/NukeIconWhite.svg';
+import destroyerIcon from '../../../../../resources/images/DestroyerIconWhite.svg';
 import goldCoinIcon from '../../../../../resources/images/GoldCoinIcon.svg';
 import { renderNumber } from '../../Utils';
 import { ContextMenuEvent } from '../../../InputHandler';
@@ -16,6 +17,7 @@ interface BuildItem {
 const buildTable: BuildItem[][] = [
     [
         { item: Items.Nuke, icon: nukeIcon },
+        { item: Items.Destroyer, icon: destroyerIcon },
         // { id: 'battleship', name: 'Battleship', icon: '🚢', cost: 500, buildTime: 20 }
     ]
 ];
@@ -146,8 +148,15 @@ export class BuildMenu extends LitElement {
         return this.myPlayer && this.myPlayer.gold() >= item.item.cost;
     }
 
-    public onBuildSelected: (item: BuildItem) => void = () => {
-        this.eventBus.emit(new SendNukeIntentEvent(this.myPlayer, this.clickedCell, null))
+    public onBuildSelected = (item: BuildItem) => {
+        switch (item.item.name) {
+            case "Nuke":
+                this.eventBus.emit(new SendNukeIntentEvent(this.myPlayer, this.clickedCell, null))
+                break
+            case "Destroyer":
+                this.eventBus.emit(new SendCreateDestroyerIntentEvent(this.clickedCell))
+
+        }
         this.hideMenu()
     };
 

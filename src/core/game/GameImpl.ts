@@ -1,7 +1,7 @@
 import { info } from "console";
 import { Config } from "../configuration/Config";
 import { EventBus } from "../EventBus";
-import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Unit, BoatEvent as UnitEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent, BrokeAllianceEvent, MutableAlliance, Alliance, AllianceExpiredEvent, Nation } from "./Game";
+import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Unit, UnitEvent as UnitEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent, BrokeAllianceEvent, MutableAlliance, Alliance, AllianceExpiredEvent, Nation, UnitType } from "./Game";
 import { TerrainMap } from "./TerrainMapLoader";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
@@ -58,8 +58,8 @@ export class GameImpl implements MutableGame {
                 n.strength
             ))
     }
-    boats(): UnitImpl[] {
-        return Array.from(this._players.values()).flatMap(p => p._units)
+    units(...types: UnitType[]): UnitImpl[] {
+        return Array.from(this._players.values()).flatMap(p => p.units(...types))
     }
     nations(): Nation[] {
         return this.nations_

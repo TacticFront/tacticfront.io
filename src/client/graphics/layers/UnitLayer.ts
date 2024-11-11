@@ -1,6 +1,6 @@
 import { Colord } from "colord";
 import { Theme } from "../../../core/configuration/Config";
-import { Unit, BoatEvent, Cell, Game, Tile } from "../../../core/game/Game";
+import { Unit, UnitEvent, Cell, Game, Tile, UnitType } from "../../../core/game/Game";
 import { bfs, dist } from "../../../core/Util";
 import { Layer } from "./Layer";
 import { EventBus } from "../../../core/EventBus";
@@ -35,7 +35,7 @@ export class UnitLayer implements Layer {
         this.context.putImageData(this.imageData, 0, 0);
         this.initImageData()
 
-        this.eventBus.on(BoatEvent, e => this.onBoatEvent(e))
+        this.eventBus.on(UnitEvent, e => this.onUnitEvent(e))
     }
 
     initImageData() {
@@ -58,28 +58,47 @@ export class UnitLayer implements Layer {
     }
 
 
-    onBoatEvent(event: BoatEvent) {
-        if (!this.boatToTrail.has(event.boat)) {
-            this.boatToTrail.set(event.boat, new Set<Tile>())
+    onUnitEvent(event: UnitEvent) {
+        switch (event.unit.type()) {
+            case UnitType.TransportShip:
+                this.handleBoatEvent(event)
+                break
+            case UnitType.Destroyer:
+                this.handleDestroyerEvent(event)
+                break
+            default:
+                throw Error(`event for unit ${event.unit.type()} not supported`)
         }
-        const trail = this.boatToTrail.get(event.boat)
+    }
+
+    private handleDestroyerEvent(event: UnitEvent) {
+
+    }
+
+    private handleBoatEvent(event: UnitEvent) {
+        if (!this.boatToTrail.has(event.unit)) {
+            this.boatToTrail.set(event.unit, new Set<Tile>())
+        }
+        const trail = this.boatToTrail.get(event.unit)
         trail.add(event.oldTile)
         bfs(event.oldTile, dist(event.oldTile, 3)).forEach(t => {
             this.clearCell(t.cell())
         })
-        if (event.boat.isActive()) {
-            bfs(event.boat.tile(), dist(event.boat.tile(), 4)).forEach(
+        if (event.unit.isActive()) {
+            bfs(event.unit.tile(), dist(event.unit.tile(), 4)).forEach(
                 t => {
                     if (trail.has(t)) {
-                        this.paintCell(t.cell(), this.theme.territoryColor(event.boat.owner().info()), 150)
+                        this.paintCell(t.cell(), this.theme.territoryColor(event.unit.owner().info()), 150)
                     }
                 }
             )
-            bfs(event.boat.tile(), dist(event.boat.tile(), 2)).forEach(t => this.paintCell(t.cell(), this.theme.borderColor(event.boat.owner().info()), 255))
-            bfs(event.boat.tile(), dist(event.boat.tile(), 1)).forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(event.boat.owner().info()), 180))
+            bfs(event.unit.tile(), dist(event.unit.tile(), 2))
+                .forEach(t => this.paintCell(t.cell(), this.theme.borderColor(event.unit.owner().info()), 255))
+            bfs(event.unit.tile(), dist(event.unit.tile(), 1))
+                .forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(event.unit.owner().info()), 180))
         } else {
             trail.forEach(t => this.clearCell(t.cell()))
-            this.boatToTrail.delete(event.boat)
+            this.boatToTrail.delete(event.unit)
         }
     }
 

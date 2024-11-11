@@ -73,8 +73,8 @@ export class PlayerImpl implements MutablePlayer {
     }
 
 
-    addBoat(troops: number, tile: Tile): UnitImpl {
-        const b = new UnitImpl(UnitType.TransportShip, this.gs, tile, troops, this);
+    addUnit(type: UnitType, troops: number, tile: Tile): UnitImpl {
+        const b = new UnitImpl(type, this.gs, tile, troops, this);
         this._units.push(b);
         this.gs.fireUnitUpdateEvent(b, b.tile());
         return b;

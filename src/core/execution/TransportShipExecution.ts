@@ -4,7 +4,7 @@ import { and, bfs, manhattanDistWrapped, sourceDstOceanShore } from "../Util";
 import { AttackExecution } from "./AttackExecution";
 import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/EventsDisplay";
 
-export class BoatAttackExecution implements Execution {
+export class TransportShipExecution implements Execution {
 
     private lastMove: number
 
@@ -86,7 +86,7 @@ export class BoatAttackExecution implements Execution {
         this.aStarPre.compute(5)
         this.path = this.aStarPre.reconstructPath()
         if (this.path != null) {
-            this.boat = this.attacker.addBoat(this.troops, this.src, this.target)
+            this.boat = this.attacker.addUnit(UnitType.TransportShip, this.troops, this.src)
         } else {
             console.log('got null path')
             this.active = false
@@ -126,7 +126,9 @@ export class BoatAttackExecution implements Execution {
                 this.target.addTroops(this.troops)
             } else {
                 this.attacker.conquer(this.dst)
-                this.mg.addExecution(new AttackExecution(this.troops, this.attacker.id(), this.targetID, this.dst.cell(), null, false))
+                this.mg.addExecution(
+                    new AttackExecution(this.troops, this.attacker.id(), this.targetID, this.dst.cell(), null, false)
+                )
             }
             this.boat.delete()
             this.active = false

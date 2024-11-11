@@ -1,7 +1,7 @@
 import { Config } from "../core/configuration/Config"
 import { EventBus, GameEvent } from "../core/EventBus"
-import { AllianceRequest, AllPlayers, Cell, Player, PlayerID, PlayerType } from "../core/game/Game"
-import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema } from "../core/Schemas"
+import { AllianceRequest, AllPlayers, Cell, Player, PlayerID, PlayerType, Tile } from "../core/game/Game"
+import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema, CreateDestroyerIntent, GameID, Intent, ServerMessage, ServerMessageSchema } from "../core/Schemas"
 import { LocalServer } from "./LocalServer"
 
 
@@ -44,6 +44,12 @@ export class SendBoatAttackIntentEvent implements GameEvent {
         public readonly targetID: PlayerID,
         public readonly cell: Cell,
         public readonly troops: number
+    ) { }
+}
+
+export class SendCreateDestroyerIntentEvent implements GameEvent {
+    constructor(
+        public readonly cell: Cell,
     ) { }
 }
 
@@ -115,6 +121,7 @@ export class Transport {
         this.eventBus.on(SendDonateIntentEvent, (e) => this.onSendDonateIntent(e))
         this.eventBus.on(SendNukeIntentEvent, (e) => this.onSendNukeIntent(e))
         this.eventBus.on(SendSetTargetTroopRatioEvent, (e) => this.onSendSetTargetTroopRatioEvent(e))
+        this.eventBus.on(SendCreateDestroyerIntentEvent, (e) => this.onCreateDestroyerIntent(e))
     }
 
     connect(onconnect: () => void, onmessage: (message: ServerMessage) => void) {
@@ -311,6 +318,16 @@ export class Transport {
             clientID: this.clientID,
             player: this.playerID,
             ratio: event.ratio,
+        })
+    }
+
+    private onCreateDestroyerIntent(event: SendCreateDestroyerIntentEvent) {
+        this.sendIntent({
+            type: "create_destroyer",
+            clientID: this.clientID,
+            player: this.playerID,
+            x: event.cell.x,
+            y: event.cell.y,
         })
     }
 

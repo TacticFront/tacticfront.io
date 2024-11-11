@@ -2,7 +2,7 @@ import { Cell, Execution, MutableGame, MutablePlayer, Player, PlayerInfo, Player
 import { PseudoRandom } from "../PseudoRandom"
 import { and, bfs, dist, simpleHash } from "../Util";
 import { AttackExecution } from "./AttackExecution";
-import { BoatAttackExecution } from "./BoatAttackExecution";
+import { TransportShipExecution } from "./TransportShipExecution";
 import { SpawnExecution } from "./SpawnExecution";
 
 export class FakeHumanExecution implements Execution {
@@ -194,7 +194,7 @@ export class FakeHumanExecution implements Execution {
                 continue
             }
 
-            this.mg.addExecution(new BoatAttackExecution(
+            this.mg.addExecution(new TransportShipExecution(
                 this.player.id(),
                 dst.hasOwner() ? dst.owner().id() : null,
                 dst.cell(),
