@@ -1,4 +1,4 @@
-import { AllPlayers, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, UnitType } from "../game/Game";
+import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, UnitType } from "../game/Game";
 
 export class DestroyerExecution implements Execution {
 
