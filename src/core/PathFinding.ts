@@ -69,3 +69,33 @@ export class AStar {
         return path;
     }
 }
+
+export class PathFinder {
+
+    private curr: Tile = null
+    private dst: Tile = null
+    private path: Tile[]
+    private aStar: AStar
+
+    constructor() {
+
+    }
+
+    nextTile(curr: Tile, dst: Tile): Tile {
+        if (curr != this.curr || dst != this.dst || this.path == null) {
+            this.curr = curr
+            this.dst = dst
+            this.path = null
+            this.aStar = new AStar(curr, dst)
+            if (this.aStar.compute(1000)) {
+                this.path = this.aStar.reconstructPath()
+            } else {
+                return null
+            }
+        }
+        if (this.path.length == 0) {
+            return null
+        }
+        return this.path.shift()
+    }
+}
