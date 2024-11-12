@@ -1,5 +1,6 @@
 import { PriorityQueue } from "@datastructures-js/priority-queue";
 import { Tile } from "./game/Game";
+import { manhattanDist } from "./Util";
 
 
 export class AStar {
@@ -82,20 +83,44 @@ export class PathFinder {
     }
 
     nextTile(curr: Tile, dst: Tile): Tile {
-        if (curr != this.curr || dst != this.dst || this.path == null) {
+        if (this.shouldRecompute(curr, dst)) {
             this.curr = curr
             this.dst = dst
             this.path = null
             this.aStar = new AStar(curr, dst)
-            if (this.aStar.compute(1000)) {
+            if (this.aStar.compute(50000)) {
                 this.path = this.aStar.reconstructPath()
             } else {
                 return null
             }
-        }
-        if (this.path.length == 0) {
-            return null
+            if (this.path.length > 0) {
+                this.path.shift()
+            }
         }
         return this.path.shift()
+    }
+
+    private shouldRecompute(curr: Tile, dst: Tile) {
+        if (this.path == null || this.curr == null || this.dst == null) {
+            return true
+        }
+        const dist = manhattanDist(curr.cell(), dst.cell())
+        let tolerance = 10
+        if (dist > 50) {
+            tolerance = 10
+        } else if (dist > 25) {
+            tolerance = 5
+        } else if (dist > 10) {
+            tolerance = 3
+        } else {
+            tolerance = 0
+        }
+        if (manhattanDist(this.curr.cell(), curr.cell()) > tolerance) {
+            return true
+        }
+        if (manhattanDist(this.dst.cell(), dst.cell()) > tolerance) {
+            return true
+        }
+        return false
     }
 }
