@@ -38,7 +38,7 @@ export class Item {
 export const Items = {
     Nuke: new Item("Nuke", 1_000_000),
     Destroyer: new Item("Destroyer", 10),
-    Port: new Item("Port", 10)
+    Port: new Item("Port", 0)
 } as const;
 
 export class Nation {
