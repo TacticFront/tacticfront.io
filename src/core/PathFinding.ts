@@ -41,7 +41,7 @@ export class AStar {
             for (const neighbor of this.current.neighborsWrapped()) {
                 if (neighbor != this.dst && neighbor.isLand()) continue; // Skip non-water tiles
 
-                const tentativeGScore = this.gScore.get(this.current)! + 9 - Math.max(1, Math.min(neighbor.magnitude(), 8));
+                const tentativeGScore = this.gScore.get(this.current)! + 3 - Math.max(1, Math.min(neighbor.magnitude() / 4, 2));
 
                 if (!this.gScore.has(neighbor) || tentativeGScore < this.gScore.get(neighbor)!) {
                     this.cameFrom.set(neighbor, this.current);
