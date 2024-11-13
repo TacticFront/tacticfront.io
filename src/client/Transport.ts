@@ -1,7 +1,7 @@
 import { Config } from "../core/configuration/Config"
 import { EventBus, GameEvent } from "../core/EventBus"
-import { AllianceRequest, AllPlayers, Cell, Player, PlayerID, PlayerType, Tile } from "../core/game/Game"
-import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema, CreateDestroyerIntent, GameID, Intent, ServerMessage, ServerMessageSchema } from "../core/Schemas"
+import { AllianceRequest, AllPlayers, Cell, Item, Player, PlayerID, PlayerType, Tile, UnitType } from "../core/game/Game"
+import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema, BuildUnitIntentSchema, GameID, Intent, ServerMessage, ServerMessageSchema } from "../core/Schemas"
 import { LocalServer } from "./LocalServer"
 
 
@@ -47,8 +47,9 @@ export class SendBoatAttackIntentEvent implements GameEvent {
     ) { }
 }
 
-export class SendCreateDestroyerIntentEvent implements GameEvent {
+export class BuildUnitIntentEvent implements GameEvent {
     constructor(
+        public readonly unit: UnitType,
         public readonly cell: Cell,
     ) { }
 }
@@ -121,7 +122,7 @@ export class Transport {
         this.eventBus.on(SendDonateIntentEvent, (e) => this.onSendDonateIntent(e))
         this.eventBus.on(SendNukeIntentEvent, (e) => this.onSendNukeIntent(e))
         this.eventBus.on(SendSetTargetTroopRatioEvent, (e) => this.onSendSetTargetTroopRatioEvent(e))
-        this.eventBus.on(SendCreateDestroyerIntentEvent, (e) => this.onCreateDestroyerIntent(e))
+        this.eventBus.on(BuildUnitIntentEvent, (e) => this.onCreateDestroyerIntent(e))
     }
 
     connect(onconnect: () => void, onmessage: (message: ServerMessage) => void) {
@@ -321,11 +322,12 @@ export class Transport {
         })
     }
 
-    private onCreateDestroyerIntent(event: SendCreateDestroyerIntentEvent) {
+    private onCreateDestroyerIntent(event: BuildUnitIntentEvent) {
         this.sendIntent({
-            type: "create_destroyer",
+            type: "build_unit",
             clientID: this.clientID,
             player: this.playerID,
+            unit: event.unit,
             x: event.cell.x,
             y: event.cell.y,
         })

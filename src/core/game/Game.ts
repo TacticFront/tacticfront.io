@@ -27,7 +27,8 @@ export enum GameMap {
 
 export enum UnitType {
     TransportShip,
-    Destroyer
+    Destroyer,
+    Port
 }
 
 export class Item {
@@ -36,7 +37,8 @@ export class Item {
 
 export const Items = {
     Nuke: new Item("Nuke", 1_000_000),
-    Destroyer: new Item("Destroyer", 10)
+    Destroyer: new Item("Destroyer", 10),
+    Port: new Item("Port", 10)
 } as const;
 
 export class Nation {

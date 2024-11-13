@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Difficulty, GameMap, PlayerType } from './game/Game';
+import { Difficulty, GameMap, PlayerType, UnitType } from './game/Game';
 
 export type GameID = string
 export type ClientID = string
@@ -15,7 +15,7 @@ export type Intent = SpawnIntent
     | DonateIntent
     | NukeIntent
     | TargetTroopRatioIntent
-    | CreateDestroyerIntent
+    | BuildUnitIntent
 
 export type AttackIntent = z.infer<typeof AttackIntentSchema>
 export type SpawnIntent = z.infer<typeof SpawnIntentSchema>
@@ -28,7 +28,7 @@ export type EmojiIntent = z.infer<typeof EmojiIntentSchema>
 export type DonateIntent = z.infer<typeof DonateIntentSchema>
 export type NukeIntent = z.infer<typeof NukeIntentSchema>
 export type TargetTroopRatioIntent = z.infer<typeof TargetTroopRatioIntentSchema>
-export type CreateDestroyerIntent = z.infer<typeof CreateDestroyerIntentSchema>
+export type BuildUnitIntent = z.infer<typeof BuildUnitIntentSchema>
 
 export type Turn = z.infer<typeof TurnSchema>
 export type GameConfig = z.infer<typeof GameConfigSchema>
@@ -69,7 +69,7 @@ const EmojiSchema = z.string().refine(
 );
 // Zod schemas
 const BaseIntentSchema = z.object({
-    type: z.enum(['attack', 'spawn', 'boat', 'name', 'targetPlayer', 'emoji', 'nuke', 'troop_ratio', 'create_destroyer']),
+    type: z.enum(['attack', 'spawn', 'boat', 'name', 'targetPlayer', 'emoji', 'nuke', 'troop_ratio', 'build_unit']),
     clientID: z.string(),
 });
 
@@ -161,9 +161,10 @@ export const TargetTroopRatioIntentSchema = BaseIntentSchema.extend({
     ratio: z.number().min(0).max(1),
 })
 
-export const CreateDestroyerIntentSchema = BaseIntentSchema.extend({
-    type: z.literal('create_destroyer'),
+export const BuildUnitIntentSchema = BaseIntentSchema.extend({
+    type: z.literal('build_unit'),
     player: z.string(),
+    unit: z.nativeEnum(UnitType),
     x: z.number(),
     y: z.number(),
 })
@@ -180,7 +181,7 @@ const IntentSchema = z.union([
     DonateIntentSchema,
     NukeIntentSchema,
     TargetTroopRatioIntentSchema,
-    CreateDestroyerIntentSchema,
+    BuildUnitIntentSchema,
 ]);
 
 const TurnSchema = z.object({

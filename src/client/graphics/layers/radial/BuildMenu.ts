@@ -1,11 +1,12 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { EventBus } from '../../../../core/EventBus';
-import { Cell, Game, Item, Items, Player } from '../../../../core/game/Game';
-import { SendCreateDestroyerIntentEvent, SendNukeIntentEvent } from '../../../Transport';
+import { Cell, Game, Item, Items, Player, UnitType } from '../../../../core/game/Game';
+import { BuildUnitIntentEvent as BuildItemIntentEvent, BuildUnitIntentEvent, SendNukeIntentEvent } from '../../../Transport';
 import nukeIcon from '../../../../../resources/images/NukeIconWhite.svg';
 import destroyerIcon from '../../../../../resources/images/DestroyerIconWhite.svg';
 import goldCoinIcon from '../../../../../resources/images/GoldCoinIcon.svg';
+import portIcon from '../../../../../resources/images/PortIcon.svg';
 import { renderNumber } from '../../Utils';
 import { ContextMenuEvent } from '../../../InputHandler';
 
@@ -18,7 +19,7 @@ const buildTable: BuildItem[][] = [
     [
         { item: Items.Nuke, icon: nukeIcon },
         { item: Items.Destroyer, icon: destroyerIcon },
-        // { id: 'battleship', name: 'Battleship', icon: '🚢', cost: 500, buildTime: 20 }
+        { item: Items.Port, icon: portIcon }
     ]
 ];
 
@@ -154,8 +155,9 @@ export class BuildMenu extends LitElement {
                 this.eventBus.emit(new SendNukeIntentEvent(this.myPlayer, this.clickedCell, null))
                 break
             case "Destroyer":
-                this.eventBus.emit(new SendCreateDestroyerIntentEvent(this.clickedCell))
-
+                this.eventBus.emit(new BuildUnitIntentEvent(UnitType.Destroyer, this.clickedCell))
+            case "Port":
+                this.eventBus.emit(new BuildUnitIntentEvent(UnitType.Port, this.clickedCell))
         }
         this.hideMenu()
     };
