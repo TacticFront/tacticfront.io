@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { EventBus } from '../../../../core/EventBus';
-import { Cell, Game, Item, Items, Player, UnitType } from '../../../../core/game/Game';
+import { Cell, Game, Item, BuildItems, Player, UnitType } from '../../../../core/game/Game';
 import { BuildUnitIntentEvent as BuildItemIntentEvent, BuildUnitIntentEvent, SendNukeIntentEvent } from '../../../Transport';
 import nukeIcon from '../../../../../resources/images/NukeIconWhite.svg';
 import destroyerIcon from '../../../../../resources/images/DestroyerIconWhite.svg';
@@ -17,9 +17,9 @@ interface BuildItem {
 
 const buildTable: BuildItem[][] = [
     [
-        { item: Items.Nuke, icon: nukeIcon },
-        { item: Items.Destroyer, icon: destroyerIcon },
-        { item: Items.Port, icon: portIcon }
+        { item: BuildItems.Nuke, icon: nukeIcon },
+        { item: BuildItems.Destroyer, icon: destroyerIcon },
+        { item: BuildItems.Port, icon: portIcon }
     ]
 ];
 
@@ -145,19 +145,29 @@ export class BuildMenu extends LitElement {
     @state()
     private _hidden = true;
 
-    private canAfford(item: BuildItem): boolean {
-        return this.myPlayer && this.myPlayer.gold() >= item.item.cost;
+    private canBuild(item: BuildItem): boolean {
+        if (!this.myPlayer || this.myPlayer.gold() < item.item.cost) {
+            return false
+        }
+        switch (item.item) {
+            case BuildItems.Destroyer:
+                return this.myPlayer.units(UnitType.Port).length > 0
+            default:
+                return true
+        }
     }
 
     public onBuildSelected = (item: BuildItem) => {
-        switch (item.item.name) {
-            case "Nuke":
+        switch (item.item) {
+            case BuildItems.Nuke:
                 this.eventBus.emit(new SendNukeIntentEvent(this.myPlayer, this.clickedCell, null))
                 break
-            case "Destroyer":
+            case BuildItems.Destroyer:
                 this.eventBus.emit(new BuildUnitIntentEvent(UnitType.Destroyer, this.clickedCell))
-            case "Port":
+                break
+            case BuildItems.Port:
                 this.eventBus.emit(new BuildUnitIntentEvent(UnitType.Port, this.clickedCell))
+                break
         }
         this.hideMenu()
     };
@@ -171,11 +181,11 @@ export class BuildMenu extends LitElement {
                        <button 
                            class="build-button" 
                            @click=${() => this.onBuildSelected(item)}
-                           ?disabled=${!this.canAfford(item)}
-                           title=${!this.canAfford(item) ? 'Not enough money' : ''}
+                           ?disabled=${!this.canBuild(item)}
+                           title=${!this.canBuild(item) ? 'Not enough money' : ''}
                        >
-                            <img src=${item.icon} alt="${item.item.name}" width="40" height="40">
-                            <span class="build-name">${item.item.name}</span>
+                            <img src=${item.icon} alt="${item.item.type}" width="40" height="40">
+                            <span class="build-name">${item.item.type}</span>
                             <span class="build-cost">
                                 ${renderNumber(item.item.cost)}
                                 <img src=${goldCoinIcon} alt="gold" width="12" height="12" style="vertical-align: middle;">

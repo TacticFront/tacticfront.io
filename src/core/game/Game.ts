@@ -26,19 +26,22 @@ export enum GameMap {
 }
 
 export enum UnitType {
-    TransportShip,
-    Destroyer,
-    Port
+    TransportShip = "Transport",
+    Destroyer = "Destroyer",
+    Port = "Port",
+    Nuke = "Nuke",
 }
 
 export class Item {
-    constructor(public readonly name: string, public readonly cost: Gold) { }
+    constructor(public readonly type: UnitType,
+        public readonly cost: Gold
+    ) { }
 }
 
-export const Items = {
-    Nuke: new Item("Nuke", 1_000_000),
-    Destroyer: new Item("Destroyer", 10),
-    Port: new Item("Port", 0)
+export const BuildItems = {
+    Nuke: new Item(UnitType.Nuke, 1_000_000),
+    Destroyer: new Item(UnitType.Destroyer, 10),
+    Port: new Item(UnitType.Port, 0)
 } as const;
 
 export class Nation {
