@@ -2,7 +2,7 @@ import { Unit, Cell, Execution, MutableUnit, MutableGame, MutablePlayer, Player,
 import { and, bfs, manhattanDistWrapped, sourceDstOceanShore } from "../Util";
 import { AttackExecution } from "./AttackExecution";
 import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/EventsDisplay";
-import { AStar } from "../PathFinding";
+import { AStar, PathFinder } from "../PathFinding";
 
 export class TransportShipExecution implements Execution {
 
@@ -22,14 +22,10 @@ export class TransportShipExecution implements Execution {
     private src: Tile | null
     private dst: Tile | null
 
-    private currTileIndex: number = 0
 
     private boat: MutableUnit
 
-    private aStarPre: AStar
-    private aStarComplete: AStar
-
-    private finalPath = false
+    private pathFinder: PathFinder = new PathFinder(100_000)
 
     constructor(
         private attackerID: PlayerID,
@@ -82,16 +78,8 @@ export class TransportShipExecution implements Execution {
             return
         }
 
-        this.aStarPre = new AStar(this.src, this.dst)
-        this.aStarPre.compute(5)
-        this.path = this.aStarPre.reconstructPath()
-        if (this.path != null) {
-            this.boat = this.attacker.addUnit(UnitType.TransportShip, this.troops, this.src)
-        } else {
-            console.log('got null path')
-            this.active = false
-        }
-        this.aStarComplete = new AStar(this.path[this.path.length - 1], this.dst)
+
+        this.boat = this.attacker.addUnit(UnitType.TransportShip, this.troops, this.src)
     }
 
     tick(ticks: number) {
@@ -107,15 +95,8 @@ export class TransportShipExecution implements Execution {
         }
         this.lastMove = ticks
 
-        if (!this.finalPath && this.aStarComplete.compute(30000)) {
-            this.path.push(...this.aStarComplete.reconstructPath())
-            this.finalPath = true
-        }
 
-        if (this.currTileIndex >= this.path.length) {
-            if (!this.finalPath) {
-                return
-            }
+        if (this.boat.tile() == this.dst) {
             if (this.dst.owner() == this.attacker) {
                 this.attacker.addTroops(this.troops)
                 this.boat.delete()
@@ -135,9 +116,15 @@ export class TransportShipExecution implements Execution {
             return
         }
 
-        const nextTile = this.path[this.currTileIndex]
+        const nextTile = this.pathFinder.nextTile(this.boat.tile(), this.dst)
+        if (nextTile == null) {
+            console.warn('path not found')
+            this.attacker.addTroops(this.boat.troops())
+            this.boat.delete()
+            this.active = false
+            return
+        }
         this.boat.move(nextTile)
-        this.currTileIndex++
     }
 
     owner(): MutablePlayer {

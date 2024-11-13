@@ -78,7 +78,7 @@ export class PathFinder {
     private path: Tile[]
     private aStar: AStar
 
-    constructor() {
+    constructor(private iterations: number) {
 
     }
 
@@ -88,7 +88,7 @@ export class PathFinder {
             this.dst = dst
             this.path = null
             this.aStar = new AStar(curr, dst)
-            if (this.aStar.compute(5000)) {
+            if (this.aStar.compute(this.iterations)) {
                 this.path = this.aStar.reconstructPath()
             } else {
                 return null

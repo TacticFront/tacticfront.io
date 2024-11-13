@@ -10,7 +10,7 @@ export class DestroyerExecution implements Execution {
     private mg: MutableGame = null
 
     private target: MutableUnit = null
-    private pathfinder = new PathFinder()
+    private pathfinder = new PathFinder(5000)
 
     private patrolTile: Tile;
 
