@@ -41,7 +41,7 @@ export class AStar {
             for (const neighbor of this.current.neighborsWrapped()) {
                 if (neighbor != this.dst && neighbor.isLand()) continue; // Skip non-water tiles
 
-                const tentativeGScore = this.gScore.get(this.current)! + 100 - neighbor.magnitude();
+                const tentativeGScore = this.gScore.get(this.current)! + 9 - Math.max(1, Math.min(neighbor.magnitude(), 8));
 
                 if (!this.gScore.has(neighbor) || tentativeGScore < this.gScore.get(neighbor)!) {
                     this.cameFrom.set(neighbor, this.current);
@@ -88,7 +88,7 @@ export class PathFinder {
             this.dst = dst
             this.path = null
             this.aStar = new AStar(curr, dst)
-            if (this.aStar.compute(50000)) {
+            if (this.aStar.compute(5000)) {
                 this.path = this.aStar.reconstructPath()
             } else {
                 return null
@@ -114,9 +114,6 @@ export class PathFinder {
             tolerance = 3
         } else {
             tolerance = 0
-        }
-        if (manhattanDist(this.curr.cell(), curr.cell()) > tolerance) {
-            return true
         }
         if (manhattanDist(this.dst.cell(), dst.cell()) > tolerance) {
             return true
