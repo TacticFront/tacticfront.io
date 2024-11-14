@@ -1,6 +1,6 @@
 import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, Tile, UnitType } from "../game/Game";
 import { AStar, PathFinder } from "../PathFinding";
-import { manhattanDist } from "../Util";
+import { distSort, manhattanDist } from "../Util";
 
 export class DestroyerExecution implements Execution {
 
@@ -32,7 +32,13 @@ export class DestroyerExecution implements Execution {
     tick(ticks: number): void {
         // TODO: remove gold from player
         if (this.destroyer == null) {
-            this.destroyer = this._owner.addUnit(UnitType.Destroyer, 0, this.mg.tile(this.cell))
+            const spawns = this._owner.units(UnitType.Port).map(u => u.tile()).sort(distSort(this.patrolTile))
+            if (spawns.length == 0) {
+                console.warn(`no ports found for destoryer for player ${this._owner}`)
+                this.active = false
+                return
+            }
+            this.destroyer = this._owner.addUnit(UnitType.Destroyer, 0, spawns[0])
             return
         }
         if (!this.destroyer.isActive()) {
