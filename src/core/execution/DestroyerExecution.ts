@@ -1,8 +1,10 @@
 import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, Tile, UnitType } from "../game/Game";
 import { AStar, PathFinder } from "../PathFinding";
+import { PseudoRandom } from "../PseudoRandom";
 import { distSort, manhattanDist } from "../Util";
 
 export class DestroyerExecution implements Execution {
+    private random: PseudoRandom
 
     private _owner: MutablePlayer
     private active = true
@@ -13,6 +15,7 @@ export class DestroyerExecution implements Execution {
     private pathfinder = new PathFinder(5000)
 
     private patrolTile: Tile;
+    private patrolCenterTile: Tile
 
     // TODO: put in config
     private searchRange = 100
@@ -26,7 +29,9 @@ export class DestroyerExecution implements Execution {
     init(mg: MutableGame, ticks: number): void {
         this._owner = mg.player(this.playerID)
         this.mg = mg
-        this.patrolTile = mg.tile(this.cell)
+        this.patrolCenterTile = mg.tile(this.cell)
+        this.patrolTile = this.patrolCenterTile
+        this.random = new PseudoRandom(mg.ticks())
     }
 
     tick(ticks: number): void {
@@ -55,15 +60,15 @@ export class DestroyerExecution implements Execution {
                 .filter(u => u != this.destroyer)
                 .filter(u => !u.owner().isAlliedWith(this.destroyer.owner()))
             if (ships.length == 0) {
-                if (manhattanDist(this.destroyer.tile().cell(), this.cell) > 5) {
-                    for (let i = 0; i < 1 + this.mg.ticks() % 2; i++) {
-                        const next = this.pathfinder.nextTile(this.destroyer.tile(), this.patrolTile)
-                        if (next == null) {
-                            this.target = null
-                            return
-                        }
-                        this.destroyer.move(next)
+                if (manhattanDist(this.destroyer.tile().cell(), this.patrolTile.cell()) > 5) {
+                    const next = this.pathfinder.nextTile(this.destroyer.tile(), this.patrolTile)
+                    if (next == null) {
+                        this.target = null
+                        return
                     }
+                    this.destroyer.move(next)
+                } else {
+                    this.patrolTile = this.randomTile()
                 }
                 return
             }
@@ -97,6 +102,22 @@ export class DestroyerExecution implements Execution {
 
     activeDuringSpawnPhase(): boolean {
         return false
+    }
+
+    randomTile(): Tile {
+        while (true) {
+            const x = this.patrolCenterTile.cell().x + this.random.nextInt(-this.searchRange / 2, this.searchRange / 2)
+            const y = this.patrolCenterTile.cell().y + this.random.nextInt(-this.searchRange / 2, this.searchRange / 2)
+            const cell = new Cell(x, y)
+            if (!this.mg.isOnMap(cell)) {
+                continue
+            }
+            const tile = this.mg.tile(cell)
+            if (!tile.isOcean()) {
+                continue
+            }
+            return tile
+        }
     }
 
 }
