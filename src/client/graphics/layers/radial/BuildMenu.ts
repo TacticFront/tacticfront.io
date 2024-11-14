@@ -1,21 +1,21 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { EventBus } from '../../../../core/EventBus';
-import { Cell, Game, Item, BuildItems, Player, UnitType } from '../../../../core/game/Game';
-import { BuildUnitIntentEvent as BuildItemIntentEvent, BuildUnitIntentEvent, SendNukeIntentEvent } from '../../../Transport';
+import { Cell, Game, BuildItem, BuildItems, Player, UnitType } from '../../../../core/game/Game';
+import { BuildUnitIntentEvent, SendNukeIntentEvent } from '../../../Transport';
 import nukeIcon from '../../../../../resources/images/NukeIconWhite.svg';
 import destroyerIcon from '../../../../../resources/images/DestroyerIconWhite.svg';
 import goldCoinIcon from '../../../../../resources/images/GoldCoinIcon.svg';
 import portIcon from '../../../../../resources/images/PortIcon.svg';
 import { renderNumber } from '../../Utils';
-import { ContextMenuEvent } from '../../../InputHandler';
+import { BuildValidator } from '../../../../core/game/BuildValidator';
 
-interface BuildItem {
-    item: Item
+interface BuildItemDisplay {
+    item: BuildItem
     icon: string;
 }
 
-const buildTable: BuildItem[][] = [
+const buildTable: BuildItemDisplay[][] = [
     [
         { item: BuildItems.Nuke, icon: nukeIcon },
         { item: BuildItems.Destroyer, icon: destroyerIcon },
@@ -27,6 +27,7 @@ const buildTable: BuildItem[][] = [
 export class BuildMenu extends LitElement {
     public game: Game;
     public eventBus: EventBus;
+    public buildValidator: BuildValidator;
 
     private myPlayer: Player;
     private clickedCell: Cell;
@@ -145,19 +146,14 @@ export class BuildMenu extends LitElement {
     @state()
     private _hidden = true;
 
-    private canBuild(item: BuildItem): boolean {
-        if (!this.myPlayer || this.myPlayer.gold() < item.item.cost) {
+    private canBuild(item: BuildItemDisplay): boolean {
+        if(this.myPlayer == null) {
             return false
         }
-        switch (item.item) {
-            case BuildItems.Destroyer:
-                return this.myPlayer.units(UnitType.Port).length > 0
-            default:
-                return true
-        }
+        return this.buildValidator.canBuild(this.myPlayer, this.game.tile(this.clickedCell), item.item)
     }
 
-    public onBuildSelected = (item: BuildItem) => {
+    public onBuildSelected = (item: BuildItemDisplay) => {
         switch (item.item) {
             case BuildItems.Nuke:
                 this.eventBus.emit(new SendNukeIntentEvent(this.myPlayer, this.clickedCell, null))

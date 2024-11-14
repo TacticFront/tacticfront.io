@@ -32,16 +32,17 @@ export enum UnitType {
     Nuke = "Nuke",
 }
 
-export class Item {
-    constructor(public readonly type: UnitType,
+export class BuildItem {
+    constructor(
+        public readonly type: UnitType,
         public readonly cost: Gold
     ) { }
 }
 
 export const BuildItems = {
-    Nuke: new Item(UnitType.Nuke, 1_000_000),
-    Destroyer: new Item(UnitType.Destroyer, 10),
-    Port: new Item(UnitType.Port, 0)
+    Nuke: new BuildItem(UnitType.Nuke, 1_000_000),
+    Destroyer: new BuildItem(UnitType.Destroyer, 10),
+    Port: new BuildItem(UnitType.Port, 0)
 } as const;
 
 export class Nation {
