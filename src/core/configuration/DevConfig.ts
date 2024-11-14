@@ -6,7 +6,7 @@ export const devConfig = new class extends DefaultConfig {
         return 95
     }
     numSpawnPhaseTurns(): number {
-        return 20
+        return 80
     }
     gameCreationRate(): number {
         return 20 * 1000

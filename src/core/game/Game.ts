@@ -40,7 +40,8 @@ export class BuildItem {
 }
 
 export const BuildItems = {
-    Nuke: new BuildItem(UnitType.Nuke, 1_000_000),
+    // Nuke: new BuildItem(UnitType.Nuke, 1_000_000),
+    Nuke: new BuildItem(UnitType.Nuke, 10),
     Destroyer: new BuildItem(UnitType.Destroyer, 10),
     Port: new BuildItem(UnitType.Port, 0)
 } as const;
@@ -170,6 +171,7 @@ export interface MutableUnit extends Unit {
     owner(): MutablePlayer
     setTroops(troops: number): void
     delete(): void
+    setOwner(newOwner: Player): void
 }
 
 export interface TerraNullius {

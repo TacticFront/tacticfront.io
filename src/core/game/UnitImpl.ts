@@ -1,4 +1,4 @@
-import { MutableUnit, Tile, TerraNullius, UnitType } from "./Game";
+import { MutableUnit, Tile, TerraNullius, UnitType, Player } from "./Game";
 import { GameImpl } from "./GameImpl";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
@@ -35,6 +35,11 @@ export class UnitImpl implements MutableUnit {
     }
     owner(): PlayerImpl {
         return this._owner;
+    }
+
+    setOwner(newOwner: Player): void {
+        this._owner = newOwner as PlayerImpl
+        this.g.fireUnitUpdateEvent(this, this.tile())
     }
 
     delete(): void {

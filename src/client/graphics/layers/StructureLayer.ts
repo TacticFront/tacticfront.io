@@ -72,6 +72,12 @@ export class StructureLayer implements Layer {
     private handlePortEvent(event: UnitEvent) {
         if (!this.anchorImageLoaded) return;
 
+        bfs(event.unit.tile(), euclDist(event.unit.tile(), 8))
+            .forEach(t => this.clearCell(t.cell()));
+
+        if (!event.unit.isActive()) {
+            return
+        }
         // Create a temporary canvas to process the anchor icon
         const tempCanvas = document.createElement('canvas');
         const tempContext = tempCanvas.getContext('2d');
