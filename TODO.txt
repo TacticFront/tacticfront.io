@@ -177,9 +177,15 @@
 * create Unit layer DONE 11/9/2024
 * create Unit interface DONE 11/10/2024
 * add destroyer DONE 11/12/2024
-* add ports
-* destroyer spawn from port
+* add ports DONE 11/14/2024
+* destroyer spawn from port DONE 11/14/2024
+* add missile silo
+* nuke spawns from missile silo
+* create trade routes
 * add trade ship
+* trade ship gives gold when completes route
+* destroyer can capture trade ships
+* add battleship
 * NPC has relations
 * use twitter emojis
 * private game shows how many players joined
