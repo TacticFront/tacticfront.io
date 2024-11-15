@@ -22,4 +22,7 @@ export const devConfig = new class extends DefaultConfig {
         return 400
     }
 
+    boatMaxDistance(): number {
+        return 2000
+    }
 }

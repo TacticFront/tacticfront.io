@@ -126,6 +126,7 @@ export class PathFinder {
     private dst: Tile = null
     private path: Tile[]
     private aStar: AStar
+    private inProgress = false
 
     constructor(private iterations: number) {
 
@@ -133,20 +134,32 @@ export class PathFinder {
 
     nextTile(curr: Tile, dst: Tile): Tile {
         if (this.shouldRecompute(curr, dst)) {
-            this.curr = curr
-            this.dst = dst
-            this.path = null
-            this.aStar = new AStar(curr, dst)
-            if (this.aStar.compute(this.iterations)) {
-                this.path = this.aStar.reconstructPath()
+            if (this.inProgress) {
+                if (this.aStar.compute(this.iterations)) {
+                    this.path = this.aStar.reconstructPath()
+                    this.inProgress = false
+                } else {
+                    return null
+                }
             } else {
-                return null
+                this.curr = curr
+                this.dst = dst
+                this.path = null
+                this.aStar = new AStar(curr, dst)
+                if (this.aStar.compute(this.iterations)) {
+                    this.inProgress = false
+                    this.path = this.aStar.reconstructPath()
+                } else {
+                    this.inProgress = true
+                    return null
+                }
+                if (this.path.length > 0) {
+                    this.path.shift()
+                }
             }
-            if (this.path.length > 0) {
-                this.path.shift()
-            }
+        } else {
+            return this.path.shift()
         }
-        return this.path.shift()
     }
 
     private shouldRecompute(curr: Tile, dst: Tile) {

@@ -25,7 +25,7 @@ export class TransportShipExecution implements Execution {
 
     private boat: MutableUnit
 
-    private pathFinder: PathFinder = new PathFinder(100_000)
+    private pathFinder: PathFinder = new PathFinder(10_000)
 
     constructor(
         private attackerID: PlayerID,
@@ -118,10 +118,7 @@ export class TransportShipExecution implements Execution {
 
         const nextTile = this.pathFinder.nextTile(this.boat.tile(), this.dst)
         if (nextTile == null) {
-            console.warn('path not found')
-            this.attacker.addTroops(this.boat.troops())
-            this.boat.delete()
-            this.active = false
+            console.warn('boat computing')
             return
         }
         this.boat.move(nextTile)
