@@ -1,6 +1,9 @@
 import { BuildValidator } from "../game/BuildValidator";
-import { AllPlayers, BuildItem, BuildItems, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, UnitType } from "../game/Game";
+import { AllPlayers, BuildItem, BuildItems, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, Tile, Unit, UnitType } from "../game/Game";
+import { AStar, PathFinder } from "../PathFinding";
+import { PseudoRandom } from "../PseudoRandom";
 import { bfs, dist, manhattanDist } from "../Util";
+import { TradeShipExecution } from "./TradeShipExecution";
 
 export class PortExecution implements Execution {
 
@@ -8,6 +11,9 @@ export class PortExecution implements Execution {
     private mg: MutableGame
     private player: MutablePlayer
     private port: MutableUnit
+    private random: PseudoRandom
+    private portPaths = new Map<MutableUnit, Tile[]>()
+    private computingPaths = new Map<MutableUnit, AStar>()
 
     constructor(
         private _owner: PlayerID,
@@ -18,6 +24,7 @@ export class PortExecution implements Execution {
     init(mg: MutableGame, ticks: number): void {
         this.mg = mg
         this.player = mg.player(this._owner)
+        this.random = new PseudoRandom(mg.ticks())
     }
 
     tick(ticks: number): void {
@@ -39,6 +46,8 @@ export class PortExecution implements Execution {
             }
             this.port = this.player.addUnit(UnitType.Port, 0, spawns[0])
         }
+
+
         if (!this.port.tile().hasOwner()) {
             this.port.delete()
             this.active = false
@@ -46,6 +55,31 @@ export class PortExecution implements Execution {
         }
         if (this.port.tile().owner() != this.port.owner()) {
             this.port.setOwner(this.port.tile().owner() as Player)
+        }
+
+        const ports = this.mg.units(UnitType.Port)
+            .filter(u => u.owner() != this.player)
+        if (ports.length == 0) {
+            return
+        }
+        for (const port of ports) {
+            if (this.computingPaths.has(port)) {
+                const aStar = this.computingPaths.get(port)
+                if (aStar.compute(10_000)) {
+                    this.portPaths.set(port, aStar.reconstructPath())
+                    this.computingPaths.delete(port)
+                }
+                continue
+            }
+            if (!this.portPaths.has(port)) {
+                this.computingPaths.set(port, new AStar(this.port.tile(), port.tile()))
+                continue
+            }
+        }
+        if (this.random.chance(50)) {
+            const port = this.random.randElement(Array.from(this.portPaths.keys()))
+            const path = this.portPaths.get(port)
+            this.mg.addExecution(new TradeShipExecution(this._owner, this.port, port, path))
         }
     }
 

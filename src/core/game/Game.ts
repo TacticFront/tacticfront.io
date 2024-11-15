@@ -1,10 +1,7 @@
-import { info } from "console"
 import { Config } from "../configuration/Config"
 import { GameEvent } from "../EventBus"
 import { ClientID, GameID } from "../Schemas"
-import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/EventsDisplay"
-import { BreakAllianceExecution } from "../execution/alliance/BreakAllianceExecution"
-import { DonateExecution } from "../execution/DonateExecution"
+import { MessageType } from "../../client/graphics/layers/EventsDisplay"
 
 export type PlayerID = string
 export type Tick = number
@@ -30,6 +27,7 @@ export enum UnitType {
     Destroyer = "Destroyer",
     Port = "Port",
     Nuke = "Nuke",
+    TradeShip = "Trade Ship",
 }
 
 export class BuildItem {

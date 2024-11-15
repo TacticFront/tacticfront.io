@@ -78,6 +78,8 @@ export class UnitLayer implements Layer {
             case UnitType.Destroyer:
                 this.handleDestroyerEvent(event);
                 break;
+            case UnitType.TradeShip:
+                this.handleTradeShipEvent(event)
         }
     }
 
@@ -89,6 +91,16 @@ export class UnitLayer implements Layer {
             .forEach(t => this.paintCell(t.cell(), this.theme.borderColor(event.unit.owner().info()), 255));
         bfs(event.unit.tile(), euclDist(event.unit.tile(), 2))
             .forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(event.unit.owner().info()), 180));
+    }
+
+    private handleTradeShipEvent(event: UnitEvent) {
+        bfs(event.oldTile, euclDist(event.oldTile, 1)).forEach(t => {
+            this.clearCell(t.cell());
+        });
+        if (event.unit.isActive()) {
+            bfs(event.unit.tile(), euclDist(event.unit.tile(), 1))
+                .forEach(t => this.paintCell(t.cell(), this.theme.borderColor(event.unit.owner().info()), 255));
+        }
     }
 
     private handleBoatEvent(event: UnitEvent) {
