@@ -1,75 +1,124 @@
 import { PriorityQueue } from "@datastructures-js/priority-queue";
 import { Tile } from "./game/Game";
 import { manhattanDist } from "./Util";
-
-
+import { colord } from "colord";
 export class AStar {
-    private openSet: PriorityQueue<{ tile: Tile; fScore: number; }>;
-    private cameFrom: Map<Tile, Tile>;
-    private gScore: Map<Tile, number>;
-    private current: Tile | null;
+    private fwdOpenSet: PriorityQueue<{ tile: Tile; fScore: number; }>;
+    private bwdOpenSet: PriorityQueue<{ tile: Tile; fScore: number; }>;
+    private fwdCameFrom: Map<Tile, Tile>;
+    private bwdCameFrom: Map<Tile, Tile>;
+    private fwdGScore: Map<Tile, number>;
+    private bwdGScore: Map<Tile, number>;
+    private meetingPoint: Tile | null;
     public completed: boolean;
 
     constructor(private src: Tile, private dst: Tile) {
-        this.openSet = new PriorityQueue<{ tile: Tile; fScore: number; }>(
+        this.fwdOpenSet = new PriorityQueue<{ tile: Tile; fScore: number; }>(
             (a, b) => a.fScore - b.fScore
         );
-        this.cameFrom = new Map<Tile, Tile>();
-        this.gScore = new Map<Tile, number>();
-        this.current = null;
+        this.bwdOpenSet = new PriorityQueue<{ tile: Tile; fScore: number; }>(
+            (a, b) => a.fScore - b.fScore
+        );
+        this.fwdCameFrom = new Map<Tile, Tile>();
+        this.bwdCameFrom = new Map<Tile, Tile>();
+        this.fwdGScore = new Map<Tile, number>();
+        this.bwdGScore = new Map<Tile, number>();
+        this.meetingPoint = null;
         this.completed = false;
 
-        this.gScore.set(src, 0);
-        this.openSet.enqueue({ tile: src, fScore: this.heuristic(src, dst) });
+        // Initialize forward search
+        this.fwdGScore.set(src, 0);
+        this.fwdOpenSet.enqueue({ tile: src, fScore: this.heuristic(src, dst) });
+
+        // Initialize backward search
+        this.bwdGScore.set(dst, 0);
+        this.bwdOpenSet.enqueue({ tile: dst, fScore: this.heuristic(dst, src) });
     }
 
     compute(iterations: number): boolean {
         if (this.completed) return true;
 
-        while (!this.openSet.isEmpty()) {
+        while (!this.fwdOpenSet.isEmpty() && !this.bwdOpenSet.isEmpty()) {
             iterations--;
-            this.current = this.openSet.dequeue()!.tile;
-            if (iterations <= 0) {
-                return false;
-            }
+            if (iterations <= 0) return false;
 
-            if (this.current === this.dst) {
+            // Process forward search
+            const fwdCurrent = this.fwdOpenSet.dequeue()!.tile;
+            if (this.bwdGScore.has(fwdCurrent)) {
+                // We found a meeting point!
+                this.meetingPoint = fwdCurrent;
                 this.completed = true;
                 return true;
             }
 
-            for (const neighbor of this.current.neighborsWrapped()) {
-                if (neighbor != this.dst && neighbor.isLand()) continue; // Skip non-water tiles
+            this.expandNode(fwdCurrent, true);
 
-                const tentativeGScore = this.gScore.get(this.current)! + 3 - Math.max(1, Math.min(neighbor.magnitude() / 4, 2));
-
-                if (!this.gScore.has(neighbor) || tentativeGScore < this.gScore.get(neighbor)!) {
-                    this.cameFrom.set(neighbor, this.current);
-                    this.gScore.set(neighbor, tentativeGScore);
-                    const fScore = tentativeGScore + this.heuristic(neighbor, this.dst);
-
-                    this.openSet.enqueue({ tile: neighbor, fScore: fScore });
-                }
+            // Process backward search
+            const bwdCurrent = this.bwdOpenSet.dequeue()!.tile;
+            if (this.fwdGScore.has(bwdCurrent)) {
+                // We found a meeting point!
+                this.meetingPoint = bwdCurrent;
+                this.completed = true;
+                return true;
             }
+
+            this.expandNode(bwdCurrent, false);
         }
 
         return this.completed;
     }
 
+    private expandNode(current: Tile, isForward: boolean) {
+        for (const neighbor of current.neighborsWrapped()) {
+            if (neighbor !== (isForward ? this.dst : this.src) && neighbor.isLand()) continue;
+
+            const gScore = isForward ? this.fwdGScore : this.bwdGScore;
+            const openSet = isForward ? this.fwdOpenSet : this.bwdOpenSet;
+            const cameFrom = isForward ? this.fwdCameFrom : this.bwdCameFrom;
+
+            let tentativeGScore = gScore.get(current)! + 1;
+            if (neighbor.magnitude() < 10) {
+                tentativeGScore += 1;
+            }
+
+            if (!gScore.has(neighbor) || tentativeGScore < gScore.get(neighbor)!) {
+                cameFrom.set(neighbor, current);
+                gScore.set(neighbor, tentativeGScore);
+                const fScore = tentativeGScore + this.heuristic(
+                    neighbor,
+                    isForward ? this.dst : this.src
+                );
+                openSet.enqueue({ tile: neighbor, fScore: fScore });
+            }
+        }
+    }
+
     private heuristic(a: Tile, b: Tile): number {
-        // Manhattan distance
-        return Math.abs(a.cell().x - b.cell().x) + Math.abs(a.cell().y - b.cell().y);
+        return 1.1 * Math.abs(a.cell().x - b.cell().x) + Math.abs(a.cell().y - b.cell().y);
     }
 
     public reconstructPath(): Tile[] {
-        const path = [this.current!];
-        while (this.cameFrom.has(this.current!)) {
-            this.current = this.cameFrom.get(this.current!)!;
-            path.unshift(this.current);
+        if (!this.meetingPoint) return [];
+
+        // Reconstruct path from start to meeting point
+        const fwdPath: Tile[] = [this.meetingPoint];
+        let current = this.meetingPoint;
+        while (this.fwdCameFrom.has(current)) {
+            current = this.fwdCameFrom.get(current)!;
+            fwdPath.unshift(current);
         }
-        return path;
+
+        // Reconstruct path from meeting point to goal
+        current = this.meetingPoint;
+        while (this.bwdCameFrom.has(current)) {
+            current = this.bwdCameFrom.get(current)!;
+            fwdPath.push(current);
+        }
+
+        return fwdPath;
     }
 }
+
 
 export class PathFinder {
 
