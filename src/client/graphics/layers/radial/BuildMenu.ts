@@ -9,6 +9,7 @@ import goldCoinIcon from '../../../../../resources/images/GoldCoinIcon.svg';
 import portIcon from '../../../../../resources/images/PortIcon.svg';
 import { renderNumber } from '../../Utils';
 import { BuildValidator } from '../../../../core/game/BuildValidator';
+import { ContextMenuEvent } from '../../../InputHandler';
 
 interface BuildItemDisplay {
     item: BuildItem
@@ -147,7 +148,7 @@ export class BuildMenu extends LitElement {
     private _hidden = true;
 
     private canBuild(item: BuildItemDisplay): boolean {
-        if(this.myPlayer == null) {
+        if (this.myPlayer == null) {
             return false
         }
         return this.buildValidator.canBuild(this.myPlayer, this.game.tile(this.clickedCell), item.item)
