@@ -39,11 +39,10 @@ export class BuildItem {
 }
 
 export const BuildItems = {
-    // Nuke: new BuildItem(UnitType.Nuke, 1_000_000),
-    Nuke: new BuildItem(UnitType.Nuke, 10),
-    Destroyer: new BuildItem(UnitType.Destroyer, 10),
-    Port: new BuildItem(UnitType.Port, 0),
-    MissileSilo: new BuildItem(UnitType.MissileSilo, 10),
+    Nuke: new BuildItem(UnitType.Nuke, 1_000_000),
+    Destroyer: new BuildItem(UnitType.Destroyer, 100_000),
+    Port: new BuildItem(UnitType.Port, 300_000),
+    MissileSilo: new BuildItem(UnitType.MissileSilo, 1_000_000),
 } as const;
 
 export class Nation {
@@ -156,6 +155,8 @@ export interface Tile {
     neighbors(): Tile[]
     neighborsWrapped(): Tile[]
     onShore(): boolean
+    x(): number
+    y(): number
 }
 
 export interface Unit {
@@ -252,6 +253,7 @@ export interface MutablePlayer extends Player {
     addTroops(troops: number): void
     removeTroops(troops: number): number
 
+    // TODO: make addUnit require gold
     addUnit(type: UnitType, troops: number, tile: Tile): MutableUnit
 }
 

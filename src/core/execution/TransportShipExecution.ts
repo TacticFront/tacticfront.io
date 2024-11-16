@@ -25,7 +25,7 @@ export class TransportShipExecution implements Execution {
 
     private boat: MutableUnit
 
-    private pathFinder: PathFinder = new PathFinder(10_000)
+    private pathFinder: PathFinder = new PathFinder(10_000, t => t.isWater())
 
     constructor(
         private attackerID: PlayerID,

@@ -1,14 +1,21 @@
-import { Cell, Execution, BuildItems, MutableGame, MutablePlayer, PlayerID, Tile } from "../game/Game";
+import { BuildValidator } from "../game/BuildValidator";
+import { Cell, Execution, BuildItems, MutableGame, MutablePlayer, PlayerID, Tile, MutableUnit, UnitType } from "../game/Game";
+import { PathFinder } from "../PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
-import { bfs, dist, euclideanDist, manhattanDist } from "../Util";
+import { bfs, dist, distSortUnit, euclideanDist, manhattanDist } from "../Util";
 
 export class NukeExecution implements Execution {
 
-    private sender: MutablePlayer
+    private player: MutablePlayer
 
     private active = true
 
     private mg: MutableGame
+
+    private nuke: MutableUnit
+    private dst: Tile
+
+    private pathFinder: PathFinder = null
 
     constructor(
         private senderID: PlayerID,
@@ -19,20 +26,41 @@ export class NukeExecution implements Execution {
 
     init(mg: MutableGame, ticks: number): void {
         this.mg = mg
-        this.sender = mg.player(this.senderID)
+        this.player = mg.player(this.senderID)
         if (this.magnitude == null) {
             this.magnitude = 50
         }
+        this.dst = this.mg.tile(this.cell)
     }
 
     tick(ticks: number): void {
-        if (this.sender.gold() < BuildItems.Nuke.cost) {
-            console.warn(`player ${this.sender} insufficient gold for nuke`)
-            this.active = false
+        if (this.nuke == null) {
+            if (new BuildValidator(this.mg).canBuild(this.player, this.dst, BuildItems.Nuke)) {
+                const spawn = this.player.units(UnitType.MissileSilo)
+                    .sort((a, b) => manhattanDist(a.tile().cell(), this.cell) - manhattanDist(b.tile().cell(), this.cell))[0]
+                this.nuke = this.player.addUnit(UnitType.Nuke, 0, spawn.tile())
+                this.player.removeGold(BuildItems.Nuke.cost)
+                this.pathFinder = new PathFinder(10_000, t => true)
+            } else {
+                console.warn(`cannot build Nuke`)
+                this.active = false
+                return
+            }
+        }
+        if (this.nuke.tile() == this.dst) {
+            this.detonate()
             return
         }
-        this.sender.removeGold(BuildItems.Nuke.cost)
+        for (let i = 0; i < 4; i++) {
+            const nextTile = this.pathFinder.nextTile(this.nuke.tile(), this.dst)
+            if (nextTile == null) {
+                return
+            }
+            this.nuke.move(nextTile)
+        }
+    }
 
+    private detonate() {
         const rand = new PseudoRandom(this.mg.ticks())
         const tile = this.mg.tile(this.cell)
         const toDestroy = bfs(tile, (n: Tile) => {
@@ -52,6 +80,7 @@ export class NukeExecution implements Execution {
             .filter(b => euclideanDist(this.cell, b.tile().cell()) < this.magnitude + 50)
             .forEach(b => b.delete())
         this.active = false
+        this.nuke.delete()
     }
 
     owner(): MutablePlayer {

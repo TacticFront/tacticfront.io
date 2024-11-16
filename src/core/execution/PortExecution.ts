@@ -45,6 +45,7 @@ export class PortExecution implements Execution {
                 return
             }
             this.port = this.player.addUnit(UnitType.Port, 0, spawns[0])
+            this.player.removeGold(BuildItems.Port.cost)
         }
 
 
@@ -73,7 +74,7 @@ export class PortExecution implements Execution {
                 continue
             }
             if (!this.portPaths.has(port)) {
-                this.computingPaths.set(port, new AStar(this.port.tile(), port.tile()))
+                this.computingPaths.set(port, new AStar(this.port.tile(), port.tile(), t => t.isWater()))
                 continue
             }
         }

@@ -12,7 +12,11 @@ export class AStar {
     private meetingPoint: Tile | null;
     public completed: boolean;
 
-    constructor(private src: Tile, private dst: Tile) {
+    constructor(
+        private src: Tile,
+        private dst: Tile,
+        private canMove: (t: Tile) => boolean
+    ) {
         this.fwdOpenSet = new PriorityQueue<{ tile: Tile; fScore: number; }>(
             (a, b) => a.fScore - b.fScore
         );
@@ -70,7 +74,7 @@ export class AStar {
 
     private expandNode(current: Tile, isForward: boolean) {
         for (const neighbor of current.neighborsWrapped()) {
-            if (neighbor !== (isForward ? this.dst : this.src) && neighbor.isLand()) continue;
+            if (neighbor !== (isForward ? this.dst : this.src) && !this.canMove(neighbor)) continue;
 
             const gScore = isForward ? this.fwdGScore : this.bwdGScore;
             const openSet = isForward ? this.fwdOpenSet : this.bwdOpenSet;
@@ -128,7 +132,7 @@ export class PathFinder {
     private aStar: AStar
     private inProgress = false
 
-    constructor(private iterations: number) {
+    constructor(private iterations: number, private canMove: (t: Tile) => boolean) {
 
     }
 
@@ -145,7 +149,7 @@ export class PathFinder {
                 this.curr = curr
                 this.dst = dst
                 this.path = null
-                this.aStar = new AStar(curr, dst)
+                this.aStar = new AStar(curr, dst, this.canMove)
                 if (this.aStar.compute(this.iterations)) {
                     this.inProgress = false
                     this.path = this.aStar.reconstructPath()

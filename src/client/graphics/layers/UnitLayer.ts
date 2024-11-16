@@ -80,6 +80,8 @@ export class UnitLayer implements Layer {
                 break;
             case UnitType.TradeShip:
                 this.handleTradeShipEvent(event)
+            case UnitType.Nuke:
+                this.handleNuke(event)
         }
     }
 
@@ -91,6 +93,17 @@ export class UnitLayer implements Layer {
             .forEach(t => this.paintCell(t.cell(), this.theme.borderColor(event.unit.owner().info()), 255));
         bfs(event.unit.tile(), euclDist(event.unit.tile(), 2))
             .forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(event.unit.owner().info()), 180));
+    }
+
+    private handleNuke(event: UnitEvent) {
+        bfs(event.oldTile, euclDist(event.oldTile, 2)).forEach(t => {
+            this.clearCell(t.cell());
+        });
+        if (event.unit.isActive()) {
+            bfs(event.unit.tile(), euclDist(event.unit.tile(), 2))
+                .forEach(t => this.paintCell(t.cell(), this.theme.borderColor(event.unit.owner().info()), 255));
+        }
+
     }
 
     private handleTradeShipEvent(event: UnitEvent) {
@@ -129,6 +142,7 @@ export class UnitLayer implements Layer {
             this.boatToTrail.delete(event.unit);
         }
     }
+
 
     paintCell(cell: Cell, color: Colord, alpha: number) {
         const index = (cell.y * this.game.width()) + cell.x;

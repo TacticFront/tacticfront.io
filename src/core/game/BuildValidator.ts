@@ -10,7 +10,7 @@ export class BuildValidator {
         }
         switch (item) {
             case BuildItems.Nuke:
-                return true
+                return player.units(UnitType.MissileSilo).length > 0
             case BuildItems.Port:
                 return this.canBuildPort(player, tile)
             case BuildItems.Destroyer:

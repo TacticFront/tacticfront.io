@@ -1,4 +1,4 @@
-import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, Tile, UnitType } from "../game/Game";
+import { BuildItems, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, Tile, UnitType } from "../game/Game";
 import { AStar, PathFinder } from "../PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
 import { distSort, distSortUnit, manhattanDist } from "../Util";
@@ -12,7 +12,7 @@ export class DestroyerExecution implements Execution {
     private mg: MutableGame = null
 
     private target: MutableUnit = null
-    private pathfinder = new PathFinder(5000)
+    private pathfinder = new PathFinder(5000, t => t.isWater())
 
     private patrolTile: Tile;
     private patrolCenterTile: Tile
@@ -37,6 +37,7 @@ export class DestroyerExecution implements Execution {
     tick(ticks: number): void {
         // TODO: remove gold from player
         if (this.destroyer == null) {
+            // TODO validate can build
             const spawns = this._owner.units(UnitType.Port).map(u => u.tile()).sort(distSort(this.patrolTile))
             if (spawns.length == 0) {
                 console.warn(`no ports found for destoryer for player ${this._owner}`)
@@ -44,6 +45,7 @@ export class DestroyerExecution implements Execution {
                 return
             }
             this.destroyer = this._owner.addUnit(UnitType.Destroyer, 0, spawns[0])
+            this._owner.removeGold(BuildItems.Destroyer.cost)
             return
         }
         if (!this.destroyer.isActive()) {

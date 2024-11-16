@@ -95,6 +95,12 @@ export class TileImpl implements Tile {
     isBorder(): boolean { return this._isBorder; }
     isInterior(): boolean { return this.hasOwner() && !this.isBorder(); }
     cell(): Cell { return this._cell; }
+    x(): number {
+        return this._cell.x
+    }
+    y(): number {
+        return this._cell.y
+    }
 
     neighbors(): Tile[] {
         if (this._neighbors == null) {
