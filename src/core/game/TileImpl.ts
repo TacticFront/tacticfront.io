@@ -1,8 +1,8 @@
-import {Tile, Cell, TerrainType, Player, TerraNullius, MutablePlayer} from "./Game";
-import {Terrain} from "./TerrainMapLoader";
-import {GameImpl} from "./GameImpl";
-import {PlayerImpl} from "./PlayerImpl";
-import {TerraNulliusImpl} from "./TerraNulliusImpl";
+import { Tile, Cell, TerrainType, Player, TerraNullius, MutablePlayer } from "./Game";
+import { Terrain } from "./TerrainMapLoader";
+import { GameImpl } from "./GameImpl";
+import { PlayerImpl } from "./PlayerImpl";
+import { TerraNulliusImpl } from "./TerraNulliusImpl";
 
 
 export class TileImpl implements Tile {
@@ -25,15 +25,11 @@ export class TileImpl implements Tile {
         // Check top neighbor
         if (y > 0) {
             ns.push(this.gs.map[x][y - 1]);
-        } else {
-            ns.push(this.gs.map[x][this.gs.height() - 1]);
         }
 
         // Check bottom neighbor
         if (y < this.gs.height() - 1) {
             ns.push(this.gs.map[x][y + 1]);
-        } else {
-            ns.push(this.gs.map[x][0]);
         }
 
         // Check left neighbor (wrap around)
@@ -94,11 +90,11 @@ export class TileImpl implements Tile {
             .length > 0;
     }
 
-    hasOwner(): boolean {return this._owner != this.gs._terraNullius;}
-    owner(): MutablePlayer | TerraNullius {return this._owner;}
-    isBorder(): boolean {return this._isBorder;}
-    isInterior(): boolean {return this.hasOwner() && !this.isBorder();}
-    cell(): Cell {return this._cell;}
+    hasOwner(): boolean { return this._owner != this.gs._terraNullius; }
+    owner(): MutablePlayer | TerraNullius { return this._owner; }
+    isBorder(): boolean { return this._isBorder; }
+    isInterior(): boolean { return this.hasOwner() && !this.isBorder(); }
+    cell(): Cell { return this._cell; }
 
     neighbors(): Tile[] {
         if (this._neighbors == null) {

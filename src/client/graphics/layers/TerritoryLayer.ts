@@ -1,33 +1,33 @@
-import {PriorityQueue} from "@datastructures-js/priority-queue";
-import {Boat, BoatEvent, Cell, Game, Player, Tile, TileEvent} from "../../../core/game/Game";
-import {PseudoRandom} from "../../../core/PseudoRandom";
-import {Colord} from "colord";
-import {bfs, dist} from "../../../core/Util";
-import {Theme} from "../../../core/configuration/Config";
-import {Layer} from "./Layer";
-import {TransformHandler} from "../TransformHandler";
-import {EventBus} from "../../../core/EventBus";
+import { PriorityQueue } from "@datastructures-js/priority-queue";
+import { Cell, Game, Player, Tile, TileEvent } from "../../../core/game/Game";
+import { PseudoRandom } from "../../../core/PseudoRandom";
+import { Colord } from "colord";
+import { bfs, dist } from "../../../core/Util";
+import { Theme } from "../../../core/configuration/Config";
+import { Layer } from "./Layer";
+import { TransformHandler } from "../TransformHandler";
+import { EventBus } from "../../../core/EventBus";
 
 export class TerritoryLayer implements Layer {
     private canvas: HTMLCanvasElement
     private context: CanvasRenderingContext2D
     private imageData: ImageData
 
-    private tileToRenderQueue: PriorityQueue<{tileEvent: TileEvent, lastUpdate: number}> = new PriorityQueue((a, b) => {return a.lastUpdate - b.lastUpdate})
+    private tileToRenderQueue: PriorityQueue<{ tileEvent: TileEvent, lastUpdate: number }> = new PriorityQueue((a, b) => { return a.lastUpdate - b.lastUpdate })
     private random = new PseudoRandom(123)
     private theme: Theme = null
 
-    private boatToTrail = new Map<Boat, Set<Tile>>()
 
 
     constructor(private game: Game, eventBus: EventBus) {
         this.theme = game.config().theme()
         eventBus.on(TileEvent, e => this.tileUpdate(e))
-        eventBus.on(BoatEvent, e => this.boatEvent(e))
     }
+
     shouldTransform(): boolean {
         return true
     }
+
     tick() {
     }
 
@@ -60,31 +60,6 @@ export class TerritoryLayer implements Layer {
             this.game.width(),
             this.game.height()
         )
-    }
-
-    boatEvent(event: BoatEvent) {
-        if (!this.boatToTrail.has(event.boat)) {
-            this.boatToTrail.set(event.boat, new Set<Tile>())
-        }
-        const trail = this.boatToTrail.get(event.boat)
-        trail.add(event.oldTile)
-        bfs(event.oldTile, dist(event.oldTile, 3)).forEach(t => {
-            this.paintTerritory(t)
-        })
-        if (event.boat.isActive()) {
-            bfs(event.boat.tile(), dist(event.boat.tile(), 4)).forEach(
-                t => {
-                    if (trail.has(t)) {
-                        this.paintCell(t.cell(), this.theme.territoryColor(event.boat.owner().info()), 150)
-                    }
-                }
-            )
-            bfs(event.boat.tile(), dist(event.boat.tile(), 2)).forEach(t => this.paintCell(t.cell(), this.theme.borderColor(event.boat.owner().info()), 255))
-            bfs(event.boat.tile(), dist(event.boat.tile(), 1)).forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(event.boat.owner().info()), 180))
-        } else {
-            trail.forEach(t => this.paintTerritory(t))
-            this.boatToTrail.delete(event.boat)
-        }
     }
 
     renderTerritory() {
@@ -138,6 +113,6 @@ export class TerritoryLayer implements Layer {
     }
 
     tileUpdate(event: TileEvent) {
-        this.tileToRenderQueue.push({tileEvent: event, lastUpdate: this.game.ticks() + this.random.nextFloat(0, .5)})
+        this.tileToRenderQueue.push({ tileEvent: event, lastUpdate: this.game.ticks() + this.random.nextFloat(0, .5) })
     }
 }

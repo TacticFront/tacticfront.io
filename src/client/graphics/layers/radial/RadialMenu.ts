@@ -1,5 +1,5 @@
 import { EventBus } from "../../../../core/EventBus";
-import { AllPlayers, Cell, Game, Player } from "../../../../core/game/Game";
+import { AllPlayers, Cell, Game, Player, UnitType } from "../../../../core/game/Game";
 import { ClientID } from "../../../../core/Schemas";
 import { and, bfs, dist, manhattanDist, manhattanDistWrapped, sourceDstOceanShore } from "../../../../core/Util";
 import { ContextMenuEvent, MouseUpEvent } from "../../../InputHandler";
@@ -305,7 +305,7 @@ export class RadialMenu implements Layer {
         if (!tile.isLand()) {
             return
         }
-        if (myPlayer.boats().length >= this.game.config().boatMaxNumber()) {
+        if (myPlayer.units(UnitType.TransportShip).length >= this.game.config().boatMaxNumber()) {
             return
         }
 

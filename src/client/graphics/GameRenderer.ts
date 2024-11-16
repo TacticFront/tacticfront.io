@@ -14,6 +14,9 @@ import { Leaderboard } from "./layers/Leaderboard";
 import { ControlPanel } from "./layers/ControlPanel";
 import { UIState } from "./UIState";
 import { BuildMenu } from "./layers/radial/BuildMenu";
+import { UnitLayer } from "./layers/UnitLayer";
+import { BuildValidator } from "../../core/game/BuildValidator";
+import { StructureLayer } from "./layers/StructureLayer";
 
 
 export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: EventBus, clientID: ClientID): GameRenderer {
@@ -32,7 +35,7 @@ export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: 
 	}
 	buildMenu.game = game
 	buildMenu.eventBus = eventBus
-	buildMenu.init()
+	buildMenu.buildValidator = new BuildValidator(game)
 
 	const leaderboard = document.querySelector('leader-board') as Leaderboard;
 	if (!emojiTable || !(leaderboard instanceof Leaderboard)) {
@@ -61,6 +64,8 @@ export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: 
 	const layers: Layer[] = [
 		new TerrainLayer(game),
 		new TerritoryLayer(game, eventBus),
+		new StructureLayer(game, eventBus),
+		new UnitLayer(game, eventBus),
 		new NameLayer(game, game.config().theme(), transformHandler, clientID),
 		new UILayer(eventBus, game, clientID, transformHandler),
 		eventsDisplay,

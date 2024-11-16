@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Difficulty, GameMap, PlayerType } from './game/Game';
+import { Difficulty, GameMap, PlayerType, UnitType } from './game/Game';
 
 export type GameID = string
 export type ClientID = string
@@ -15,6 +15,7 @@ export type Intent = SpawnIntent
     | DonateIntent
     | NukeIntent
     | TargetTroopRatioIntent
+    | BuildUnitIntent
 
 export type AttackIntent = z.infer<typeof AttackIntentSchema>
 export type SpawnIntent = z.infer<typeof SpawnIntentSchema>
@@ -26,7 +27,8 @@ export type TargetPlayerIntent = z.infer<typeof TargetPlayerIntentSchema>
 export type EmojiIntent = z.infer<typeof EmojiIntentSchema>
 export type DonateIntent = z.infer<typeof DonateIntentSchema>
 export type NukeIntent = z.infer<typeof NukeIntentSchema>
-export type TargetTroopRatioIntent = z.infer<typeof TargetTroopRatioSchema>
+export type TargetTroopRatioIntent = z.infer<typeof TargetTroopRatioIntentSchema>
+export type BuildUnitIntent = z.infer<typeof BuildUnitIntentSchema>
 
 export type Turn = z.infer<typeof TurnSchema>
 export type GameConfig = z.infer<typeof GameConfigSchema>
@@ -67,7 +69,7 @@ const EmojiSchema = z.string().refine(
 );
 // Zod schemas
 const BaseIntentSchema = z.object({
-    type: z.enum(['attack', 'spawn', 'boat', 'name', 'targetPlayer', 'emoji', 'nuke', 'troop_ratio']),
+    type: z.enum(['attack', 'spawn', 'boat', 'name', 'targetPlayer', 'emoji', 'nuke', 'troop_ratio', 'build_unit']),
     clientID: z.string(),
 });
 
@@ -153,10 +155,18 @@ export const NukeIntentSchema = BaseIntentSchema.extend({
     magnitude: z.number().nullable(),
 })
 
-export const TargetTroopRatioSchema = BaseIntentSchema.extend({
+export const TargetTroopRatioIntentSchema = BaseIntentSchema.extend({
     type: z.literal('troop_ratio'),
     player: z.string(),
     ratio: z.number().min(0).max(1),
+})
+
+export const BuildUnitIntentSchema = BaseIntentSchema.extend({
+    type: z.literal('build_unit'),
+    player: z.string(),
+    unit: z.nativeEnum(UnitType),
+    x: z.number(),
+    y: z.number(),
 })
 
 const IntentSchema = z.union([
@@ -170,7 +180,8 @@ const IntentSchema = z.union([
     EmojiIntentSchema,
     DonateIntentSchema,
     NukeIntentSchema,
-    TargetTroopRatioSchema,
+    TargetTroopRatioIntentSchema,
+    BuildUnitIntentSchema,
 ]);
 
 const TurnSchema = z.object({

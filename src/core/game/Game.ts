@@ -1,10 +1,7 @@
-import { info } from "console"
 import { Config } from "../configuration/Config"
 import { GameEvent } from "../EventBus"
 import { ClientID, GameID } from "../Schemas"
-import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/EventsDisplay"
-import { BreakAllianceExecution } from "../execution/alliance/BreakAllianceExecution"
-import { DonateExecution } from "../execution/DonateExecution"
+import { MessageType } from "../../client/graphics/layers/EventsDisplay"
 
 export type PlayerID = string
 export type Tick = number
@@ -25,12 +22,26 @@ export enum GameMap {
     Mena
 }
 
-export class Item {
-    constructor(public readonly name: string, public readonly cost: Gold) { }
+export enum UnitType {
+    TransportShip = "Transport",
+    Destroyer = "Destroyer",
+    Port = "Port",
+    Nuke = "Nuke",
+    TradeShip = "Trade Ship",
 }
 
-export const Items = {
-    Nuke: new Item("Nuke", 1_000_000),
+export class BuildItem {
+    constructor(
+        public readonly type: UnitType,
+        public readonly cost: Gold
+    ) { }
+}
+
+export const BuildItems = {
+    // Nuke: new BuildItem(UnitType.Nuke, 1_000_000),
+    Nuke: new BuildItem(UnitType.Nuke, 10),
+    Destroyer: new BuildItem(UnitType.Destroyer, 10),
+    Port: new BuildItem(UnitType.Port, 0)
 } as const;
 
 export class Nation {
@@ -145,20 +156,20 @@ export interface Tile {
     onShore(): boolean
 }
 
-export interface Boat {
+export interface Unit {
+    type(): UnitType
     troops(): number
     tile(): Tile
     owner(): Player
-    target(): Player | TerraNullius
     isActive(): boolean
 }
 
-export interface MutableBoat extends Boat {
+export interface MutableUnit extends Unit {
     move(tile: Tile): void
     owner(): MutablePlayer
-    target(): MutablePlayer | TerraNullius
     setTroops(troops: number): void
     delete(): void
+    setOwner(newOwner: Player): void
 }
 
 export interface TerraNullius {
@@ -175,7 +186,7 @@ export interface Player {
     clientID(): ClientID
     id(): PlayerID
     type(): PlayerType
-    boats(): Boat[]
+    units(...types: UnitType[]): Unit[]
     ownsTile(cell: Cell): boolean
     isAlive(): boolean
     borderTiles(): ReadonlySet<Tile>
@@ -216,14 +227,13 @@ export interface MutablePlayer extends Player {
     relinquish(tile: Tile): void
     executions(): Execution[]
     neighbors(): (MutablePlayer | TerraNullius)[]
-    boats(): MutableBoat[]
+    units(...types: UnitType[]): MutableUnit[]
     incomingAllianceRequests(): MutableAllianceRequest[]
     outgoingAllianceRequests(): MutableAllianceRequest[]
     alliances(): MutableAlliance[]
     allianceWith(other: Player): MutableAlliance | null
     breakAlliance(alliance: Alliance): void
     createAllianceRequest(recipient: Player): MutableAllianceRequest
-    addBoat(troops: number, tile: Tile, target: Player | TerraNullius): MutableBoat
     target(other: Player): void
     targets(): MutablePlayer[]
     transitiveTargets(): MutablePlayer[]
@@ -239,6 +249,8 @@ export interface MutablePlayer extends Player {
     setTroops(troops: number): void
     addTroops(troops: number): void
     removeTroops(troops: number): number
+
+    addUnit(type: UnitType, troops: number, tile: Tile): MutableUnit
 }
 
 export interface Game {
@@ -263,7 +275,7 @@ export interface Game {
     nations(): Nation[]
     config(): Config
     displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void
-    boats(): Boat[]
+    units(...types: UnitType[]): Unit[]
 }
 
 export interface MutableGame extends Game {
@@ -272,7 +284,7 @@ export interface MutableGame extends Game {
     players(): MutablePlayer[]
     addPlayer(playerInfo: PlayerInfo, manpower: number): MutablePlayer
     executions(): Execution[]
-    boats(): MutableBoat[]
+    units(...types: UnitType[]): MutableUnit[]
 }
 
 export class TileEvent implements GameEvent {
@@ -283,8 +295,8 @@ export class PlayerEvent implements GameEvent {
     constructor(public readonly player: Player) { }
 }
 
-export class BoatEvent implements GameEvent {
-    constructor(public readonly boat: Boat, public oldTile: Tile) { }
+export class UnitEvent implements GameEvent {
+    constructor(public readonly unit: Unit, public oldTile: Tile) { }
 }
 
 export class AllianceRequestEvent implements GameEvent {

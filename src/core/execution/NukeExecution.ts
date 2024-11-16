@@ -1,4 +1,4 @@
-import { Cell, Execution, Items, MutableGame, MutablePlayer, PlayerID, Tile } from "../game/Game";
+import { Cell, Execution, BuildItems, MutableGame, MutablePlayer, PlayerID, Tile } from "../game/Game";
 import { PseudoRandom } from "../PseudoRandom";
 import { bfs, dist, euclideanDist, manhattanDist } from "../Util";
 
@@ -26,12 +26,12 @@ export class NukeExecution implements Execution {
     }
 
     tick(ticks: number): void {
-        if (this.sender.gold() < Items.Nuke.cost) {
+        if (this.sender.gold() < BuildItems.Nuke.cost) {
             console.warn(`player ${this.sender} insufficient gold for nuke`)
             this.active = false
             return
         }
-        this.sender.removeGold(Items.Nuke.cost)
+        this.sender.removeGold(BuildItems.Nuke.cost)
 
         const rand = new PseudoRandom(this.mg.ticks())
         const tile = this.mg.tile(this.cell)
@@ -48,7 +48,9 @@ export class NukeExecution implements Execution {
                 mp.removeTroops(mp.troops() / mp.numTilesOwned())
             }
         }
-        this.mg.boats().filter(b => euclideanDist(this.cell, b.tile().cell()) < this.magnitude + 50).forEach(b => b.delete())
+        this.mg.units()
+            .filter(b => euclideanDist(this.cell, b.tile().cell()) < this.magnitude + 50)
+            .forEach(b => b.delete())
         this.active = false
     }
 

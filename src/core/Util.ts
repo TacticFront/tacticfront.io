@@ -3,7 +3,8 @@ import twemoji from 'twemoji';
 import DOMPurify from 'dompurify';
 
 
-import { Cell, Game, Player, TerraNullius, Tile } from "./game/Game";
+import { Cell, Game, Player, TerraNullius, Tile, Unit } from "./game/Game";
+import { number } from 'zod';
 
 export function manhattanDist(c1: Cell, c2: Cell): number {
     return Math.abs(c1.x - c2.x) + Math.abs(c1.y - c2.y);
@@ -30,10 +31,25 @@ export function within(value: number, min: number, max: number): number {
     return Math.min(Math.max(value, min), max);
 }
 
+export function euclDist(root: Tile, dist: number): (tile: Tile) => boolean {
+    return (n: Tile) => euclideanDist(root.cell(), n.cell()) <= dist;
+}
+
 export function dist(root: Tile, dist: number): (tile: Tile) => boolean {
     return (n: Tile) => manhattanDist(root.cell(), n.cell()) <= dist;
 }
 
+export function distSort(target: Tile): (a: Tile, b: Tile) => number {
+    return (a: Tile, b: Tile) => {
+        return manhattanDist(a.cell(), target.cell()) - manhattanDist(b.cell(), target.cell());
+    }
+}
+
+export function distSortUnit(target: Unit): (a: Unit, b: Unit) => number {
+    return (a: Unit, b: Unit) => {
+        return manhattanDist(a.tile().cell(), target.tile().cell()) - manhattanDist(b.tile().cell(), target.tile().cell());
+    }
+}
 export function and(x: (tile: Tile) => boolean, y: (tile: Tile) => boolean): (tile: Tile) => boolean {
     return (tile: Tile) => x(tile) && y(tile)
 }

@@ -1,22 +1,26 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { EventBus } from '../../../../core/EventBus';
-import { Cell, Game, Item, Items, Player } from '../../../../core/game/Game';
-import { SendNukeIntentEvent } from '../../../Transport';
+import { Cell, Game, BuildItem, BuildItems, Player, UnitType } from '../../../../core/game/Game';
+import { BuildUnitIntentEvent, SendNukeIntentEvent } from '../../../Transport';
 import nukeIcon from '../../../../../resources/images/NukeIconWhite.svg';
+import destroyerIcon from '../../../../../resources/images/DestroyerIconWhite.svg';
 import goldCoinIcon from '../../../../../resources/images/GoldCoinIcon.svg';
+import portIcon from '../../../../../resources/images/PortIcon.svg';
 import { renderNumber } from '../../Utils';
+import { BuildValidator } from '../../../../core/game/BuildValidator';
 import { ContextMenuEvent } from '../../../InputHandler';
 
-interface BuildItem {
-    item: Item
+interface BuildItemDisplay {
+    item: BuildItem
     icon: string;
 }
 
-const buildTable: BuildItem[][] = [
+const buildTable: BuildItemDisplay[][] = [
     [
-        { item: Items.Nuke, icon: nukeIcon },
-        // { id: 'battleship', name: 'Battleship', icon: '🚢', cost: 500, buildTime: 20 }
+        { item: BuildItems.Nuke, icon: nukeIcon },
+        { item: BuildItems.Destroyer, icon: destroyerIcon },
+        { item: BuildItems.Port, icon: portIcon }
     ]
 ];
 
@@ -24,6 +28,7 @@ const buildTable: BuildItem[][] = [
 export class BuildMenu extends LitElement {
     public game: Game;
     public eventBus: EventBus;
+    public buildValidator: BuildValidator;
 
     private myPlayer: Player;
     private clickedCell: Cell;
@@ -142,12 +147,25 @@ export class BuildMenu extends LitElement {
     @state()
     private _hidden = true;
 
-    private canAfford(item: BuildItem): boolean {
-        return this.myPlayer && this.myPlayer.gold() >= item.item.cost;
+    private canBuild(item: BuildItemDisplay): boolean {
+        if (this.myPlayer == null) {
+            return false
+        }
+        return this.buildValidator.canBuild(this.myPlayer, this.game.tile(this.clickedCell), item.item)
     }
 
-    public onBuildSelected: (item: BuildItem) => void = () => {
-        this.eventBus.emit(new SendNukeIntentEvent(this.myPlayer, this.clickedCell, null))
+    public onBuildSelected = (item: BuildItemDisplay) => {
+        switch (item.item) {
+            case BuildItems.Nuke:
+                this.eventBus.emit(new SendNukeIntentEvent(this.myPlayer, this.clickedCell, null))
+                break
+            case BuildItems.Destroyer:
+                this.eventBus.emit(new BuildUnitIntentEvent(UnitType.Destroyer, this.clickedCell))
+                break
+            case BuildItems.Port:
+                this.eventBus.emit(new BuildUnitIntentEvent(UnitType.Port, this.clickedCell))
+                break
+        }
         this.hideMenu()
     };
 
@@ -160,11 +178,11 @@ export class BuildMenu extends LitElement {
                        <button 
                            class="build-button" 
                            @click=${() => this.onBuildSelected(item)}
-                           ?disabled=${!this.canAfford(item)}
-                           title=${!this.canAfford(item) ? 'Not enough money' : ''}
+                           ?disabled=${!this.canBuild(item)}
+                           title=${!this.canBuild(item) ? 'Not enough money' : ''}
                        >
-                            <img src=${item.icon} alt="${item.item.name}" width="40" height="40">
-                            <span class="build-name">${item.item.name}</span>
+                            <img src=${item.icon} alt="${item.item.type}" width="40" height="40">
+                            <span class="build-name">${item.item.type}</span>
                             <span class="build-cost">
                                 ${renderNumber(item.item.cost)}
                                 <img src=${goldCoinIcon} alt="gold" width="12" height="12" style="vertical-align: middle;">

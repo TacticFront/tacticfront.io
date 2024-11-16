@@ -1,9 +1,9 @@
-import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerInfo, TerraNullius, Tile, PlayerType, Alliance, AllianceRequestReplyEvent, Difficulty } from "../game/Game";
+import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerInfo, TerraNullius, Tile, PlayerType, Alliance, AllianceRequestReplyEvent, Difficulty, UnitType } from "../game/Game";
 import { AttackIntent, BoatAttackIntentSchema, GameID, Intent, Turn } from "../Schemas";
 import { AttackExecution } from "./AttackExecution";
 import { SpawnExecution } from "./SpawnExecution";
 import { BotSpawner } from "./BotSpawner";
-import { BoatAttackExecution } from "./BoatAttackExecution";
+import { TransportShipExecution } from "./TransportShipExecution";
 import { PseudoRandom } from "../PseudoRandom";
 import { FakeHumanExecution } from "./FakeHumanExecution";
 import Usernames from '../../../resources/Usernames.txt'
@@ -16,6 +16,8 @@ import { EmojiExecution } from "./EmojiExecution";
 import { DonateExecution } from "./DonateExecution";
 import { NukeExecution } from "./NukeExecution";
 import { SetTargetTroopRatioExecution } from "./SetTargetTroopRatioExecution";
+import { DestroyerExecution } from "./DestroyerExecution";
+import { PortExecution } from "./PortExecution";
 
 
 
@@ -36,49 +38,63 @@ export class Executor {
     }
 
     createExec(intent: Intent): Execution {
-        if (intent.type == "attack") {
-            const source: Cell | null = intent.sourceX != null && intent.sourceY != null ? new Cell(intent.sourceX, intent.sourceY) : null
-            const target: Cell | null = intent.targetX != null && intent.targetY != null ? new Cell(intent.targetX, intent.targetY) : null
-            return new AttackExecution(
-                intent.troops,
-                intent.attackerID,
-                intent.targetID,
-                source,
-                target,
-            )
-        } else if (intent.type == "spawn") {
-            return new SpawnExecution(
-                new PlayerInfo(sanitize(intent.name), intent.playerType, intent.clientID, intent.playerID),
-                new Cell(intent.x, intent.y)
-            )
-        } else if (intent.type == "boat") {
-            return new BoatAttackExecution(
-                intent.attackerID,
-                intent.targetID,
-                new Cell(intent.x, intent.y),
-                intent.troops
-            )
-        } else if (intent.type == "allianceRequest") {
-            return new AllianceRequestExecution(intent.requestor, intent.recipient)
-        } else if (intent.type == "allianceRequestReply") {
-            return new AllianceRequestReplyExecution(intent.requestor, intent.recipient, intent.accept)
-        } else if (intent.type == "breakAlliance") {
-            return new BreakAllianceExecution(intent.requestor, intent.recipient)
-        } else if (intent.type == "targetPlayer") {
-            return new TargetPlayerExecution(intent.requestor, intent.target)
-        } else if (intent.type == "emoji") {
-            return new EmojiExecution(intent.sender, intent.recipient, intent.emoji)
-        } else if (intent.type == "donate") {
-            return new DonateExecution(intent.sender, intent.recipient, intent.troops)
-        } else if (intent.type == "nuke") {
-            return new NukeExecution(intent.sender, new Cell(intent.x, intent.y), intent.magnitude)
-        } else if (intent.type == "troop_ratio") {
-            return new SetTargetTroopRatioExecution(intent.player, intent.ratio)
-        } else {
-            throw new Error(`intent type ${intent} not found`)
+        switch (intent.type) {
+            case "attack": {
+                const source: Cell | null = intent.sourceX != null && intent.sourceY != null
+                    ? new Cell(intent.sourceX, intent.sourceY)
+                    : null;
+                const target: Cell | null = intent.targetX != null && intent.targetY != null
+                    ? new Cell(intent.targetX, intent.targetY)
+                    : null;
+                return new AttackExecution(
+                    intent.troops,
+                    intent.attackerID,
+                    intent.targetID,
+                    source,
+                    target,
+                );
+            }
+            case "spawn":
+                return new SpawnExecution(
+                    new PlayerInfo(sanitize(intent.name), intent.playerType, intent.clientID, intent.playerID),
+                    new Cell(intent.x, intent.y)
+                );
+            case "boat":
+                return new TransportShipExecution(
+                    intent.attackerID,
+                    intent.targetID,
+                    new Cell(intent.x, intent.y),
+                    intent.troops
+                );
+            case "allianceRequest":
+                return new AllianceRequestExecution(intent.requestor, intent.recipient);
+            case "allianceRequestReply":
+                return new AllianceRequestReplyExecution(intent.requestor, intent.recipient, intent.accept);
+            case "breakAlliance":
+                return new BreakAllianceExecution(intent.requestor, intent.recipient);
+            case "targetPlayer":
+                return new TargetPlayerExecution(intent.requestor, intent.target);
+            case "emoji":
+                return new EmojiExecution(intent.sender, intent.recipient, intent.emoji);
+            case "donate":
+                return new DonateExecution(intent.sender, intent.recipient, intent.troops);
+            case "nuke":
+                return new NukeExecution(intent.sender, new Cell(intent.x, intent.y), intent.magnitude);
+            case "troop_ratio":
+                return new SetTargetTroopRatioExecution(intent.player, intent.ratio);
+            case "build_unit":
+                switch (intent.unit) {
+                    case UnitType.Destroyer:
+                        return new DestroyerExecution(intent.player, new Cell(intent.x, intent.y))
+                    case UnitType.Port:
+                        return new PortExecution(intent.player, new Cell(intent.x, intent.y))
+                    default:
+                        throw Error(`unit type ${intent.unit} not supported`)
+                }
+            default:
+                throw new Error(`intent type ${intent} not found`);
         }
     }
-
 
     spawnBots(numBots: number): Execution[] {
         return new BotSpawner(this.gs, this.gameID).spawnBots(numBots).map(i => this.createExec(i))

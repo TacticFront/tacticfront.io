@@ -1,8 +1,8 @@
-import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers, Gold } from "./Game";
+import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers, Gold, UnitType } from "./Game";
 import { ClientID } from "../Schemas";
 import { processName, simpleHash } from "../Util";
 import { CellString, GameImpl } from "./GameImpl";
-import { BoatImpl } from "./BoatImpl";
+import { UnitImpl } from "./UnitImpl";
 import { TileImpl } from "./TileImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
 import { MessageType } from "../../client/graphics/layers/EventsDisplay";
@@ -29,7 +29,7 @@ export class PlayerImpl implements MutablePlayer {
 
     public _borderTiles: Set<Tile> = new Set();
 
-    public _boats: BoatImpl[] = [];
+    public _units: UnitImpl[] = [];
     public _tiles: Map<CellString, Tile> = new Map<CellString, Tile>();
 
     private _name: string;
@@ -73,15 +73,16 @@ export class PlayerImpl implements MutablePlayer {
     }
 
 
-    addBoat(troops: number, tile: Tile, target: Player | TerraNullius): BoatImpl {
-        const b = new BoatImpl(this.gs, tile, troops, this, target as PlayerImpl | TerraNulliusImpl);
-        this._boats.push(b);
-        this.gs.fireBoatUpdateEvent(b, b.tile());
+    addUnit(type: UnitType, troops: number, tile: Tile): UnitImpl {
+        const b = new UnitImpl(type, this.gs, tile, troops, this);
+        this._units.push(b);
+        this.gs.fireUnitUpdateEvent(b, b.tile());
         return b;
     }
 
-    boats(): BoatImpl[] {
-        return this._boats;
+    units(...types: UnitType[]): UnitImpl[] {
+        const ts = new Set(types)
+        return this._units.filter(u => ts.has(u.type()));
     }
 
     sharesBorderWith(other: Player | TerraNullius): boolean {

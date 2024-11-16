@@ -1,5 +1,5 @@
 import { Executor } from "../core/execution/ExecutionManager";
-import { Cell, MutableGame, PlayerEvent, PlayerID, MutablePlayer, TileEvent, Player, Game, BoatEvent, Tile, PlayerType, GameMap, Difficulty } from "../core/game/Game";
+import { Cell, MutableGame, PlayerEvent, PlayerID, MutablePlayer, TileEvent, Player, Game, UnitEvent, Tile, PlayerType, GameMap, Difficulty } from "../core/game/Game";
 import { createGame } from "../core/game/GameImpl";
 import { EventBus } from "../core/EventBus";
 import { Config, getConfig } from "../core/configuration/Config";
