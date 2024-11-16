@@ -6,6 +6,7 @@ import { SendNukeIntentEvent } from '../../../Transport';
 import nukeIcon from '../../../../../resources/images/NukeIconWhite.svg';
 import goldCoinIcon from '../../../../../resources/images/GoldCoinIcon.svg';
 import { renderNumber } from '../../Utils';
+import { ContextMenuEvent } from '../../../InputHandler';
 
 interface BuildItem {
     item: Item
@@ -26,6 +27,10 @@ export class BuildMenu extends LitElement {
 
     private myPlayer: Player;
     private clickedCell: Cell;
+
+    init() {
+        this.eventBus.on(ContextMenuEvent, (e) => { this.hideMenu() })
+    }
 
     static styles = css`
         :host {

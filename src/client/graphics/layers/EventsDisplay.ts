@@ -122,7 +122,21 @@ export class EventsDisplay extends LitElement implements Layer {
     .warn td { color: rgb(255, 220, 80) }
     .error td { color: rgb(255, 100, 100); }
 
+    .button-container {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
     @media (max-width: 600px) {
+      :host {
+        bottom: auto;
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: calc(100% - 20px);
+      }
+
       .events-table th,
       .events-table td {
         padding: 10px;
@@ -131,16 +145,9 @@ export class EventsDisplay extends LitElement implements Layer {
       .btn {
         display: block;
         margin: 5px 0;
+        width: 100%;
       }
-    }
 
-    .button-container {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    @media (max-width: 600px) {
       .button-container {
         flex-direction: column;
       }

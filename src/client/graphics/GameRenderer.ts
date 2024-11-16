@@ -32,6 +32,7 @@ export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: 
 	}
 	buildMenu.game = game
 	buildMenu.eventBus = eventBus
+	buildMenu.init()
 
 	const leaderboard = document.querySelector('leader-board') as Leaderboard;
 	if (!emojiTable || !(leaderboard instanceof Leaderboard)) {
