@@ -15,6 +15,8 @@ export class BuildValidator {
                 return this.canBuildPort(player, tile)
             case BuildItems.Destroyer:
                 return this.canBuildDestroyer(player, tile)
+            case BuildItems.MissileSilo:
+                return tile.owner() == player
             default:
                 throw Error(`item ${item.type} not supported`)
         }

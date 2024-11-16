@@ -55,6 +55,7 @@ export class PortExecution implements Execution {
         }
         if (this.port.tile().owner() != this.port.owner()) {
             this.port.setOwner(this.port.tile().owner() as Player)
+            this.player = this.port.owner()
         }
 
         const allPorts = this.mg.units(UnitType.Port)

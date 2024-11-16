@@ -18,6 +18,7 @@ import { NukeExecution } from "./NukeExecution";
 import { SetTargetTroopRatioExecution } from "./SetTargetTroopRatioExecution";
 import { DestroyerExecution } from "./DestroyerExecution";
 import { PortExecution } from "./PortExecution";
+import { MissileSiloExecution } from "./MissileSiloExecution";
 
 
 
@@ -88,6 +89,8 @@ export class Executor {
                         return new DestroyerExecution(intent.player, new Cell(intent.x, intent.y))
                     case UnitType.Port:
                         return new PortExecution(intent.player, new Cell(intent.x, intent.y))
+                    case UnitType.MissileSilo:
+                        return new MissileSiloExecution(intent.player, new Cell(intent.x, intent.y))
                     default:
                         throw Error(`unit type ${intent.unit} not supported`)
                 }

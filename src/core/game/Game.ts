@@ -28,6 +28,7 @@ export enum UnitType {
     Port = "Port",
     Nuke = "Nuke",
     TradeShip = "Trade Ship",
+    MissileSilo = "Missile Silo",
 }
 
 export class BuildItem {
@@ -41,7 +42,8 @@ export const BuildItems = {
     // Nuke: new BuildItem(UnitType.Nuke, 1_000_000),
     Nuke: new BuildItem(UnitType.Nuke, 10),
     Destroyer: new BuildItem(UnitType.Destroyer, 10),
-    Port: new BuildItem(UnitType.Port, 0)
+    Port: new BuildItem(UnitType.Port, 0),
+    MissileSilo: new BuildItem(UnitType.MissileSilo, 10),
 } as const;
 
 export class Nation {

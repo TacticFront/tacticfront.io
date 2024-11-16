@@ -6,28 +6,49 @@ import { Layer } from "./Layer";
 import { EventBus } from "../../../core/EventBus";
 
 import anchorIcon from '../../../../resources/images/AnchorIcon.png';
+import missileSiloIcon from '../../../../resources/images/MissileSiloUnit.png';
+
+interface UnitRenderConfig {
+    icon: string;
+    borderRadius: number;
+    territoryRadius: number;
+}
+
 
 export class StructureLayer implements Layer {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
     private imageData: ImageData;
-    private anchorImage: HTMLImageElement;
-    private anchorImageLoaded: boolean = false;
-
-
+    private unitImages: Map<string, HTMLImageElement> = new Map();
     private theme: Theme = null;
+
+    // Configuration for supported unit types only
+    private readonly unitConfigs: Partial<Record<UnitType, UnitRenderConfig>> = {
+        [UnitType.Port]: {
+            icon: anchorIcon,
+            borderRadius: 8,
+            territoryRadius: 6
+        },
+        [UnitType.MissileSilo]: {
+            icon: missileSiloIcon,
+            borderRadius: 8,
+            territoryRadius: 6
+        }
+    };
 
     constructor(private game: Game, private eventBus: EventBus) {
         this.theme = game.config().theme();
-        this.loadAnchorImage();
+        this.loadUnitImages();
     }
 
-    private loadAnchorImage() {
-        this.anchorImage = new Image();
-        this.anchorImage.onload = () => {
-            this.anchorImageLoaded = true;
-        };
-        this.anchorImage.src = anchorIcon;
+    private loadUnitImages() {
+        Object.entries(this.unitConfigs).forEach(([unitType, config]) => {
+            const image = new Image();
+            image.src = config.icon;
+            image.onload = () => {
+                this.unitImages.set(unitType, image);
+            };
+        });
     }
 
     shouldTransform(): boolean {
@@ -69,53 +90,74 @@ export class StructureLayer implements Layer {
         );
     }
 
-    private handlePortEvent(event: UnitEvent) {
-        if (!this.anchorImageLoaded) return;
+    private isUnitTypeSupported(unitType: UnitType): boolean {
+        return unitType in this.unitConfigs;
+    }
 
-        bfs(event.unit.tile(), euclDist(event.unit.tile(), 8))
+    private handleUnitRendering(event: UnitEvent) {
+        const unitType = event.unit.type();
+        if (!this.isUnitTypeSupported(unitType)) return;
+
+        const config = this.unitConfigs[unitType];
+        const unitImage = this.unitImages.get(unitType);
+
+        if (!config || !unitImage) return;
+
+        // Clear previous rendering
+        bfs(event.unit.tile(), euclDist(event.unit.tile(), config.borderRadius))
             .forEach(t => this.clearCell(t.cell()));
 
         if (!event.unit.isActive()) {
-            return
+            return;
         }
-        // Create a temporary canvas to process the anchor icon
+
+        // Create temporary canvas for icon processing
         const tempCanvas = document.createElement('canvas');
         const tempContext = tempCanvas.getContext('2d');
-        tempCanvas.width = this.anchorImage.width;
-        tempCanvas.height = this.anchorImage.height;
+        tempCanvas.width = unitImage.width;
+        tempCanvas.height = unitImage.height;
 
-        // Draw the anchor icon to the temporary canvas
-        tempContext.drawImage(this.anchorImage, 0, 0);
+        // Draw the unit icon
+        tempContext.drawImage(unitImage, 0, 0);
         const iconData = tempContext.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
 
-        // Calculate position to center the icon on the port
         const cell = event.unit.tile().cell();
         const startX = cell.x - Math.floor(tempCanvas.width / 2);
         const startY = cell.y - Math.floor(tempCanvas.height / 2);
 
-        bfs(event.unit.tile(), euclDist(event.unit.tile(), 8))
+        // Draw border and territory
+        bfs(event.unit.tile(), euclDist(event.unit.tile(), config.borderRadius))
             .forEach(t => this.paintCell(t.cell(), this.theme.borderColor(event.unit.owner().info()), 255));
 
-        bfs(event.unit.tile(), euclDist(event.unit.tile(), 6))
+        bfs(event.unit.tile(), euclDist(event.unit.tile(), config.territoryRadius))
             .forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(event.unit.owner().info()), 255));
-        // Process each pixel of the icon
-        for (let y = 0; y < tempCanvas.height; y++) {
-            for (let x = 0; x < tempCanvas.width; x++) {
-                const iconIndex = (y * tempCanvas.width + x) * 4;
+
+        // Draw the icon
+        this.renderIcon(iconData, startX, startY, tempCanvas.width, tempCanvas.height, event.unit);
+    }
+
+    private renderIcon(
+        iconData: ImageData,
+        startX: number,
+        startY: number,
+        width: number,
+        height: number,
+        unit: Unit
+    ) {
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                const iconIndex = (y * width + x) * 4;
                 const alpha = iconData.data[iconIndex + 3];
 
-                if (alpha > 0) {  // Only process non-transparent pixels
+                if (alpha > 0) {
                     const targetX = startX + x;
                     const targetY = startY + y;
 
-                    // Check if the target pixel is within the game bounds
                     if (targetX >= 0 && targetX < this.game.width() &&
                         targetY >= 0 && targetY < this.game.height()) {
-
-                        // Color the pixel using the unit owner's colors
                         this.paintCell(
                             new Cell(targetX, targetY),
-                            this.theme.borderColor(event.unit.owner().info()),
+                            this.theme.borderColor(unit.owner().info()),
                             alpha
                         );
                     }
@@ -125,11 +167,7 @@ export class StructureLayer implements Layer {
     }
 
     onUnitEvent(event: UnitEvent) {
-        switch (event.unit.type()) {
-            case UnitType.Port:
-                this.handlePortEvent(event);
-                break;
-        }
+        this.handleUnitRendering(event);
     }
 
     paintCell(cell: Cell, color: Colord, alpha: number) {
@@ -144,6 +182,6 @@ export class StructureLayer implements Layer {
     clearCell(cell: Cell) {
         const index = (cell.y * this.game.width()) + cell.x;
         const offset = index * 4;
-        this.imageData.data[offset + 3] = 0; // Set alpha to 0 (fully transparent)
+        this.imageData.data[offset + 3] = 0;
     }
 }

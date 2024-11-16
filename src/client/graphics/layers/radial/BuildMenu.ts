@@ -5,6 +5,7 @@ import { Cell, Game, BuildItem, BuildItems, Player, UnitType } from '../../../..
 import { BuildUnitIntentEvent, SendNukeIntentEvent } from '../../../Transport';
 import nukeIcon from '../../../../../resources/images/NukeIconWhite.svg';
 import destroyerIcon from '../../../../../resources/images/DestroyerIconWhite.svg';
+import missileSiloIcon from '../../../../../resources/images/MissileSiloIconWhite.svg';
 import goldCoinIcon from '../../../../../resources/images/GoldCoinIcon.svg';
 import portIcon from '../../../../../resources/images/PortIcon.svg';
 import { renderNumber } from '../../Utils';
@@ -20,7 +21,8 @@ const buildTable: BuildItemDisplay[][] = [
     [
         { item: BuildItems.Nuke, icon: nukeIcon },
         { item: BuildItems.Destroyer, icon: destroyerIcon },
-        { item: BuildItems.Port, icon: portIcon }
+        { item: BuildItems.Port, icon: portIcon },
+        { item: BuildItems.MissileSilo, icon: missileSiloIcon }
     ]
 ];
 
@@ -29,7 +31,6 @@ export class BuildMenu extends LitElement {
     public game: Game;
     public eventBus: EventBus;
     public buildValidator: BuildValidator;
-
     private myPlayer: Player;
     private clickedCell: Cell;
 
@@ -165,6 +166,8 @@ export class BuildMenu extends LitElement {
             case BuildItems.Port:
                 this.eventBus.emit(new BuildUnitIntentEvent(UnitType.Port, this.clickedCell))
                 break
+            case BuildItems.MissileSilo:
+                this.eventBus.emit(new BuildUnitIntentEvent(UnitType.MissileSilo, this.clickedCell))
         }
         this.hideMenu()
     };
