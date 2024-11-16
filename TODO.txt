@@ -179,11 +179,11 @@
 * add destroyer DONE 11/12/2024
 * add ports DONE 11/14/2024
 * destroyer spawn from port DONE 11/14/2024
+* create trade routes DONE 11/15/2024
+* add trade ship DONE 11/15/2024
+* trade ship gives gold when completes route DONE 11/15/2024
 * add missile silo
 * nuke spawns from missile silo
-* create trade routes
-* add trade ship
-* trade ship gives gold when completes route
 * destroyer can capture trade ships
 * add battleship
 * NPC has relations

@@ -57,12 +57,12 @@ export class PortExecution implements Execution {
             this.port.setOwner(this.port.tile().owner() as Player)
         }
 
-        const ports = this.mg.units(UnitType.Port)
+        const allPorts = this.mg.units(UnitType.Port)
             .filter(u => u.owner() != this.player)
-        if (ports.length == 0) {
+        if (allPorts.length == 0) {
             return
         }
-        for (const port of ports) {
+        for (const port of allPorts) {
             if (this.computingPaths.has(port)) {
                 const aStar = this.computingPaths.get(port)
                 if (aStar.compute(10_000)) {
@@ -76,8 +76,17 @@ export class PortExecution implements Execution {
                 continue
             }
         }
+        for (const port of this.portPaths.keys()) {
+            if (!port.isActive()) {
+                this.portPaths.delete(port)
+            }
+        }
+
         if (this.random.chance(50)) {
-            const port = this.random.randElement(Array.from(this.portPaths.keys()))
+            const port = this.random.randElement(
+                Array.from(this.portPaths.keys())
+                    .filter(p => this.port.owner().isAlliedWith(p.owner()))
+            )
             const path = this.portPaths.get(port)
             this.mg.addExecution(new TradeShipExecution(this._owner, this.port, port, path))
         }

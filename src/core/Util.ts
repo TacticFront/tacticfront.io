@@ -3,7 +3,7 @@ import twemoji from 'twemoji';
 import DOMPurify from 'dompurify';
 
 
-import { Cell, Game, Player, TerraNullius, Tile } from "./game/Game";
+import { Cell, Game, Player, TerraNullius, Tile, Unit } from "./game/Game";
 import { number } from 'zod';
 
 export function manhattanDist(c1: Cell, c2: Cell): number {
@@ -45,6 +45,11 @@ export function distSort(target: Tile): (a: Tile, b: Tile) => number {
     }
 }
 
+export function distSortUnit(target: Unit): (a: Unit, b: Unit) => number {
+    return (a: Unit, b: Unit) => {
+        return manhattanDist(a.tile().cell(), target.tile().cell()) - manhattanDist(b.tile().cell(), target.tile().cell());
+    }
+}
 export function and(x: (tile: Tile) => boolean, y: (tile: Tile) => boolean): (tile: Tile) => boolean {
     return (tile: Tile) => x(tile) && y(tile)
 }

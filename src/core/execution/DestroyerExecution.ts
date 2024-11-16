@@ -1,7 +1,7 @@
 import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, Tile, UnitType } from "../game/Game";
 import { AStar, PathFinder } from "../PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
-import { distSort, manhattanDist } from "../Util";
+import { distSort, distSortUnit, manhattanDist } from "../Util";
 
 export class DestroyerExecution implements Execution {
     private random: PseudoRandom
@@ -56,7 +56,7 @@ export class DestroyerExecution implements Execution {
         if (this.target == null) {
             const ships = this.mg.units(UnitType.TransportShip)
                 .filter(u => manhattanDist(u.tile().cell(), this.destroyer.tile().cell()) < 100)
-                // .filter(u => u.owner() != this.destroyer.owner())
+                .filter(u => u.owner() != this.destroyer.owner())
                 .filter(u => u != this.destroyer)
                 .filter(u => !u.owner().isAlliedWith(this.destroyer.owner()))
             if (ships.length == 0) {
@@ -72,8 +72,7 @@ export class DestroyerExecution implements Execution {
                 }
                 return
             }
-            // TODO: sort by distance
-            this.target = ships[0]
+            this.target = ships.sort(distSortUnit(this.destroyer))[0]
         }
         if (manhattanDist(this.destroyer.tile().cell(), this.target.tile().cell()) < 5) {
             this.target.delete()
