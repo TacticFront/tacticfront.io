@@ -24,11 +24,11 @@ export const devConfig = new class extends DefaultConfig {
         return 100
     }
 
-    numBots(): number {
-        return 400
-    }
+    // numBots(): number {
+    //     return 400
+    // }
 
-    boatMaxDistance(): number {
-        return 2000
-    }
+    // boatMaxDistance(): number {
+    //     return 2000
+    // }
 }

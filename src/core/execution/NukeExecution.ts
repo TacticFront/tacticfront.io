@@ -67,12 +67,17 @@ export class NukeExecution implements Execution {
             return (d <= this.magnitude || rand.chance(2)) && d <= this.magnitude + 40
         })
 
+        const ratio = Object.fromEntries(
+            this.mg.players().map(p => [p.id(), p.troops() / p.numTilesOwned()])
+        )
+
+
         for (const tile of toDestroy) {
             const owner = tile.owner()
             if (owner.isPlayer()) {
                 const mp = this.mg.player(owner.id())
                 mp.relinquish(tile)
-                mp.removeTroops(mp.troops() / mp.numTilesOwned())
+                mp.removeTroops(ratio[mp.id()])
             }
         }
         this.mg.units()
