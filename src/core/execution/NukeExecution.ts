@@ -1,4 +1,3 @@
-import { BuildValidator } from "../game/BuildValidator";
 import { Cell, Execution, MutableGame, MutablePlayer, PlayerID, Tile, MutableUnit, UnitType } from "../game/Game";
 import { PathFinder } from "../PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
@@ -35,7 +34,7 @@ export class NukeExecution implements Execution {
 
     tick(ticks: number): void {
         if (this.nuke == null) {
-            if (new BuildValidator(this.mg).canBuild(this.player, this.dst, UnitType.Nuke)) {
+            if (this.player.canBuild(UnitType.Nuke, this.dst)) {
                 const spawn = this.player.units(UnitType.MissileSilo)
                     .sort((a, b) => manhattanDist(a.tile().cell(), this.cell) - manhattanDist(b.tile().cell(), this.cell))[0]
                 this.nuke = this.player.buildUnit(UnitType.Nuke, 0, spawn.tile())

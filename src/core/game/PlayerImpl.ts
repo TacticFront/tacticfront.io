@@ -1,6 +1,6 @@
 import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers, Gold, UnitType } from "./Game";
 import { ClientID } from "../Schemas";
-import { processName, simpleHash } from "../Util";
+import { bfs, dist, manhattanDist, processName, simpleHash } from "../Util";
 import { CellString, GameImpl } from "./GameImpl";
 import { UnitImpl } from "./UnitImpl";
 import { TileImpl } from "./TileImpl";
@@ -324,6 +324,32 @@ export class PlayerImpl implements MutablePlayer {
         return toRemove
     }
 
+    canBuild(unitType: UnitType, tile: Tile): boolean {
+        const cost = this.gs.unitInfo(unitType).cost
+        if (!this.isAlive() || this.gold() < cost) {
+            return false
+        }
+        switch (unitType) {
+            case UnitType.Nuke:
+                return this.units(UnitType.MissileSilo).length > 0
+            case UnitType.Port:
+                return this.canBuildPort(tile)
+            case UnitType.Destroyer:
+                return this.canBuildDestroyer(tile)
+            case UnitType.MissileSilo:
+                return tile.owner() == this
+        }
+    }
+
+    canBuildPort(tile: Tile): boolean {
+        return Array.from(bfs(tile, dist(tile, 20)))
+            .filter(t => t.owner() == this && t.isOceanShore()).length > 0
+    }
+
+    canBuildDestroyer(tile: Tile): boolean {
+        return this.units(UnitType.Port)
+            .filter(u => manhattanDist(u.tile().cell(), tile.cell()) < this.gs.config().boatMaxDistance()).length > 0
+    }
 
     hash(): number {
         return simpleHash(this.id()) * (this.population() + this.numTilesOwned());

@@ -184,12 +184,14 @@
 * trade ship gives gold when completes route DONE 11/15/2024
 * add missile silo DONE 11/15/2024
 * nuke spawns from missile silo DONE 11/16/2024
+* REFACTOR: move canbuild to player
 * BUG: can build destroyer on land
 * make two nukes: atom & hydrogen
 * destroyer can capture trade ships
 * add battleship
 * add defense post
 * add radiation from nuke
+* only show units you can build in the build menu
 * REFACTOR: make TransportShip follow build unit flow
 * NPC has relations
 * use twitter emojis

@@ -1,9 +1,4 @@
-import { BuildValidator } from "../game/BuildValidator";
-import { AllPlayers, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, Tile, Unit, UnitType } from "../game/Game";
-import { AStar, PathFinder } from "../PathFinding";
-import { PseudoRandom } from "../PseudoRandom";
-import { bfs, dist, manhattanDist } from "../Util";
-import { TradeShipExecution } from "./TradeShipExecution";
+import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, Tile, Unit, UnitType } from "../game/Game";
 
 export class MissileSiloExecution implements Execution {
 
@@ -26,7 +21,7 @@ export class MissileSiloExecution implements Execution {
     tick(ticks: number): void {
         if (this.silo == null) {
             const tile = this.mg.tile(this.cell)
-            if (!new BuildValidator(this.mg).canBuild(this.player, tile, UnitType.MissileSilo)) {
+            if (!this.player.canBuild(UnitType.MissileSilo, tile)) {
                 console.warn(`player ${this.player} cannot build port at ${this.cell}`)
                 this.active = false
                 return

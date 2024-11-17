@@ -213,6 +213,8 @@ export interface Player {
     // Number between 0, 1
     targetTroopRatio(): number
     troops(): number
+
+    canBuild(type: UnitType, tile: Tile): boolean
 }
 
 export interface MutablePlayer extends Player {

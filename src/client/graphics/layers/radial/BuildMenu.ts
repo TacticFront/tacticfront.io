@@ -9,7 +9,6 @@ import missileSiloIcon from '../../../../../resources/images/MissileSiloIconWhit
 import goldCoinIcon from '../../../../../resources/images/GoldCoinIcon.svg';
 import portIcon from '../../../../../resources/images/PortIcon.svg';
 import { renderNumber } from '../../Utils';
-import { BuildValidator } from '../../../../core/game/BuildValidator';
 import { ContextMenuEvent } from '../../../InputHandler';
 
 interface BuildItemDisplay {
@@ -30,7 +29,6 @@ const buildTable: BuildItemDisplay[][] = [
 export class BuildMenu extends LitElement {
     public game: Game;
     public eventBus: EventBus;
-    public buildValidator: BuildValidator;
     private myPlayer: Player;
     private clickedCell: Cell;
 
@@ -152,7 +150,7 @@ export class BuildMenu extends LitElement {
         if (this.myPlayer == null) {
             return false
         }
-        return this.buildValidator.canBuild(this.myPlayer, this.game.tile(this.clickedCell), item.unitType)
+        return this.myPlayer.canBuild(item.unitType, this.game.tile(this.clickedCell))
     }
 
     public onBuildSelected = (item: BuildItemDisplay) => {
