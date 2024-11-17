@@ -1,5 +1,5 @@
 import { BuildValidator } from "../game/BuildValidator";
-import { AllPlayers, BuildItem, BuildItems, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, Tile, Unit, UnitType } from "../game/Game";
+import { AllPlayers, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, Tile, Unit, UnitType } from "../game/Game";
 import { AStar, PathFinder } from "../PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
 import { bfs, dist, manhattanDist } from "../Util";
@@ -28,7 +28,7 @@ export class TradeShipExecution implements Execution {
 
     tick(ticks: number): void {
         if (this.tradeShip == null) {
-            this.tradeShip = this.player.addUnit(UnitType.TradeShip, 0, this.srcPort.tile())
+            this.tradeShip = this.player.buildUnit(UnitType.TradeShip, 0, this.srcPort.tile())
         }
         if (this.index >= this.path.length) {
             this.active = false

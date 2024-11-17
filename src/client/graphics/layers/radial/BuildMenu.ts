@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { EventBus } from '../../../../core/EventBus';
-import { Cell, Game, BuildItem, BuildItems, Player, UnitType } from '../../../../core/game/Game';
+import { Cell, Game, Player, UnitType } from '../../../../core/game/Game';
 import { BuildUnitIntentEvent, SendNukeIntentEvent } from '../../../Transport';
 import nukeIcon from '../../../../../resources/images/NukeIconWhite.svg';
 import destroyerIcon from '../../../../../resources/images/DestroyerIconWhite.svg';
@@ -13,16 +13,16 @@ import { BuildValidator } from '../../../../core/game/BuildValidator';
 import { ContextMenuEvent } from '../../../InputHandler';
 
 interface BuildItemDisplay {
-    item: BuildItem
+    unitType: UnitType
     icon: string;
 }
 
 const buildTable: BuildItemDisplay[][] = [
     [
-        { item: BuildItems.Nuke, icon: nukeIcon },
-        { item: BuildItems.Destroyer, icon: destroyerIcon },
-        { item: BuildItems.Port, icon: portIcon },
-        { item: BuildItems.MissileSilo, icon: missileSiloIcon }
+        { unitType: UnitType.Nuke, icon: nukeIcon },
+        { unitType: UnitType.Destroyer, icon: destroyerIcon },
+        { unitType: UnitType.Port, icon: portIcon },
+        { unitType: UnitType.MissileSilo, icon: missileSiloIcon }
     ]
 ];
 
@@ -152,21 +152,21 @@ export class BuildMenu extends LitElement {
         if (this.myPlayer == null) {
             return false
         }
-        return this.buildValidator.canBuild(this.myPlayer, this.game.tile(this.clickedCell), item.item)
+        return this.buildValidator.canBuild(this.myPlayer, this.game.tile(this.clickedCell), item.unitType)
     }
 
     public onBuildSelected = (item: BuildItemDisplay) => {
-        switch (item.item) {
-            case BuildItems.Nuke:
+        switch (item.unitType) {
+            case UnitType.Nuke:
                 this.eventBus.emit(new SendNukeIntentEvent(this.myPlayer, this.clickedCell, null))
                 break
-            case BuildItems.Destroyer:
+            case UnitType.Destroyer:
                 this.eventBus.emit(new BuildUnitIntentEvent(UnitType.Destroyer, this.clickedCell))
                 break
-            case BuildItems.Port:
+            case UnitType.Port:
                 this.eventBus.emit(new BuildUnitIntentEvent(UnitType.Port, this.clickedCell))
                 break
-            case BuildItems.MissileSilo:
+            case UnitType.MissileSilo:
                 this.eventBus.emit(new BuildUnitIntentEvent(UnitType.MissileSilo, this.clickedCell))
         }
         this.hideMenu()
@@ -184,10 +184,10 @@ export class BuildMenu extends LitElement {
                            ?disabled=${!this.canBuild(item)}
                            title=${!this.canBuild(item) ? 'Not enough money' : ''}
                        >
-                            <img src=${item.icon} alt="${item.item.type}" width="40" height="40">
-                            <span class="build-name">${item.item.type}</span>
+                            <img src=${item.icon} alt="${item.unitType}" width="40" height="40">
+                            <span class="build-name">${item.unitType}</span>
                             <span class="build-cost">
-                                ${renderNumber(item.item.cost)}
+                                ${renderNumber(this.game ? this.game.unitInfo(item.unitType).cost : 0)}
                                 <img src=${goldCoinIcon} alt="gold" width="12" height="12" style="vertical-align: middle;">
                             </span>
                         </button> 

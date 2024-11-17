@@ -1,5 +1,5 @@
 import { BuildValidator } from "../game/BuildValidator";
-import { AllPlayers, BuildItem, BuildItems, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, Tile, Unit, UnitType } from "../game/Game";
+import { AllPlayers, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, Tile, Unit, UnitType } from "../game/Game";
 import { AStar, PathFinder } from "../PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
 import { bfs, dist, manhattanDist } from "../Util";
@@ -30,7 +30,7 @@ export class PortExecution implements Execution {
     tick(ticks: number): void {
         if (this.port == null) {
             const tile = this.mg.tile(this.cell)
-            if (!new BuildValidator(this.mg).canBuild(this.player, tile, BuildItems.Port)) {
+            if (!new BuildValidator(this.mg).canBuild(this.player, tile, UnitType.Port)) {
                 console.warn(`player ${this.player} cannot build port at ${this.cell}`)
                 this.active = false
                 return
@@ -44,8 +44,7 @@ export class PortExecution implements Execution {
                 this.active = false
                 return
             }
-            this.port = this.player.addUnit(UnitType.Port, 0, spawns[0])
-            this.player.removeGold(BuildItems.Port.cost)
+            this.port = this.player.buildUnit(UnitType.Port, 0, spawns[0])
         }
 
 

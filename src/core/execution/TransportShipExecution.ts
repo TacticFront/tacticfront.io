@@ -79,7 +79,7 @@ export class TransportShipExecution implements Execution {
         }
 
 
-        this.boat = this.attacker.addUnit(UnitType.TransportShip, this.troops, this.src)
+        this.boat = this.attacker.buildUnit(UnitType.TransportShip, this.troops, this.src)
     }
 
     tick(ticks: number) {

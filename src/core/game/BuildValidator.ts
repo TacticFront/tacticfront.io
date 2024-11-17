@@ -1,24 +1,23 @@
 import { bfs, dist, manhattanDist } from "../Util";
-import { BuildItem, BuildItems, Game, Player, Tile, UnitType } from "./Game";
+import { Game, Player, Tile, UnitType } from "./Game";
 
 export class BuildValidator {
     constructor(private game: Game) { }
 
-    canBuild(player: Player, tile: Tile, item: BuildItem): boolean {
-        if (!player.isAlive() || player.gold() < item.cost) {
+    canBuild(player: Player, tile: Tile, unitType: UnitType): boolean {
+        const cost = this.game.unitInfo(unitType).cost
+        if (!player.isAlive() || player.gold() < cost) {
             return false
         }
-        switch (item) {
-            case BuildItems.Nuke:
+        switch (unitType) {
+            case UnitType.Nuke:
                 return player.units(UnitType.MissileSilo).length > 0
-            case BuildItems.Port:
+            case UnitType.Port:
                 return this.canBuildPort(player, tile)
-            case BuildItems.Destroyer:
+            case UnitType.Destroyer:
                 return this.canBuildDestroyer(player, tile)
-            case BuildItems.MissileSilo:
+            case UnitType.MissileSilo:
                 return tile.owner() == player
-            default:
-                throw Error(`item ${item.type} not supported`)
         }
     }
 

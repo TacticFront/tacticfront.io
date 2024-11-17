@@ -1,5 +1,5 @@
 import { BuildValidator } from "../game/BuildValidator";
-import { Cell, Execution, BuildItems, MutableGame, MutablePlayer, PlayerID, Tile, MutableUnit, UnitType } from "../game/Game";
+import { Cell, Execution, MutableGame, MutablePlayer, PlayerID, Tile, MutableUnit, UnitType } from "../game/Game";
 import { PathFinder } from "../PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
 import { bfs, dist, distSortUnit, euclideanDist, manhattanDist } from "../Util";
@@ -35,11 +35,10 @@ export class NukeExecution implements Execution {
 
     tick(ticks: number): void {
         if (this.nuke == null) {
-            if (new BuildValidator(this.mg).canBuild(this.player, this.dst, BuildItems.Nuke)) {
+            if (new BuildValidator(this.mg).canBuild(this.player, this.dst, UnitType.Nuke)) {
                 const spawn = this.player.units(UnitType.MissileSilo)
                     .sort((a, b) => manhattanDist(a.tile().cell(), this.cell) - manhattanDist(b.tile().cell(), this.cell))[0]
-                this.nuke = this.player.addUnit(UnitType.Nuke, 0, spawn.tile())
-                this.player.removeGold(BuildItems.Nuke.cost)
+                this.nuke = this.player.buildUnit(UnitType.Nuke, 0, spawn.tile())
                 this.pathFinder = new PathFinder(10_000, t => true)
             } else {
                 console.warn(`cannot build Nuke`)

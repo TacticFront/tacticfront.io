@@ -1,6 +1,6 @@
 import { Config } from "../core/configuration/Config"
 import { EventBus, GameEvent } from "../core/EventBus"
-import { AllianceRequest, AllPlayers, Cell, BuildItem, Player, PlayerID, PlayerType, Tile, UnitType } from "../core/game/Game"
+import { AllianceRequest, AllPlayers, Cell, Player, PlayerID, PlayerType, Tile, UnitType } from "../core/game/Game"
 import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema, BuildUnitIntentSchema, GameID, Intent, ServerMessage, ServerMessageSchema } from "../core/Schemas"
 import { LocalServer } from "./LocalServer"
 

@@ -1,12 +1,42 @@
-import { Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tick, Tile } from "../game/Game";
+import { Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tick, Tile, UnitInfo, UnitType } from "../game/Game";
 import { GameID } from "../Schemas";
-import { simpleHash, within } from "../Util";
+import { assertNever, simpleHash, within } from "../Util";
 import { Config, Theme } from "./Config";
 import { pastelTheme } from "./PastelTheme";
 
 
 
 export class DefaultConfig implements Config {
+    unitInfo(type: UnitType): UnitInfo {
+        switch (type) {
+            case UnitType.TransportShip:
+                return {
+                    cost: 0,
+                }
+            case UnitType.Destroyer:
+                return {
+                    cost: 100_000
+                }
+            case UnitType.Port:
+                return {
+                    cost: 300_000
+                }
+            case UnitType.Nuke:
+                return {
+                    cost: 1_000_000
+                }
+            case UnitType.TradeShip:
+                return {
+                    cost: 0
+                }
+            case UnitType.MissileSilo:
+                return {
+                    cost: 1_000_000
+                }
+            default:
+                assertNever(type)
+        }
+    }
     defaultDonationAmount(sender: Player): number {
         return Math.floor(sender.troops() / 3)
     }
@@ -177,7 +207,5 @@ export class DefaultConfig implements Config {
         return adjustment
     }
 }
-
-
 
 export const defaultConfig = new DefaultConfig()

@@ -1,4 +1,4 @@
-import { BuildItems, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, Tile, UnitType } from "../game/Game";
+import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, Tile, UnitType } from "../game/Game";
 import { AStar, PathFinder } from "../PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
 import { distSort, distSortUnit, manhattanDist } from "../Util";
@@ -44,8 +44,7 @@ export class DestroyerExecution implements Execution {
                 this.active = false
                 return
             }
-            this.destroyer = this._owner.addUnit(UnitType.Destroyer, 0, spawns[0])
-            this._owner.removeGold(BuildItems.Destroyer.cost)
+            this.destroyer = this._owner.buildUnit(UnitType.Destroyer, 0, spawns[0])
             return
         }
         if (!this.destroyer.isActive()) {

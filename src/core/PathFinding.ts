@@ -98,6 +98,7 @@ export class AStar {
     }
 
     private heuristic(a: Tile, b: Tile): number {
+        // TODO use wrapped
         return 1.1 * Math.abs(a.cell().x - b.cell().x) + Math.abs(a.cell().y - b.cell().y);
     }
 

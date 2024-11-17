@@ -1,4 +1,4 @@
-import { Player, PlayerID, PlayerInfo, TerraNullius, Tick, Tile } from "../game/Game";
+import { Player, PlayerID, PlayerInfo, TerraNullius, Tick, Tile, UnitInfo, UnitType } from "../game/Game";
 import { Colord, colord } from "colord";
 import { devConfig } from "./DevConfig";
 import { defaultConfig } from "./DefaultConfig";
@@ -56,6 +56,7 @@ export interface Config {
 	emojiMessageDuration(): Tick
 	donateCooldown(): Tick
 	defaultDonationAmount(sender: Player): number
+	unitInfo(type: UnitType): UnitInfo
 }
 
 export interface Theme {

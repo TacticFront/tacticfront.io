@@ -201,3 +201,6 @@ export function processName(name: string): string {
         ADD_ATTR: ['style']
     });
 }
+export function assertNever(x: never): never {
+    throw new Error('Unexpected value: ' + x);
+}

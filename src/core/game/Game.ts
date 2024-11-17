@@ -22,6 +22,10 @@ export enum GameMap {
     Mena
 }
 
+export interface UnitInfo {
+    cost: Gold
+}
+
 export enum UnitType {
     TransportShip = "Transport",
     Destroyer = "Destroyer",
@@ -30,20 +34,6 @@ export enum UnitType {
     TradeShip = "Trade Ship",
     MissileSilo = "Missile Silo",
 }
-
-export class BuildItem {
-    constructor(
-        public readonly type: UnitType,
-        public readonly cost: Gold
-    ) { }
-}
-
-export const BuildItems = {
-    Nuke: new BuildItem(UnitType.Nuke, 1_000_000),
-    Destroyer: new BuildItem(UnitType.Destroyer, 100_000),
-    Port: new BuildItem(UnitType.Port, 300_000),
-    MissileSilo: new BuildItem(UnitType.MissileSilo, 1_000_000),
-} as const;
 
 export class Nation {
     constructor(
@@ -253,8 +243,7 @@ export interface MutablePlayer extends Player {
     addTroops(troops: number): void
     removeTroops(troops: number): number
 
-    // TODO: make addUnit require gold
-    addUnit(type: UnitType, troops: number, tile: Tile): MutableUnit
+    buildUnit(type: UnitType, troops: number, tile: Tile): MutableUnit
 }
 
 export interface Game {
@@ -280,6 +269,7 @@ export interface Game {
     config(): Config
     displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void
     units(...types: UnitType[]): Unit[]
+    unitInfo(type: UnitType): UnitInfo
 }
 
 export interface MutableGame extends Game {
