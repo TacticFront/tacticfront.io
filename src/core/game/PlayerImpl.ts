@@ -1,6 +1,6 @@
-import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers, Gold, UnitType } from "./Game";
+import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers, Gold, UnitType, Unit } from "./Game";
 import { ClientID } from "../Schemas";
-import { bfs, dist, manhattanDist, processName, simpleHash } from "../Util";
+import { assertNever, bfs, closestOceanShoreFromPlayer, dist, distSortUnit, manhattanDist, manhattanDistWrapped, processName, simpleHash, sourceDstOceanShore } from "../Util";
 import { CellString, GameImpl } from "./GameImpl";
 import { UnitImpl } from "./UnitImpl";
 import { TileImpl } from "./TileImpl";
@@ -73,15 +73,10 @@ export class PlayerImpl implements MutablePlayer {
     }
 
 
-    buildUnit(type: UnitType, troops: number, tile: Tile): UnitImpl {
-        const b = new UnitImpl(type, this.gs, tile, troops, this);
-        this._units.push(b);
-        this.removeGold(this.gs.unitInfo(type).cost)
-        this.gs.fireUnitUpdateEvent(b, b.tile());
-        return b;
-    }
-
     units(...types: UnitType[]): UnitImpl[] {
+        if (types.length == 0) {
+            return this._units
+        }
         const ts = new Set(types)
         return this._units.filter(u => ts.has(u.type()));
     }
@@ -324,31 +319,93 @@ export class PlayerImpl implements MutablePlayer {
         return toRemove
     }
 
-    canBuild(unitType: UnitType, tile: Tile): boolean {
+    buildUnit(type: UnitType, troops: number, spawnTile: Tile): UnitImpl {
+        const b = new UnitImpl(type, this.gs, spawnTile, troops, this);
+        this._units.push(b);
+        this.removeGold(this.gs.unitInfo(type).cost)
+        this.removeTroops(troops)
+        this.gs.fireUnitUpdateEvent(b, b.tile());
+        return b;
+    }
+
+    canBuild(unitType: UnitType, targetTile: Tile): Tile | false {
         const cost = this.gs.unitInfo(unitType).cost
         if (!this.isAlive() || this.gold() < cost) {
             return false
         }
         switch (unitType) {
             case UnitType.Nuke:
-                return this.units(UnitType.MissileSilo).length > 0
+                return this.nukeSpawn(targetTile)
             case UnitType.Port:
-                return this.canBuildPort(tile)
+                return this.portSpawn(targetTile)
             case UnitType.Destroyer:
-                return this.canBuildDestroyer(tile)
+                return this.destroyerSpawn(targetTile)
             case UnitType.MissileSilo:
-                return tile.owner() == this
+                return this.missileSiloSpawn(targetTile)
+            case UnitType.TransportShip:
+                return this.transportShipSpawn(targetTile)
+            case UnitType.TradeShip:
+                return this.tradeShipSpawn(targetTile)
+            default:
+                assertNever(unitType)
         }
     }
 
-    canBuildPort(tile: Tile): boolean {
-        return Array.from(bfs(tile, dist(tile, 20)))
-            .filter(t => t.owner() == this && t.isOceanShore()).length > 0
+    nukeSpawn(tile: Tile): Tile | false {
+        const spawns = this.units(UnitType.MissileSilo).map(u => u as Unit).sort(distSortUnit(tile))
+        if (spawns.length == 0) {
+            return false
+        }
+        return spawns[0].tile()
     }
 
-    canBuildDestroyer(tile: Tile): boolean {
-        return this.units(UnitType.Port)
-            .filter(u => manhattanDist(u.tile().cell(), tile.cell()) < this.gs.config().boatMaxDistance()).length > 0
+    portSpawn(tile: Tile): Tile | false {
+        const spawns = Array.from(bfs(tile, dist(tile, 20)))
+            .filter(t => t.owner() == this && t.isOceanShore())
+            .sort((a, b) => manhattanDist(a.cell(), tile.cell()) - manhattanDist(b.cell(), tile.cell()))
+        if (spawns.length == 0) {
+            return false
+        }
+        return spawns[0]
+    }
+
+    destroyerSpawn(tile: Tile): Tile | false {
+        if (!tile.isOcean()) {
+            return false
+        }
+        const spawns = this.units(UnitType.Port)
+            .filter(u => manhattanDist(u.tile().cell(), tile.cell()) < this.gs.config().boatMaxDistance())
+            .sort((a, b) => manhattanDist(a.tile().cell(), tile.cell()) - manhattanDist(b.tile().cell(), tile.cell()))
+        if (spawns.length == 0) {
+            return false
+        }
+        return spawns[0].tile()
+    }
+
+    missileSiloSpawn(tile: Tile): Tile | false {
+        if (tile.owner() != this) {
+            return false
+        }
+        return tile
+    }
+
+    transportShipSpawn(targetTile: Tile): Tile | false {
+        if (!targetTile.isOceanShore()) {
+            return false
+        }
+        const spawn = closestOceanShoreFromPlayer(this, targetTile, this.gs.width())
+        if (spawn == null) {
+            return false
+        }
+        return spawn
+    }
+
+    tradeShipSpawn(targetTile: Tile): Tile | false {
+        const spawns = this.units(UnitType.Port).filter(u => u.tile() == targetTile)
+        if (spawns.length == 0) {
+            return false
+        }
+        return spawns[0].tile()
     }
 
     hash(): number {

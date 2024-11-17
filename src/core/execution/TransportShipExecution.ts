@@ -1,5 +1,5 @@
 import { Unit, Cell, Execution, MutableUnit, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, Tile, TileEvent, UnitType } from "../game/Game";
-import { and, bfs, manhattanDistWrapped, sourceDstOceanShore } from "../Util";
+import { and, bfs, manhattanDistWrapped, sourceDstOceanShore, targetTransportTile } from "../Util";
 import { AttackExecution } from "./AttackExecution";
 import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/EventsDisplay";
 import { AStar, PathFinder } from "../PathFinding";
@@ -62,22 +62,17 @@ export class TransportShipExecution implements Execution {
         }
 
         this.troops = Math.min(this.troops, this.attacker.troops())
-        this.attacker.removeTroops(this.troops)
 
-        const [srcTile, dstTile]: [Tile | null, Tile | null] = sourceDstOceanShore(this.mg, this.attacker, this.target, this.cell);
-        this.src = srcTile
+        const dstTile = targetTransportTile(this.mg, this.mg.tile(this.cell))
+        const src = this.attacker.canBuild(UnitType.TransportShip, dstTile)
+        if (src == false) {
+            console.warn(`can't build transport ship`)
+            this.active = false
+            return
+        }
+
+        this.src = src
         this.dst = dstTile
-
-        if (this.src == null || this.dst == null) {
-            this.active = false
-            return
-        }
-        if (manhattanDistWrapped(this.src.cell(), this.dst.cell(), mg.width()) > mg.config().boatMaxDistance()) {
-            mg.displayMessage(`Cannot send boat: destination is too far away`, MessageType.WARN, this.attackerID)
-            this.active = false
-            return
-        }
-
 
         this.boat = this.attacker.buildUnit(UnitType.TransportShip, this.troops, this.src)
     }

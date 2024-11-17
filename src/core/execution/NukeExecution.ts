@@ -14,8 +14,7 @@ export class NukeExecution implements Execution {
     private nuke: MutableUnit
     private dst: Tile
 
-    private pathFinder: PathFinder = null
-
+    private pathFinder: PathFinder = new PathFinder(10_000, () => true)
     constructor(
         private senderID: PlayerID,
         private cell: Cell,
@@ -34,16 +33,13 @@ export class NukeExecution implements Execution {
 
     tick(ticks: number): void {
         if (this.nuke == null) {
-            if (this.player.canBuild(UnitType.Nuke, this.dst)) {
-                const spawn = this.player.units(UnitType.MissileSilo)
-                    .sort((a, b) => manhattanDist(a.tile().cell(), this.cell) - manhattanDist(b.tile().cell(), this.cell))[0]
-                this.nuke = this.player.buildUnit(UnitType.Nuke, 0, spawn.tile())
-                this.pathFinder = new PathFinder(10_000, t => true)
-            } else {
+            const spawn = this.player.canBuild(UnitType.Nuke, this.dst)
+            if (spawn == false) {
                 console.warn(`cannot build Nuke`)
                 this.active = false
                 return
             }
+            this.nuke = this.player.buildUnit(UnitType.Nuke, 0, spawn)
         }
         if (this.nuke.tile() == this.dst) {
             this.detonate()
@@ -79,9 +75,14 @@ export class NukeExecution implements Execution {
                 mp.removeTroops(ratio[mp.id()])
             }
         }
-        this.mg.units()
-            .filter(b => euclideanDist(this.cell, b.tile().cell()) < this.magnitude + 50)
-            .forEach(b => b.delete())
+        for (const unit of this.mg.units()) {
+            if (euclideanDist(this.cell, unit.tile().cell()) < this.magnitude + 50) {
+                unit.delete()
+            }
+        }
+        // this.mg.units()
+        //     .filter(b => euclideanDist(this.cell, b.tile().cell()) < this.magnitude + 50)
+        //     .forEach(b => b.delete())
         this.active = false
         this.nuke.delete()
     }

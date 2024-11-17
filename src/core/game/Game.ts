@@ -214,7 +214,8 @@ export interface Player {
     targetTroopRatio(): number
     troops(): number
 
-    canBuild(type: UnitType, tile: Tile): boolean
+    // If can build returns the spawn tile, false otherwise
+    canBuild(type: UnitType, targetTile: Tile): Tile | false
 }
 
 export interface MutablePlayer extends Player {

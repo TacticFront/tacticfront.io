@@ -150,7 +150,7 @@ export class BuildMenu extends LitElement {
         if (this.myPlayer == null) {
             return false
         }
-        return this.myPlayer.canBuild(item.unitType, this.game.tile(this.clickedCell))
+        return this.myPlayer.canBuild(item.unitType, this.game.tile(this.clickedCell)) != false
     }
 
     public onBuildSelected = (item: BuildItemDisplay) => {

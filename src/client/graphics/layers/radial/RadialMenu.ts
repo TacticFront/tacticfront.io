@@ -1,7 +1,7 @@
 import { EventBus } from "../../../../core/EventBus";
 import { AllPlayers, Cell, Game, Player, UnitType } from "../../../../core/game/Game";
 import { ClientID } from "../../../../core/Schemas";
-import { and, bfs, dist, manhattanDist, manhattanDistWrapped, sourceDstOceanShore } from "../../../../core/Util";
+import { and, bfs, dist, manhattanDist, manhattanDistWrapped, sourceDstOceanShore, targetTransportTile } from "../../../../core/Util";
 import { ContextMenuEvent, MouseUpEvent } from "../../../InputHandler";
 import { SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendDonateIntentEvent, SendEmojiIntentEvent, SendNukeIntentEvent, SendSpawnIntentEvent, SendTargetPlayerIntentEvent } from "../../../Transport";
 import { TransformHandler } from "../../TransformHandler";
@@ -344,9 +344,9 @@ export class RadialMenu implements Layer {
         }
 
         if (myPlayerBordersOcean && otherPlayerBordersOcean) {
-            const [src, dst] = sourceDstOceanShore(this.game, myPlayer, other, this.clickedCell)
-            if (src != null && dst != null) {
-                if (manhattanDistWrapped(src.cell(), dst.cell(), this.game.width()) < this.game.config().boatMaxDistance()) {
+            const dst = targetTransportTile(this.game, tile)
+            if (dst != null) {
+                if (myPlayer.canBuild(UnitType.TransportShip, dst)) {
                     this.activateMenuElement(Slot.Boat, "#3f6ab1", boatIcon, () => {
                         this.eventBus.emit(
                             new SendBoatAttackIntentEvent(other.id(), this.clickedCell, this.uiState.attackRatio * myPlayer.troops())

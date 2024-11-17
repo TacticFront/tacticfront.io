@@ -89,6 +89,9 @@ export class UnitLayer implements Layer {
         bfs(event.oldTile, euclDist(event.oldTile, 3)).forEach(t => {
             this.clearCell(t.cell());
         });
+        if (!event.unit.isActive()) {
+            return
+        }
         bfs(event.unit.tile(), euclDist(event.unit.tile(), 3))
             .forEach(t => this.paintCell(t.cell(), this.theme.borderColor(event.unit.owner().info()), 255));
         bfs(event.unit.tile(), euclDist(event.unit.tile(), 2))

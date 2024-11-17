@@ -27,7 +27,13 @@ export class TradeShipExecution implements Execution {
 
     tick(ticks: number): void {
         if (this.tradeShip == null) {
-            this.tradeShip = this.player.buildUnit(UnitType.TradeShip, 0, this.srcPort.tile())
+            const spawn = this.player.canBuild(UnitType.TradeShip, this.srcPort.tile())
+            if (spawn == false) {
+                console.warn(`cannot build trade ship`)
+                this.active = false
+                return
+            }
+            this.tradeShip = this.player.buildUnit(UnitType.TradeShip, 0, spawn)
         }
         if (this.index >= this.path.length) {
             this.active = false

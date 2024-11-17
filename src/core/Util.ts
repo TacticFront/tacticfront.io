@@ -45,36 +45,51 @@ export function distSort(target: Tile): (a: Tile, b: Tile) => number {
     }
 }
 
-export function distSortUnit(target: Unit): (a: Unit, b: Unit) => number {
+export function distSortUnit(target: Unit | Tile): (a: Unit, b: Unit) => number {
+    const targetCell = ('tile' in target) ? target.tile().cell() : target.cell();
+
     return (a: Unit, b: Unit) => {
-        return manhattanDist(a.tile().cell(), target.tile().cell()) - manhattanDist(b.tile().cell(), target.tile().cell());
+        return manhattanDist(a.tile().cell(), targetCell) - manhattanDist(b.tile().cell(), targetCell);
     }
 }
+
 export function and(x: (tile: Tile) => boolean, y: (tile: Tile) => boolean): (tile: Tile) => boolean {
     return (tile: Tile) => x(tile) && y(tile)
 }
 
 // TODO: refactor to new file
-export function sourceDstOceanShore(game: Game, src: Player, dst: Player | TerraNullius, cell: Cell): [Tile | null, Tile | null] {
-    let srcTile = closestOceanShoreFromPlayer(src, cell, game.width())
+export function sourceDstOceanShore(game: Game, src: Player, tile: Tile): [Tile | null, Tile | null] {
+    const dst = tile.owner()
+    let srcTile = closestOceanShoreFromPlayer(src, tile, game.width())
     let dstTile: Tile | null = null
     if (dst.isPlayer()) {
-        dstTile = closestOceanShoreFromPlayer(dst as Player, cell, game.width())
+        dstTile = closestOceanShoreFromPlayer(dst as Player, tile, game.width())
     } else {
-        dstTile = closestOceanShoreTN(game.tile(cell), 300)
+        dstTile = closestOceanShoreTN(tile, 300)
     }
     return [srcTile, dstTile]
 }
 
-function closestOceanShoreFromPlayer(player: Player, target: Cell, width: number): Tile | null {
+export function targetTransportTile(game: Game, tile: Tile): Tile | null {
+    const dst = tile.owner()
+    let dstTile: Tile | null = null
+    if (dst.isPlayer()) {
+        dstTile = closestOceanShoreFromPlayer(dst as Player, tile, game.width())
+    } else {
+        dstTile = closestOceanShoreTN(tile, 300)
+    }
+    return dstTile
+}
+
+export function closestOceanShoreFromPlayer(player: Player, target: Tile, width: number): Tile | null {
     const shoreTiles = Array.from(player.borderTiles()).filter(t => t.isOceanShore())
     if (shoreTiles.length == 0) {
         return null
     }
 
     return shoreTiles.reduce((closest, current) => {
-        const closestDistance = manhattanDistWrapped(target, closest.cell(), width);
-        const currentDistance = manhattanDistWrapped(target, current.cell(), width);
+        const closestDistance = manhattanDistWrapped(target.cell(), closest.cell(), width);
+        const currentDistance = manhattanDistWrapped(target.cell(), current.cell(), width);
         return currentDistance < closestDistance ? current : closest;
     });
 }

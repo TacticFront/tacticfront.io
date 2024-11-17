@@ -35,16 +35,13 @@ export class DestroyerExecution implements Execution {
     }
 
     tick(ticks: number): void {
-        // TODO: remove gold from player
         if (this.destroyer == null) {
-            // TODO validate can build
-            const spawns = this._owner.units(UnitType.Port).map(u => u.tile()).sort(distSort(this.patrolTile))
-            if (spawns.length == 0) {
-                console.warn(`no ports found for destoryer for player ${this._owner}`)
+            const spawn = this._owner.canBuild(UnitType.Destroyer, this.patrolTile)
+            if (spawn == false) {
                 this.active = false
                 return
             }
-            this.destroyer = this._owner.buildUnit(UnitType.Destroyer, 0, spawns[0])
+            this.destroyer = this._owner.buildUnit(UnitType.Destroyer, 0, spawn)
             return
         }
         if (!this.destroyer.isActive()) {
