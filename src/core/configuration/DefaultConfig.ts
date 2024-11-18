@@ -12,26 +12,32 @@ export class DefaultConfig implements Config {
             case UnitType.TransportShip:
                 return {
                     cost: 0,
+                    territoryBound: false
                 }
             case UnitType.Destroyer:
                 return {
-                    cost: 100_000
+                    cost: 100_000,
+                    territoryBound: false
                 }
             case UnitType.Port:
                 return {
-                    cost: 300_000
+                    cost: 300_000,
+                    territoryBound: true
                 }
             case UnitType.Nuke:
                 return {
-                    cost: 1_000_000
+                    cost: 1_000_000,
+                    territoryBound: false
                 }
             case UnitType.TradeShip:
                 return {
-                    cost: 0
+                    cost: 0,
+                    territoryBound: false
                 }
             case UnitType.MissileSilo:
                 return {
-                    cost: 1_000_000
+                    cost: 1_000_000,
+                    territoryBound: true
                 }
             default:
                 assertNever(type)

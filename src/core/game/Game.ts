@@ -24,6 +24,8 @@ export enum GameMap {
 
 export interface UnitInfo {
     cost: Gold
+    // Determines if its owner changes when its tile is conquered.
+    territoryBound: boolean
 }
 
 export enum UnitType {
@@ -155,6 +157,7 @@ export interface Unit {
     tile(): Tile
     owner(): Player
     isActive(): boolean
+    info(): UnitInfo
 }
 
 export interface MutableUnit extends Unit {
@@ -162,7 +165,6 @@ export interface MutableUnit extends Unit {
     owner(): MutablePlayer
     setTroops(troops: number): void
     delete(): void
-    setOwner(newOwner: Player): void
 }
 
 export interface TerraNullius {
@@ -247,6 +249,7 @@ export interface MutablePlayer extends Player {
     removeTroops(troops: number): number
 
     buildUnit(type: UnitType, troops: number, tile: Tile): MutableUnit
+    captureUnit(unit: MutableUnit): void
 }
 
 export interface Game {

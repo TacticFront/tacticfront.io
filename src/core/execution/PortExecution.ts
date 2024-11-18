@@ -46,17 +46,6 @@ export class PortExecution implements Execution {
             this.port = this.player.buildUnit(UnitType.Port, 0, spawns[0])
         }
 
-
-        if (!this.port.tile().hasOwner()) {
-            this.port.delete()
-            this.active = false
-            return
-        }
-        if (this.port.tile().owner() != this.port.owner()) {
-            this.port.setOwner(this.port.tile().owner() as Player)
-            this.player = this.port.owner()
-        }
-
         const allPorts = this.mg.units(UnitType.Port)
             .filter(u => u.owner() != this.player)
         if (allPorts.length == 0) {
@@ -82,7 +71,7 @@ export class PortExecution implements Execution {
             }
         }
 
-        if (this.random.chance(50)) {
+        if (this.portPaths.size > 0 && this.random.chance(50)) {
             const port = this.random.randElement(
                 Array.from(this.portPaths.keys())
                     .filter(p => this.port.owner().isAlliedWith(p.owner()))

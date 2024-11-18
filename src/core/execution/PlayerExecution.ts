@@ -46,6 +46,21 @@ export class PlayerExecution implements Execution {
             }
         }
 
+        this.player.units().forEach(u => {
+            const tileOwner = u.tile().owner()
+            if (u.info().territoryBound) {
+                if (tileOwner.isPlayer()) {
+                    if (tileOwner != this.player) {
+                        this.mg.player(tileOwner.id()).captureUnit(u)
+                    }
+                } else {
+                    u.delete()
+                }
+            }
+
+
+        })
+
         if (ticks - this.lastCalc > this.ticksPerClusterCalc) {
             this.lastCalc = ticks
             const start = performance.now()

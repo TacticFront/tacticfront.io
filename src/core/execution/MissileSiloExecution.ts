@@ -34,10 +34,6 @@ export class MissileSiloExecution implements Execution {
             this.active = false
             return
         }
-        if (this.silo.tile().owner() != this.silo.owner()) {
-            this.silo.setOwner(this.silo.tile().owner() as Player)
-            this.player = this.silo.owner()
-        }
     }
 
     owner(): MutablePlayer {

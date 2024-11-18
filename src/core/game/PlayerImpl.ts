@@ -1,4 +1,4 @@
-import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers, Gold, UnitType, Unit } from "./Game";
+import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers, Gold, UnitType, Unit, MutableUnit } from "./Game";
 import { ClientID } from "../Schemas";
 import { assertNever, bfs, closestOceanShoreFromPlayer, dist, distSortUnit, manhattanDist, manhattanDistWrapped, processName, simpleHash, sourceDstOceanShore } from "../Util";
 import { CellString, GameImpl } from "./GameImpl";
@@ -80,6 +80,7 @@ export class PlayerImpl implements MutablePlayer {
         const ts = new Set(types)
         return this._units.filter(u => ts.has(u.type()));
     }
+
 
     sharesBorderWith(other: Player | TerraNullius): boolean {
         for (const border of this._borderTiles) {
@@ -319,6 +320,16 @@ export class PlayerImpl implements MutablePlayer {
         return toRemove
     }
 
+    captureUnit(unit: MutableUnit): void {
+        if (unit.owner() == this) {
+            throw new Error(`Cannot capture unit, ${this} already owns ${unit}`)
+        }
+        const prev = unit.owner();
+        (prev as PlayerImpl)._units = (prev as PlayerImpl)._units.filter(u => u != unit);
+        (unit as UnitImpl)._owner = this
+        this._units.push(unit as UnitImpl)
+    }
+
     buildUnit(type: UnitType, troops: number, spawnTile: Tile): UnitImpl {
         const b = new UnitImpl(type, this.gs, spawnTile, troops, this);
         this._units.push(b);
@@ -327,6 +338,7 @@ export class PlayerImpl implements MutablePlayer {
         this.gs.fireUnitUpdateEvent(b, b.tile());
         return b;
     }
+
 
     canBuild(unitType: UnitType, targetTile: Tile): Tile | false {
         const cost = this.gs.unitInfo(unitType).cost
