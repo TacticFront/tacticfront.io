@@ -1,5 +1,5 @@
 import { AllPlayers, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, Tile, Unit, UnitType } from "../game/Game";
-import { AStar, PathFinder } from "../PathFinding";
+import { AStar, PathFinder, PathFindResultType } from "../PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
 import { bfs, dist, manhattanDist } from "../Util";
 import { TradeShipExecution } from "./TradeShipExecution";
@@ -54,14 +54,19 @@ export class PortExecution implements Execution {
         for (const port of allPorts) {
             if (this.computingPaths.has(port)) {
                 const aStar = this.computingPaths.get(port)
-                if (aStar.compute(10_000)) {
-                    this.portPaths.set(port, aStar.reconstructPath())
-                    this.computingPaths.delete(port)
+                switch(aStar.compute()) {
+                    case PathFindResultType.Completed:
+                        this.portPaths.set(port, aStar.reconstructPath())
+                        this.computingPaths.delete(port)
+                    case PathFindResultType.Pending:
+                        break
+                    case PathFindResultType.PathNotFound:
+                        console.warn(`path not found to port`)
                 }
                 continue
             }
             if (!this.portPaths.has(port)) {
-                this.computingPaths.set(port, new AStar(this.port.tile(), port.tile(), t => t.isWater()))
+                this.computingPaths.set(port, new AStar(this.port.tile(), port.tile(), t => t.isWater(), 10_000, 20))
                 continue
             }
         }

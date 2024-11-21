@@ -1,7 +1,26 @@
 import { PriorityQueue } from "@datastructures-js/priority-queue";
 import { Tile } from "./game/Game";
 import { manhattanDist } from "./Util";
-import { colord } from "colord";
+
+export enum PathFindResultType {
+    NextTile,
+    Pending,
+    Completed,
+    PathNotFound
+}
+
+export type TileResult = {
+    type: PathFindResultType.NextTile;
+    tile: Tile
+} | {
+    type: PathFindResultType.Pending;
+} | {
+    type: PathFindResultType.Completed;
+    tile: Tile
+} | {
+    type: PathFindResultType.PathNotFound;
+}
+
 export class AStar {
     private fwdOpenSet: PriorityQueue<{ tile: Tile; fScore: number; }>;
     private bwdOpenSet: PriorityQueue<{ tile: Tile; fScore: number; }>;
@@ -15,7 +34,9 @@ export class AStar {
     constructor(
         private src: Tile,
         private dst: Tile,
-        private canMove: (t: Tile) => boolean
+        private canMove: (t: Tile) => boolean,
+        private iterations: number,
+        private maxTries: number,
     ) {
         this.fwdOpenSet = new PriorityQueue<{ tile: Tile; fScore: number; }>(
             (a, b) => a.fScore - b.fScore
@@ -39,12 +60,20 @@ export class AStar {
         this.bwdOpenSet.enqueue({ tile: dst, fScore: this.heuristic(dst, src) });
     }
 
-    compute(iterations: number): boolean {
-        if (this.completed) return true;
+    compute(): PathFindResultType {
+        if (this.completed) return PathFindResultType.Completed;
+
+        this.maxTries -= 1
+        let iterations = this.iterations
 
         while (!this.fwdOpenSet.isEmpty() && !this.bwdOpenSet.isEmpty()) {
             iterations--;
-            if (iterations <= 0) return false;
+            if (iterations <= 0) {
+                if (this.maxTries <= 0) {
+                    return PathFindResultType.PathNotFound
+                }
+                return PathFindResultType.Pending;
+            }
 
             // Process forward search
             const fwdCurrent = this.fwdOpenSet.dequeue()!.tile;
@@ -52,7 +81,7 @@ export class AStar {
                 // We found a meeting point!
                 this.meetingPoint = fwdCurrent;
                 this.completed = true;
-                return true;
+                return PathFindResultType.Completed;
             }
 
             this.expandNode(fwdCurrent, true);
@@ -63,13 +92,13 @@ export class AStar {
                 // We found a meeting point!
                 this.meetingPoint = bwdCurrent;
                 this.completed = true;
-                return true;
+                return PathFindResultType.Completed
             }
 
             this.expandNode(bwdCurrent, false);
         }
 
-        return this.completed;
+        return this.completed ? PathFindResultType.Completed : PathFindResultType.PathNotFound
     }
 
     private expandNode(current: Tile, isForward: boolean) {
@@ -131,41 +160,47 @@ export class PathFinder {
     private dst: Tile = null
     private path: Tile[]
     private aStar: AStar
-    private inProgress = false
+    private computeFinished = true
 
-    constructor(private iterations: number, private canMove: (t: Tile) => boolean) {
+    constructor(
+        private iterations: number,
+        private canMove: (t: Tile) => boolean,
+        private maxTries: number = 20
+    ) { }
 
-    }
+    nextTile(curr: Tile, dst: Tile, dist: number = 1): TileResult {
+        if (manhattanDist(curr.cell(), dst.cell()) < dist) {
+            return { type: PathFindResultType.Completed, tile: curr }
+        }
 
-    nextTile(curr: Tile, dst: Tile): Tile {
-        if (this.shouldRecompute(curr, dst)) {
-            if (this.inProgress) {
-                if (this.aStar.compute(this.iterations)) {
-                    this.path = this.aStar.reconstructPath()
-                    this.inProgress = false
-                } else {
-                    return null
-                }
-            } else {
+        if (this.computeFinished) {
+            if (this.shouldRecompute(curr, dst)) {
                 this.curr = curr
                 this.dst = dst
                 this.path = null
-                this.aStar = new AStar(curr, dst, this.canMove)
-                if (this.aStar.compute(this.iterations)) {
-                    this.inProgress = false
-                    this.path = this.aStar.reconstructPath()
-                } else {
-                    this.inProgress = true
-                    return null
-                }
-                if (this.path.length > 0) {
-                    this.path.shift()
-                }
+                this.aStar = new AStar(curr, dst, this.canMove, this.iterations, this.maxTries)
+                this.computeFinished = false
+                return this.nextTile(curr, dst)
+            } else {
+                return { type: PathFindResultType.NextTile, tile: this.path.shift() }
             }
-        } else {
-            return this.path.shift()
+        }
+
+        switch (this.aStar.compute()) {
+            case PathFindResultType.Completed:
+                this.computeFinished = true
+                this.path = this.aStar.reconstructPath()
+                // Remove the start tile
+                this.path.shift()
+                return this.nextTile(curr, dst)
+            case PathFindResultType.Pending:
+                return { type: PathFindResultType.Pending }
+            case PathFindResultType.PathNotFound:
+                return { type: PathFindResultType.PathNotFound }
         }
     }
+
+
 
     private shouldRecompute(curr: Tile, dst: Tile) {
         if (this.path == null || this.curr == null || this.dst == null) {

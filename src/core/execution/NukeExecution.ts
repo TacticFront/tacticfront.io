@@ -1,5 +1,6 @@
+import { nextTick } from "process";
 import { Cell, Execution, MutableGame, MutablePlayer, PlayerID, Tile, MutableUnit, UnitType } from "../game/Game";
-import { PathFinder } from "../PathFinding";
+import { PathFinder, PathFindResultType } from "../PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
 import { bfs, dist, distSortUnit, euclideanDist, manhattanDist } from "../Util";
 
@@ -41,16 +42,24 @@ export class NukeExecution implements Execution {
             }
             this.nuke = this.player.buildUnit(UnitType.Nuke, 0, spawn)
         }
-        if (this.nuke.tile() == this.dst) {
-            this.detonate()
-            return
-        }
+
         for (let i = 0; i < 4; i++) {
-            const nextTile = this.pathFinder.nextTile(this.nuke.tile(), this.dst)
-            if (nextTile == null) {
-                return
+            const result = this.pathFinder.nextTile(this.nuke.tile(), this.dst)
+            switch (result.type) {
+                case PathFindResultType.Completed:
+                    this.nuke.move(result.tile)
+                    this.detonate()
+                    return
+                case PathFindResultType.NextTile:
+                    this.nuke.move(result.tile)
+                    break
+                case PathFindResultType.Pending:
+                    break
+                case PathFindResultType.PathNotFound:
+                    console.warn(`nuke cannot find path from ${this.nuke.tile()} to ${this.dst}`)
+                    this.active = false
+                    return
             }
-            this.nuke.move(nextTile)
         }
     }
 

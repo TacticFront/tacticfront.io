@@ -2,7 +2,7 @@ import { Unit, Cell, Execution, MutableUnit, MutableGame, MutablePlayer, Player,
 import { and, bfs, manhattanDistWrapped, sourceDstOceanShore, targetTransportTile } from "../Util";
 import { AttackExecution } from "./AttackExecution";
 import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/EventsDisplay";
-import { AStar, PathFinder } from "../PathFinding";
+import { AStar, PathFinder, PathFindResultType } from "../PathFinding";
 
 export class TransportShipExecution implements Execution {
 
@@ -25,7 +25,7 @@ export class TransportShipExecution implements Execution {
 
     private boat: MutableUnit
 
-    private pathFinder: PathFinder = new PathFinder(10_000, t => t.isWater())
+    private pathFinder: PathFinder = new PathFinder(10_000, t => t.isWater(), 2)
 
     constructor(
         private attackerID: PlayerID,
@@ -111,12 +111,21 @@ export class TransportShipExecution implements Execution {
             return
         }
 
-        const nextTile = this.pathFinder.nextTile(this.boat.tile(), this.dst)
-        if (nextTile == null) {
-            console.warn('boat computing')
-            return
+        const result = this.pathFinder.nextTile(this.boat.tile(), this.dst)
+        switch (result.type) {
+            case PathFindResultType.Completed:
+            case PathFindResultType.NextTile:
+                this.boat.move(result.tile)
+                break
+            case PathFindResultType.Pending:
+                console.warn('boat computing')
+                break
+            case PathFindResultType.PathNotFound:
+                // TODO: add to poisoned port list
+                console.warn(`path not found tot dst`)
+                this.dst = null
+                break
         }
-        this.boat.move(nextTile)
     }
 
     owner(): MutablePlayer {

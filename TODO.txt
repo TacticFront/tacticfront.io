@@ -185,7 +185,8 @@
 * add missile silo DONE 11/15/2024
 * nuke spawns from missile silo DONE 11/16/2024
 * REFACTOR: move canbuild to player DONE 11/17/2024
-* BUG: can build destroyer on land
+* BUG: can build destroyer on land DONE 11/17/2024
+* fix pathfinding bug
 * make two nukes: atom & hydrogen
 * destroyer can capture trade ships
 * add battleship

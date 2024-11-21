@@ -1,5 +1,5 @@
 import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, Tile, UnitType } from "../game/Game";
-import { AStar, PathFinder } from "../PathFinding";
+import { AStar, PathFinder, PathFindResultType } from "../PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
 import { distSort, distSortUnit, manhattanDist } from "../Util";
 
@@ -54,39 +54,47 @@ export class DestroyerExecution implements Execution {
         if (this.target == null) {
             const ships = this.mg.units(UnitType.TransportShip)
                 .filter(u => manhattanDist(u.tile().cell(), this.destroyer.tile().cell()) < 100)
-                .filter(u => u.owner() != this.destroyer.owner())
+                // .filter(u => u.owner() != this.destroyer.owner())
                 .filter(u => u != this.destroyer)
                 .filter(u => !u.owner().isAlliedWith(this.destroyer.owner()))
             if (ships.length == 0) {
-                if (manhattanDist(this.destroyer.tile().cell(), this.patrolTile.cell()) > 5) {
-                    const next = this.pathfinder.nextTile(this.destroyer.tile(), this.patrolTile)
-                    if (next == null) {
-                        this.target = null
+                const result = this.pathfinder.nextTile(this.destroyer.tile(), this.patrolTile)
+                switch (result.type) {
+                    case PathFindResultType.Completed:
+                        this.patrolTile = this.randomTile()
+                        break
+                    case PathFindResultType.NextTile:
+                        this.destroyer.move(result.tile)
+                        break
+                    case PathFindResultType.Pending:
                         return
-                    }
-                    this.destroyer.move(next)
-                } else {
-                    this.patrolTile = this.randomTile()
+                    case PathFindResultType.PathNotFound:
+                        console.log(`path not found to patrol tile`)
+                        this.patrolTile = this.randomTile()
+                        break
                 }
                 return
             }
             this.target = ships.sort(distSortUnit(this.destroyer))[0]
         }
-        if (manhattanDist(this.destroyer.tile().cell(), this.target.tile().cell()) < 5) {
-            this.target.delete()
-            this.target = null
-            return
-        }
-        for (let i = 0; i < 1 + this.mg.ticks() % 2; i++) {
-            const next = this.pathfinder.nextTile(this.destroyer.tile(), this.target.tile())
-            if (next == null) {
-                this.target = null
-                console.warn(`target not found`)
-                return
-            }
-            this.destroyer.move(next)
-        }
 
+        for (let i = 0; i < 1 + this.mg.ticks() % 2; i++) {
+            const result = this.pathfinder.nextTile(this.destroyer.tile(), this.target.tile(), 5)
+            switch (result.type) {
+                case PathFindResultType.Completed:
+                    this.target.delete()
+                    this.target = null
+                    return
+                case PathFindResultType.NextTile:
+                    this.destroyer.move(result.tile)
+                    break
+                case PathFindResultType.Pending:
+                    break
+                case PathFindResultType.PathNotFound:
+                    console.log(`path not found to target`)
+                    break
+            }
+        }
     }
 
     owner(): MutablePlayer {
