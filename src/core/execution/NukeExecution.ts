@@ -61,7 +61,7 @@ export class NukeExecution implements Execution {
     }
 
     private detonate() {
-        const magnitude = this.type == UnitType.AtomBomb ? 25 : 100
+        const magnitude = this.type == UnitType.AtomBomb ? 15 : 115
 
 
         const rand = new PseudoRandom(this.mg.ticks())
