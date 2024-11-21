@@ -127,9 +127,10 @@ export class TransportShipExecution implements Execution {
             case PathFindResultType.PathNotFound:
                 // TODO: add to poisoned port list
                 console.warn(`path not found tot dst`)
-                this.dst = null
+                this.boat.delete()
                 this.active = false
-                break
+                return
+
         }
     }
 
