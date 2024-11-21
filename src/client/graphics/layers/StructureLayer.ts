@@ -130,7 +130,7 @@ export class StructureLayer implements Layer {
             .forEach(t => this.paintCell(t.cell(), this.theme.borderColor(event.unit.owner().info()), 255));
 
         bfs(event.unit.tile(), euclDist(event.unit.tile(), config.territoryRadius))
-            .forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(event.unit.owner().info()), 255));
+            .forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(event.unit.owner().info()), 130));
 
         // Draw the icon
         this.renderIcon(iconData, startX, startY, tempCanvas.width, tempCanvas.height, event.unit);
