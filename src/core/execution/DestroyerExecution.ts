@@ -54,7 +54,7 @@ export class DestroyerExecution implements Execution {
         if (this.target == null) {
             const ships = this.mg.units(UnitType.TransportShip)
                 .filter(u => manhattanDist(u.tile().cell(), this.destroyer.tile().cell()) < 100)
-                // .filter(u => u.owner() != this.destroyer.owner())
+                .filter(u => u.owner() != this.destroyer.owner())
                 .filter(u => u != this.destroyer)
                 .filter(u => !u.owner().isAlliedWith(this.destroyer.owner()))
             if (ships.length == 0) {
@@ -78,7 +78,7 @@ export class DestroyerExecution implements Execution {
             this.target = ships.sort(distSortUnit(this.destroyer))[0]
         }
 
-        for (let i = 0; i < 1 + this.mg.ticks() % 2; i++) {
+        for (let i = 0; i < 2; i++) {
             const result = this.pathfinder.nextTile(this.destroyer.tile(), this.target.tile(), 5)
             switch (result.type) {
                 case PathFindResultType.Completed:
