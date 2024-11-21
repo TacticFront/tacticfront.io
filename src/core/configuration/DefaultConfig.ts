@@ -166,7 +166,7 @@ export class DefaultConfig implements Config {
             return 10000
         }
         if (playerInfo.playerType == PlayerType.FakeHuman) {
-            return 2500 // start troops * strength * difficulty
+            return 1000 // start troops * strength * difficulty
         }
         return 25000
     }
