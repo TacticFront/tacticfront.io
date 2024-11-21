@@ -128,6 +128,7 @@ export class TransportShipExecution implements Execution {
                 // TODO: add to poisoned port list
                 console.warn(`path not found tot dst`)
                 this.dst = null
+                this.active = false
                 break
         }
     }
