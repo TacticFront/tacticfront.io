@@ -187,7 +187,7 @@
 * REFACTOR: move canbuild to player DONE 11/17/2024
 * BUG: can build destroyer on land DONE 11/17/2024
 * fix pathfinding bug DONE 11/20/2024
-* make two nukes: atom & hydrogen
+* make two nukes: atom & hydrogen DONE 11/202/2024
 * NPC builds ports
 * destroyer can capture trade ships
 * add battleship
