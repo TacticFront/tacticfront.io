@@ -169,6 +169,13 @@ export class PathFinder {
     ) { }
 
     nextTile(curr: Tile, dst: Tile, dist: number = 1): TileResult {
+        if (curr == null) {
+            console.error('curr is null')
+        }
+        if (dst == null) {
+            console.error('dst is null')
+        }
+
         if (manhattanDist(curr.cell(), dst.cell()) < dist) {
             return { type: PathFindResultType.Completed, tile: curr }
         }

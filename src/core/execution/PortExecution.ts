@@ -54,7 +54,7 @@ export class PortExecution implements Execution {
         for (const port of allPorts) {
             if (this.computingPaths.has(port)) {
                 const aStar = this.computingPaths.get(port)
-                switch(aStar.compute()) {
+                switch (aStar.compute()) {
                     case PathFindResultType.Completed:
                         this.portPaths.set(port, aStar.reconstructPath())
                         this.computingPaths.delete(port)
@@ -76,11 +76,10 @@ export class PortExecution implements Execution {
             }
         }
 
-        if (this.portPaths.size > 0 && this.random.chance(50)) {
-            const port = this.random.randElement(
-                Array.from(this.portPaths.keys())
-                    .filter(p => this.port.owner().isAlliedWith(p.owner()))
-            )
+        const allyPorts = Array.from(this.portPaths.keys())
+            .filter(p => this.port.owner().isAlliedWith(p.owner()))
+        if (allPorts.length > 0 && this.random.chance(50)) {
+            const port = this.random.randElement(allPorts)
             const path = this.portPaths.get(port)
             this.mg.addExecution(new TradeShipExecution(this._owner, this.port, port, path))
         }

@@ -63,8 +63,13 @@ export class TransportShipExecution implements Execution {
 
         this.troops = Math.min(this.troops, this.attacker.troops())
 
-        const dstTile = targetTransportTile(this.mg, this.mg.tile(this.cell))
-        const src = this.attacker.canBuild(UnitType.TransportShip, dstTile)
+        this.dst = targetTransportTile(this.mg, this.mg.tile(this.cell))
+        if (this.dst == null) {
+            console.warn(`${this.attacker} cannot send ship to ${this.target}, cannot find attack tile`)
+            this.active = false
+            return
+        }
+        const src = this.attacker.canBuild(UnitType.TransportShip, this.dst)
         if (src == false) {
             console.warn(`can't build transport ship`)
             this.active = false
@@ -72,7 +77,6 @@ export class TransportShipExecution implements Execution {
         }
 
         this.src = src
-        this.dst = dstTile
 
         this.boat = this.attacker.buildUnit(UnitType.TransportShip, this.troops, this.src)
     }
