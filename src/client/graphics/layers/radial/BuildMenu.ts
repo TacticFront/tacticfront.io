@@ -2,8 +2,9 @@ import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { EventBus } from '../../../../core/EventBus';
 import { Cell, Game, Player, UnitType } from '../../../../core/game/Game';
-import { BuildUnitIntentEvent, SendNukeIntentEvent } from '../../../Transport';
-import nukeIcon from '../../../../../resources/images/NukeIconWhite.svg';
+import { BuildUnitIntentEvent } from '../../../Transport';
+import atomBombIcon from '../../../../../resources/images/NukeIconWhite.svg';
+import hydrogenBombIcon from '../../../../../resources/images/MushroomCloudIconWhite.svg';
 import destroyerIcon from '../../../../../resources/images/DestroyerIconWhite.svg';
 import missileSiloIcon from '../../../../../resources/images/MissileSiloIconWhite.svg';
 import goldCoinIcon from '../../../../../resources/images/GoldCoinIcon.svg';
@@ -18,7 +19,8 @@ interface BuildItemDisplay {
 
 const buildTable: BuildItemDisplay[][] = [
     [
-        { unitType: UnitType.Nuke, icon: nukeIcon },
+        { unitType: UnitType.AtomBomb, icon: atomBombIcon },
+        { unitType: UnitType.HydrogenBomb, icon: hydrogenBombIcon },
         { unitType: UnitType.Destroyer, icon: destroyerIcon },
         { unitType: UnitType.Port, icon: portIcon },
         { unitType: UnitType.MissileSilo, icon: missileSiloIcon }
@@ -155,9 +157,11 @@ export class BuildMenu extends LitElement {
 
     public onBuildSelected = (item: BuildItemDisplay) => {
         switch (item.unitType) {
-            case UnitType.Nuke:
-                this.eventBus.emit(new SendNukeIntentEvent(this.myPlayer, this.clickedCell, null))
+            case UnitType.AtomBomb:
+                this.eventBus.emit(new BuildUnitIntentEvent(UnitType.AtomBomb, this.clickedCell))
                 break
+            case UnitType.HydrogenBomb:
+                this.eventBus.emit(new BuildUnitIntentEvent(UnitType.HydrogenBomb, this.clickedCell))
             case UnitType.Destroyer:
                 this.eventBus.emit(new BuildUnitIntentEvent(UnitType.Destroyer, this.clickedCell))
                 break

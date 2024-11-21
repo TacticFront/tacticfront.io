@@ -13,7 +13,6 @@ export type Intent = SpawnIntent
     | TargetPlayerIntent
     | EmojiIntent
     | DonateIntent
-    | NukeIntent
     | TargetTroopRatioIntent
     | BuildUnitIntent
 
@@ -26,7 +25,6 @@ export type BreakAllianceIntent = z.infer<typeof BreakAllianceIntentSchema>
 export type TargetPlayerIntent = z.infer<typeof TargetPlayerIntentSchema>
 export type EmojiIntent = z.infer<typeof EmojiIntentSchema>
 export type DonateIntent = z.infer<typeof DonateIntentSchema>
-export type NukeIntent = z.infer<typeof NukeIntentSchema>
 export type TargetTroopRatioIntent = z.infer<typeof TargetTroopRatioIntentSchema>
 export type BuildUnitIntent = z.infer<typeof BuildUnitIntentSchema>
 
@@ -69,7 +67,7 @@ const EmojiSchema = z.string().refine(
 );
 // Zod schemas
 const BaseIntentSchema = z.object({
-    type: z.enum(['attack', 'spawn', 'boat', 'name', 'targetPlayer', 'emoji', 'nuke', 'troop_ratio', 'build_unit']),
+    type: z.enum(['attack', 'spawn', 'boat', 'name', 'targetPlayer', 'emoji', 'troop_ratio', 'build_unit']),
     clientID: z.string(),
 });
 
@@ -147,14 +145,6 @@ export const DonateIntentSchema = BaseIntentSchema.extend({
     troops: z.number().nullable(),
 })
 
-export const NukeIntentSchema = BaseIntentSchema.extend({
-    type: z.literal('nuke'),
-    sender: z.string(),
-    x: z.number(),
-    y: z.number(),
-    magnitude: z.number().nullable(),
-})
-
 export const TargetTroopRatioIntentSchema = BaseIntentSchema.extend({
     type: z.literal('troop_ratio'),
     player: z.string(),
@@ -179,7 +169,6 @@ const IntentSchema = z.union([
     TargetPlayerIntentSchema,
     EmojiIntentSchema,
     DonateIntentSchema,
-    NukeIntentSchema,
     TargetTroopRatioIntentSchema,
     BuildUnitIntentSchema,
 ]);

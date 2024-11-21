@@ -79,12 +79,13 @@ export class Executor {
                 return new EmojiExecution(intent.sender, intent.recipient, intent.emoji);
             case "donate":
                 return new DonateExecution(intent.sender, intent.recipient, intent.troops);
-            case "nuke":
-                return new NukeExecution(intent.sender, new Cell(intent.x, intent.y), intent.magnitude);
             case "troop_ratio":
                 return new SetTargetTroopRatioExecution(intent.player, intent.ratio);
             case "build_unit":
                 switch (intent.unit) {
+                    case UnitType.AtomBomb:
+                    case UnitType.HydrogenBomb:
+                        return new NukeExecution(intent.unit, intent.player, new Cell(intent.x, intent.y))
                     case UnitType.Destroyer:
                         return new DestroyerExecution(intent.player, new Cell(intent.x, intent.y))
                     case UnitType.Port:

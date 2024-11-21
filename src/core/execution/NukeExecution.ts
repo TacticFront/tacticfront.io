@@ -17,30 +17,27 @@ export class NukeExecution implements Execution {
 
     private pathFinder: PathFinder = new PathFinder(10_000, () => true)
     constructor(
+        private type: UnitType.AtomBomb | UnitType.HydrogenBomb,
         private senderID: PlayerID,
         private cell: Cell,
-        private magnitude: number | null
     ) { }
 
 
     init(mg: MutableGame, ticks: number): void {
         this.mg = mg
         this.player = mg.player(this.senderID)
-        if (this.magnitude == null) {
-            this.magnitude = 50
-        }
         this.dst = this.mg.tile(this.cell)
     }
 
     tick(ticks: number): void {
         if (this.nuke == null) {
-            const spawn = this.player.canBuild(UnitType.Nuke, this.dst)
+            const spawn = this.player.canBuild(UnitType.AtomBomb, this.dst)
             if (spawn == false) {
                 console.warn(`cannot build Nuke`)
                 this.active = false
                 return
             }
-            this.nuke = this.player.buildUnit(UnitType.Nuke, 0, spawn)
+            this.nuke = this.player.buildUnit(UnitType.AtomBomb, 0, spawn)
         }
 
         for (let i = 0; i < 4; i++) {
@@ -64,11 +61,14 @@ export class NukeExecution implements Execution {
     }
 
     private detonate() {
+        const magnitude = this.type == UnitType.AtomBomb ? 25 : 100
+
+
         const rand = new PseudoRandom(this.mg.ticks())
         const tile = this.mg.tile(this.cell)
         const toDestroy = bfs(tile, (n: Tile) => {
             const d = euclideanDist(tile.cell(), n.cell())
-            return (d <= this.magnitude || rand.chance(2)) && d <= this.magnitude + 40
+            return (d <= magnitude || rand.chance(2)) && d <= magnitude * 2
         })
 
         const ratio = Object.fromEntries(
@@ -85,7 +85,7 @@ export class NukeExecution implements Execution {
             }
         }
         for (const unit of this.mg.units()) {
-            if (euclideanDist(this.cell, unit.tile().cell()) < this.magnitude + 50) {
+            if (euclideanDist(this.cell, unit.tile().cell()) < magnitude * 2) {
                 unit.delete()
             }
         }

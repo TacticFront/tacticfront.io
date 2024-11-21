@@ -80,7 +80,7 @@ export class UnitLayer implements Layer {
                 break;
             case UnitType.TradeShip:
                 this.handleTradeShipEvent(event)
-            case UnitType.Nuke:
+            case UnitType.AtomBomb:
                 this.handleNuke(event)
         }
     }

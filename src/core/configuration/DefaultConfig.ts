@@ -24,9 +24,14 @@ export class DefaultConfig implements Config {
                     cost: 300_000,
                     territoryBound: true
                 }
-            case UnitType.Nuke:
+            case UnitType.AtomBomb:
                 return {
                     cost: 1_000_000,
+                    territoryBound: false
+                }
+            case UnitType.HydrogenBomb:
+                return {
+                    cost: 5_000_000,
                     territoryBound: false
                 }
             case UnitType.TradeShip:

@@ -32,7 +32,8 @@ export enum UnitType {
     TransportShip = "Transport",
     Destroyer = "Destroyer",
     Port = "Port",
-    Nuke = "Nuke",
+    AtomBomb = "Atom Bomb",
+    HydrogenBomb = "Hydrogen Bomb",
     TradeShip = "Trade Ship",
     MissileSilo = "Missile Silo",
 }

@@ -75,14 +75,6 @@ export class SendDonateIntentEvent implements GameEvent {
     ) { }
 }
 
-export class SendNukeIntentEvent implements GameEvent {
-    constructor(
-        public readonly sender: Player,
-        public readonly cell: Cell,
-        public readonly magnitude: number | null,
-    ) { }
-}
-
 export class SendSetTargetTroopRatioEvent implements GameEvent {
     constructor(
         public readonly ratio: number,
@@ -120,9 +112,8 @@ export class Transport {
         this.eventBus.on(SendTargetPlayerIntentEvent, (e) => this.onSendTargetPlayerIntent(e))
         this.eventBus.on(SendEmojiIntentEvent, (e) => this.onSendEmojiIntent(e))
         this.eventBus.on(SendDonateIntentEvent, (e) => this.onSendDonateIntent(e))
-        this.eventBus.on(SendNukeIntentEvent, (e) => this.onSendNukeIntent(e))
         this.eventBus.on(SendSetTargetTroopRatioEvent, (e) => this.onSendSetTargetTroopRatioEvent(e))
-        this.eventBus.on(BuildUnitIntentEvent, (e) => this.onCreateDestroyerIntent(e))
+        this.eventBus.on(BuildUnitIntentEvent, (e) => this.onBuildUnitIntent(e))
     }
 
     connect(onconnect: () => void, onmessage: (message: ServerMessage) => void) {
@@ -302,17 +293,6 @@ export class Transport {
         })
     }
 
-    private onSendNukeIntent(event: SendNukeIntentEvent) {
-        this.sendIntent({
-            type: "nuke",
-            clientID: this.clientID,
-            sender: event.sender.id(),
-            x: event.cell.x,
-            y: event.cell.y,
-            magnitude: event.magnitude,
-        })
-    }
-
     private onSendSetTargetTroopRatioEvent(event: SendSetTargetTroopRatioEvent) {
         this.sendIntent({
             type: "troop_ratio",
@@ -322,7 +302,7 @@ export class Transport {
         })
     }
 
-    private onCreateDestroyerIntent(event: BuildUnitIntentEvent) {
+    private onBuildUnitIntent(event: BuildUnitIntentEvent) {
         this.sendIntent({
             type: "build_unit",
             clientID: this.clientID,

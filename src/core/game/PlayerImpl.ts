@@ -346,7 +346,8 @@ export class PlayerImpl implements MutablePlayer {
             return false
         }
         switch (unitType) {
-            case UnitType.Nuke:
+            case UnitType.AtomBomb:
+            case UnitType.HydrogenBomb:
                 return this.nukeSpawn(targetTile)
             case UnitType.Port:
                 return this.portSpawn(targetTile)

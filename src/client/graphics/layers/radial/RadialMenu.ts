@@ -3,7 +3,7 @@ import { AllPlayers, Cell, Game, Player, UnitType } from "../../../../core/game/
 import { ClientID } from "../../../../core/Schemas";
 import { and, bfs, dist, manhattanDist, manhattanDistWrapped, sourceDstOceanShore, targetTransportTile } from "../../../../core/Util";
 import { ContextMenuEvent, MouseUpEvent } from "../../../InputHandler";
-import { SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendDonateIntentEvent, SendEmojiIntentEvent, SendNukeIntentEvent, SendSpawnIntentEvent, SendTargetPlayerIntentEvent } from "../../../Transport";
+import { SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendDonateIntentEvent, SendEmojiIntentEvent, SendSpawnIntentEvent, SendTargetPlayerIntentEvent } from "../../../Transport";
 import { TransformHandler } from "../../TransformHandler";
 import { Layer } from "../Layer";
 import * as d3 from 'd3';
