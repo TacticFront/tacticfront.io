@@ -189,7 +189,7 @@
 * fix pathfinding bug DONE 11/20/2024
 * make two nukes: atom & hydrogen DONE 11/20/2024
 * NPC builds ports DONE 11/20/2024
-* BUG: fix matchmaking
+* BUG: fix matchmaking DONE 11/22/2024
 * destroyer can capture trade ships
 * make NPC difficult scale better (not just start troops)
 * add battleship

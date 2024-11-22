@@ -49,23 +49,32 @@ export class PortExecution implements Execution {
         const alliedPorts = this.player().alliances().map(a => a.other(this.player())).flatMap(p => p.units(UnitType.Port))
         const alliedPortsSet = new Set(alliedPorts)
 
+        const allyConnections = new Set(Array.from(this.portPaths.keys()).map(p => p.owner()))
+        allyConnections
+
+
         for (const port of alliedPorts) {
+            if (allyConnections.has(port.owner())) {
+                continue
+            }
+            allyConnections.add(port.owner())
             if (this.computingPaths.has(port)) {
                 const aStar = this.computingPaths.get(port)
                 switch (aStar.compute()) {
                     case PathFindResultType.Completed:
                         this.portPaths.set(port, aStar.reconstructPath())
                         this.computingPaths.delete(port)
+                        break
                     case PathFindResultType.Pending:
                         break
                     case PathFindResultType.PathNotFound:
                         console.warn(`path not found to port`)
+                        break
                 }
                 continue
-            } else if (!this.portPaths.has(port)) {
-                this.computingPaths.set(port, new AStar(this.port.tile(), port.tile(), t => t.isWater(), 2000, 100))
-                continue
             }
+            // console.log(`adding new port path from ${this.player().name()}:${this.port.tile().cell()} to ${port.owner().name()}:${port.tile().cell()}`)
+            this.computingPaths.set(port, new AStar(this.port.tile(), port.tile(), t => t.isWater(), 4000, 100))
         }
 
         for (const port of this.portPaths.keys()) {
@@ -75,11 +84,13 @@ export class PortExecution implements Execution {
             }
         }
 
-        if (alliedPorts.length > 0 && this.random.chance(50)) {
-            const port = this.random.randElement(alliedPorts)
+        const portConnections = Array.from(this.portPaths.keys())
+
+        if (portConnections.length > 0 && this.random.chance(500 * this.player().units(UnitType.Port).length)) {
+            const port = this.random.randElement(portConnections)
             const path = this.portPaths.get(port)
             if (path != null) {
-                this.mg.addExecution(new TradeShipExecution(this._owner, this.port, port, path))
+                this.mg.addExecution(new TradeShipExecution(this.player().id(), this.port, port, path))
             }
         }
     }

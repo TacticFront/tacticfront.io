@@ -95,7 +95,13 @@ export class FakeHumanExecution implements Execution {
 
         const enemyborder = Array.from(this.player.borderTiles()).flatMap(t => t.neighbors()).filter(t => t.hasOwner() && t.owner() != this.player)
 
-        if (enemyborder.length == 0 || this.random.chance(5)) {
+        if (enemyborder.length == 0) {
+            if (this.random.chance(5)) {
+                this.sendBoat()
+            }
+            return
+        }
+        if (this.random.chance(10)) {
             this.sendBoat()
             return
         }
