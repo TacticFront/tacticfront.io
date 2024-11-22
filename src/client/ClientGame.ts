@@ -39,7 +39,7 @@ export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => v
     const transport = new Transport(lobbyConfig.isLocal, eventBus, lobbyConfig.gameID, lobbyConfig.ip, clientID, playerID, config, lobbyConfig.playerName)
 
     const onconnect = () => {
-        console.log('Joined game lobby!');
+        console.log(`Joined game lobby ${lobbyConfig.gameID}`);
         transport.joinGame(0)
     };
     const onmessage = (message: ServerMessage) => {
