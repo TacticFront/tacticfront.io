@@ -31,13 +31,13 @@ export class NukeExecution implements Execution {
 
     tick(ticks: number): void {
         if (this.nuke == null) {
-            const spawn = this.player.canBuild(UnitType.AtomBomb, this.dst)
+            const spawn = this.player.canBuild(this.type, this.dst)
             if (spawn == false) {
                 console.warn(`cannot build Nuke`)
                 this.active = false
                 return
             }
-            this.nuke = this.player.buildUnit(UnitType.AtomBomb, 0, spawn)
+            this.nuke = this.player.buildUnit(this.type, 0, spawn)
         }
 
         for (let i = 0; i < 4; i++) {
