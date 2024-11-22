@@ -1,3 +1,5 @@
+import { MessageType } from "../../client/graphics/layers/EventsDisplay";
+import { renderNumber } from "../../client/graphics/Utils";
 import { AllPlayers, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, Tile, Unit, UnitType } from "../game/Game";
 import { AStar, PathFinder } from "../PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
@@ -37,9 +39,13 @@ export class TradeShipExecution implements Execution {
         }
         if (this.index >= this.path.length) {
             this.active = false
+            const dist = manhattanDist(this.srcPort.tile().cell(), this.dstPort.tile().cell())
+            const gold = dist * 100
+            this.srcPort.owner().addGold(gold)
+            this.dstPort.owner().addGold(gold)
+            this.mg.displayMessage(`Trade ship from ${this.tradeShip.owner().displayName()} has reached your port, giving you ${renderNumber(gold)} gold`, MessageType.SUCCESS, this.dstPort.owner().id())
+            this.mg.displayMessage(`Your trade ship reached ${this.dstPort.owner().displayName()}, giving you ${renderNumber(gold)} gold`, MessageType.SUCCESS, this._owner)
             this.tradeShip.delete()
-            this.srcPort.owner().addGold(10_000)
-            this.dstPort.owner().addGold(10_000)
             return
         }
         this.tradeShip.move(this.path[this.index])

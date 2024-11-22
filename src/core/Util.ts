@@ -209,13 +209,19 @@ export function processName(name: string): string {
     );
 
     // Sanitize the final HTML, allowing styles and specific attributes
-    return DOMPurify.sanitize(withEmojiStyles, {
+    return onlyImages(withEmojiStyles)
+}
+
+export function onlyImages(html: string) {
+
+    return DOMPurify.sanitize(html, {
         ALLOWED_TAGS: ['span', 'img'],
         ALLOWED_ATTR: ['src', 'alt', 'class', 'style'],
         ALLOWED_URI_REGEXP: /^https:\/\/cdn\.jsdelivr\.net\/gh\/twitter\/twemoji/,
         ADD_ATTR: ['style']
     });
 }
+
 export function assertNever(x: never): never {
     throw new Error('Unexpected value: ' + x);
 }

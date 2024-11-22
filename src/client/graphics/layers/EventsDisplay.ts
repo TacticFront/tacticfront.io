@@ -17,6 +17,7 @@ import { ClientID } from "../../../core/Schemas";
 import { Layer } from "./Layer";
 import { SendAllianceReplyIntentEvent } from "../../Transport";
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { onlyImages, sanitize } from '../../../core/Util';
 
 export enum MessageType {
   SUCCESS,
@@ -217,6 +218,7 @@ export class EventsDisplay extends LitElement implements Layer {
       createdAt: this.game.ticks(),
       highlight: true,
       type: event.type,
+      unsafeDescription: true,
     });
   }
 
@@ -342,7 +344,7 @@ export class EventsDisplay extends LitElement implements Layer {
           ${this.events.map((event, index) => html`
             <tr class="${event.highlight ? 'highlight' : ''} ${MessageType[event.type].toLowerCase()}">
               <td>
-                ${event.unsafeDescription ? unsafeHTML(event.description) : event.description}
+                ${event.unsafeDescription ? unsafeHTML(onlyImages(event.description)) : event.description}
                 ${event.buttons ? html`
                   <div class="button-container">
                     ${event.buttons.map(btn => html`
