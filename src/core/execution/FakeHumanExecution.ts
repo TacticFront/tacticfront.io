@@ -1,9 +1,10 @@
-import { Cell, Execution, MutableGame, MutablePlayer, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tile } from "../game/Game"
+import { Cell, Execution, MutableGame, MutablePlayer, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tile, UnitType } from "../game/Game"
 import { PseudoRandom } from "../PseudoRandom"
 import { and, bfs, dist, simpleHash } from "../Util";
 import { AttackExecution } from "./AttackExecution";
 import { TransportShipExecution } from "./TransportShipExecution";
 import { SpawnExecution } from "./SpawnExecution";
+import { PortExecution } from "./PortExecution";
 
 export class FakeHumanExecution implements Execution {
 
@@ -35,7 +36,6 @@ export class FakeHumanExecution implements Execution {
     }
 
     tick(ticks: number) {
-
         if (this.mg.inSpawnPhase()) {
             if (ticks % this.random.nextInt(5, 30) == 0) {
                 const rl = this.randomLand()
@@ -72,27 +72,13 @@ export class FakeHumanExecution implements Execution {
             return
         }
 
+        if (this.player.troops() > 100_000 && this.player.targetTroopRatio() > .7) {
+            this.player.setTargetTroopRatio(.7)
+        }
+
         this.handleAllianceRequests()
-
-        if (ticks % 100 == 0) {
-            this.enemy = null
-        }
-
-        if (this.enemy == null) {
-            this.enemy = this.mg.executions()
-                .filter(e => e instanceof AttackExecution)
-                .map(e => e as AttackExecution)
-                .filter(e => e.targetID() == this.player.id())
-                .map(e => e.owner())
-                .find(enemy => enemy && enemy.type() == PlayerType.Human)
-        }
-
-        if (this.enemy) {
-            if (this.player.sharesBorderWith(this.enemy)) {
-                this.sendAttack(this.enemy)
-            }
-            return
-        }
+        this.handleEnemies()
+        this.handleUnits()
 
 
         if (this.neighborsTerraNullius) {
@@ -132,6 +118,39 @@ export class FakeHumanExecution implements Execution {
             const toAttack = this.random.randElement(enemies)
             if (!this.player.isAlliedWith(toAttack) || (this.random.chance(100) && this.isTraitor)) {
                 this.sendAttack(toAttack)
+            }
+        }
+    }
+
+    handleEnemies() {
+        if (this.mg.ticks() % 100 == 0) {
+            this.enemy = null
+        }
+
+        if (this.enemy == null) {
+            this.enemy = this.mg.executions()
+                .filter(e => e instanceof AttackExecution)
+                .map(e => e as AttackExecution)
+                .filter(e => e.targetID() == this.player.id())
+                .map(e => e.owner())
+                .find(enemy => enemy && enemy.type() == PlayerType.Human)
+        }
+
+        if (this.enemy) {
+            if (this.player.sharesBorderWith(this.enemy)) {
+                this.sendAttack(this.enemy)
+            }
+            return
+        }
+
+    }
+
+    private handleUnits() {
+        if (this.player.units(UnitType.Port).length == 0 && this.player.gold() > this.mg.unitInfo(UnitType.Port).cost) {
+            const oceanTiles = Array.from(this.player.borderTiles()).filter(t => t.isOceanShore())
+            if (oceanTiles.length > 0) {
+                const buildTile = this.random.randElement(oceanTiles)
+                this.mg.addExecution(new PortExecution(this.player.id(), buildTile.cell()))
             }
         }
     }

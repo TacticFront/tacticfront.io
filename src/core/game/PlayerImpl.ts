@@ -328,6 +328,7 @@ export class PlayerImpl implements MutablePlayer {
         (prev as PlayerImpl)._units = (prev as PlayerImpl)._units.filter(u => u != unit);
         (unit as UnitImpl)._owner = this
         this._units.push(unit as UnitImpl)
+        this.gs.fireUnitUpdateEvent(unit, unit.tile())
     }
 
     buildUnit(type: UnitType, troops: number, spawnTile: Tile): UnitImpl {
