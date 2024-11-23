@@ -1,12 +1,19 @@
-import { Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tick, Tile, UnitInfo, UnitType } from "../game/Game";
+import { Gold, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tick, Tile, Unit, UnitInfo, UnitType } from "../game/Game";
 import { GameID } from "../Schemas";
-import { assertNever, simpleHash, within } from "../Util";
+import { assertNever, manhattanDist, simpleHash, within } from "../Util";
 import { Config, Theme } from "./Config";
 import { pastelTheme } from "./PastelTheme";
 
 
 
 export class DefaultConfig implements Config {
+    spawnNPCs(): boolean {
+        return true
+    }
+    tradeShipGold(src: Unit, dst: Unit): Gold {
+        const dist = manhattanDist(src.tile().cell(), dst.tile().cell())
+        return 10000 + (dist * dist)
+    }
     unitInfo(type: UnitType): UnitInfo {
         switch (type) {
             case UnitType.TransportShip:

@@ -12,7 +12,7 @@ export const devConfig = new class extends DefaultConfig {
         return 95
     }
     numSpawnPhaseTurns(): number {
-        return 40
+        return 80
     }
     gameCreationRate(): number {
         return 20 * 1000
@@ -24,9 +24,12 @@ export const devConfig = new class extends DefaultConfig {
         return 100
     }
 
-    // numBots(): number {
-    //     return 400
-    // }
+    numBots(): number {
+        return 0
+    }
+    spawnNPCs(): boolean {
+        return false
+    }
 
     // boatMaxDistance(): number {
     //     return 2000

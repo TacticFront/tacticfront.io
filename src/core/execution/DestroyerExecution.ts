@@ -52,7 +52,7 @@ export class DestroyerExecution implements Execution {
             this.target = null
         }
         if (this.target == null) {
-            const ships = this.mg.units(UnitType.TransportShip)
+            const ships = this.mg.units(UnitType.TransportShip, UnitType.Destroyer, UnitType.TradeShip)
                 .filter(u => manhattanDist(u.tile().cell(), this.destroyer.tile().cell()) < 100)
                 .filter(u => u.owner() != this.destroyer.owner())
                 .filter(u => u != this.destroyer)
@@ -82,7 +82,18 @@ export class DestroyerExecution implements Execution {
             const result = this.pathfinder.nextTile(this.destroyer.tile(), this.target.tile(), 5)
             switch (result.type) {
                 case PathFindResultType.Completed:
-                    this.target.delete()
+                    switch (this.target.type()) {
+                        case UnitType.TransportShip:
+                            this.target.delete()
+                            break
+                        case UnitType.TradeShip:
+                            this.owner().captureUnit(this.target)
+                            break
+                        case UnitType.Destroyer:
+                            this.target.delete()
+                            this.destroyer.delete()
+                            break
+                    }
                     this.target = null
                     return
                 case PathFindResultType.NextTile:
@@ -98,7 +109,7 @@ export class DestroyerExecution implements Execution {
     }
 
     owner(): MutablePlayer {
-        return null
+        return this._owner
     }
 
     isActive(): boolean {

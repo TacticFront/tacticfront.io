@@ -1,4 +1,4 @@
-import { Player, PlayerID, PlayerInfo, TerraNullius, Tick, Tile, UnitInfo, UnitType } from "../game/Game";
+import { Gold, Player, PlayerID, PlayerInfo, TerraNullius, Tick, Tile, Unit, UnitInfo, UnitType } from "../game/Game";
 import { Colord, colord } from "colord";
 import { devConfig } from "./DevConfig";
 import { defaultConfig } from "./DefaultConfig";
@@ -31,6 +31,7 @@ export interface Config {
 	gameCreationRate(): number
 	lobbyLifetime(): number
 	numBots(): number
+	spawnNPCs(): boolean
 	numSpawnPhaseTurns(): number
 
 	startManpower(playerInfo: PlayerInfo): number
@@ -57,6 +58,7 @@ export interface Config {
 	donateCooldown(): Tick
 	defaultDonationAmount(sender: Player): number
 	unitInfo(type: UnitType): UnitInfo
+	tradeShipGold(src: Unit, dst: Unit): Gold
 }
 
 export interface Theme {

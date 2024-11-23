@@ -86,7 +86,7 @@ export class PortExecution implements Execution {
 
         const portConnections = Array.from(this.portPaths.keys())
 
-        if (portConnections.length > 0 && this.random.chance(500 * this.player().units(UnitType.Port).length)) {
+        if (portConnections.length > 0 && this.random.chance(250 * this.player().units(UnitType.Port).length)) {
             const port = this.random.randElement(portConnections)
             const path = this.portPaths.get(port)
             if (path != null) {

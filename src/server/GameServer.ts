@@ -1,8 +1,8 @@
-import {ClientMessage, ClientMessageSchema, GameConfig, Intent, ServerStartGameMessage, ServerStartGameMessageSchema, ServerTurnMessageSchema, Turn} from "../core/Schemas";
-import {Config} from "../core/configuration/Config";
-import {Client} from "./Client";
+import { ClientMessage, ClientMessageSchema, GameConfig, Intent, ServerStartGameMessage, ServerStartGameMessageSchema, ServerTurnMessageSchema, Turn } from "../core/Schemas";
+import { Config } from "../core/configuration/Config";
+import { Client } from "./Client";
 import WebSocket from 'ws';
-import {slog} from "./StructuredLog";
+import { slog } from "./StructuredLog";
 
 
 export enum GamePhase {
@@ -30,14 +30,14 @@ export class GameServer {
         public readonly isPublic: boolean,
         private config: Config,
         private gameConfig: GameConfig,
-        
+
     ) { }
 
     public updateGameConfig(gameConfig: GameConfig): void {
         if (gameConfig.gameMap != null) {
             this.gameConfig.gameMap = gameConfig.gameMap
         }
-        if(gameConfig.difficulty != null) {
+        if (gameConfig.difficulty != null) {
             this.gameConfig.difficulty = gameConfig.difficulty
         }
     }
@@ -51,6 +51,10 @@ export class GameServer {
             isRejoin: lastTurn > 0
         })
         // Remove stale client if this is a reconnect
+        const existing = this.clients.find(c => c.id == client.id)
+        if (existing != null) {
+            existing.ws.removeAllListeners('message')
+        }
         this.clients = this.clients.filter(c => c.id != client.id)
         this.clients.push(client)
         client.ws.on('message', (message: string) => {

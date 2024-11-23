@@ -118,7 +118,9 @@ export class GameRunner {
         this.renderer.initialize()
         this.input.initialize()
         this.gs.addExecution(...this.executor.spawnBots(this.gs.config().numBots()))
-        this.gs.addExecution(...this.executor.fakeHumanExecutions())
+        if (this.gs.config().spawnNPCs()) {
+            this.gs.addExecution(...this.executor.fakeHumanExecutions())
+        }
         this.gs.addExecution(new WinCheckExecution(this.eventBus))
 
         this.intervalID = setInterval(() => this.tick(), 10);
@@ -164,7 +166,7 @@ export class GameRunner {
             return
         }
         this.isProcessingTurn = true
-        this.gs.addExecution(...this.executor.createExecs(this.turns[this.currTurn]))
+            this.gs.addExecution(...this.executor.createExecs(this.turns[this.currTurn]))
         this.gs.executeNextTick()
         this.renderer.tick()
         this.currTurn++

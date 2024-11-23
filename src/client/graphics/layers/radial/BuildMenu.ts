@@ -162,6 +162,7 @@ export class BuildMenu extends LitElement {
                 break
             case UnitType.HydrogenBomb:
                 this.eventBus.emit(new BuildUnitIntentEvent(UnitType.HydrogenBomb, this.clickedCell))
+                break
             case UnitType.Destroyer:
                 this.eventBus.emit(new BuildUnitIntentEvent(UnitType.Destroyer, this.clickedCell))
                 break
@@ -170,6 +171,7 @@ export class BuildMenu extends LitElement {
                 break
             case UnitType.MissileSilo:
                 this.eventBus.emit(new BuildUnitIntentEvent(UnitType.MissileSilo, this.clickedCell))
+                break
         }
         this.hideMenu()
     };
