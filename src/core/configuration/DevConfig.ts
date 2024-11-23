@@ -4,7 +4,7 @@ import { DefaultConfig } from "./DefaultConfig";
 export const devConfig = new class extends DefaultConfig {
     unitInfo(type: UnitType): UnitInfo {
         const info = super.unitInfo(type)
-        info.cost = 100
+        info.cost = 0
         return info
     }
 

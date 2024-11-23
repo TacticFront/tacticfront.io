@@ -190,14 +190,14 @@
 * make two nukes: atom & hydrogen DONE 11/20/2024
 * NPC builds ports DONE 11/20/2024
 * BUG: fix matchmaking DONE 11/22/2024
-* destroyer can capture trade ships
+* destroyer can capture trade ships DONE 11/22/2024
+* NPC has relations
 * make NPC difficult scale better (not just start troops)
 * add battleship
 * add defense post
 * add radiation from nuke
 * only show units you can build in the build menu
 * REFACTOR: make TransportShip follow build unit flow
-* NPC has relations
 * use twitter emojis
 * private game shows how many players joined
 * optimize sendBoat function

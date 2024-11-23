@@ -11,6 +11,7 @@ export class PlayerExecution implements Execution {
     private config: Config
     private lastCalc = 0
     private mg: MutableGame
+    private active = true
 
     constructor(private playerID: PlayerID) {
     }
@@ -30,8 +31,28 @@ export class PlayerExecution implements Execution {
         if (ticks < this.config.numSpawnPhaseTurns()) {
             return
         }
-        const popInc = this.config.populationIncreaseRate(this.player)
 
+        this.player.units().forEach(u => {
+            const tileOwner = u.tile().owner()
+            if (u.info().territoryBound) {
+                if (tileOwner.isPlayer()) {
+                    if (tileOwner != this.player) {
+                        this.mg.player(tileOwner.id()).captureUnit(u)
+                    }
+                } else {
+                    u.delete()
+                }
+            }
+        })
+
+        if (!this.player.isAlive()) {
+            this.player.units().forEach(u => u.delete())
+            this.active = false
+            return
+        }
+
+
+        const popInc = this.config.populationIncreaseRate(this.player)
         this.player.addWorkers(popInc * (1 - this.player.targetTroopRatio()))// (1 - this.player.targetTroopRatio()))
         this.player.addTroops(popInc * this.player.targetTroopRatio())
         this.player.addGold(this.config.goldAdditionRate(this.player))
@@ -46,20 +67,6 @@ export class PlayerExecution implements Execution {
             }
         }
 
-        this.player.units().forEach(u => {
-            const tileOwner = u.tile().owner()
-            if (u.info().territoryBound) {
-                if (tileOwner.isPlayer()) {
-                    if (tileOwner != this.player) {
-                        this.mg.player(tileOwner.id()).captureUnit(u)
-                    }
-                } else {
-                    u.delete()
-                }
-            }
-
-
-        })
 
         if (ticks - this.lastCalc > this.ticksPerClusterCalc) {
             this.lastCalc = ticks
@@ -187,6 +194,6 @@ export class PlayerExecution implements Execution {
     }
 
     isActive(): boolean {
-        return this.player == null || this.player.isAlive()
+        return this.active
     }
 }
