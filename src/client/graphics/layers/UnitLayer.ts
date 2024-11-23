@@ -82,6 +82,7 @@ export class UnitLayer implements Layer {
                 this.handleTradeShipEvent(event)
                 break;
             case UnitType.AtomBomb:
+            case UnitType.HydrogenBomb:
                 this.handleNuke(event)
                 break
         }
