@@ -24,12 +24,12 @@ export const devConfig = new class extends DefaultConfig {
         return 100
     }
 
-    numBots(): number {
-        return 0
-    }
-    spawnNPCs(): boolean {
-        return false
-    }
+    // numBots(): number {
+    //     return 0
+    // }
+    // spawnNPCs(): boolean {
+    //     return false
+    // }
 
     // boatMaxDistance(): number {
     //     return 2000

@@ -77,6 +77,11 @@ export class DestroyerExecution implements Execution {
             }
             this.target = ships.sort(distSortUnit(this.destroyer))[0]
         }
+        if (!this.target.isActive() || this.target.owner() == this._owner) {
+            // Incase another destroyer captured or destroyed target
+            this.target = null
+            return
+        }
 
         for (let i = 0; i < 2; i++) {
             const result = this.pathfinder.nextTile(this.destroyer.tile(), this.target.tile(), 5)
