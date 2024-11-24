@@ -1,6 +1,6 @@
 import { Gold, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tick, Tile, Unit, UnitInfo, UnitType } from "../game/Game";
 import { GameID } from "../Schemas";
-import { assertNever, manhattanDist, simpleHash, within } from "../Util";
+import { assertNever, distSort, manhattanDist, simpleHash, within } from "../Util";
 import { Config, Theme } from "./Config";
 import { pastelTheme } from "./PastelTheme";
 
@@ -12,7 +12,7 @@ export class DefaultConfig implements Config {
     }
     tradeShipGold(src: Unit, dst: Unit): Gold {
         const dist = manhattanDist(src.tile().cell(), dst.tile().cell())
-        return 10000 + (dist * dist)
+        return 10000 + 50 * dist
     }
     unitInfo(type: UnitType): UnitInfo {
         switch (type) {
