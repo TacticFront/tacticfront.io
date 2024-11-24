@@ -12,7 +12,7 @@ export class DefaultConfig implements Config {
     }
     tradeShipGold(src: Unit, dst: Unit): Gold {
         const dist = manhattanDist(src.tile().cell(), dst.tile().cell())
-        return 10000 + 50 * dist
+        return 10000 + 5 * dist
     }
     unitInfo(type: UnitType): UnitInfo {
         switch (type) {
@@ -207,7 +207,7 @@ export class DefaultConfig implements Config {
     }
 
     goldAdditionRate(player: Player): number {
-        return Math.sqrt(player.workers() * player.numTilesOwned()) / 900
+        return Math.sqrt(player.workers() * player.numTilesOwned()) / 600
     }
 
     troopAdjustmentRate(player: Player): number {

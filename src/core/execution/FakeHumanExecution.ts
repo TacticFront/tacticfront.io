@@ -12,15 +12,12 @@ export class FakeHumanExecution implements Execution {
 
     private active = true
     private random: PseudoRandom;
-    private attackRate: number
     private mg: MutableGame
-    private neighborsTerraNullius = true
     private player: MutablePlayer = null
 
     private enemy: Player | null = null
 
     private rejected: Set<Player> = new Set<Player>
-    private isTraitor = false
 
     private relations = new Map<Player, number>()
 
@@ -30,8 +27,8 @@ export class FakeHumanExecution implements Execution {
 
     init(mg: MutableGame, ticks: number) {
         this.mg = mg
-        if (this.random.chance(5)) {
-            this.isTraitor = true
+        if (this.random.chance(10)) {
+            // this.isTraitor = true
         }
     }
 
@@ -81,19 +78,7 @@ export class FakeHumanExecution implements Execution {
         this.handleUnits()
 
 
-        if (this.neighborsTerraNullius) {
-            for (const b of this.player.borderTiles()) {
-                for (const n of b.neighbors()) {
-                    if (n.owner() == this.mg.terraNullius() && n.isLand()) {
-                        this.sendAttack(this.mg.terraNullius())
-                        return
-                    }
-                }
-            }
-            this.neighborsTerraNullius = false
-        }
-
-        const enemyborder = Array.from(this.player.borderTiles()).flatMap(t => t.neighbors()).filter(t => t.hasOwner() && t.owner() != this.player)
+        const enemyborder = Array.from(this.player.borderTiles()).flatMap(t => t.neighbors()).filter(t => t.isLand() && t.owner() != this.player)
 
         if (enemyborder.length == 0) {
             if (this.random.chance(5)) {
@@ -106,9 +91,15 @@ export class FakeHumanExecution implements Execution {
             return
         }
 
-        const enemies = enemyborder.map(t => t.owner()).filter(o => o.isPlayer()).map(o => o as Player).sort((a, b) => a.troops() - b.troops())
+        const enemiesWithTN = enemyborder.map(t => t.owner())
+        if (enemiesWithTN.filter(o => !o.isPlayer()).length > 0) {
+            this.sendAttack(this.mg.terraNullius())
+            return
+        }
 
-        if (this.random.chance(10)) {
+        const enemies = enemiesWithTN.filter(o => o.isPlayer()).map(o => o as Player).sort((a, b) => a.troops() - b.troops())
+
+        if (this.random.chance(20)) {
             const toAlly = this.random.randElement(enemies)
             if (!this.player.isAlliedWith(toAlly) && !this.player.recentOrPendingAllianceRequestWith(toAlly)) {
                 this.player.createAllianceRequest(toAlly)
@@ -117,13 +108,21 @@ export class FakeHumanExecution implements Execution {
         }
 
         if (this.random.chance(2)) {
-            if (!this.player.isAlliedWith(enemies[0]) || (this.random.chance(50) && this.isTraitor)) {
-                this.sendAttack(enemies[0])
+            const weakest = enemies[0]
+            if (!this.player.isAlliedWith(weakest)) {
+                if (weakest.info().playerType != PlayerType.Human || weakest.isTraitor()) {
+                    this.sendAttack(weakest)
+                }
             }
         } else {
             const toAttack = this.random.randElement(enemies)
-            if (!this.player.isAlliedWith(toAttack) || (this.random.chance(100) && this.isTraitor)) {
-                this.sendAttack(toAttack)
+            if (!this.player.isAlliedWith(toAttack)) {
+                if (toAttack.info().playerType != PlayerType.Human || toAttack.isTraitor()) {
+                    this.sendAttack(toAttack)
+                } else if (this.random.chance(4)) {
+                    // Less likely to attack players who are not traitors.
+                    this.sendAttack(toAttack)
+                }
             }
         }
     }

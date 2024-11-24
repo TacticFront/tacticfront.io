@@ -82,6 +82,11 @@ export class TradeShipExecution implements Execution {
             }
             return
         }
+        if(!this.dstPort.isActive() || !this.tradeShip.owner().isAlliedWith(this.dstPort.owner())) {
+            this.tradeShip.delete()
+            this.active = false
+            return
+        }
 
 
         if (this.index >= this.path.length) {
