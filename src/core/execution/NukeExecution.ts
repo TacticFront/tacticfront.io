@@ -84,8 +84,10 @@ export class NukeExecution implements Execution {
             }
         }
         for (const unit of this.mg.units()) {
-            if (euclideanDist(this.cell, unit.tile().cell()) < magnitude.outer) {
-                unit.delete()
+            if (unit.type() != UnitType.AtomBomb && unit.type() != UnitType.HydrogenBomb) {
+                if (euclideanDist(this.cell, unit.tile().cell()) < magnitude.outer) {
+                    unit.delete()
+                }
             }
         }
         // this.mg.units()
