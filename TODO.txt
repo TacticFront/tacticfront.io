@@ -191,6 +191,7 @@
 * NPC builds ports DONE 11/20/2024
 * BUG: fix matchmaking DONE 11/22/2024
 * destroyer can capture trade ships DONE 11/22/2024
+* have bots recapture after nuclear blast
 * NPC has relations
 * make NPC difficult scale better (not just start troops)
 * add battleship

@@ -61,20 +61,19 @@ export class NukeExecution implements Execution {
     }
 
     private detonate() {
-        const magnitude = this.type == UnitType.AtomBomb ? 15 : 115
+        const magnitude = this.type == UnitType.AtomBomb ? { inner: 20, outer: 40 } : { inner: 160, outer: 180 }
 
 
         const rand = new PseudoRandom(this.mg.ticks())
         const tile = this.mg.tile(this.cell)
         const toDestroy = bfs(tile, (n: Tile) => {
             const d = euclideanDist(tile.cell(), n.cell())
-            return (d <= magnitude || rand.chance(2)) && d <= magnitude * 2
+            return (d <= magnitude.inner || rand.chance(2)) && d <= magnitude.outer
         })
 
         const ratio = Object.fromEntries(
             this.mg.players().map(p => [p.id(), p.troops() / p.numTilesOwned()])
         )
-
 
         for (const tile of toDestroy) {
             const owner = tile.owner()
@@ -85,7 +84,7 @@ export class NukeExecution implements Execution {
             }
         }
         for (const unit of this.mg.units()) {
-            if (euclideanDist(this.cell, unit.tile().cell()) < magnitude * 2) {
+            if (euclideanDist(this.cell, unit.tile().cell()) < magnitude.outer) {
                 unit.delete()
             }
         }
