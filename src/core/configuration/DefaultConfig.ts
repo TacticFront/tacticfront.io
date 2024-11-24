@@ -23,12 +23,12 @@ export class DefaultConfig implements Config {
                 }
             case UnitType.Destroyer:
                 return {
-                    cost: 100_000,
+                    cost: 250_000,
                     territoryBound: false
                 }
             case UnitType.Port:
                 return {
-                    cost: 300_000,
+                    cost: 250_000,
                     territoryBound: true
                 }
             case UnitType.AtomBomb:
@@ -207,7 +207,7 @@ export class DefaultConfig implements Config {
     }
 
     goldAdditionRate(player: Player): number {
-        return Math.sqrt(player.workers() * player.numTilesOwned()) / 1000
+        return Math.sqrt(player.workers() * player.numTilesOwned()) / 900
     }
 
     troopAdjustmentRate(player: Player): number {
