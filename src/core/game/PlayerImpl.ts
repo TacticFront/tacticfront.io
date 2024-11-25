@@ -152,6 +152,9 @@ export class PlayerImpl implements MutablePlayer {
     }
 
     allianceWith(other: Player): MutableAlliance | null {
+        if (other == this) {
+            return null
+        }
         return this.alliances().find(a => a.recipient() == other || a.requestor() == other)
     }
 

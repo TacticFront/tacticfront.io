@@ -80,9 +80,7 @@ export class NukeExecution implements Execution {
                 const mp = this.mg.player(owner.id())
                 mp.relinquish(tile)
                 mp.removeTroops(ratio[mp.id()])
-                if (owner != this.player) {
-                    others.add(mp)
-                }
+                others.add(mp)
             }
         }
         for (const other of others) {
