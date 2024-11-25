@@ -73,14 +73,23 @@ export class NukeExecution implements Execution {
             this.mg.players().map(p => [p.id(), p.troops() / p.numTilesOwned()])
         )
 
+        const others = new Set<MutablePlayer>()
         for (const tile of toDestroy) {
             const owner = tile.owner()
             if (owner.isPlayer()) {
                 const mp = this.mg.player(owner.id())
                 mp.relinquish(tile)
                 mp.removeTroops(ratio[mp.id()])
+                others.add(mp)
             }
         }
+        for (const other of others) {
+            const alliance = this.player.allianceWith(other)
+            if (alliance != null) {
+                this.player.breakAlliance(alliance)
+            }
+        }
+
         for (const unit of this.mg.units()) {
             if (unit.type() != UnitType.AtomBomb && unit.type() != UnitType.HydrogenBomb) {
                 if (euclideanDist(this.cell, unit.tile().cell()) < magnitude.outer) {
