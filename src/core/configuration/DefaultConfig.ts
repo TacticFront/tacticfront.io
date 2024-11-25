@@ -12,7 +12,7 @@ export class DefaultConfig implements Config {
     }
     tradeShipGold(src: Unit, dst: Unit): Gold {
         const dist = manhattanDist(src.tile().cell(), dst.tile().cell())
-        return 10000 + 50 * dist
+        return 10000 + 50 * Math.pow(dist, 1.1)
     }
     unitInfo(type: UnitType): UnitInfo {
         switch (type) {
@@ -23,7 +23,7 @@ export class DefaultConfig implements Config {
                 }
             case UnitType.Destroyer:
                 return {
-                    cost: () => 250_000,
+                    cost: (p: Player) => (p.units(UnitType.Destroyer).length + 1) * 250_000,
                     territoryBound: false
                 }
             case UnitType.Port:
@@ -48,7 +48,7 @@ export class DefaultConfig implements Config {
                 }
             case UnitType.MissileSilo:
                 return {
-                    cost: () => 2_500_000,
+                    cost: () => 1_000_000,
                     territoryBound: true
                 }
             default:
@@ -207,7 +207,7 @@ export class DefaultConfig implements Config {
     }
 
     goldAdditionRate(player: Player): number {
-        return Math.sqrt(player.workers() * player.numTilesOwned()) / 250
+        return Math.sqrt(player.workers() * player.numTilesOwned()) / 200
     }
 
     troopAdjustmentRate(player: Player): number {

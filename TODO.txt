@@ -193,12 +193,10 @@
 * destroyer can capture trade ships DONE 11/22/2024
 * have bots recapture after nuclear blast DONE 11/24/2022
 * BUG: destroys destroy trade ships instead of capturing them DONE 11/25/2024
-* nukes break alliance
+* nukes break alliance DONE 11/25/2024
 * don't capture trade ships if allied with either port
 * make ports cost more for more ports
-* BUG: Destroyers destroy instead of capture trade ships
 * NPC has relations
-* make NPC difficult scale better (not just start troops)
 * add battleship
 * add defense post
 * add radiation from nuke
