@@ -44,15 +44,16 @@ export class TradeShipExecution implements Execution {
             this.active = false
             return
         }
-        if (!this.dstPort.isActive() || !this.tradeShip.owner().isAlliedWith(this.dstPort.owner())) {
-            this.tradeShip.delete()
-            this.active = false
-            return
-        }
 
         if (this.origOwner != this.tradeShip.owner()) {
             // Store as vairable in case ship is recaptured by previous owner
             this.wasCaptured = true
+        }
+
+        if (!this.wasCaptured && (!this.dstPort.isActive() || !this.tradeShip.owner().isAlliedWith(this.dstPort.owner()))) {
+            this.tradeShip.delete()
+            this.active = false
+            return
         }
 
         if (this.wasCaptured) {
