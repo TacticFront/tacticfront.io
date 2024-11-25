@@ -12,43 +12,43 @@ export class DefaultConfig implements Config {
     }
     tradeShipGold(src: Unit, dst: Unit): Gold {
         const dist = manhattanDist(src.tile().cell(), dst.tile().cell())
-        return 10000 + 5 * dist
+        return 10000 + 50 * dist
     }
     unitInfo(type: UnitType): UnitInfo {
         switch (type) {
             case UnitType.TransportShip:
                 return {
-                    cost: 0,
+                    cost: () => 0,
                     territoryBound: false
                 }
             case UnitType.Destroyer:
                 return {
-                    cost: 250_000,
+                    cost: () => 250_000,
                     territoryBound: false
                 }
             case UnitType.Port:
                 return {
-                    cost: 250_000,
+                    cost: (p: Player) => (p.units(UnitType.Port).length + 1) * 250_000,
                     territoryBound: true
                 }
             case UnitType.AtomBomb:
                 return {
-                    cost: 1_000_000,
+                    cost: () => 1_000_000,
                     territoryBound: false
                 }
             case UnitType.HydrogenBomb:
                 return {
-                    cost: 5_000_000,
+                    cost: () => 5_000_000,
                     territoryBound: false
                 }
             case UnitType.TradeShip:
                 return {
-                    cost: 0,
+                    cost: () => 0,
                     territoryBound: false
                 }
             case UnitType.MissileSilo:
                 return {
-                    cost: 1_000_000,
+                    cost: () => 2_500_000,
                     territoryBound: true
                 }
             default:
@@ -173,7 +173,7 @@ export class DefaultConfig implements Config {
             return 10000
         }
         if (playerInfo.playerType == PlayerType.FakeHuman) {
-            return 1000 // start troops * strength * difficulty
+            return 2000 // start troops * strength * difficulty
         }
         return 25000
     }
@@ -207,7 +207,7 @@ export class DefaultConfig implements Config {
     }
 
     goldAdditionRate(player: Player): number {
-        return Math.sqrt(player.workers() * player.numTilesOwned()) / 600
+        return Math.sqrt(player.workers() * player.numTilesOwned()) / 250
     }
 
     troopAdjustmentRate(player: Player): number {

@@ -191,7 +191,7 @@ export class BuildMenu extends LitElement {
                             <img src=${item.icon} alt="${item.unitType}" width="40" height="40">
                             <span class="build-name">${item.unitType}</span>
                             <span class="build-cost">
-                                ${renderNumber(this.game ? this.game.unitInfo(item.unitType).cost : 0)}
+                                ${renderNumber(this.game && this.myPlayer ? this.game.unitInfo(item.unitType).cost(this.myPlayer) : 0)}
                                 <img src=${goldCoinIcon} alt="gold" width="12" height="12" style="vertical-align: middle;">
                             </span>
                         </button> 

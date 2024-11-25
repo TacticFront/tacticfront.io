@@ -44,6 +44,11 @@ export class TradeShipExecution implements Execution {
             this.active = false
             return
         }
+        if (!this.dstPort.isActive() || !this.tradeShip.owner().isAlliedWith(this.dstPort.owner())) {
+            this.tradeShip.delete()
+            this.active = false
+            return
+        }
 
         if (this.origOwner != this.tradeShip.owner()) {
             // Store as vairable in case ship is recaptured by previous owner
@@ -82,17 +87,11 @@ export class TradeShipExecution implements Execution {
             }
             return
         }
-        if(!this.dstPort.isActive() || !this.tradeShip.owner().isAlliedWith(this.dstPort.owner())) {
-            this.tradeShip.delete()
-            this.active = false
-            return
-        }
 
 
         if (this.index >= this.path.length) {
             this.active = false
-            const dist = manhattanDist(this.srcPort.tile().cell(), this.dstPort.tile().cell())
-            const gold = dist * dist
+            const gold = this.mg.config().tradeShipGold(this.srcPort, this.dstPort)
             this.srcPort.owner().addGold(gold)
             this.dstPort.owner().addGold(gold)
             this.mg.displayMessage(`Trade ship from ${this.tradeShip.owner().displayName()} has reached your port, giving you ${renderNumber(gold)} gold`, MessageType.SUCCESS, this.dstPort.owner().id())

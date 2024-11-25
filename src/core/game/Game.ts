@@ -23,7 +23,7 @@ export enum GameMap {
 }
 
 export interface UnitInfo {
-    cost: Gold
+    cost: (player: Player) => Gold
     // Determines if its owner changes when its tile is conquered.
     territoryBound: boolean
 }

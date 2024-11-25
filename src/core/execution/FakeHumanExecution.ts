@@ -61,11 +61,7 @@ export class FakeHumanExecution implements Execution {
             return
         }
 
-        if (this.player.troops() < this.mg.config().maxPopulation(this.player) / 4) {
-            return
-        }
-
-        if (ticks % this.random.nextInt(10, 30) != 0) {
+        if (ticks % this.random.nextInt(40, 80) != 0) {
             return
         }
 
@@ -142,7 +138,7 @@ export class FakeHumanExecution implements Execution {
         }
 
         if (this.enemy) {
-            if (this.player.sharesBorderWith(this.enemy)) {
+            if (this.player.sharesBorderWith(this.enemy) && !this.player.isAlliedWith(this.enemy)) {
                 this.sendAttack(this.enemy)
             }
             return
@@ -151,7 +147,7 @@ export class FakeHumanExecution implements Execution {
     }
 
     private handleUnits() {
-        if (this.player.units(UnitType.Port).length == 0 && this.player.gold() > this.mg.unitInfo(UnitType.Port).cost) {
+        if (this.player.units(UnitType.Port).length == 0 && this.player.gold() > this.mg.unitInfo(UnitType.Port).cost(this.player)) {
             const oceanTiles = Array.from(this.player.borderTiles()).filter(t => t.isOceanShore())
             if (oceanTiles.length > 0) {
                 const buildTile = this.random.randElement(oceanTiles)
@@ -162,25 +158,10 @@ export class FakeHumanExecution implements Execution {
 
     handleAllianceRequests() {
         for (const req of this.player.incomingAllianceRequests()) {
-
-            if (req.requestor().numTilesOwned() > this.player.numTilesOwned() * 2) {
-                req.accept()
-                continue
-            }
-            if (req.recipient().numTilesOwned() > this.player.numTilesOwned()) {
-                if (this.random.chance(2)) {
-                    req.accept()
-                } else {
-                    req.reject()
-                    this.rejected.add(req.recipient())
-                }
-                continue
-            }
-            if (this.random.chance(5)) {
-                req.accept()
-            } else {
+            if (req.requestor().isTraitor() || req.requestor().alliances().length >= 3) {
                 req.reject()
-                this.rejected.add(req.recipient())
+            } else {
+                req.accept()
             }
         }
     }
