@@ -12,7 +12,10 @@ export class DefaultConfig implements Config {
     }
     tradeShipGold(src: Unit, dst: Unit): Gold {
         const dist = manhattanDist(src.tile().cell(), dst.tile().cell())
-        return 10000 + 50 * Math.pow(dist, 1.1)
+        return 10000 + 100 * Math.pow(dist, 1.1)
+    }
+    tradeShipSpawnRate(): number {
+        return 500
     }
     unitInfo(type: UnitType): UnitInfo {
         switch (type) {

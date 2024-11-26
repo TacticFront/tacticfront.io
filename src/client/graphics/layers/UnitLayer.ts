@@ -89,16 +89,16 @@ export class UnitLayer implements Layer {
     }
 
     private handleDestroyerEvent(event: UnitEvent) {
-        bfs(event.oldTile, euclDist(event.oldTile, 3)).forEach(t => {
+        bfs(event.oldTile, euclDist(event.oldTile, 4)).forEach(t => {
             this.clearCell(t.cell());
         });
         if (!event.unit.isActive()) {
             return
         }
-        bfs(event.unit.tile(), euclDist(event.unit.tile(), 3))
+        bfs(event.unit.tile(), euclDist(event.unit.tile(), 4))
             .forEach(t => this.paintCell(t.cell(), this.theme.borderColor(event.unit.owner().info()), 255));
-        bfs(event.unit.tile(), euclDist(event.unit.tile(), 2))
-            .forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(event.unit.owner().info()), 180));
+        bfs(event.unit.tile(), dist(event.unit.tile(), 3))
+            .forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(event.unit.owner().info()), 255));
     }
 
     private handleNuke(event: UnitEvent) {
@@ -113,11 +113,15 @@ export class UnitLayer implements Layer {
     }
 
     private handleTradeShipEvent(event: UnitEvent) {
-        bfs(event.oldTile, euclDist(event.oldTile, 1)).forEach(t => {
+        bfs(event.oldTile, euclDist(event.oldTile, 3)).forEach(t => {
             this.clearCell(t.cell());
         });
         if (event.unit.isActive()) {
-            bfs(event.unit.tile(), euclDist(event.unit.tile(), 1))
+            bfs(event.unit.tile(), dist(event.unit.tile(), 2))
+                .forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(event.unit.owner().info()), 255));
+        }
+        if (event.unit.isActive()) {
+            bfs(event.unit.tile(), dist(event.unit.tile(), 1))
                 .forEach(t => this.paintCell(t.cell(), this.theme.borderColor(event.unit.owner().info()), 255));
         }
     }
@@ -142,7 +146,7 @@ export class UnitLayer implements Layer {
             bfs(event.unit.tile(), dist(event.unit.tile(), 2))
                 .forEach(t => this.paintCell(t.cell(), this.theme.borderColor(event.unit.owner().info()), 255));
             bfs(event.unit.tile(), dist(event.unit.tile(), 1))
-                .forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(event.unit.owner().info()), 180));
+                .forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(event.unit.owner().info()), 255));
         } else {
             trail.forEach(t => this.clearCell(t.cell()));
             this.boatToTrail.delete(event.unit);

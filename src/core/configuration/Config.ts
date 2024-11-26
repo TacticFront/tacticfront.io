@@ -59,6 +59,7 @@ export interface Config {
 	defaultDonationAmount(sender: Player): number
 	unitInfo(type: UnitType): UnitInfo
 	tradeShipGold(src: Unit, dst: Unit): Gold
+	tradeShipSpawnRate(): number
 }
 
 export interface Theme {
