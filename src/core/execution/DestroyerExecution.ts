@@ -52,7 +52,7 @@ export class DestroyerExecution implements Execution {
             this.target = null
         }
         if (this.target == null) {
-            const ships = this.mg.units(UnitType.TransportShip, UnitType.Destroyer, UnitType.TradeShip)
+            const ships = this.mg.units(UnitType.TransportShip, UnitType.Destroyer, UnitType.TradeShip, UnitType.Battleship)
                 .filter(u => manhattanDist(u.tile().cell(), this.destroyer.tile().cell()) < 100)
                 .filter(u => u.owner() != this.destroyer.owner())
                 .filter(u => u != this.destroyer)

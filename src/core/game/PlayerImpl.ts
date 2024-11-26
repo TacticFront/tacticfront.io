@@ -357,7 +357,10 @@ export class PlayerImpl implements MutablePlayer {
             case UnitType.Port:
                 return this.portSpawn(targetTile)
             case UnitType.Destroyer:
-                return this.destroyerSpawn(targetTile)
+            case UnitType.Battleship:
+                return this.warshipSpawn(targetTile)
+            case UnitType.Shell:
+                return targetTile
             case UnitType.MissileSilo:
                 return this.missileSiloSpawn(targetTile)
             case UnitType.TransportShip:
@@ -387,7 +390,7 @@ export class PlayerImpl implements MutablePlayer {
         return spawns[0]
     }
 
-    destroyerSpawn(tile: Tile): Tile | false {
+    warshipSpawn(tile: Tile): Tile | false {
         if (!tile.isOcean()) {
             return false
         }

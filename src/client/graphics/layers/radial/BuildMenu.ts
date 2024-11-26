@@ -6,6 +6,7 @@ import { BuildUnitIntentEvent } from '../../../Transport';
 import atomBombIcon from '../../../../../resources/images/NukeIconWhite.svg';
 import hydrogenBombIcon from '../../../../../resources/images/MushroomCloudIconWhite.svg';
 import destroyerIcon from '../../../../../resources/images/DestroyerIconWhite.svg';
+import battleshipIcon from '../../../../../resources/images/BattleshipIconWhite.svg';
 import missileSiloIcon from '../../../../../resources/images/MissileSiloIconWhite.svg';
 import goldCoinIcon from '../../../../../resources/images/GoldCoinIcon.svg';
 import portIcon from '../../../../../resources/images/PortIcon.svg';
@@ -22,6 +23,7 @@ const buildTable: BuildItemDisplay[][] = [
         { unitType: UnitType.AtomBomb, icon: atomBombIcon },
         { unitType: UnitType.HydrogenBomb, icon: hydrogenBombIcon },
         { unitType: UnitType.Destroyer, icon: destroyerIcon },
+        { unitType: UnitType.Battleship, icon: battleshipIcon },
         { unitType: UnitType.Port, icon: portIcon },
         { unitType: UnitType.MissileSilo, icon: missileSiloIcon }
     ]
@@ -156,23 +158,7 @@ export class BuildMenu extends LitElement {
     }
 
     public onBuildSelected = (item: BuildItemDisplay) => {
-        switch (item.unitType) {
-            case UnitType.AtomBomb:
-                this.eventBus.emit(new BuildUnitIntentEvent(UnitType.AtomBomb, this.clickedCell))
-                break
-            case UnitType.HydrogenBomb:
-                this.eventBus.emit(new BuildUnitIntentEvent(UnitType.HydrogenBomb, this.clickedCell))
-                break
-            case UnitType.Destroyer:
-                this.eventBus.emit(new BuildUnitIntentEvent(UnitType.Destroyer, this.clickedCell))
-                break
-            case UnitType.Port:
-                this.eventBus.emit(new BuildUnitIntentEvent(UnitType.Port, this.clickedCell))
-                break
-            case UnitType.MissileSilo:
-                this.eventBus.emit(new BuildUnitIntentEvent(UnitType.MissileSilo, this.clickedCell))
-                break
-        }
+        this.eventBus.emit(new BuildUnitIntentEvent(item.unitType, this.clickedCell))
         this.hideMenu()
     };
 

@@ -195,10 +195,10 @@
 * BUG: destroys destroy trade ships instead of capturing them DONE 11/25/2024
 * nukes break alliance DONE 11/25/2024
 * BUG: nuke yourself makes you traitor DONE 11/25/2024
-* don't capture trade ships if allied with either port
-* make ports cost more for more ports
-* NPC has relations
+* make ports cost more for more ports DONE 11/25/2024
 * add battleship
+* cache images in UnitLayer
+* NPC has relations
 * add defense post
 * add radiation from nuke
 * only show units you can build in the build menu

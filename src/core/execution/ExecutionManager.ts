@@ -19,6 +19,7 @@ import { SetTargetTroopRatioExecution } from "./SetTargetTroopRatioExecution";
 import { DestroyerExecution } from "./DestroyerExecution";
 import { PortExecution } from "./PortExecution";
 import { MissileSiloExecution } from "./MissileSiloExecution";
+import { BattleshipExecution } from "./BattleshipExecution";
 
 
 
@@ -88,6 +89,8 @@ export class Executor {
                         return new NukeExecution(intent.unit, intent.player, new Cell(intent.x, intent.y))
                     case UnitType.Destroyer:
                         return new DestroyerExecution(intent.player, new Cell(intent.x, intent.y))
+                    case UnitType.Battleship:
+                        return new BattleshipExecution(intent.player, new Cell(intent.x, intent.y))
                     case UnitType.Port:
                         return new PortExecution(intent.player, new Cell(intent.x, intent.y))
                     case UnitType.MissileSilo:

@@ -29,9 +29,19 @@ export class DefaultConfig implements Config {
                     cost: (p: Player) => (p.units(UnitType.Destroyer).length + 1) * 250_000,
                     territoryBound: false
                 }
+            case UnitType.Battleship:
+                return {
+                    cost: (p: Player) => (p.units(UnitType.Battleship).length + 1) * 500_000,
+                    territoryBound: false
+                }
+            case UnitType.Shell:
+                return {
+                    cost: (p: Player) => (p.units(UnitType.Destroyer).length + 1) * 500_000,
+                    territoryBound: false
+                }
             case UnitType.Port:
                 return {
-                    cost: (p: Player) => (p.units(UnitType.Port).length + 1) * 250_000,
+                    cost: (p: Player) => Math.pow(2, p.units(UnitType.Port).length) * 250_000,
                     territoryBound: true
                 }
             case UnitType.AtomBomb:
