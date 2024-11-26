@@ -70,16 +70,15 @@ export class NukeExecution implements Execution {
         })
 
         const ratio = Object.fromEntries(
-            this.mg.players().map(p => [p.id(), p.troops() / p.numTilesOwned()])
+            this.mg.players().map(p => [p.id(), (p.troops() + p.workers()) / p.numTilesOwned()])
         )
-
         const others = new Set<MutablePlayer>()
         for (const tile of toDestroy) {
             const owner = tile.owner()
             if (owner.isPlayer()) {
                 const mp = this.mg.player(owner.id())
                 mp.relinquish(tile)
-                mp.removeTroops(ratio[mp.id()])
+                mp.removeTroops(2 * ratio[mp.id()])
                 others.add(mp)
             }
         }
