@@ -101,6 +101,22 @@ export class UnitLayer implements Layer {
             .forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(event.unit.owner().info()), 255));
     }
 
+    private handleBattleshipEvent(event: UnitEvent) {
+        bfs(event.oldTile, euclDist(event.oldTile, 6)).forEach(t => {
+            this.clearCell(t.cell());
+        });
+        if (!event.unit.isActive()) {
+            return
+        }
+        bfs(event.unit.tile(), euclDist(event.unit.tile(), 5))
+            .forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(event.unit.owner().info()), 255));
+        bfs(event.unit.tile(), dist(event.unit.tile(), 4))
+            .forEach(t => this.paintCell(t.cell(), this.theme.borderColor(event.unit.owner().info()), 255));
+        bfs(event.unit.tile(), euclDist(event.unit.tile(), 1))
+            .forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(event.unit.owner().info()), 255));
+    }
+
+
     private handleNuke(event: UnitEvent) {
         bfs(event.oldTile, euclDist(event.oldTile, 2)).forEach(t => {
             this.clearCell(t.cell());
