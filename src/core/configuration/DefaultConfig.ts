@@ -36,7 +36,7 @@ export class DefaultConfig implements Config {
                 }
             case UnitType.Shell:
                 return {
-                    cost: (p: Player) => (p.units(UnitType.Destroyer).length + 1) * 500_000,
+                    cost: (p: Player) => 0,
                     territoryBound: false
                 }
             case UnitType.Port:

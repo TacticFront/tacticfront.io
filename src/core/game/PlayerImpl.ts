@@ -278,6 +278,9 @@ export class PlayerImpl implements MutablePlayer {
     }
 
     removeGold(toRemove: Gold): void {
+        if (toRemove > this._gold) {
+            throw Error(`Player ${this} does not enough gold (${toRemove} vs ${this._gold}))`)
+        }
         this._gold -= toRemove
     }
 
