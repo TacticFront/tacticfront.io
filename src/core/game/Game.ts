@@ -279,6 +279,7 @@ export interface Game {
     displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void
     units(...types: UnitType[]): Unit[]
     unitInfo(type: UnitType): UnitInfo
+    searchMap(): SharedArrayBuffer
 }
 
 export interface MutableGame extends Game {

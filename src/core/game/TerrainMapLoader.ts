@@ -33,7 +33,8 @@ export class TerrainMap {
     constructor(
         public readonly tiles: Terrain[][],
         public readonly numLandTiles: number,
-        public readonly nationMap: NationMap
+        public readonly nationMap: NationMap,
+        public searchBuffer: SharedArrayBuffer
     ) { }
 
     terrain(cell: Cell): Terrain {
@@ -121,7 +122,12 @@ export async function loadTerrainMap(map: GameMap): Promise<TerrainMap> {
             terrain[x][y].land = land
         }
     }
-    const m = new TerrainMap(terrain, numLand, mapData.info);
+    const encoder = new TextEncoder();
+    const encoded = encoder.encode(fileData);
+    const buffer = new SharedArrayBuffer(encoded.length);
+    const view = new Uint8Array(buffer);
+    view.set(encoded)
+    const m = new TerrainMap(terrain, numLand, mapData.info, buffer);
     loadedMaps.set(map, m)
     return m
 }

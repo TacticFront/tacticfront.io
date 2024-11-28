@@ -198,6 +198,9 @@
 * make ports cost more for more ports DONE 11/25/2024
 * add battleship DONE 11/26/2024
 * use drawRect() instead of putImageData DONE 11/26/2024
+* run a* in a web worker
+* have NPCs build destroyers and battleships
+* spread out calculate clusters
 * add radiation from nuke
 * NPC has relations
 * add defense post

@@ -34,6 +34,7 @@ export class GameImpl implements MutableGame {
     private _height: number
     private _numLandTiles: number
     _terraNullius: TerraNulliusImpl
+    private _searchMap: SharedArrayBuffer
 
     allianceRequests: AllianceRequestImpl[] = []
     alliances_: AllianceImpl[] = []
@@ -43,6 +44,7 @@ export class GameImpl implements MutableGame {
         this._width = terrainMap.width();
         this._height = terrainMap.height();
         this._numLandTiles = terrainMap.numLandTiles
+        this._searchMap = terrainMap.searchBuffer
         this.map = new Array(this._width);
         for (let x = 0; x < this._width; x++) {
             this.map[x] = new Array(this._height);
@@ -392,6 +394,10 @@ export class GameImpl implements MutableGame {
         }
         this.alliances_ = this.alliances_.filter(a => a != alliances[0])
         this.eventBus.emit(new AllianceExpiredEvent(alliance.requestor(), alliance.recipient()))
+    }
+
+    public searchMap(): SharedArrayBuffer {
+        return this._searchMap
     }
 
     displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void {
