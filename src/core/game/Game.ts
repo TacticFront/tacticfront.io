@@ -131,7 +131,21 @@ export class PlayerInfo {
     ) { }
 }
 
-export interface Tile {
+export interface SearchNode {
+    cost(): number;
+    cell(): Cell
+}
+
+export interface TerrainMap {
+    terrain(cell: Cell): TerrainTile
+    neighbors(terrainTile: TerrainTile): TerrainTile[]
+}
+
+export interface TerrainTile extends SearchNode {
+    terrainType(): TerrainType
+}
+
+export interface Tile extends SearchNode {
     isLand(): boolean
     isShore(): boolean
     isOceanShore(): boolean
@@ -150,8 +164,6 @@ export interface Tile {
     neighbors(): Tile[]
     neighborsWrapped(): Tile[]
     onShore(): boolean
-    x(): number
-    y(): number
 }
 
 export interface Unit {
@@ -279,7 +291,7 @@ export interface Game {
     displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void
     units(...types: UnitType[]): Unit[]
     unitInfo(type: UnitType): UnitInfo
-    searchMap(): SharedArrayBuffer
+    terrainMap(): TerrainMap
 }
 
 export interface MutableGame extends Game {
@@ -326,3 +338,4 @@ export class TargetPlayerEvent implements GameEvent {
 export class EmojiMessageEvent implements GameEvent {
     constructor(public readonly message: EmojiMessage) { }
 }
+

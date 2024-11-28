@@ -1,6 +1,6 @@
 import { nextTick } from "process";
 import { Cell, Execution, MutableGame, MutablePlayer, PlayerID, Tile, MutableUnit, UnitType } from "../game/Game";
-import { PathFinder, PathFindResultType } from "../PathFinding";
+import { PathFinder, PathFindResultType } from "../pathfinding/PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
 import { bfs, dist, distSortUnit, euclideanDist, manhattanDist } from "../Util";
 

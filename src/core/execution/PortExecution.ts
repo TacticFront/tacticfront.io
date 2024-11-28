@@ -1,8 +1,10 @@
 import { AllPlayers, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, Tile, Unit, UnitType } from "../game/Game";
-import { AStar, PathFinder, PathFindResultType } from "../PathFinding";
+import { PathFinder, PathFindResultType } from "../pathfinding/PathFinding";
+import { AStar } from "../pathfinding/AStar";
 import { PseudoRandom } from "../PseudoRandom";
 import { bfs, dist, manhattanDist } from "../Util";
 import { TradeShipExecution } from "./TradeShipExecution";
+import { AsyncPathFinder, AsyncPathFinderCreator } from "../pathfinding/AsyncPathFinding";
 
 export class PortExecution implements Execution {
 
@@ -11,11 +13,12 @@ export class PortExecution implements Execution {
     private port: MutableUnit
     private random: PseudoRandom
     private portPaths = new Map<MutableUnit, Tile[]>()
-    private computingPaths = new Map<MutableUnit, AStar>()
+    private computingPaths = new Map<MutableUnit, AsyncPathFinder>()
 
     constructor(
         private _owner: PlayerID,
-        private cell: Cell
+        private cell: Cell,
+        private asyncPathFinderCreator: AsyncPathFinderCreator
     ) { }
 
 
@@ -25,6 +28,7 @@ export class PortExecution implements Execution {
     }
 
     tick(ticks: number): void {
+
         if (this.port == null) {
             const tile = this.mg.tile(this.cell)
             const player = this.mg.player(this._owner)
@@ -62,7 +66,7 @@ export class PortExecution implements Execution {
                 const aStar = this.computingPaths.get(port)
                 switch (aStar.compute()) {
                     case PathFindResultType.Completed:
-                        this.portPaths.set(port, aStar.reconstructPath())
+                        this.portPaths.set(port, aStar.reconstructPath().map(sn => sn as Tile))
                         this.computingPaths.delete(port)
                         break
                     case PathFindResultType.Pending:
@@ -73,8 +77,9 @@ export class PortExecution implements Execution {
                 }
                 continue
             }
+            const asyncPF = this.asyncPathFinderCreator.createPathFinder(this.port.tile(), port.tile(), 100)
             // console.log(`adding new port path from ${this.player().name()}:${this.port.tile().cell()} to ${port.owner().name()}:${port.tile().cell()}`)
-            this.computingPaths.set(port, new AStar(this.port.tile(), port.tile(), t => t.isWater(), 4000, 100))
+            this.computingPaths.set(port, asyncPF)
         }
 
         for (const port of this.portPaths.keys()) {

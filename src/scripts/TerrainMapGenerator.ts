@@ -2,6 +2,7 @@ import { decodePNGFromStream } from 'pureimage'; import path from 'path';
 import fs from 'fs/promises';
 import { createReadStream } from 'fs';
 import { fileURLToPath } from 'url';
+import { TerrainTile } from '../core/game/Game';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -20,6 +21,8 @@ export class TerrainMap {
     terrain(coord: Coord): Terrain {
         return this.tiles[coord.x][coord.y]
     }
+
+    
 
     width(): number {
         return this.tiles.length

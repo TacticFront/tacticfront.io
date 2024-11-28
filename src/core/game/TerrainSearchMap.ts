@@ -1,4 +1,4 @@
-import { TerrainMap } from "./TerrainMapLoader";
+import { TerrainMapImpl } from "./TerrainMapLoader";
 export enum SearchMapTileType {
     Land,
     Shore,

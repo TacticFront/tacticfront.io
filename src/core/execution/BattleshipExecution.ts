@@ -1,5 +1,6 @@
 import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, Tile, UnitType } from "../game/Game";
-import { AStar, PathFinder, PathFindResultType } from "../PathFinding";
+import { PathFinder, PathFindResultType } from "../pathfinding/PathFinding";
+import { AStar } from "../pathfinding/AStar";
 import { PseudoRandom } from "../PseudoRandom";
 import { distSort, distSortUnit, manhattanDist } from "../Util";
 import { ShellExecution } from "./ShellExecution";

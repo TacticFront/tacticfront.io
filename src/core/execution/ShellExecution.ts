@@ -1,5 +1,5 @@
 import { Execution, MutableGame, MutablePlayer, MutableUnit, Tile, Unit, UnitType } from "../game/Game";
-import { PathFinder, PathFindResultType } from "../PathFinding";
+import { PathFinder, PathFindResultType } from "../pathfinding/PathFinding";
 
 export class ShellExecution implements Execution {
 

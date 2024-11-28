@@ -1,5 +1,5 @@
-import { Tile, Cell, TerrainType, Player, TerraNullius, MutablePlayer } from "./Game";
-import { Terrain } from "./TerrainMapLoader";
+import { Tile, Cell, TerrainType, Player, TerraNullius, MutablePlayer, SearchNode, TerrainTile } from "./Game";
+import { TerrainTileImpl } from "./TerrainMapLoader";
 import { GameImpl } from "./GameImpl";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
@@ -14,7 +14,7 @@ export class TileImpl implements Tile {
         private readonly gs: GameImpl,
         public _owner: PlayerImpl | TerraNulliusImpl,
         private readonly _cell: Cell,
-        private readonly _terrain: Terrain
+        private readonly _terrain: TerrainTileImpl
     ) { }
 
     neighborsWrapped(): Tile[] {
@@ -108,4 +108,8 @@ export class TileImpl implements Tile {
         }
         return this._neighbors;
     }
+
+    cost(): number {
+        return this.magnitude() < 10 ? 2 : 1
+    };
 }

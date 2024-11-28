@@ -1,7 +1,8 @@
 import { MessageType } from "../../client/graphics/layers/EventsDisplay";
 import { renderNumber } from "../../client/graphics/Utils";
 import { AllPlayers, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, Tile, Unit, UnitType } from "../game/Game";
-import { AStar, PathFinder, PathFindResultType } from "../PathFinding";
+import { PathFinder, PathFindResultType } from "../pathfinding/PathFinding";
+import { AStar } from "../pathfinding/AStar";
 import { PseudoRandom } from "../PseudoRandom";
 import { bfs, dist, distSortUnit, manhattanDist } from "../Util";
 

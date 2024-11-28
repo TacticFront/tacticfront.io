@@ -20,6 +20,7 @@ import { DestroyerExecution } from "./DestroyerExecution";
 import { PortExecution } from "./PortExecution";
 import { MissileSiloExecution } from "./MissileSiloExecution";
 import { BattleshipExecution } from "./BattleshipExecution";
+import { AsyncPathFinderCreator } from "../pathfinding/AsyncPathFinding";
 
 
 
@@ -30,7 +31,7 @@ export class Executor {
     // private random = new PseudoRandom(999)
     private random: PseudoRandom = null
 
-    constructor(private gs: Game, private difficulty: Difficulty, private gameID: GameID) {
+    constructor(private gs: Game, private difficulty: Difficulty, private gameID: GameID, private asyncPathFinder: AsyncPathFinderCreator) {
         // Add one to avoid id collisions with bots.
         this.random = new PseudoRandom(simpleHash(gameID) + 1)
     }
@@ -92,7 +93,7 @@ export class Executor {
                     case UnitType.Battleship:
                         return new BattleshipExecution(intent.player, new Cell(intent.x, intent.y))
                     case UnitType.Port:
-                        return new PortExecution(intent.player, new Cell(intent.x, intent.y))
+                        return new PortExecution(intent.player, new Cell(intent.x, intent.y), this.asyncPathFinder)
                     case UnitType.MissileSilo:
                         return new MissileSiloExecution(intent.player, new Cell(intent.x, intent.y))
                     default:
@@ -111,6 +112,7 @@ export class Executor {
         const execs = []
         for (const nation of this.gs.nations()) {
             execs.push(new FakeHumanExecution(
+                this.asyncPathFinder,
                 new PlayerInfo(
                     nation.name,
                     PlayerType.FakeHuman,

@@ -2,7 +2,7 @@ import { info } from "console";
 import { Config } from "../configuration/Config";
 import { EventBus } from "../EventBus";
 import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Unit, UnitEvent as UnitEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent, BrokeAllianceEvent, MutableAlliance, Alliance, AllianceExpiredEvent, Nation, UnitType, UnitInfo } from "./Game";
-import { TerrainMap } from "./TerrainMapLoader";
+import { TerrainMapImpl } from "./TerrainMapLoader";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
 import { TileImpl } from "./TileImpl";
@@ -12,7 +12,7 @@ import { ClientID } from "../Schemas";
 import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/EventsDisplay";
 import { UnitImpl } from "./UnitImpl";
 
-export function createGame(terrainMap: TerrainMap, eventBus: EventBus, config: Config): Game {
+export function createGame(terrainMap: TerrainMapImpl, eventBus: EventBus, config: Config): Game {
     return new GameImpl(terrainMap, eventBus, config)
 }
 
@@ -34,26 +34,24 @@ export class GameImpl implements MutableGame {
     private _height: number
     private _numLandTiles: number
     _terraNullius: TerraNulliusImpl
-    private _searchMap: SharedArrayBuffer
 
     allianceRequests: AllianceRequestImpl[] = []
     alliances_: AllianceImpl[] = []
 
-    constructor(terrainMap: TerrainMap, public eventBus: EventBus, private _config: Config) {
+    constructor(private _terrainMap: TerrainMapImpl, public eventBus: EventBus, private _config: Config) {
         this._terraNullius = new TerraNulliusImpl(this)
-        this._width = terrainMap.width();
-        this._height = terrainMap.height();
-        this._numLandTiles = terrainMap.numLandTiles
-        this._searchMap = terrainMap.searchBuffer
+        this._width = _terrainMap.width();
+        this._height = _terrainMap.height();
+        this._numLandTiles = _terrainMap.numLandTiles
         this.map = new Array(this._width);
         for (let x = 0; x < this._width; x++) {
             this.map[x] = new Array(this._height);
             for (let y = 0; y < this._height; y++) {
                 let cell = new Cell(x, y);
-                this.map[x][y] = new TileImpl(this, this._terraNullius, cell, terrainMap.terrain(cell));
+                this.map[x][y] = new TileImpl(this, this._terraNullius, cell, _terrainMap.terrain(cell));
             }
         }
-        this.nations_ = terrainMap.nationMap.nations
+        this.nations_ = _terrainMap.nationMap.nations
             .map(n => new Nation(
                 n.name,
                 new Cell(n.coordinates[0], n.coordinates[1]),
@@ -396,8 +394,8 @@ export class GameImpl implements MutableGame {
         this.eventBus.emit(new AllianceExpiredEvent(alliance.requestor(), alliance.recipient()))
     }
 
-    public searchMap(): SharedArrayBuffer {
-        return this._searchMap
+    public terrainMap(): TerrainMapImpl {
+        return this._terrainMap
     }
 
     displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void {

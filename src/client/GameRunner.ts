@@ -6,13 +6,14 @@ import { Config, getConfig } from "../core/configuration/Config";
 import { createRenderer, GameRenderer } from "./graphics/GameRenderer";
 import { InputHandler, MouseUpEvent, ZoomEvent, DragEvent, MouseDownEvent } from "./InputHandler"
 import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema, ClientMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ServerSyncMessage, Turn } from "../core/Schemas";
-import { loadTerrainMap, TerrainMap } from "../core/game/TerrainMapLoader";
+import { loadTerrainMap, TerrainMapImpl } from "../core/game/TerrainMapLoader";
 import { and, bfs, dist, manhattanDist } from "../core/Util";
 import { WinCheckExecution } from "../core/execution/WinCheckExecution";
 import { SendAttackIntentEvent, SendSpawnIntentEvent, Transport } from "./Transport";
 import { createCanvas } from "./graphics/Utils";
 import { DisplayMessageEvent, MessageType } from "./graphics/layers/EventsDisplay";
 import { v4 as uuidv4 } from 'uuid';
+import { AsyncPathFinderCreator } from "../core/pathfinding/AsyncPathFinding";
 
 
 export interface LobbyConfig {
@@ -70,6 +71,11 @@ export async function createClientGame(gameConfig: GameConfig, eventBus: EventBu
     const terrainMap = await loadTerrainMap(gameConfig.map)
 
     let game = createGame(terrainMap, eventBus, config)
+
+    const pathFinder = new AsyncPathFinderCreator(game, gameConfig.map)
+    console.log('going to init path finder')
+    await pathFinder.initialize()
+    console.log('inited path finder')
     const canvas = createCanvas()
     let gameRenderer = createRenderer(canvas, game, eventBus, gameConfig.clientID)
 
@@ -82,7 +88,7 @@ export async function createClientGame(gameConfig: GameConfig, eventBus: EventBu
         game,
         gameRenderer,
         new InputHandler(canvas, eventBus),
-        new Executor(game, gameConfig.difficulty, gameConfig.gameID),
+        new Executor(game, gameConfig.difficulty, gameConfig.gameID, pathFinder),
         transport,
     )
 }
@@ -166,7 +172,7 @@ export class GameRunner {
             return
         }
         this.isProcessingTurn = true
-            this.gs.addExecution(...this.executor.createExecs(this.turns[this.currTurn]))
+        this.gs.addExecution(...this.executor.createExecs(this.turns[this.currTurn]))
         this.gs.executeNextTick()
         this.renderer.tick()
         this.currTurn++

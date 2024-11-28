@@ -2,7 +2,8 @@ import { Unit, Cell, Execution, MutableUnit, MutableGame, MutablePlayer, Player,
 import { and, bfs, manhattanDistWrapped, sourceDstOceanShore, targetTransportTile } from "../Util";
 import { AttackExecution } from "./AttackExecution";
 import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/EventsDisplay";
-import { AStar, PathFinder, PathFindResultType } from "../PathFinding";
+import { PathFinder, PathFindResultType } from "../pathfinding/PathFinding";
+import { AStar } from "../pathfinding/AStar";
 
 export class TransportShipExecution implements Execution {
 

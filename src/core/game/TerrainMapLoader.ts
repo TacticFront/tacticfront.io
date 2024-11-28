@@ -1,4 +1,4 @@
-import { Cell, GameMap, TerrainType } from './Game';
+import { Cell, GameMap, SearchNode, TerrainMap, TerrainTile, TerrainType } from './Game';
 import europeBin from "!!binary-loader!../../../resources/maps/Europe.bin";
 import europeInfo from "../../../resources/maps/Europe.json"
 
@@ -13,7 +13,7 @@ const maps = new Map()
     .set(GameMap.Europe, { bin: europeBin, info: europeInfo })
     .set(GameMap.Mena, { bin: menaBin, info: menaInfo });
 
-const loadedMaps = new Map<GameMap, TerrainMap>()
+const loadedMaps = new Map<GameMap, TerrainMapImpl>()
 
 export interface NationMap {
     name: string;
@@ -29,15 +29,57 @@ export interface Nation {
 }
 
 
-export class TerrainMap {
+export class TerrainTileImpl implements TerrainTile {
+    public shoreline: boolean = false
+    public magnitude: number = 0
+    public ocean = false
+    public land = false
+    private _neighbors: TerrainTile[] | null = null
+
+    constructor(public type: TerrainType, private _cell: Cell) { }
+
+    terrainType(): TerrainType {
+        return this.type
+    }
+
+    cost(): number {
+        return this.magnitude < 10 ? 2 : 1
+    }
+
+    cell(): Cell {
+        return this._cell
+    }
+
+    initNeighbors(map: TerrainMapImpl): TerrainTile[] {
+        if (this._neighbors === null) {
+            const positions = [
+                { x: this._cell.x - 1, y: this._cell.y }, // Left
+                { x: this._cell.x + 1, y: this._cell.y }, // Right
+                { x: this._cell.x, y: this._cell.y - 1 }, // Up
+                { x: this._cell.x, y: this._cell.y + 1 }  // Down
+            ];
+
+            this._neighbors = positions
+                .filter(pos => pos.x >= 0 && pos.x < map.width() &&
+                    pos.y >= 0 && pos.y < map.height())
+                .map(pos => map.terrain(new Cell(pos.x, pos.y)));
+        }
+        return this._neighbors;
+    }
+}
+
+export class TerrainMapImpl implements TerrainMap {
     constructor(
-        public readonly tiles: Terrain[][],
+        public readonly tiles: TerrainTileImpl[][],
         public readonly numLandTiles: number,
         public readonly nationMap: NationMap,
-        public searchBuffer: SharedArrayBuffer
     ) { }
 
-    terrain(cell: Cell): Terrain {
+    neighbors(terrainTile: TerrainTile): TerrainTile[] {
+        return (terrainTile as TerrainTileImpl).initNeighbors(this);
+    }
+
+    terrain(cell: Cell): TerrainTileImpl {
         return this.tiles[cell.x][cell.y]
     }
 
@@ -50,15 +92,7 @@ export class TerrainMap {
     }
 }
 
-export class Terrain {
-    public shoreline: boolean = false
-    public magnitude: number = 0
-    public ocean = false
-    public land = false
-    constructor(public type: TerrainType) { }
-}
-
-export async function loadTerrainMap(map: GameMap): Promise<TerrainMap> {
+export async function loadTerrainMap(map: GameMap): Promise<TerrainMapImpl> {
     if (loadedMaps.has(map)) {
         return loadedMaps.get(map)
     }
@@ -83,7 +117,7 @@ export async function loadTerrainMap(map: GameMap): Promise<TerrainMap> {
         throw new Error(`Invalid data: buffer size ${fileData.length} incorrect for ${width}x${height} terrain plus 4 bytes for dimensions.`);
     }
 
-    const terrain: Terrain[][] = Array(width).fill(null).map(() => Array(height).fill(null));
+    const terrain: TerrainTileImpl[][] = Array(width).fill(null).map(() => Array(height).fill(null));
     let numLand = 0
 
     // Start from the 5th byte (index 4) when processing terrain data
@@ -115,19 +149,19 @@ export async function loadTerrainMap(map: GameMap): Promise<TerrainMap> {
                 }
             }
 
-            terrain[x][y] = new Terrain(type);
+            terrain[x][y] = new TerrainTileImpl(type, new Cell(x, y));
             terrain[x][y].shoreline = shoreline;
             terrain[x][y].magnitude = magnitude;
             terrain[x][y].ocean = ocean
             terrain[x][y].land = land
         }
     }
-    const encoder = new TextEncoder();
-    const encoded = encoder.encode(fileData);
-    const buffer = new SharedArrayBuffer(encoded.length);
-    const view = new Uint8Array(buffer);
-    view.set(encoded)
-    const m = new TerrainMap(terrain, numLand, mapData.info, buffer);
+    // const encoder = new TextEncoder();
+    // const encoded = encoder.encode(fileData);
+    // const buffer = new SharedArrayBuffer(encoded.length);
+    // const view = new Uint8Array(buffer);
+    // view.set(encoded)
+    const m = new TerrainMapImpl(terrain, numLand, mapData.info);
     loadedMaps.set(map, m)
     return m
 }
