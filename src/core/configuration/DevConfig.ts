@@ -5,7 +5,7 @@ export const devConfig = new class extends DefaultConfig {
     unitInfo(type: UnitType): UnitInfo {
         const info = super.unitInfo(type)
         const oldCost = info.cost
-        info.cost = (p: Player) => oldCost(p) / 1000000
+        info.cost = (p: Player) => oldCost(p) / 5
         return info
     }
 
@@ -14,6 +14,7 @@ export const devConfig = new class extends DefaultConfig {
     }
     numSpawnPhaseTurns(): number {
         return 40
+        // return 100
     }
     gameCreationRate(): number {
         return 20 * 1000
