@@ -1,6 +1,6 @@
 import { GameRunner, joinLobby } from "./GameRunner";
 import backgroundImage from '../../resources/images/TerrainMapFrontPage.png';
-import favicon from '../../resources/images/Favicon.png';
+import favicon from '../../resources/images/Favicon.svg';
 
 import './PublicLobby';
 import './UsernameInput';
