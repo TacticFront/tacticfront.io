@@ -1,7 +1,8 @@
 // pathfinding.ts
-import { Cell, GameMap, SearchNode, TerrainMap, TerrainTile, TerrainType } from "../game/Game";
-import { PathFindResultType } from "./PathFinding";
-import { AStar } from "./AStar";
+import { Cell, GameMap, TerrainMap, TerrainTile, TerrainType } from "../game/Game";
+import { SearchNode } from "./AStar";
+import { PathFindResultType } from "./AStar";
+import { SerialAStar } from "./SerialAStar";
 import { loadTerrainMap } from "../game/TerrainMapLoader";
 import { PriorityQueue } from "@datastructures-js/priority-queue";
 
@@ -12,7 +13,7 @@ let isProcessingSearch = false
 
 
 interface Search {
-    aStar: AStar,
+    aStar: SerialAStar,
     deadline: number
     requestId: string
 }
@@ -40,17 +41,17 @@ self.onmessage = (e) => {
 function initializeMap(data: { gameMap: GameMap }) {
     terrainMapPromise = loadTerrainMap(data.gameMap)
     self.postMessage({ type: 'initialized' });
-    processingInterval = setInterval(computeSearches, .5) as unknown as number;
+    processingInterval = setInterval(computeSearches, .1) as unknown as number;
 }
 
 function findPath(terrainMap: TerrainMap, req: SearchRequest) {
-    const aStar = new AStar(
+    const aStar = new SerialAStar(
         terrainMap.terrain(new Cell(req.start.x, req.start.y)),
         terrainMap.terrain(new Cell(req.end.x, req.end.y)),
         (sn: SearchNode) => (sn as TerrainTile).terrainType() == TerrainType.Ocean,
         (sn: SearchNode): SearchNode[] => terrainMap.neighbors((sn as TerrainTile)),
-        100_000,
-        1000
+        10_000,
+        req.duration,
     );
 
     searches.enqueue({
@@ -88,7 +89,7 @@ function computeSearches() {
                 case PathFindResultType.PathNotFound:
                     console.warn(`worker: path not found to port`);
                     self.postMessage({
-                        type: 'error',
+                        type: 'pathNotFound',
                         requestId: search.requestId,
                     });
                     break

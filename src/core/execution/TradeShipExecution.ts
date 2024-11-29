@@ -1,10 +1,12 @@
 import { MessageType } from "../../client/graphics/layers/EventsDisplay";
 import { renderNumber } from "../../client/graphics/Utils";
 import { AllPlayers, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, Tile, Unit, UnitType } from "../game/Game";
-import { PathFinder, PathFindResultType } from "../pathfinding/PathFinding";
-import { AStar } from "../pathfinding/AStar";
+import { PathFinder } from "../pathfinding/PathFinding";
+import { PathFindResultType } from "../pathfinding/AStar";
+import { SerialAStar } from "../pathfinding/SerialAStar";
 import { PseudoRandom } from "../PseudoRandom";
 import { bfs, dist, distSortUnit, manhattanDist } from "../Util";
+import { AsyncPathFinderCreator } from "../pathfinding/AsyncPathFinding";
 
 export class TradeShipExecution implements Execution {
 
@@ -13,13 +15,13 @@ export class TradeShipExecution implements Execution {
     private origOwner: MutablePlayer
     private tradeShip: MutableUnit
     private index = 0
-    private pathFinder: PathFinder = new PathFinder(5_000, t => t.isOcean(), 10)
     private wasCaptured = false
 
     constructor(
         private _owner: PlayerID,
         private srcPort: MutableUnit,
         private dstPort: MutableUnit,
+        private pathFinder: PathFinder,
         // don't modify
         private path: Tile[]
     ) { }

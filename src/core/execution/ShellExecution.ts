@@ -1,10 +1,11 @@
 import { Execution, MutableGame, MutablePlayer, MutableUnit, Tile, Unit, UnitType } from "../game/Game";
-import { PathFinder, PathFindResultType } from "../pathfinding/PathFinding";
+import { PathFinder } from "../pathfinding/PathFinding";
+import { PathFindResultType } from "../pathfinding/AStar";
 
 export class ShellExecution implements Execution {
 
     private active = true
-    private pathFinder = new PathFinder(2000, () => true, 10)
+    private pathFinder = PathFinder.Serial(2000, () => true, 10)
     private shell: MutableUnit
 
     constructor(private spawn: Tile, private _owner: MutablePlayer, private target: MutableUnit) {

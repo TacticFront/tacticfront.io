@@ -198,12 +198,16 @@
 * make ports cost more for more ports DONE 11/25/2024
 * add battleship DONE 11/26/2024
 * use drawRect() instead of putImageData DONE 11/26/2024
-* run a* in a web worker
+* run a* in a web worker DONE 11/29/2024
+* create async pathfinder DONE 11/29/2024
+* captured tradeships use async pathfinder DONE 11/29/2024
+* run name calculation in web worker
+* BUG: tradeships wrong color
 * have NPCs build destroyers and battleships
 * spread out calculate clusters
 * add radiation from nuke
-* NPC has relations
 * add defense post
+* NPC has relations
 * only show units you can build in the build menu
 * REFACTOR: make TransportShip follow build unit flow
 * use twitter emojis

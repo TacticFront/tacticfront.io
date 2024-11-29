@@ -1,26 +1,8 @@
-import { Tile } from "../game/Game";
+import { Game, Tile } from "../game/Game";
 import { manhattanDist } from "../Util";
-import { AStar } from "./AStar";
-
-export enum PathFindResultType {
-    NextTile,
-    Pending,
-    Completed,
-    PathNotFound
-}
-
-export type TileResult = {
-    type: PathFindResultType.NextTile;
-    tile: Tile
-} | {
-    type: PathFindResultType.Pending;
-} | {
-    type: PathFindResultType.Completed;
-    tile: Tile
-} | {
-    type: PathFindResultType.PathNotFound;
-}
-
+import { AStar, PathFindResultType, TileResult } from "./AStar";
+import { AsyncPathFinderCreator, ParallelAStar } from "./AsyncPathFinding";
+import { SerialAStar } from "./SerialAStar";
 
 export class PathFinder {
 
@@ -30,11 +12,30 @@ export class PathFinder {
     private aStar: AStar
     private computeFinished = true
 
-    constructor(
-        private iterations: number,
-        private canMove: (t: Tile) => boolean,
-        private maxTries: number = 20
+    private constructor(
+        private newAStar: (curr: Tile, dst: Tile) => AStar
     ) { }
+
+    public static Serial(iterations: number, canMove: (t: Tile) => boolean, maxTries: number = 20): PathFinder {
+        return new PathFinder(
+            (curr: Tile, dst: Tile) => {
+                return new SerialAStar(
+                    curr,
+                    dst,
+                    canMove,
+                    sn => ((sn as Tile).neighbors()), iterations, maxTries
+                )
+            }
+        )
+    }
+
+    public static Parallel(creator: AsyncPathFinderCreator, numTicks: number): PathFinder {
+        return new PathFinder(
+            (curr: Tile, dst: Tile) => {
+                return creator.createParallelAStar(curr, dst, numTicks)
+            }
+        )
+    }
 
     nextTile(curr: Tile, dst: Tile, dist: number = 1): TileResult {
         if (curr == null) {
@@ -53,7 +54,7 @@ export class PathFinder {
                 this.curr = curr
                 this.dst = dst
                 this.path = null
-                this.aStar = new AStar(curr, dst, this.canMove, sn => ((sn as Tile).neighbors()), this.iterations, this.maxTries)
+                this.aStar = this.newAStar(curr, dst)
                 this.computeFinished = false
                 return this.nextTile(curr, dst)
             } else {

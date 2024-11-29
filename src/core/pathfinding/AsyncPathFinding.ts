@@ -1,5 +1,5 @@
 import { TerrainTile, Tile, Game, GameMap, Cell } from "../game/Game";
-import { PathFindResultType } from "./PathFinding";
+import { AStar, PathFindResultType } from "./AStar";
 
 export class AsyncPathFinderCreator {
     private worker: Worker;
@@ -33,11 +33,11 @@ export class AsyncPathFinderCreator {
         });
     }
 
-    createPathFinder(src: Tile, dst: Tile, numTicks: number): AsyncPathFinder {
+    createParallelAStar(src: Tile, dst: Tile, numTicks: number): ParallelAStar {
         if (!this.isInitialized) {
             throw new Error('PathFinder not initialized');
         }
-        return new AsyncPathFinder(this.game, this.worker, src, dst, numTicks);
+        return new ParallelAStar(this.game, this.worker, src, dst, numTicks);
     }
 
     cleanup() {
@@ -45,8 +45,7 @@ export class AsyncPathFinderCreator {
     }
 }
 
-// AsyncPathFinder.ts
-export class AsyncPathFinder {
+export class ParallelAStar implements AStar {
     private path: Tile[] | 'NOT_FOUND' | null = null;
     private promise: Promise<void>;
 
@@ -59,18 +58,24 @@ export class AsyncPathFinder {
     ) { }
 
     findPath(): Promise<void> {
+        const requestId = crypto.randomUUID()
         this.promise = new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
                 reject("Path timeout");
             }, 100_000);
 
             const handler = (e: MessageEvent) => {
+                if (e.data.requestId != requestId) {
+                    return
+                }
                 clearTimeout(timeout);
                 this.worker.removeEventListener('message', handler);
 
                 if (e.data.type === 'pathFound') {
                     this.path = e.data.path.map(pos => this.game.tile(new Cell(pos.x, pos.y)));
                     resolve();
+                } else if (e.data.type === 'pathNotFound') {
+                    this.path = 'NOT_FOUND'
                 } else {
                     reject(e.data.reason || "Path not found");
                 }
@@ -79,7 +84,7 @@ export class AsyncPathFinder {
             this.worker.addEventListener('message', handler);
             this.worker.postMessage({
                 type: 'findPath',
-                requestId: crypto.randomUUID(),
+                requestId: requestId,
                 currentTick: this.game.ticks(),
                 duration: this.numTicks,
                 start: { x: this.src.cell().x, y: this.src.cell().y },
@@ -97,14 +102,11 @@ export class AsyncPathFinder {
         }
         this.numTicks--;
         if (this.numTicks <= 0) {
-            for (let i = 0; i < 1_000_000; i++) {
-                if (this.path == 'NOT_FOUND') {
-                    return PathFindResultType.PathNotFound
-                }
-                if (this.path != null) {
-                    console.log('in Asyncclient: found a path!!')
-                    return PathFindResultType.Completed;
-                }
+            if (this.path == 'NOT_FOUND') {
+                return PathFindResultType.PathNotFound
+            }
+            if (this.path != null) {
+                return PathFindResultType.Completed;
             }
             throw new Error(`path not completed in time`)
         }

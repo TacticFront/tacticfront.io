@@ -2,8 +2,9 @@ import { Unit, Cell, Execution, MutableUnit, MutableGame, MutablePlayer, Player,
 import { and, bfs, manhattanDistWrapped, sourceDstOceanShore, targetTransportTile } from "../Util";
 import { AttackExecution } from "./AttackExecution";
 import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/EventsDisplay";
-import { PathFinder, PathFindResultType } from "../pathfinding/PathFinding";
-import { AStar } from "../pathfinding/AStar";
+import { PathFinder } from "../pathfinding/PathFinding";
+import { PathFindResultType } from "../pathfinding/AStar";
+import { SerialAStar } from "../pathfinding/SerialAStar";
 
 export class TransportShipExecution implements Execution {
 
@@ -26,7 +27,7 @@ export class TransportShipExecution implements Execution {
 
     private boat: MutableUnit
 
-    private pathFinder: PathFinder = new PathFinder(10_000, t => t.isWater(), 2)
+    private pathFinder: PathFinder = PathFinder.Serial(10_000, t => t.isWater(), 2)
 
     constructor(
         private attackerID: PlayerID,
@@ -123,7 +124,6 @@ export class TransportShipExecution implements Execution {
                 this.boat.move(result.tile)
                 break
             case PathFindResultType.Pending:
-                console.warn('boat computing')
                 break
             case PathFindResultType.PathNotFound:
                 // TODO: add to poisoned port list

@@ -21,6 +21,7 @@ import { PortExecution } from "./PortExecution";
 import { MissileSiloExecution } from "./MissileSiloExecution";
 import { BattleshipExecution } from "./BattleshipExecution";
 import { AsyncPathFinderCreator } from "../pathfinding/AsyncPathFinding";
+import { PathFinder } from "../pathfinding/PathFinding";
 
 
 

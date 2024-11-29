@@ -1,10 +1,11 @@
 import { AllPlayers, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, Tile, Unit, UnitType } from "../game/Game";
-import { PathFinder, PathFindResultType } from "../pathfinding/PathFinding";
-import { AStar } from "../pathfinding/AStar";
+import { PathFinder } from "../pathfinding/PathFinding";
+import { PathFindResultType } from "../pathfinding/AStar";
+import { SerialAStar } from "../pathfinding/SerialAStar";
 import { PseudoRandom } from "../PseudoRandom";
 import { bfs, dist, manhattanDist } from "../Util";
 import { TradeShipExecution } from "./TradeShipExecution";
-import { AsyncPathFinder, AsyncPathFinderCreator } from "../pathfinding/AsyncPathFinding";
+import { ParallelAStar, AsyncPathFinderCreator } from "../pathfinding/AsyncPathFinding";
 
 export class PortExecution implements Execution {
 
@@ -13,7 +14,7 @@ export class PortExecution implements Execution {
     private port: MutableUnit
     private random: PseudoRandom
     private portPaths = new Map<MutableUnit, Tile[]>()
-    private computingPaths = new Map<MutableUnit, AsyncPathFinder>()
+    private computingPaths = new Map<MutableUnit, ParallelAStar>()
 
     constructor(
         private _owner: PlayerID,
@@ -77,7 +78,7 @@ export class PortExecution implements Execution {
                 }
                 continue
             }
-            const asyncPF = this.asyncPathFinderCreator.createPathFinder(this.port.tile(), port.tile(), 100)
+            const asyncPF = this.asyncPathFinderCreator.createParallelAStar(this.port.tile(), port.tile(), 100)
             // console.log(`adding new port path from ${this.player().name()}:${this.port.tile().cell()} to ${port.owner().name()}:${port.tile().cell()}`)
             this.computingPaths.set(port, asyncPF)
         }
@@ -95,7 +96,8 @@ export class PortExecution implements Execution {
             const port = this.random.randElement(portConnections)
             const path = this.portPaths.get(port)
             if (path != null) {
-                this.mg.addExecution(new TradeShipExecution(this.player().id(), this.port, port, path))
+                const pf = PathFinder.Parallel(this.asyncPathFinderCreator, 30)
+                this.mg.addExecution(new TradeShipExecution(this.player().id(), this.port, port, pf, path))
             }
         }
     }

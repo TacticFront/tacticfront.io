@@ -1,6 +1,7 @@
 import { nextTick } from "process";
 import { Cell, Execution, MutableGame, MutablePlayer, PlayerID, Tile, MutableUnit, UnitType } from "../game/Game";
-import { PathFinder, PathFindResultType } from "../pathfinding/PathFinding";
+import { PathFinder } from "../pathfinding/PathFinding";
+import { PathFindResultType } from "../pathfinding/AStar";
 import { PseudoRandom } from "../PseudoRandom";
 import { bfs, dist, distSortUnit, euclideanDist, manhattanDist } from "../Util";
 
@@ -15,7 +16,7 @@ export class NukeExecution implements Execution {
     private nuke: MutableUnit
     private dst: Tile
 
-    private pathFinder: PathFinder = new PathFinder(10_000, () => true)
+    private pathFinder: PathFinder = PathFinder.Serial(10_000, () => true)
     constructor(
         private type: UnitType.AtomBomb | UnitType.HydrogenBomb,
         private senderID: PlayerID,

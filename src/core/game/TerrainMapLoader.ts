@@ -1,4 +1,5 @@
-import { Cell, GameMap, SearchNode, TerrainMap, TerrainTile, TerrainType } from './Game';
+import { Cell, GameMap, TerrainMap, TerrainTile, TerrainType } from './Game';
+import { SearchNode } from "../pathfinding/AStar";
 import europeBin from "!!binary-loader!../../../resources/maps/Europe.bin";
 import europeInfo from "../../../resources/maps/Europe.json"
 

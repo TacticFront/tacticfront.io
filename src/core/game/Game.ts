@@ -2,6 +2,7 @@ import { Config } from "../configuration/Config"
 import { GameEvent } from "../EventBus"
 import { ClientID, GameID } from "../Schemas"
 import { MessageType } from "../../client/graphics/layers/EventsDisplay"
+import { SearchNode } from "../pathfinding/AStar"
 
 export type PlayerID = string
 export type Tick = number
@@ -129,11 +130,6 @@ export class PlayerInfo {
         public readonly clientID: ClientID | null,
         public readonly id: PlayerID
     ) { }
-}
-
-export interface SearchNode {
-    cost(): number;
-    cell(): Cell
 }
 
 export interface TerrainMap {

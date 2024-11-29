@@ -1,6 +1,7 @@
 import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, Tile, UnitType } from "../game/Game";
-import { PathFinder, PathFindResultType } from "../pathfinding/PathFinding";
-import { AStar } from "../pathfinding/AStar";
+import { PathFinder } from "../pathfinding/PathFinding";
+import { PathFindResultType } from "../pathfinding/AStar";
+import { SerialAStar } from "../pathfinding/SerialAStar";
 import { PseudoRandom } from "../PseudoRandom";
 import { distSort, distSortUnit, manhattanDist } from "../Util";
 
@@ -13,7 +14,7 @@ export class DestroyerExecution implements Execution {
     private mg: MutableGame = null
 
     private target: MutableUnit = null
-    private pathfinder = new PathFinder(5000, t => t.isWater())
+    private pathfinder = PathFinder.Serial(5000, t => t.isWater())
 
     private patrolTile: Tile;
     private patrolCenterTile: Tile

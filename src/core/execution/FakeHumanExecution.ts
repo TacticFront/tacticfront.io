@@ -5,7 +5,8 @@ import { AttackExecution } from "./AttackExecution";
 import { TransportShipExecution } from "./TransportShipExecution";
 import { SpawnExecution } from "./SpawnExecution";
 import { PortExecution } from "./PortExecution";
-import { AsyncPathFinder, AsyncPathFinderCreator } from "../pathfinding/AsyncPathFinding";
+import { ParallelAStar, AsyncPathFinderCreator } from "../pathfinding/AsyncPathFinding";
+import { PathFinder } from "../pathfinding/PathFinding";
 
 export class FakeHumanExecution implements Execution {
 
