@@ -13,7 +13,7 @@ import { SendAttackIntentEvent, SendSpawnIntentEvent, Transport } from "./Transp
 import { createCanvas } from "./graphics/Utils";
 import { DisplayMessageEvent, MessageType } from "./graphics/layers/EventsDisplay";
 import { v4 as uuidv4 } from 'uuid';
-import { AsyncPathFinderCreator } from "../core/pathfinding/AsyncPathFinding";
+import { WorkerClient } from "../core/worker/WorkerClient";
 
 
 export interface LobbyConfig {
@@ -72,9 +72,9 @@ export async function createClientGame(gameConfig: GameConfig, eventBus: EventBu
 
     let game = createGame(terrainMap, eventBus, config)
 
-    const pathFinder = new AsyncPathFinderCreator(game, gameConfig.map)
+    const worker = new WorkerClient(game, gameConfig.map)
     console.log('going to init path finder')
-    await pathFinder.initialize()
+    await worker.initialize()
     console.log('inited path finder')
     const canvas = createCanvas()
     let gameRenderer = createRenderer(canvas, game, eventBus, gameConfig.clientID)
@@ -88,7 +88,7 @@ export async function createClientGame(gameConfig: GameConfig, eventBus: EventBu
         game,
         gameRenderer,
         new InputHandler(canvas, eventBus),
-        new Executor(game, gameConfig.difficulty, gameConfig.gameID, pathFinder),
+        new Executor(game, gameConfig.difficulty, gameConfig.gameID, worker),
         transport,
     )
 }

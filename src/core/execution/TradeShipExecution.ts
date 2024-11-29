@@ -6,7 +6,6 @@ import { PathFindResultType } from "../pathfinding/AStar";
 import { SerialAStar } from "../pathfinding/SerialAStar";
 import { PseudoRandom } from "../PseudoRandom";
 import { bfs, dist, distSortUnit, manhattanDist } from "../Util";
-import { AsyncPathFinderCreator } from "../pathfinding/AsyncPathFinding";
 
 export class TradeShipExecution implements Execution {
 

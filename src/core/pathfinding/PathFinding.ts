@@ -1,7 +1,7 @@
 import { Game, Tile } from "../game/Game";
 import { manhattanDist } from "../Util";
 import { AStar, PathFindResultType, TileResult } from "./AStar";
-import { AsyncPathFinderCreator, ParallelAStar } from "./AsyncPathFinding";
+import { ParallelAStar, WorkerClient } from "../worker/WorkerClient";
 import { SerialAStar } from "./SerialAStar";
 
 export class PathFinder {
@@ -29,10 +29,10 @@ export class PathFinder {
         )
     }
 
-    public static Parallel(creator: AsyncPathFinderCreator, numTicks: number): PathFinder {
+    public static Parallel(worker: WorkerClient, numTicks: number): PathFinder {
         return new PathFinder(
             (curr: Tile, dst: Tile) => {
-                return creator.createParallelAStar(curr, dst, numTicks)
+                return worker.createParallelAStar(curr, dst, numTicks)
             }
         )
     }

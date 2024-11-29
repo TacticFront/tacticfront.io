@@ -1,14 +1,15 @@
-import { TerrainTile, Tile, Game, GameMap, Cell } from "../game/Game";
-import { AStar, PathFindResultType } from "./AStar";
+import { Cell, Game, GameMap, Tile } from "../game/Game";
+import { AStar, PathFindResultType } from "../pathfinding/AStar";
 
-export class AsyncPathFinderCreator {
+
+export class WorkerClient {
     private worker: Worker;
     private isInitialized = false;
 
     constructor(private game: Game, private gameMap: GameMap) {
         // Create a new worker using webpack worker-loader
         // The import.meta.url ensures webpack can properly bundle the worker
-        this.worker = new Worker(new URL('./PathFinder.worker.ts', import.meta.url));
+        this.worker = new Worker(new URL('./Worker.worker.ts', import.meta.url));
     }
 
     initialize(): Promise<void> {
@@ -44,7 +45,6 @@ export class AsyncPathFinderCreator {
         this.worker.terminate();
     }
 }
-
 export class ParallelAStar implements AStar {
     private path: Tile[] | 'NOT_FOUND' | null = null;
     private promise: Promise<void>;
@@ -58,15 +58,15 @@ export class ParallelAStar implements AStar {
     ) { }
 
     findPath(): Promise<void> {
-        const requestId = crypto.randomUUID()
+        const requestId = crypto.randomUUID();
         this.promise = new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
                 reject("Path timeout");
-            }, 100_000);
+            }, 100000);
 
             const handler = (e: MessageEvent) => {
                 if (e.data.requestId != requestId) {
-                    return
+                    return;
                 }
                 clearTimeout(timeout);
                 this.worker.removeEventListener('message', handler);
@@ -75,7 +75,7 @@ export class ParallelAStar implements AStar {
                     this.path = e.data.path.map(pos => this.game.tile(new Cell(pos.x, pos.y)));
                     resolve();
                 } else if (e.data.type === 'pathNotFound') {
-                    this.path = 'NOT_FOUND'
+                    this.path = 'NOT_FOUND';
                 } else {
                     reject(e.data.reason || "Path not found");
                 }
@@ -98,26 +98,27 @@ export class ParallelAStar implements AStar {
     // TODO: rename to poll?
     compute(): PathFindResultType {
         if (this.promise == null) {
-            this.findPath()
+            this.findPath();
         }
         this.numTicks--;
         if (this.numTicks <= 0) {
             if (this.path == 'NOT_FOUND') {
-                return PathFindResultType.PathNotFound
+                return PathFindResultType.PathNotFound;
             }
             if (this.path != null) {
                 return PathFindResultType.Completed;
             }
-            throw new Error(`path not completed in time`)
+            throw new Error(`path not completed in time`);
         }
         return PathFindResultType.Pending;
     }
 
     reconstructPath(): Tile[] {
         if (this.path == "NOT_FOUND" || this.path == null) {
-            throw Error(`cannot reconstruct path: ${this.path}`)
+            throw Error(`cannot reconstruct path: ${this.path}`);
         }
-        return this.path as Tile[]
+        return this.path as Tile[];
     }
 
 }
+

@@ -5,7 +5,7 @@ import { SerialAStar } from "../pathfinding/SerialAStar";
 import { PseudoRandom } from "../PseudoRandom";
 import { bfs, dist, manhattanDist } from "../Util";
 import { TradeShipExecution } from "./TradeShipExecution";
-import { ParallelAStar, AsyncPathFinderCreator } from "../pathfinding/AsyncPathFinding";
+import { ParallelAStar, WorkerClient } from "../worker/WorkerClient";
 
 export class PortExecution implements Execution {
 
@@ -19,7 +19,7 @@ export class PortExecution implements Execution {
     constructor(
         private _owner: PlayerID,
         private cell: Cell,
-        private asyncPathFinderCreator: AsyncPathFinderCreator
+        private worker: WorkerClient
     ) { }
 
 
@@ -78,7 +78,7 @@ export class PortExecution implements Execution {
                 }
                 continue
             }
-            const asyncPF = this.asyncPathFinderCreator.createParallelAStar(this.port.tile(), port.tile(), 100)
+            const asyncPF = this.worker.createParallelAStar(this.port.tile(), port.tile(), 100)
             // console.log(`adding new port path from ${this.player().name()}:${this.port.tile().cell()} to ${port.owner().name()}:${port.tile().cell()}`)
             this.computingPaths.set(port, asyncPF)
         }
@@ -96,7 +96,7 @@ export class PortExecution implements Execution {
             const port = this.random.randElement(portConnections)
             const path = this.portPaths.get(port)
             if (path != null) {
-                const pf = PathFinder.Parallel(this.asyncPathFinderCreator, 30)
+                const pf = PathFinder.Parallel(this.worker, 30)
                 this.mg.addExecution(new TradeShipExecution(this.player().id(), this.port, port, pf, path))
             }
         }

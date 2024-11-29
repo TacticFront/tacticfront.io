@@ -5,7 +5,7 @@ import { AttackExecution } from "./AttackExecution";
 import { TransportShipExecution } from "./TransportShipExecution";
 import { SpawnExecution } from "./SpawnExecution";
 import { PortExecution } from "./PortExecution";
-import { ParallelAStar, AsyncPathFinderCreator } from "../pathfinding/AsyncPathFinding";
+import { ParallelAStar, WorkerClient } from "../worker/WorkerClient";
 import { PathFinder } from "../pathfinding/PathFinding";
 
 export class FakeHumanExecution implements Execution {
@@ -23,7 +23,7 @@ export class FakeHumanExecution implements Execution {
 
     private relations = new Map<Player, number>()
 
-    constructor(private asyncPathFinder: AsyncPathFinderCreator, private playerInfo: PlayerInfo, private cell: Cell, private strength: number) {
+    constructor(private worker: WorkerClient, private playerInfo: PlayerInfo, private cell: Cell, private strength: number) {
         this.random = new PseudoRandom(simpleHash(playerInfo.id))
     }
 
@@ -153,7 +153,7 @@ export class FakeHumanExecution implements Execution {
             const oceanTiles = Array.from(this.player.borderTiles()).filter(t => t.isOceanShore())
             if (oceanTiles.length > 0) {
                 const buildTile = this.random.randElement(oceanTiles)
-                this.mg.addExecution(new PortExecution(this.player.id(), buildTile.cell(), this.asyncPathFinder))
+                this.mg.addExecution(new PortExecution(this.player.id(), buildTile.cell(), this.worker))
             }
         }
     }

@@ -1,10 +1,9 @@
 // pathfinding.ts
 import { Cell, GameMap, TerrainMap, TerrainTile, TerrainType } from "../game/Game";
-import { SearchNode } from "./AStar";
-import { PathFindResultType } from "./AStar";
-import { SerialAStar } from "./SerialAStar";
 import { loadTerrainMap } from "../game/TerrainMapLoader";
 import { PriorityQueue } from "@datastructures-js/priority-queue";
+import { SerialAStar } from "../pathfinding/SerialAStar";
+import { PathFindResultType, SearchNode } from "../pathfinding/AStar";
 
 let terrainMapPromise: Promise<TerrainMap>;
 let searches = new PriorityQueue<Search>((a: Search, b: Search) => (a.deadline - b.deadline))
