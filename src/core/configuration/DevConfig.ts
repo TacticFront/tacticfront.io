@@ -5,7 +5,7 @@ export const devConfig = new class extends DefaultConfig {
     unitInfo(type: UnitType): UnitInfo {
         const info = super.unitInfo(type)
         const oldCost = info.cost
-        info.cost = (p: Player) => oldCost(p) / 5
+        info.cost = (p: Player) => oldCost(p) / 10
         return info
     }
 
@@ -25,9 +25,9 @@ export const devConfig = new class extends DefaultConfig {
     turnIntervalMs(): number {
         return 100
     }
-    boatMaxDistance(): number {
-        return 5000
-    }
+    // boatMaxDistance(): number {
+    //     return 5000
+    // }
 
     // numBots(): number {
     //     return 0

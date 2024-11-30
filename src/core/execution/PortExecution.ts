@@ -49,6 +49,10 @@ export class PortExecution implements Execution {
             }
             this.port = player.buildUnit(UnitType.Port, 0, spawns[0])
         }
+        if (!this.port.isActive()) {
+            this.active = false
+            return
+        }
 
 
         const alliedPorts = this.player().alliances().map(a => a.other(this.player())).flatMap(p => p.units(UnitType.Port))
