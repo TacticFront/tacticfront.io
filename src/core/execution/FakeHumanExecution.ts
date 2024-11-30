@@ -7,6 +7,8 @@ import { SpawnExecution } from "./SpawnExecution";
 import { PortExecution } from "./PortExecution";
 import { ParallelAStar, WorkerClient } from "../worker/WorkerClient";
 import { PathFinder } from "../pathfinding/PathFinding";
+import { DestroyerExecution } from "./DestroyerExecution";
+import { BattleshipExecution } from "./BattleshipExecution";
 
 export class FakeHumanExecution implements Execution {
 
@@ -149,13 +151,53 @@ export class FakeHumanExecution implements Execution {
     }
 
     private handleUnits() {
-        if (this.player.units(UnitType.Port).length == 0 && this.player.gold() > this.mg.unitInfo(UnitType.Port).cost(this.player)) {
+        const ports = this.player.units(UnitType.Port)
+        if (ports.length == 0 && this.player.gold() > this.cost(UnitType.Port)) {
             const oceanTiles = Array.from(this.player.borderTiles()).filter(t => t.isOceanShore())
             if (oceanTiles.length > 0) {
                 const buildTile = this.random.randElement(oceanTiles)
                 this.mg.addExecution(new PortExecution(this.player.id(), buildTile.cell(), this.worker))
             }
+            return
         }
+        if (this.maybeSpawnWarship(UnitType.Destroyer)) {
+            return
+        }
+        if (this.maybeSpawnWarship(UnitType.Battleship)) {
+            return
+        }
+    }
+
+    private maybeSpawnWarship(shipType: UnitType.Destroyer | UnitType.Battleship): boolean {
+        const ports = this.player.units(UnitType.Port)
+        const ships = this.player.units(shipType)
+        if (ports.length > 0 && ships.length == 0 && this.player.gold() > this.cost(shipType)) {
+            const port = this.random.randElement(ports)
+            const spawns = Array.from(bfs(port.tile(), dist(port.tile(), this.mg.config().boatMaxDistance() / 2))).filter(t => t.isOcean())
+            if (spawns.length == 0) {
+                return false
+            }
+            const targetTile = this.random.randElement(spawns)
+            const canBuild = this.player.canBuild(UnitType.Destroyer, targetTile)
+            if (canBuild == false) {
+                console.warn('cannot spawn destroyer')
+                return false
+            }
+            switch (shipType) {
+                case UnitType.Destroyer:
+                    this.mg.addExecution(new DestroyerExecution(this.player.id(), targetTile.cell()))
+                    break
+                case UnitType.Battleship:
+                    this.mg.addExecution(new BattleshipExecution(this.player.id(), targetTile.cell()))
+                    break
+            }
+            return true
+        }
+        return false
+    }
+
+    private cost(type: UnitType): number {
+        return this.mg.unitInfo(type).cost(this.player)
     }
 
     handleAllianceRequests() {

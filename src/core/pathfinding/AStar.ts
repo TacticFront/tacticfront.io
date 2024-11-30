@@ -25,5 +25,10 @@ export enum PathFindResultType {
 export interface SearchNode {
     cost(): number
     cell(): Cell
+    neighbors(): SearchNode[]
+}
+export interface Point {
+    x: number;
+    y: number;
 }
 

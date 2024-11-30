@@ -3,7 +3,7 @@ import { AStar, SearchNode } from "./AStar";
 import { PathFindResultType } from "./AStar";
 
 
-export class SerialAStar implements AStar{
+export class SerialAStar implements AStar {
     private fwdOpenSet: PriorityQueue<{ tile: SearchNode; fScore: number; }>;
     private bwdOpenSet: PriorityQueue<{ tile: SearchNode; fScore: number; }>;
     private fwdCameFrom: Map<SearchNode, SearchNode>;
@@ -17,7 +17,6 @@ export class SerialAStar implements AStar{
         private src: SearchNode,
         private dst: SearchNode,
         private canMove: (t: SearchNode) => boolean,
-        private neighbors: (sn: SearchNode) => SearchNode[],
         private iterations: number,
         private maxTries: number
     ) {
@@ -85,7 +84,7 @@ export class SerialAStar implements AStar{
     }
 
     private expandSearchNode(current: SearchNode, isForward: boolean) {
-        for (const neighbor of this.neighbors(current)) {
+        for (const neighbor of current.neighbors()) {
             if (neighbor !== (isForward ? this.dst : this.src) && !this.canMove(neighbor)) continue;
 
             const gScore = isForward ? this.fwdGScore : this.bwdGScore;

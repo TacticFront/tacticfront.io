@@ -3,6 +3,7 @@ import { manhattanDist } from "../Util";
 import { AStar, PathFindResultType, TileResult } from "./AStar";
 import { ParallelAStar, WorkerClient } from "../worker/WorkerClient";
 import { SerialAStar } from "./SerialAStar";
+import { MiniAStar } from "./MiniAStar";
 
 export class PathFinder {
 
@@ -16,6 +17,23 @@ export class PathFinder {
         private newAStar: (curr: Tile, dst: Tile) => AStar
     ) { }
 
+
+    public static Mini(game: Game, iterations: number, canMove: (t: Tile) => boolean, maxTries: number = 20) {
+        return new PathFinder(
+            (curr: Tile, dst: Tile) => {
+                return new MiniAStar(
+                    game.terrainMap(),
+                    game.terrainMiniMap(),
+                    curr,
+                    dst,
+                    canMove,
+                    iterations,
+                    maxTries
+                )
+            }
+        )
+    }
+
     public static Serial(iterations: number, canMove: (t: Tile) => boolean, maxTries: number = 20): PathFinder {
         return new PathFinder(
             (curr: Tile, dst: Tile) => {
@@ -23,7 +41,8 @@ export class PathFinder {
                     curr,
                     dst,
                     canMove,
-                    sn => ((sn as Tile).neighbors()), iterations, maxTries
+                    iterations,
+                    maxTries
                 )
             }
         )
@@ -65,7 +84,7 @@ export class PathFinder {
         switch (this.aStar.compute()) {
             case PathFindResultType.Completed:
                 this.computeFinished = true
-                this.path = this.aStar.reconstructPath().map(sn => sn as Tile)
+                this.path = this.aStar.reconstructPath() as Tile[]
                 // Remove the start tile
                 this.path.shift()
                 return this.nextTile(curr, dst)

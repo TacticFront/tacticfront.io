@@ -15,30 +15,12 @@ interface Coord {
     y: number;
 }
 
-export class TerrainMap {
-    constructor(public readonly tiles: Terrain[][]) { }
-
-    terrain(coord: Coord): Terrain {
-        return this.tiles[coord.x][coord.y]
-    }
-
-    
-
-    width(): number {
-        return this.tiles.length
-    }
-
-    height(): number {
-        return this.tiles[0].length
-    }
-}
-
-export enum TerrainType {
+enum TerrainType {
     Land,
     Water
 }
 
-export class Terrain {
+class Terrain {
     public shoreline: boolean = false
     public magnitude: number = 0
     public ocean: boolean

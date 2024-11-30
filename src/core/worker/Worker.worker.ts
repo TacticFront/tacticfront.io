@@ -54,7 +54,6 @@ function findPath(terrainMap: TerrainMap, req: SearchRequest) {
         terrainMap.terrain(new Cell(Math.floor(req.start.x / 2), Math.floor(req.start.y / 2))),
         terrainMap.terrain(new Cell(Math.floor(req.end.x / 2), Math.floor(req.end.y / 2))),
         (sn: SearchNode) => (sn as TerrainTile).terrainType() == TerrainType.Ocean,
-        (sn: SearchNode): SearchNode[] => terrainMap.neighbors((sn as TerrainTile)),
         10_000,
         req.duration,
     );

@@ -1,8 +1,8 @@
 import { info } from "console";
 import { Config } from "../configuration/Config";
 import { EventBus } from "../EventBus";
-import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Unit, UnitEvent as UnitEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent, BrokeAllianceEvent, MutableAlliance, Alliance, AllianceExpiredEvent, Nation, UnitType, UnitInfo } from "./Game";
-import { TerrainMapImpl } from "./TerrainMapLoader";
+import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Unit, UnitEvent as UnitEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent, BrokeAllianceEvent, MutableAlliance, Alliance, AllianceExpiredEvent, Nation, UnitType, UnitInfo, TerrainMap } from "./Game";
+import { createMiniMap, TerrainMapImpl } from "./TerrainMapLoader";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
 import { TileImpl } from "./TileImpl";
@@ -38,6 +38,8 @@ export class GameImpl implements MutableGame {
     allianceRequests: AllianceRequestImpl[] = []
     alliances_: AllianceImpl[] = []
 
+    private _terrainMiniMap: TerrainMap = null
+
     constructor(private _terrainMap: TerrainMapImpl, public eventBus: EventBus, private _config: Config) {
         this._terraNullius = new TerraNulliusImpl(this)
         this._width = _terrainMap.width();
@@ -57,6 +59,10 @@ export class GameImpl implements MutableGame {
                 new Cell(n.coordinates[0], n.coordinates[1]),
                 n.strength
             ))
+        createMiniMap(_terrainMap).then(m => {
+            console.log('mini map loaded!')
+            this._terrainMiniMap = m
+        })
     }
     units(...types: UnitType[]): UnitImpl[] {
         return Array.from(this._players.values()).flatMap(p => p.units(...types))
@@ -396,6 +402,13 @@ export class GameImpl implements MutableGame {
 
     public terrainMap(): TerrainMapImpl {
         return this._terrainMap
+    }
+
+    public terrainMiniMap(): TerrainMap {
+        if (this._terrainMiniMap == null) {
+            throw Error('mini map not loaded')
+        }
+        return this._terrainMiniMap
     }
 
     displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void {

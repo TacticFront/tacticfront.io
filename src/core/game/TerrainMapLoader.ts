@@ -37,7 +37,7 @@ export class TerrainTileImpl implements TerrainTile {
     public land = false
     private _neighbors: TerrainTile[] | null = null
 
-    constructor(public type: TerrainType, private _cell: Cell) { }
+    constructor(private map: TerrainMap, public type: TerrainType, private _cell: Cell) { }
 
     terrainType(): TerrainType {
         return this.type
@@ -51,7 +51,7 @@ export class TerrainTileImpl implements TerrainTile {
         return this._cell
     }
 
-    initNeighbors(map: TerrainMapImpl): TerrainTile[] {
+    neighbors(): TerrainTile[] {
         if (this._neighbors === null) {
             const positions = [
                 { x: this._cell.x - 1, y: this._cell.y }, // Left
@@ -61,23 +61,23 @@ export class TerrainTileImpl implements TerrainTile {
             ];
 
             this._neighbors = positions
-                .filter(pos => pos.x >= 0 && pos.x < map.width() &&
-                    pos.y >= 0 && pos.y < map.height())
-                .map(pos => map.terrain(new Cell(pos.x, pos.y)));
+                .filter(pos => pos.x >= 0 && pos.x < this.map.width() &&
+                    pos.y >= 0 && pos.y < this.map.height())
+                .map(pos => this.map.terrain(new Cell(pos.x, pos.y)));
         }
         return this._neighbors;
     }
 }
 
 export class TerrainMapImpl implements TerrainMap {
+    public tiles: TerrainTileImpl[][]
+    public numLandTiles: number
+    public nationMap: NationMap
     constructor(
-        public readonly tiles: TerrainTileImpl[][],
-        public readonly numLandTiles: number,
-        public readonly nationMap: NationMap,
     ) { }
 
     neighbors(terrainTile: TerrainTile): TerrainTile[] {
-        return (terrainTile as TerrainTileImpl).initNeighbors(this);
+        return (terrainTile as TerrainTileImpl).neighbors();
     }
 
     terrain(cell: Cell): TerrainTileImpl {
@@ -121,6 +121,10 @@ export async function loadTerrainMap(map: GameMap): Promise<TerrainMapImpl> {
     const terrain: TerrainTileImpl[][] = Array(width).fill(null).map(() => Array(height).fill(null));
     let numLand = 0
 
+
+
+    const m = new TerrainMapImpl();
+
     // Start from the 5th byte (index 4) when processing terrain data
     for (let x = 0; x < width; x++) {
         for (let y = 0; y < height; y++) {
@@ -150,47 +154,61 @@ export async function loadTerrainMap(map: GameMap): Promise<TerrainMapImpl> {
                 }
             }
 
-            terrain[x][y] = new TerrainTileImpl(type, new Cell(x, y));
+            terrain[x][y] = new TerrainTileImpl(m, type, new Cell(x, y));
             terrain[x][y].shoreline = shoreline;
             terrain[x][y].magnitude = magnitude;
             terrain[x][y].ocean = ocean
             terrain[x][y].land = land
         }
     }
+    m.tiles = terrain
+    m.numLandTiles = numLand
+    m.nationMap = mapData.info
     // const encoder = new TextEncoder();
     // const encoded = encoder.encode(fileData);
     // const buffer = new SharedArrayBuffer(encoded.length);
     // const view = new Uint8Array(buffer);
     // view.set(encoded)
-    const m = new TerrainMapImpl(terrain, numLand, mapData.info);
     loadedMaps.set(map, m)
     return m
 }
 
 
-export function createMiniMap(tm: TerrainMap): TerrainMap {
+export async function createMiniMap(tm: TerrainMap): Promise<TerrainMap> {
     // Create 2D array properly with correct dimensions
     const miniMap: TerrainTileImpl[][] = Array(Math.floor(tm.width() / 2))
         .fill(null)
         .map(() => Array(Math.floor(tm.height() / 2)).fill(null));
 
-    for (let x = 0; x < tm.width(); x++) {
-        for (let y = 0; y < tm.height(); y++) {
-            const tile = tm.terrain(new Cell(x, y)) as TerrainTileImpl;
-            const miniX = Math.floor(x / 2);
-            const miniY = Math.floor(y / 2);
+    // Process rows in chunks to avoid blocking the main thread
+    const chunkSize = 10; // Process 10 rows at a time
 
-            if (miniMap[miniX][miniY] == null || miniMap[miniX][miniY].terrainType() != TerrainType.Ocean) {
-                miniMap[miniX][miniY] = new TerrainTileImpl(tile.terrainType(), new Cell(miniX, miniY));
-                miniMap[miniX][miniY].shoreline = tile.shoreline;
-                miniMap[miniX][miniY].magnitude = tile.magnitude;
-                miniMap[miniX][miniY].ocean = tile.ocean;
-                miniMap[miniX][miniY].land = tile.land;
+    const m = new TerrainMapImpl
+
+    for (let startX = 0; startX < tm.width(); startX += chunkSize) {
+        // Use setTimeout to yield to the main thread between chunks
+        await new Promise(resolve => setTimeout(resolve, 0));
+
+        const endX = Math.min(startX + chunkSize, tm.width());
+
+        for (let x = startX; x < endX; x++) {
+            for (let y = 0; y < tm.height(); y++) {
+                const tile = tm.terrain(new Cell(x, y)) as TerrainTileImpl;
+                const miniX = Math.floor(x / 2);
+                const miniY = Math.floor(y / 2);
+
+                if (miniMap[miniX][miniY] == null || miniMap[miniX][miniY].terrainType() != TerrainType.Ocean) {
+                    miniMap[miniX][miniY] = new TerrainTileImpl(m, tile.terrainType(), new Cell(miniX, miniY));
+                    miniMap[miniX][miniY].shoreline = tile.shoreline;
+                    miniMap[miniX][miniY].magnitude = tile.magnitude;
+                    miniMap[miniX][miniY].ocean = tile.ocean;
+                    miniMap[miniX][miniY].land = tile.land;
+                }
             }
         }
     }
-
-    return new TerrainMapImpl(miniMap, 0, null);
+    m.tiles = miniMap
+    return m
 }
 
 

@@ -290,6 +290,7 @@ export interface Game {
     units(...types: UnitType[]): Unit[]
     unitInfo(type: UnitType): UnitInfo
     terrainMap(): TerrainMap
+    terrainMiniMap(): TerrainMap
 }
 
 export interface MutableGame extends Game {
