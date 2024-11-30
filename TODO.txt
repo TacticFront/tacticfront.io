@@ -202,9 +202,10 @@
 * create async pathfinder DONE 11/29/2024
 * captured tradeships use async pathfinder DONE 11/29/2024
 * BUG: trade ships not building DONE 11/29/2024
+* make mini map for path finding DONE 11/29/2024
 * have NPCs build destroyers and battleships
-* spread out calculate clusters
 * add radiation from nuke
+* spread out calculate clusters
 * add defense post
 * NPC has relations
 * only show units you can build in the build menu

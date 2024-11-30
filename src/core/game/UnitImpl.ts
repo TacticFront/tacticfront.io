@@ -20,6 +20,9 @@ export class UnitImpl implements MutableUnit {
     }
 
     move(tile: Tile): void {
+        if(tile == null) {
+            throw new Error("tile cannot be null")
+        }
         const oldTile = this._tile;
         this._tile = tile;
         this.g.fireUnitUpdateEvent(this, oldTile);

@@ -135,6 +135,8 @@ export class PlayerInfo {
 export interface TerrainMap {
     terrain(cell: Cell): TerrainTile
     neighbors(terrainTile: TerrainTile): TerrainTile[]
+    width(): number
+    height(): number
 }
 
 export interface TerrainTile extends SearchNode {

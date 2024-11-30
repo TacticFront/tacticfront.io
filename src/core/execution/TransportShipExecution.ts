@@ -96,30 +96,26 @@ export class TransportShipExecution implements Execution {
         }
         this.lastMove = ticks
 
-
-        if (this.boat.tile() == this.dst) {
-            if (this.dst.owner() == this.attacker) {
-                this.attacker.addTroops(this.troops)
-                this.boat.delete()
-                this.active = false
-                return
-            }
-            if (this.target.isPlayer() && this.attacker.isAlliedWith(this.target)) {
-                this.target.addTroops(this.troops)
-            } else {
-                this.attacker.conquer(this.dst)
-                this.mg.addExecution(
-                    new AttackExecution(this.troops, this.attacker.id(), this.targetID, this.dst.cell(), null, false)
-                )
-            }
-            this.boat.delete()
-            this.active = false
-            return
-        }
-
         const result = this.pathFinder.nextTile(this.boat.tile(), this.dst)
         switch (result.type) {
             case PathFindResultType.Completed:
+                if (this.dst.owner() == this.attacker) {
+                    this.attacker.addTroops(this.troops)
+                    this.boat.delete()
+                    this.active = false
+                    return
+                }
+                if (this.target.isPlayer() && this.attacker.isAlliedWith(this.target)) {
+                    this.target.addTroops(this.troops)
+                } else {
+                    this.attacker.conquer(this.dst)
+                    this.mg.addExecution(
+                        new AttackExecution(this.troops, this.attacker.id(), this.targetID, this.dst.cell(), null, false)
+                    )
+                }
+                this.boat.delete()
+                this.active = false
+                return
             case PathFindResultType.NextTile:
                 this.boat.move(result.tile)
                 break

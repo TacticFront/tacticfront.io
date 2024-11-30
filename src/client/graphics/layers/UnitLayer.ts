@@ -143,13 +143,17 @@ export class UnitLayer implements Layer {
             this.clearCell(t.cell());
         });
         if (event.unit.isActive()) {
-            bfs(event.unit.tile(), dist(event.unit.tile(), 4)).forEach(
-                t => {
-                    if (trail.has(t)) {
-                        this.paintCell(t.cell(), this.theme.territoryColor(event.unit.owner().info()), 150);
+            try {
+                bfs(event.unit.tile(), dist(event.unit.tile(), 4)).forEach(
+                    t => {
+                        if (trail.has(t)) {
+                            this.paintCell(t.cell(), this.theme.territoryColor(event.unit.owner().info()), 150);
+                        }
                     }
-                }
-            );
+                );
+            } catch {
+                console.log('uh oh')
+            }
             bfs(event.unit.tile(), dist(event.unit.tile(), 2))
                 .forEach(t => this.paintCell(t.cell(), this.theme.borderColor(event.unit.owner().info()), 255));
             bfs(event.unit.tile(), dist(event.unit.tile(), 1))

@@ -167,6 +167,33 @@ export async function loadTerrainMap(map: GameMap): Promise<TerrainMapImpl> {
     return m
 }
 
+
+export function createMiniMap(tm: TerrainMap): TerrainMap {
+    // Create 2D array properly with correct dimensions
+    const miniMap: TerrainTileImpl[][] = Array(Math.floor(tm.width() / 2))
+        .fill(null)
+        .map(() => Array(Math.floor(tm.height() / 2)).fill(null));
+
+    for (let x = 0; x < tm.width(); x++) {
+        for (let y = 0; y < tm.height(); y++) {
+            const tile = tm.terrain(new Cell(x, y)) as TerrainTileImpl;
+            const miniX = Math.floor(x / 2);
+            const miniY = Math.floor(y / 2);
+
+            if (miniMap[miniX][miniY] == null || miniMap[miniX][miniY].terrainType() != TerrainType.Ocean) {
+                miniMap[miniX][miniY] = new TerrainTileImpl(tile.terrainType(), new Cell(miniX, miniY));
+                miniMap[miniX][miniY].shoreline = tile.shoreline;
+                miniMap[miniX][miniY].magnitude = tile.magnitude;
+                miniMap[miniX][miniY].ocean = tile.ocean;
+                miniMap[miniX][miniY].land = tile.land;
+            }
+        }
+    }
+
+    return new TerrainMapImpl(miniMap, 0, null);
+}
+
+
 function logBinaryAsAscii(data: string, length: number = 8) {
     console.log('Binary data (1 = set bit, 0 = unset bit):');
     for (let i = 0; i < Math.min(length, data.length); i++) {

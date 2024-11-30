@@ -1,6 +1,6 @@
 // pathfinding.ts
 import { Cell, GameMap, TerrainMap, TerrainTile, TerrainType } from "../game/Game";
-import { loadTerrainMap } from "../game/TerrainMapLoader";
+import { createMiniMap, loadTerrainMap } from "../game/TerrainMapLoader";
 import { PriorityQueue } from "@datastructures-js/priority-queue";
 import { SerialAStar } from "../pathfinding/SerialAStar";
 import { PathFindResultType, SearchNode } from "../pathfinding/AStar";
@@ -10,11 +10,16 @@ let searches = new PriorityQueue<Search>((a: Search, b: Search) => (a.deadline -
 let processingInterval: number | null = null;
 let isProcessingSearch = false
 
+interface Point {
+    x: number
+    y: number
+}
 
 interface Search {
     aStar: SerialAStar,
     deadline: number
-    requestId: string
+    requestId: string,
+    end: Point
 }
 
 interface SearchRequest {
@@ -22,8 +27,8 @@ interface SearchRequest {
     currentTick: number
     // duration in ticks
     duration: number
-    start: { x: number, y: number },
-    end: { x: number, y: number }
+    start: Point
+    end: Point
 }
 
 self.onmessage = (e) => {
@@ -38,15 +43,16 @@ self.onmessage = (e) => {
 };
 
 function initializeMap(data: { gameMap: GameMap }) {
-    terrainMapPromise = loadTerrainMap(data.gameMap)
+    terrainMapPromise = loadTerrainMap(data.gameMap).then(tm => createMiniMap(tm))
     self.postMessage({ type: 'initialized' });
     processingInterval = setInterval(computeSearches, .1) as unknown as number;
 }
 
 function findPath(terrainMap: TerrainMap, req: SearchRequest) {
+    console.log(`terrain map height: ${terrainMap.height()}`)
     const aStar = new SerialAStar(
-        terrainMap.terrain(new Cell(req.start.x, req.start.y)),
-        terrainMap.terrain(new Cell(req.end.x, req.end.y)),
+        terrainMap.terrain(new Cell(Math.floor(req.start.x / 2), Math.floor(req.start.y / 2))),
+        terrainMap.terrain(new Cell(Math.floor(req.end.x / 2), Math.floor(req.end.y / 2))),
         (sn: SearchNode) => (sn as TerrainTile).terrainType() == TerrainType.Ocean,
         (sn: SearchNode): SearchNode[] => terrainMap.neighbors((sn as TerrainTile)),
         10_000,
@@ -56,7 +62,8 @@ function findPath(terrainMap: TerrainMap, req: SearchRequest) {
     searches.enqueue({
         aStar: aStar,
         deadline: req.currentTick + req.duration,
-        requestId: req.requestId
+        requestId: req.requestId,
+        end: req.end
     })
 }
 
@@ -75,10 +82,12 @@ function computeSearches() {
             const search = searches.dequeue()
             switch (search.aStar.compute()) {
                 case PathFindResultType.Completed:
+                    const path = upscalePath(search.aStar.reconstructPath().map(sn => ({ x: sn.cell().x, y: sn.cell().y })))
+                    path.push(search.end)
                     self.postMessage({
                         type: 'pathFound',
                         requestId: search.requestId,
-                        path: search.aStar.reconstructPath().map(sn => ({ x: sn.cell().x, y: sn.cell().y }))
+                        path: path
                     });
                     break;
 
@@ -97,4 +106,45 @@ function computeSearches() {
     } finally {
         isProcessingSearch = false
     }
+}
+
+function upscalePath(path: Point[], scaleFactor: number = 2): Point[] {
+    // Scale up each point
+    const scaledPath = path.map(point => ({
+        x: point.x * scaleFactor,
+        y: point.y * scaleFactor
+    }));
+
+    const smoothPath: Point[] = [];
+
+    for (let i = 0; i < scaledPath.length - 1; i++) {
+        const current = scaledPath[i];
+        const next = scaledPath[i + 1];
+
+        // Add the current point
+        smoothPath.push(current);
+
+        // Always interpolate between scaled points
+        const dx = next.x - current.x;
+        const dy = next.y - current.y;
+
+        // Calculate number of steps needed
+        const distance = Math.max(Math.abs(dx), Math.abs(dy));
+        const steps = distance;
+
+        // Add intermediate points
+        for (let step = 1; step < steps; step++) {
+            smoothPath.push({
+                x: Math.round(current.x + (dx * step) / steps),
+                y: Math.round(current.y + (dy * step) / steps)
+            });
+        }
+    }
+
+    // Add the last point
+    if (scaledPath.length > 0) {
+        smoothPath.push(scaledPath[scaledPath.length - 1]);
+    }
+
+    return smoothPath;
 }
