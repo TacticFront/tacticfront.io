@@ -64,6 +64,11 @@ export class DefaultConfig implements Config {
                     cost: () => 1_000_000,
                     territoryBound: true
                 }
+            case UnitType.DefensePost:
+                return {
+                    cost: (p: Player) => Math.pow(2, p.units(UnitType.Port).length) * 100_000,
+                    territoryBound: true
+                }
             default:
                 assertNever(type)
         }

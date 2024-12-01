@@ -10,6 +10,7 @@ import battleshipIcon from '../../../../../resources/images/BattleshipIconWhite.
 import missileSiloIcon from '../../../../../resources/images/MissileSiloIconWhite.svg';
 import goldCoinIcon from '../../../../../resources/images/GoldCoinIcon.svg';
 import portIcon from '../../../../../resources/images/PortIcon.svg';
+import shieldIcon from '../../../../../resources/images/ShieldIconWhite.svg';
 import { renderNumber } from '../../Utils';
 import { ContextMenuEvent } from '../../../InputHandler';
 
@@ -25,7 +26,8 @@ const buildTable: BuildItemDisplay[][] = [
         { unitType: UnitType.Destroyer, icon: destroyerIcon },
         { unitType: UnitType.Battleship, icon: battleshipIcon },
         { unitType: UnitType.Port, icon: portIcon },
-        { unitType: UnitType.MissileSilo, icon: missileSiloIcon }
+        { unitType: UnitType.MissileSilo, icon: missileSiloIcon },
+        { unitType: UnitType.DefensePost, icon: shieldIcon }
     ]
 ];
 

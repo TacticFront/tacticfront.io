@@ -365,7 +365,9 @@ export class PlayerImpl implements MutablePlayer {
             case UnitType.Shell:
                 return targetTile
             case UnitType.MissileSilo:
-                return this.missileSiloSpawn(targetTile)
+                return this.landBasedStructureSpawn(targetTile)
+            case UnitType.DefensePost:
+                return this.landBasedStructureSpawn(targetTile)
             case UnitType.TransportShip:
                 return this.transportShipSpawn(targetTile)
             case UnitType.TradeShip:
@@ -406,7 +408,7 @@ export class PlayerImpl implements MutablePlayer {
         return spawns[0].tile()
     }
 
-    missileSiloSpawn(tile: Tile): Tile | false {
+    landBasedStructureSpawn(tile: Tile): Tile | false {
         if (tile.owner() != this) {
             return false
         }

@@ -5,8 +5,6 @@ import { bfs, dist, euclDist } from "../../../core/Util";
 import { Layer } from "./Layer";
 import { EventBus } from "../../../core/EventBus";
 
-import anchorIcon from '../../../../resources/images/AnchorIcon.png';
-
 export class UnitLayer implements Layer {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
@@ -163,7 +161,6 @@ export class UnitLayer implements Layer {
             this.boatToTrail.delete(event.unit);
         }
     }
-
 
     paintCell(cell: Cell, color: Colord, alpha: number) {
         this.clearCell(cell)

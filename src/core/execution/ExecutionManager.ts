@@ -22,6 +22,7 @@ import { MissileSiloExecution } from "./MissileSiloExecution";
 import { BattleshipExecution } from "./BattleshipExecution";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { WorkerClient } from "../worker/WorkerClient";
+import { DefensePostExecution } from "./DefensePostExecution";
 
 
 
@@ -97,6 +98,8 @@ export class Executor {
                         return new PortExecution(intent.player, new Cell(intent.x, intent.y), this.workerClient)
                     case UnitType.MissileSilo:
                         return new MissileSiloExecution(intent.player, new Cell(intent.x, intent.y))
+                    case UnitType.DefensePost:
+                        return new DefensePostExecution(intent.player, new Cell(intent.x, intent.y))
                     default:
                         throw Error(`unit type ${intent.unit} not supported`)
                 }

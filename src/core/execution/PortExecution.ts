@@ -31,6 +31,7 @@ export class PortExecution implements Execution {
     tick(ticks: number): void {
 
         if (this.port == null) {
+            // TODO: use canBuild
             const tile = this.mg.tile(this.cell)
             const player = this.mg.player(this._owner)
             if (!player.canBuild(UnitType.Port, tile)) {
