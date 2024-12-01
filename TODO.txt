@@ -199,8 +199,8 @@
 * BUG: trade ships not building DONE 11/29/2024
 * make mini map for path finding DONE 11/29/2024
 * have NPCs build destroyers and battleships DONE 11/30/2024
-* add info view on top right
-* extend alliances
+* add info view on top right DONE 11/30/2024
+* add info view for units
 * add defense post
 * add radiation from nuke
 * add cities
