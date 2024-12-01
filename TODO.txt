@@ -84,9 +84,6 @@
 * BUG: can't join game if click with 1s before start DONE 9/2/2024
 * boat not going around world dist vs distwrapped DONE 9/2/2024
 * test & deploy game DONE 9/2/2024
-
---- v2 Release
-
 * put number of troops ui DONE 9/3/2024
 * names don't appear when zoomed out DONE 9/3/2024
 * make names bigger DONE 9/3/2024
@@ -108,8 +105,6 @@
 * make color a hash of name DONE 9/11/2024
 * Make boats more intuitive (larger area to click off coast) DONE 9/11/2024
 * FakeHumans retaliate when attacked DONE 9/11/2024
-
-
 * Add discord link DONE 9/14/2024
 * front page mobile friendly DONE 9/15/2024
 * game mobile friendly DONE 9/16/2024
@@ -205,8 +200,11 @@
 * make mini map for path finding DONE 11/29/2024
 * have NPCs build destroyers and battleships DONE 11/30/2024
 * add info view on top right
+* extend alliances
 * add defense post
 * add radiation from nuke
+* add cities
+* create alternate view to show friendly & enemy units
 * spread out calculate clusters
 * NPC has relations
 * only show units you can build in the build menu

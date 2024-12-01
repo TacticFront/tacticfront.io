@@ -1,4 +1,4 @@
-import { Game } from "../../core/game/Game";
+import { Game, PlayerInfo } from "../../core/game/Game";
 import { NameLayer } from "./layers/NameLayer";
 import { TerrainLayer } from "./layers/TerrainLayer";
 import { TerritoryLayer } from "./layers/TerritoryLayer";
@@ -16,6 +16,7 @@ import { UIState } from "./UIState";
 import { BuildMenu } from "./layers/radial/BuildMenu";
 import { UnitLayer } from "./layers/UnitLayer";
 import { StructureLayer } from "./layers/StructureLayer";
+import { PlayerInfoOverlay } from "./layers/PlayerInfoOverlay";
 
 
 export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: EventBus, clientID: ClientID): GameRenderer {
@@ -58,6 +59,14 @@ export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: 
 	eventsDisplay.game = game
 	eventsDisplay.clientID = clientID
 
+	const playerInfo = document.querySelector('player-info-overlay') as PlayerInfoOverlay
+	if (!(playerInfo instanceof PlayerInfoOverlay)) {
+		console.error('player info overlay not found')
+	}
+	playerInfo.eventBus = eventBus
+	playerInfo.clientID = clientID
+	playerInfo.transform = transformHandler
+
 
 	const layers: Layer[] = [
 		new TerrainLayer(game),
@@ -70,6 +79,7 @@ export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: 
 		new RadialMenu(eventBus, game, transformHandler, clientID, emojiTable as EmojiTable, buildMenu, uiState),
 		leaderboard,
 		controlPanel,
+		playerInfo
 	]
 
 	return new GameRenderer(game, eventBus, canvas, transformHandler, uiState, layers)

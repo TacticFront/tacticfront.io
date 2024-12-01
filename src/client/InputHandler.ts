@@ -1,4 +1,4 @@
-import {EventBus, GameEvent} from "../core/EventBus";
+import { EventBus, GameEvent } from "../core/EventBus";
 
 
 export class MouseUpEvent implements GameEvent {
@@ -9,6 +9,13 @@ export class MouseUpEvent implements GameEvent {
 }
 
 export class MouseDownEvent implements GameEvent {
+    constructor(
+        public readonly x: number,
+        public readonly y: number,
+    ) { }
+}
+
+export class MouseMoveEvent implements GameEvent {
     constructor(
         public readonly x: number,
         public readonly y: number,
@@ -56,10 +63,13 @@ export class InputHandler {
     initialize() {
         this.canvas.addEventListener("pointerdown", (e) => this.onPointerDown(e));
         this.canvas.addEventListener("pointerup", (e) => this.onPointerUp(e));
-        this.canvas.addEventListener("wheel", (e) => this.onScroll(e), {passive: false});
+        this.canvas.addEventListener("wheel", (e) => this.onScroll(e), { passive: false });
         this.canvas.addEventListener('pointermove', this.onPointerMove.bind(this));
         this.canvas.addEventListener('contextmenu', (e: MouseEvent) => {
             this.onContextMenu(e);
+        });
+        this.canvas.addEventListener('pointermove', (e) => {
+            this.eventBus.emit(new MouseMoveEvent(e.clientX, e.clientY))
         });
         this.pointers.clear()
     }
@@ -152,7 +162,7 @@ export class InputHandler {
         return Math.sqrt(dx * dx + dy * dy);
     }
 
-    private getPinchCenter(): {x: number, y: number} {
+    private getPinchCenter(): { x: number, y: number } {
         const pointerEvents = Array.from(this.pointers.values());
         return {
             x: (pointerEvents[0].clientX + pointerEvents[1].clientX) / 2,
