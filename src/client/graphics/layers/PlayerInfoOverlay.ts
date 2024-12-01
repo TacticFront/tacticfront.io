@@ -20,6 +20,9 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     private _playerName: string = '';
 
     @state()
+    private _isAlly: boolean = false
+
+    @state()
     private _isVisible: boolean = false;
 
     init(game: Game) {
@@ -49,10 +52,8 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
         if (myPlayer == null) {
             return;
         }
-        if (owner == myPlayer) {
-            return
-        }
         this._isVisible = true
+        this._isAlly = owner == myPlayer || myPlayer.isAlliedWith(owner)
         this._playerName = owner.name()
     }
 
@@ -105,17 +106,9 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
             margin-bottom: 4px;
         }
 
-        .status {
-            font-size: 12px;
-            opacity: 0.8;
-        }
 
-        .status.alive {
+        .player-name.ally {
             color: #4CAF50;
-        }
-
-        .status.dead {
-            color: #f44336;
         }
 
         @media (max-width: 768px) {
@@ -136,7 +129,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     render() {
         return html`
             <div class="player-info ${this._isVisible ? '' : 'hidden'}">
-                <div class="player-name">${this._playerName}</div>
+                <div class="player-name ${this._isAlly ? 'ally' : ''}">${this._playerName}</div>
             </div>
         `;
     }
