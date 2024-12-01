@@ -6,6 +6,7 @@ import { ClientID } from '../../../core/Schemas';
 import { EventBus } from '../../../core/EventBus';
 import { TransformHandler } from '../TransformHandler';
 import { MouseMoveEvent } from '../../InputHandler';
+import { dist, distSortUnit, euclideanDist, manhattanDist } from '../../../core/Util';
 
 @customElement('player-info-overlay')
 export class PlayerInfoOverlay extends LitElement implements Layer {
@@ -32,9 +33,17 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
         if (!this.game.isOnMap(worldCoord)) {
             return
         }
-        const owner = this.game.tile(worldCoord).owner()
+        const tile = this.game.tile(worldCoord)
+        let owner = tile.owner()
         if (!owner.isPlayer()) {
-            return
+            if (tile.isLand()) {
+                return
+            }
+            const units = this.game.units().filter(u => euclideanDist(worldCoord, u.tile().cell()) < 50).sort(distSortUnit(tile))
+            if (units.length == 0) {
+                return
+            }
+            owner = units[0].owner()
         }
         const myPlayer = this.game.playerByClientID(this.clientID);
         if (myPlayer == null) {
