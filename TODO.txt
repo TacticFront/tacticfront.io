@@ -202,7 +202,8 @@
 * add info view on top right DONE 11/30/2024
 * add info view for units DONE 11/30/2024
 * add defense post
-* record single player games
+* use mini A* for all pathfinding
+* record single player game stats
 * add radiation from nuke
 * add cities
 * create alternate view to show friendly & enemy units

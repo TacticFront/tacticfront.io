@@ -60,6 +60,8 @@ export interface Config {
 	unitInfo(type: UnitType): UnitInfo
 	tradeShipGold(src: Unit, dst: Unit): Gold
 	tradeShipSpawnRate(): number
+	defensePostRange(): number
+	defensePostDefenseBonus(): number
 }
 
 export interface Theme {

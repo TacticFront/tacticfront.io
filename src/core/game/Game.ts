@@ -144,6 +144,13 @@ export interface TerrainTile extends SearchNode {
     terrainType(): TerrainType
 }
 
+export interface DefenseBonus {
+    // Unit providing the defense bonus
+    unit: Unit
+    amount: number
+    tile: Tile
+}
+
 export interface Tile extends SearchNode {
     isLand(): boolean
     isShore(): boolean
@@ -163,6 +170,10 @@ export interface Tile extends SearchNode {
     neighbors(): Tile[]
     neighborsWrapped(): Tile[]
     onShore(): boolean
+
+    defenseBonuses(): DefenseBonus[]
+    // defense bonus against this player
+    defenseBonus(player: Player): number
 }
 
 export interface Unit {
@@ -301,6 +312,8 @@ export interface MutableGame extends Game {
     addPlayer(playerInfo: PlayerInfo, manpower: number): MutablePlayer
     executions(): Execution[]
     units(...types: UnitType[]): MutableUnit[]
+    addTileDefenseBonus(tile: Tile, unit: Unit, amount: number): DefenseBonus
+    removeTileDefenseBonus(bonus: DefenseBonus): void
 }
 
 export class TileEvent implements GameEvent {

@@ -7,6 +7,12 @@ import { pastelTheme } from "./PastelTheme";
 
 
 export class DefaultConfig implements Config {
+    defensePostRange(): number {
+        return 20
+    }
+    defensePostDefenseBonus(): number {
+        return 3
+    }
     spawnNPCs(): boolean {
         return true
     }
@@ -140,7 +146,8 @@ export class DefaultConfig implements Config {
                 speed = 30
                 break
         }
-        // speed = mag  
+        mag *= tileToConquer.defenseBonus(attacker)
+        speed *= tileToConquer.defenseBonus(attacker)
 
         if (attacker.isPlayer() && defender.isPlayer()) {
             if (attacker.type() == PlayerType.Human && defender.type() == PlayerType.Bot) {

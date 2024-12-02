@@ -1,7 +1,7 @@
 import { PriorityQueue } from "@datastructures-js/priority-queue";
-import { Cell, Game, Player, Tile, TileEvent } from "../../../core/game/Game";
+import { Cell, Game, Player, Tile, TileEvent, UnitEvent, UnitType } from "../../../core/game/Game";
 import { PseudoRandom } from "../../../core/PseudoRandom";
-import { Colord } from "colord";
+import { colord, Colord } from "colord";
 import { bfs, dist } from "../../../core/Util";
 import { Theme } from "../../../core/configuration/Config";
 import { Layer } from "./Layer";
@@ -13,11 +13,9 @@ export class TerritoryLayer implements Layer {
     private context: CanvasRenderingContext2D
     private imageData: ImageData
 
-    private tileToRenderQueue: PriorityQueue<{ tileEvent: TileEvent, lastUpdate: number }> = new PriorityQueue((a, b) => { return a.lastUpdate - b.lastUpdate })
+    private tileToRenderQueue: PriorityQueue<{ tile: Tile, lastUpdate: number }> = new PriorityQueue((a, b) => { return a.lastUpdate - b.lastUpdate })
     private random = new PseudoRandom(123)
     private theme: Theme = null
-
-
 
     constructor(private game: Game, eventBus: EventBus) {
         this.theme = game.config().theme()
@@ -70,9 +68,9 @@ export class TerritoryLayer implements Layer {
 
         while (numToRender > 0) {
             numToRender--
-            const event = this.tileToRenderQueue.pop().tileEvent
-            this.paintTerritory(event.tile)
-            event.tile.neighbors().forEach(t => this.paintTerritory(t))
+            const tile = this.tileToRenderQueue.pop().tile
+            this.paintTerritory(tile)
+            tile.neighbors().forEach(t => this.paintTerritory(t))
         }
     }
 
@@ -83,11 +81,19 @@ export class TerritoryLayer implements Layer {
         }
         const owner = tile.owner() as Player
         if (tile.isBorder()) {
-            this.paintCell(
-                tile.cell(),
-                this.theme.borderColor(owner.info()),
-                255
-            )
+            if (tile.defenseBonuses().filter(db => db.unit.owner() == owner).length > 0) {
+                this.paintCell(
+                    tile.cell(),
+                    colord({ r: 0, g: 0, b: 0 }),
+                    255
+                )
+            } else {
+                this.paintCell(
+                    tile.cell(),
+                    this.theme.borderColor(owner.info()),
+                    255
+                )
+            }
         } else {
             this.paintCell(
                 tile.cell(),
@@ -112,7 +118,17 @@ export class TerritoryLayer implements Layer {
         this.imageData.data[offset + 3] = 0; // Set alpha to 0 (fully transparent)
     }
 
+    unitEvent(event: UnitEvent) {
+        if (event.unit.type() == UnitType.DefensePost) {
+            bfs(event.unit.tile(), dist(event.unit.tile(), this.game.config().defensePostRange())).forEach(t => this.enqueue(t))
+        }
+    }
+
     tileUpdate(event: TileEvent) {
-        this.tileToRenderQueue.push({ tileEvent: event, lastUpdate: this.game.ticks() + this.random.nextFloat(0, .5) })
+        this.enqueue(event.tile)
+    }
+
+    enqueue(tile: Tile) {
+        this.tileToRenderQueue.push({ tile: tile, lastUpdate: this.game.ticks() + this.random.nextFloat(0, .5) })
     }
 }

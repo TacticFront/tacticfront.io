@@ -1,4 +1,4 @@
-import { Tile, Cell, TerrainType, Player, TerraNullius, MutablePlayer, TerrainTile } from "./Game";
+import { Tile, Cell, TerrainType, Player, TerraNullius, MutablePlayer, TerrainTile, DefenseBonus } from "./Game";
 import { SearchNode } from "../pathfinding/AStar";
 import { TerrainTileImpl } from "./TerrainMapLoader";
 import { GameImpl } from "./GameImpl";
@@ -11,12 +11,31 @@ export class TileImpl implements Tile {
     public _isBorder = false;
     private _neighbors: Tile[] = null;
 
+    public _defenseBonuses: DefenseBonus[] = []
+
     constructor(
         private readonly gs: GameImpl,
         public _owner: PlayerImpl | TerraNulliusImpl,
         private readonly _cell: Cell,
         private readonly _terrain: TerrainTileImpl
     ) { }
+
+    defenseBonus(player: Player): number {
+        if (this.owner() == player) {
+            throw Error(`cannot get defense bonus of tile already owned by player`)
+        }
+        let bonusAmount = 0
+        for (const bonus of this._defenseBonuses) {
+            if (bonus.unit.owner() != player) {
+                bonusAmount += bonus.amount
+            }
+        }
+        return Math.max(bonusAmount, 1)
+    }
+
+    defenseBonuses(): DefenseBonus[] {
+        return this._defenseBonuses
+    }
 
     neighborsWrapped(): Tile[] {
         const x = this._cell.x;

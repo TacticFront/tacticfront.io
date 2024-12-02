@@ -1,4 +1,5 @@
-import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, Tile, UnitType } from "../game/Game";
+import { Cell, DefenseBonus, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, Tile, UnitType } from "../game/Game";
+import { bfs, dist } from "../Util";
 
 export class DefensePostExecution implements Execution {
 
@@ -7,6 +8,8 @@ export class DefensePostExecution implements Execution {
     private post: MutableUnit
     private tile: Tile
     private active: boolean = true
+
+    private defenseBonuses: DefenseBonus[] = []
 
     constructor(private ownerId: PlayerID, private cell: Cell) { }
 
@@ -25,6 +28,16 @@ export class DefensePostExecution implements Execution {
                 return
             }
             this.post = this.player.buildUnit(UnitType.DefensePost, 0, spawnTile)
+            bfs(spawnTile, dist(spawnTile, this.mg.config().defensePostRange())).forEach(t => {
+                if (t.isLand()) {
+                    this.defenseBonuses.push(this.mg.addTileDefenseBonus(t, this.post, this.mg.config().defensePostDefenseBonus()))
+                }
+            })
+        }
+        if (!this.post.isActive()) {
+            this.defenseBonuses.forEach(df => this.mg.removeTileDefenseBonus(df))
+            this.active = false
+            return
         }
     }
 

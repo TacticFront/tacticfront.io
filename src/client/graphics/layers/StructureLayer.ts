@@ -1,4 +1,4 @@
-import { Colord } from "colord";
+import { colord, Colord } from "colord";
 import { Theme } from "../../../core/configuration/Config";
 import { Unit, UnitEvent, Cell, Game, Tile, UnitType } from "../../../core/game/Game";
 import { bfs, dist, euclDist } from "../../../core/Util";
@@ -160,6 +160,19 @@ export class StructureLayer implements Layer {
 
     onUnitEvent(event: UnitEvent) {
         this.handleUnitRendering(event);
+        if (event.unit.type() == UnitType.DefensePost) {
+            if (!event.unit.isActive()) {
+                return
+            }
+            // Array.from(
+            //     bfs(
+            //         event.unit.tile(),
+            //         dist(event.unit.tile(), this.game.config().defensePostRange())
+            //     )
+            // ).filter(t => t.isBorder() && t.owner() == event.unit.owner()).forEach(t => {
+            //     this.paintCell(t.cell(), colord({ r: 255, g: 255, b: 255 }), 255)
+            // })
+        }
     }
 
     paintCell(cell: Cell, color: Colord, alpha: number) {
