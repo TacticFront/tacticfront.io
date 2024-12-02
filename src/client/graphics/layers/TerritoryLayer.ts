@@ -120,7 +120,14 @@ export class TerritoryLayer implements Layer {
 
     unitEvent(event: UnitEvent) {
         if (event.unit.type() == UnitType.DefensePost) {
-            bfs(event.unit.tile(), dist(event.unit.tile(), this.game.config().defensePostRange())).forEach(t => this.enqueue(t))
+            bfs(
+                event.unit.tile(),
+                dist(event.unit.tile(), this.game.config().defensePostRange())
+            ).forEach(t => {
+                if (t.isBorder()) {
+                    this.enqueue(t)
+                }
+            })
         }
     }
 
