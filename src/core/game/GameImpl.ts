@@ -68,14 +68,14 @@ export class GameImpl implements MutableGame {
     addTileDefenseBonus(tile: Tile, unit: Unit, amount: number): DefenseBonus {
         const df = { unit: unit, tile: tile, amount: amount };
         (tile as TileImpl)._defenseBonuses.push(df)
-        // this.eventBus.emit(new TileEvent(tile))
+        this.eventBus.emit(new TileEvent(tile))
         return df
     }
 
     removeTileDefenseBonus(bonus: DefenseBonus): void {
         const t = bonus.tile as TileImpl
         t._defenseBonuses = t._defenseBonuses.filter(db => db != bonus)
-        // this.eventBus.emit(new TileEvent(bonus.tile))
+        this.eventBus.emit(new TileEvent(bonus.tile))
     }
 
     units(...types: UnitType[]): UnitImpl[] {

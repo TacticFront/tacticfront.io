@@ -202,12 +202,18 @@
 * add info view on top right DONE 11/30/2024
 * add info view for units DONE 11/30/2024
 * add defense post
-* bugfix: destroyers can't find path to dest and freeze
+* bugfix: when thread doesn't complete computation, do it in main
+* bugfix: destroyers can't find path to dst and freeze
 * bugfix: when trade ships captured don't render
+* bugfix: gameStop not found error
 * use mini A* for all pathfinding
+* log stack traces & display them on screen
+* record and replay games for debugging purposes
 * record single player game stats
 * add radiation from nuke
 * add cities
+* create behavior tests
+* create perf test
 * create alternate view to show friendly & enemy units
 * spread out calculate clusters
 * NPC has relations

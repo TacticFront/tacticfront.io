@@ -21,7 +21,7 @@ export class MiniAStar implements AStar {
         this.aStar = new SerialAStar(
             miniSrc,
             miniDst,
-            (t => (t as TerrainTile).terrainType() == TerrainType.Ocean),
+            canMove,
             iterations,
             maxTries
         )

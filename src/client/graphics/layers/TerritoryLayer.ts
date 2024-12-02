@@ -84,7 +84,7 @@ export class TerritoryLayer implements Layer {
             if (tile.defenseBonuses().filter(db => db.unit.owner() == owner).length > 0) {
                 this.paintCell(
                     tile.cell(),
-                    colord({ r: 0, g: 0, b: 0 }),
+                    this.theme.defendedBorderColor(owner.info()),
                     255
                 )
             } else {

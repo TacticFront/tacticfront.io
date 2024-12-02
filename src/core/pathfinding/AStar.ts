@@ -1,4 +1,4 @@
-import { Cell, Tile } from "../game/Game";
+import { Cell, TerrainType, Tile } from "../game/Game";
 
 export interface AStar {
     compute(): PathFindResultType
@@ -26,6 +26,7 @@ export interface SearchNode {
     cost(): number
     cell(): Cell
     neighbors(): SearchNode[]
+    terrainType(): TerrainType
 }
 export interface Point {
     x: number;
