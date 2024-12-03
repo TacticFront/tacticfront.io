@@ -10,16 +10,11 @@ let searches = new PriorityQueue<Search>((a: Search, b: Search) => (a.deadline -
 let processingInterval: number | null = null;
 let isProcessingSearch = false
 
-interface Point {
-    x: number
-    y: number
-}
-
 interface Search {
     aStar: SerialAStar,
     deadline: number
     requestId: string,
-    end: Point
+    end: Cell
 }
 
 interface SearchRequest {
@@ -27,8 +22,8 @@ interface SearchRequest {
     currentTick: number
     // duration in ticks
     duration: number
-    start: Point
-    end: Point
+    start: Cell
+    end: Cell
 }
 
 self.onmessage = (e) => {
@@ -81,7 +76,7 @@ function computeSearches() {
             const search = searches.dequeue()
             switch (search.aStar.compute()) {
                 case PathFindResultType.Completed:
-                    const path = upscalePath(search.aStar.reconstructPath().map(sn => ({ x: sn.cell().x, y: sn.cell().y })))
+                    const path = upscalePath(search.aStar.reconstructPath())
                     path.push(search.end)
                     self.postMessage({
                         type: 'pathFound',
@@ -107,14 +102,14 @@ function computeSearches() {
     }
 }
 
-function upscalePath(path: Point[], scaleFactor: number = 2): Point[] {
+function upscalePath(path: Cell[], scaleFactor: number = 2): Cell[] {
     // Scale up each point
-    const scaledPath = path.map(point => ({
-        x: point.x * scaleFactor,
-        y: point.y * scaleFactor
-    }));
+    const scaledPath = path.map(point => (new Cell(
+        point.x * scaleFactor,
+        point.y * scaleFactor
+    )));
 
-    const smoothPath: Point[] = [];
+    const smoothPath: Cell[] = [];
 
     for (let i = 0; i < scaledPath.length - 1; i++) {
         const current = scaledPath[i];
@@ -133,10 +128,10 @@ function upscalePath(path: Point[], scaleFactor: number = 2): Point[] {
 
         // Add intermediate points
         for (let step = 1; step < steps; step++) {
-            smoothPath.push({
-                x: Math.round(current.x + (dx * step) / steps),
-                y: Math.round(current.y + (dy * step) / steps)
-            });
+            smoothPath.push(new Cell(
+                Math.round(current.x + (dx * step) / steps),
+                Math.round(current.y + (dy * step) / steps)
+            ));
         }
     }
 

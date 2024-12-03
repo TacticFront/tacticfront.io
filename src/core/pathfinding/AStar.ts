@@ -2,7 +2,7 @@ import { Cell, TerrainType, Tile } from "../game/Game";
 
 export interface AStar {
     compute(): PathFindResultType
-    reconstructPath(): SearchNode[]
+    reconstructPath(): Cell[]
 }
 
 export enum PathFindResultType {

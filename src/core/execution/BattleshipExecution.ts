@@ -14,7 +14,7 @@ export class BattleshipExecution implements Execution {
     private battleship: MutableUnit = null
     private mg: MutableGame = null
 
-    private pathfinder = PathFinder.Serial(5000, t => t.isWater())
+    private pathfinder: PathFinder
 
     private patrolTile: Tile;
     private patrolCenterTile: Tile
@@ -31,6 +31,7 @@ export class BattleshipExecution implements Execution {
 
 
     init(mg: MutableGame, ticks: number): void {
+        this.pathfinder = PathFinder.Serial(mg, 5000, t => t.isWater())
         this._owner = mg.player(this.playerID)
         this.mg = mg
         this.patrolCenterTile = mg.tile(this.cell)

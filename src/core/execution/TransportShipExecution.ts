@@ -27,7 +27,7 @@ export class TransportShipExecution implements Execution {
 
     private boat: MutableUnit
 
-    private pathFinder: PathFinder = PathFinder.Serial(10_000, t => t.isWater(), 2)
+    private pathFinder: PathFinder
 
     constructor(
         private attackerID: PlayerID,
@@ -43,6 +43,7 @@ export class TransportShipExecution implements Execution {
     init(mg: MutableGame, ticks: number) {
         this.lastMove = ticks
         this.mg = mg
+        this.pathFinder = PathFinder.Serial(mg, 10_000, t => t.isWater(), 2)
 
         this.attacker = mg.player(this.attackerID)
 

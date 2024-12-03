@@ -46,7 +46,7 @@ export class WorkerClient {
     }
 }
 export class ParallelAStar implements AStar {
-    private path: Tile[] | 'NOT_FOUND' | null = null;
+    private path: Cell[] | 'NOT_FOUND' | null = null;
     private promise: Promise<void>;
 
     constructor(
@@ -72,7 +72,7 @@ export class ParallelAStar implements AStar {
                 this.worker.removeEventListener('message', handler);
 
                 if (e.data.type === 'pathFound') {
-                    this.path = e.data.path.map(pos => this.game.tile(new Cell(pos.x, pos.y)));
+                    this.path = e.data.path
                     resolve();
                 } else if (e.data.type === 'pathNotFound') {
                     this.path = 'NOT_FOUND';
@@ -113,11 +113,11 @@ export class ParallelAStar implements AStar {
         return PathFindResultType.Pending;
     }
 
-    reconstructPath(): Tile[] {
+    reconstructPath(): Cell[] {
         if (this.path == "NOT_FOUND" || this.path == null) {
             throw Error(`cannot reconstruct path: ${this.path}`);
         }
-        return this.path as Tile[];
+        return this.path
     }
 
 }

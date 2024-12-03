@@ -72,7 +72,7 @@ export class PortExecution implements Execution {
                 const aStar = this.computingPaths.get(port)
                 switch (aStar.compute()) {
                     case PathFindResultType.Completed:
-                        this.portPaths.set(port, aStar.reconstructPath().map(sn => sn as Tile))
+                        this.portPaths.set(port, aStar.reconstructPath().map(cell => this.mg.tile(cell)))
                         this.computingPaths.delete(port)
                         break
                     case PathFindResultType.Pending:
@@ -101,7 +101,7 @@ export class PortExecution implements Execution {
             const port = this.random.randElement(portConnections)
             const path = this.portPaths.get(port)
             if (path != null) {
-                const pf = PathFinder.Parallel(this.worker, 30)
+                const pf = PathFinder.Parallel(this.mg, this.worker, 30)
                 this.mg.addExecution(new TradeShipExecution(this.player().id(), this.port, port, pf, path))
             }
         }
