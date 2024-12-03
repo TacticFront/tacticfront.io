@@ -1,4 +1,4 @@
-import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, Tile, UnitType } from "../game/Game";
+import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, TerrainType, Tile, UnitType } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { SerialAStar } from "../pathfinding/SerialAStar";
@@ -31,7 +31,7 @@ export class BattleshipExecution implements Execution {
 
 
     init(mg: MutableGame, ticks: number): void {
-        this.pathfinder = PathFinder.Serial(mg, 5000, t => t.isWater())
+        this.pathfinder = PathFinder.Mini(mg, 5000, t => t.terrainType() == TerrainType.Ocean)
         this._owner = mg.player(this.playerID)
         this.mg = mg
         this.patrolCenterTile = mg.tile(this.cell)

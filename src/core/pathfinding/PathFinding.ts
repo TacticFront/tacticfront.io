@@ -1,6 +1,6 @@
 import { Cell, Game, Tile } from "../game/Game";
 import { manhattanDist } from "../Util";
-import { AStar, PathFindResultType, TileResult } from "./AStar";
+import { AStar, PathFindResultType, SearchNode, TileResult } from "./AStar";
 import { ParallelAStar, WorkerClient } from "../worker/WorkerClient";
 import { SerialAStar } from "./SerialAStar";
 import { MiniAStar } from "./MiniAStar";
@@ -19,7 +19,7 @@ export class PathFinder {
     ) { }
 
 
-    public static Mini(game: Game, iterations: number, canMove: (t: Tile) => boolean, maxTries: number = 20) {
+    public static Mini(game: Game, iterations: number, canMove: (s: SearchNode) => boolean, maxTries: number = 20) {
         return new PathFinder(
             game,
             (curr: Tile, dst: Tile) => {

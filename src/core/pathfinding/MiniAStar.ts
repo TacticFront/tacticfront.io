@@ -42,8 +42,8 @@ export class MiniAStar implements AStar {
 function upscalePath(path: Cell[], scaleFactor: number = 2): Cell[] {
     // Scale up each point
     const scaledPath = path.map(point => (new Cell(
-        point.x * scaleFactor,
-        point.y * scaleFactor
+       point.x * scaleFactor,
+       point.y * scaleFactor
     )));
 
     const smoothPath: Cell[] = [];

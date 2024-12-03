@@ -13,7 +13,7 @@ export class ShellExecution implements Execution {
     }
 
     init(mg: MutableGame, ticks: number): void {
-        this.pathFinder = PathFinder.Serial(mg, 2000, () => true, 10)
+        this.pathFinder = PathFinder.Mini(mg, 2000, () => true, 10)
     }
 
     tick(ticks: number): void {

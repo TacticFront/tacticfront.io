@@ -29,7 +29,7 @@ export class DestroyerExecution implements Execution {
 
 
     init(mg: MutableGame, ticks: number): void {
-        this.pathfinder = PathFinder.Serial(mg, 5000, t => t.terrainType() == TerrainType.Ocean)
+        this.pathfinder = PathFinder.Mini(mg, 5000, t => t.terrainType() == TerrainType.Ocean)
         this._owner = mg.player(this.playerID)
         this.mg = mg
         this.patrolCenterTile = mg.tile(this.cell)
