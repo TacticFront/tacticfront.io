@@ -83,7 +83,7 @@ export class PortExecution implements Execution {
                 }
                 continue
             }
-            const asyncPF = this.worker.createParallelAStar(this.port.tile(), port.tile(), 100, [TerrainType.Ocean])
+            const asyncPF = this.worker.createParallelAStar(this.port.tile(), port.tile(), 25, [TerrainType.Ocean])
             // console.log(`adding new port path from ${this.player().name()}:${this.port.tile().cell()} to ${port.owner().name()}:${port.tile().cell()}`)
             this.computingPaths.set(port, asyncPF)
         }
@@ -101,7 +101,7 @@ export class PortExecution implements Execution {
             const port = this.random.randElement(portConnections)
             const path = this.portPaths.get(port)
             if (path != null) {
-                const pf = PathFinder.Parallel(this.mg, this.worker, 30)
+                const pf = PathFinder.Parallel(this.mg, this.worker, 10)
                 this.mg.addExecution(new TradeShipExecution(this.player().id(), this.port, port, pf, path))
             }
         }
