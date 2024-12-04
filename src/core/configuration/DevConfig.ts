@@ -25,6 +25,9 @@ export const devConfig = new class extends DefaultConfig {
     turnIntervalMs(): number {
         return 100
     }
+    tradeShipSpawnRate(): number {
+        return 10
+    }
     // boatMaxDistance(): number {
     //     return 5000
     // }

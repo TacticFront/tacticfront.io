@@ -51,7 +51,7 @@ function initializeMap(data: { gameMap: GameMap }) {
             };
         });
     self.postMessage({ type: 'initialized' });
-    processingInterval = setInterval(computeSearches, 100000) as unknown as number;
+    processingInterval = setInterval(computeSearches, .1) as unknown as number;
 }
 
 function findPath(terrainMap: TerrainMap, miniTerrainMap: TerrainMap, req: SearchRequest) {

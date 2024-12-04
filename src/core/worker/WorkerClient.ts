@@ -63,15 +63,11 @@ export class ParallelAStar implements AStar {
     findPath(): Promise<void> {
         const requestId = crypto.randomUUID();
         this.promise = new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => {
-                reject("Path timeout");
-            }, 100000);
 
             const handler = (e: MessageEvent) => {
                 if (e.data.requestId != requestId) {
                     return;
                 }
-                clearTimeout(timeout);
                 this.worker.removeEventListener('message', handler);
 
                 if (e.data.type === 'pathFound') {
