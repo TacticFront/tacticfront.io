@@ -174,6 +174,7 @@ export interface Tile extends SearchNode {
     defenseBonuses(): DefenseBonus[]
     // defense bonus against this player
     defenseBonus(player: Player): number
+    hasFallout(): boolean
 }
 
 export interface Unit {
@@ -314,6 +315,7 @@ export interface MutableGame extends Game {
     units(...types: UnitType[]): MutableUnit[]
     addTileDefenseBonus(tile: Tile, unit: Unit, amount: number): DefenseBonus
     removeTileDefenseBonus(bonus: DefenseBonus): void
+    addFallout(tile: Tile)
 }
 
 export class TileEvent implements GameEvent {

@@ -7,6 +7,11 @@ import { pastelTheme } from "./PastelTheme";
 
 
 export class DefaultConfig implements Config {
+
+    falloutDefenseModifier(): number {
+        return 2
+    }
+
     defensePostRange(): number {
         return 30
     }
@@ -148,6 +153,10 @@ export class DefaultConfig implements Config {
         }
         mag *= tileToConquer.defenseBonus(attacker)
         speed *= tileToConquer.defenseBonus(attacker)
+        if (tileToConquer.hasFallout()) {
+            mag *= this.falloutDefenseModifier()
+            speed *= this.falloutDefenseModifier()
+        }
 
         if (attacker.isPlayer() && defender.isPlayer()) {
             if (attacker.type() == PlayerType.Human && defender.type() == PlayerType.Bot) {
