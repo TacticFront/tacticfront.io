@@ -206,9 +206,9 @@
 * bugfix: when trade ships captured don't render DONE 12/3/2024
 * use mini A* for all pathfinding DONE 12/3/2024
 * bugfix: gameStop not found error DONE 12/3/2024
+* log stack traces & display them on screen DONE 12/3/2024
 * record and replay games for debugging purposes
 * bugfix: destroyers can't find path to dst and freeze
-* log stack traces & display them on screen
 * record single player game stats
 * add radiation from nuke
 * add cities
