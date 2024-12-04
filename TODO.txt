@@ -205,7 +205,7 @@
 * bugfix: when thread doesn't complete computation, do it in main DONE 12/3/2024
 * bugfix: when trade ships captured don't render DONE 12/3/2024
 * use mini A* for all pathfinding DONE 12/3/2024
-* bugfix: gameStop not found error
+* bugfix: gameStop not found error DONE 12/3/2024
 * record and replay games for debugging purposes
 * bugfix: destroyers can't find path to dst and freeze
 * log stack traces & display them on screen
