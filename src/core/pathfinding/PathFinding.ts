@@ -1,4 +1,4 @@
-import { Cell, Game, Tile } from "../game/Game";
+import { Cell, Game, TerrainTile, TerrainType, Tile } from "../game/Game";
 import { manhattanDist } from "../Util";
 import { AStar, PathFindResultType, SearchNode, TileResult } from "./AStar";
 import { ParallelAStar, WorkerClient } from "../worker/WorkerClient";
@@ -51,11 +51,14 @@ export class PathFinder {
         )
     }
 
-    public static Parallel(game: Game, worker: WorkerClient, numTicks: number): PathFinder {
+    public static Parallel(game: Game, worker: WorkerClient, numTicks: number, ...types: TerrainType[]): PathFinder {
+        if (types.length == 0) {
+            types = [TerrainType.Ocean]
+        }
         return new PathFinder(
             game,
             (curr: Tile, dst: Tile) => {
-                return worker.createParallelAStar(curr, dst, numTicks)
+                return worker.createParallelAStar(curr, dst, numTicks, types)
             }
         )
     }

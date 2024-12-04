@@ -1,5 +1,6 @@
-import { Cell, Game, GameMap, Tile } from "../game/Game";
+import { Cell, Game, GameMap, TerrainTile, TerrainType, Tile } from "../game/Game";
 import { AStar, PathFindResultType } from "../pathfinding/AStar";
+import { MiniAStar } from "../pathfinding/MiniAStar";
 
 
 export class WorkerClient {
@@ -34,17 +35,18 @@ export class WorkerClient {
         });
     }
 
-    createParallelAStar(src: Tile, dst: Tile, numTicks: number): ParallelAStar {
+    createParallelAStar(src: Tile, dst: Tile, numTicks: number, types: TerrainType[]): ParallelAStar {
         if (!this.isInitialized) {
             throw new Error('PathFinder not initialized');
         }
-        return new ParallelAStar(this.game, this.worker, src, dst, numTicks);
+        return new ParallelAStar(this.game, this.worker, src, dst, numTicks, types);
     }
 
     cleanup() {
         this.worker.terminate();
     }
 }
+
 export class ParallelAStar implements AStar {
     private path: Cell[] | 'NOT_FOUND' | null = null;
     private promise: Promise<void>;
@@ -54,7 +56,8 @@ export class ParallelAStar implements AStar {
         private worker: Worker,
         private src: Tile,
         private dst: Tile,
-        private numTicks: number
+        private numTicks: number,
+        private terrainTypes: TerrainType[]
     ) { }
 
     findPath(): Promise<void> {
@@ -85,6 +88,7 @@ export class ParallelAStar implements AStar {
             this.worker.postMessage({
                 type: 'findPath',
                 requestId: requestId,
+                terrainTypes: this.terrainTypes,
                 currentTick: this.game.ticks(),
                 duration: this.numTicks,
                 start: { x: this.src.cell().x, y: this.src.cell().y },
@@ -108,7 +112,36 @@ export class ParallelAStar implements AStar {
             if (this.path != null) {
                 return PathFindResultType.Completed;
             }
-            throw new Error(`path not completed in time`);
+            // Path was not found in worker thread in time, so now we need
+            // to recompute it in main thread. This will lock up game.
+            console.warn(`path not completed in worker thread, recomputing`)
+            const local = new MiniAStar(
+                this.game.terrainMap(),
+                this.game.terrainMiniMap(),
+                this.src, this.dst,
+                (t: TerrainTile) => t.terrainType() == TerrainType.Ocean,
+                100_000_000,
+                20
+            )
+            const result = local.compute()
+            switch (result) {
+                case PathFindResultType.Completed:
+                    console.log('recomputed path in worker client')
+                    this.path = local.reconstructPath()
+                    break
+                case PathFindResultType.PathNotFound:
+                    this.path = "NOT_FOUND"
+                    break
+                case PathFindResultType.Pending:
+                    // TODO: make sure same number of tries as worker thread.
+                    console.warn("path not found after many tries")
+                    this.path = "NOT_FOUND"
+                    break
+            }
+            if (result == PathFindResultType.Completed) {
+                this.path = local.reconstructPath()
+            }
+            return result
         }
         return PathFindResultType.Pending;
     }
@@ -121,4 +154,3 @@ export class ParallelAStar implements AStar {
     }
 
 }
-

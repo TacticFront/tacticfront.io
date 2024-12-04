@@ -1,4 +1,4 @@
-import { AllPlayers, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, Tile, Unit, UnitType } from "../game/Game";
+import { AllPlayers, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, TerrainType, Tile, Unit, UnitType } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { SerialAStar } from "../pathfinding/SerialAStar";
@@ -83,7 +83,7 @@ export class PortExecution implements Execution {
                 }
                 continue
             }
-            const asyncPF = this.worker.createParallelAStar(this.port.tile(), port.tile(), 100)
+            const asyncPF = this.worker.createParallelAStar(this.port.tile(), port.tile(), 100, [TerrainType.Ocean])
             // console.log(`adding new port path from ${this.player().name()}:${this.port.tile().cell()} to ${port.owner().name()}:${port.tile().cell()}`)
             this.computingPaths.set(port, asyncPF)
         }
