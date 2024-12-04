@@ -207,11 +207,11 @@
 * use mini A* for all pathfinding DONE 12/3/2024
 * bugfix: gameStop not found error DONE 12/3/2024
 * log stack traces & display them on screen DONE 12/3/2024
-* add radiation from nuke
+* add radiation from nuke DONE 12/4/2024
+* add cities
 * record and replay games for debugging purposes
 * bugfix: destroyers can't find path to dst and freeze
 * record single player game stats
-* add cities
 * create behavior tests
 * create perf test
 * create alternate view to show friendly & enemy units
