@@ -208,7 +208,8 @@
 * bugfix: gameStop not found error DONE 12/3/2024
 * log stack traces & display them on screen DONE 12/3/2024
 * add radiation from nuke DONE 12/4/2024
-* add cities
+* add cities DONE 12/4/2024
+* max price for units
 * record and replay games for debugging purposes
 * bugfix: destroyers can't find path to dst and freeze
 * record single player game stats
@@ -233,3 +234,4 @@
 * improve front page (make map larger?)
 * REFACTOR: give terranullius an ID, game.player() returns terranullius
 * REFACTOR: ocean is considered TerraNullius ?
+
