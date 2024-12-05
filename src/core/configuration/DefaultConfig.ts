@@ -20,6 +20,9 @@ export class DefaultConfig implements Config {
         return 2
     }
 
+    gameStorageBucketName(): string {
+        return "openfront-games"
+    }
     defensePostRange(): number {
         return 30
     }

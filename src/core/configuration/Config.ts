@@ -65,6 +65,7 @@ export interface Config {
 	defensePostDefenseBonus(): number
 	falloutDefenseModifier(): number
 	maxUnitCost(): number
+	gameStorageBucketName(): string
 }
 
 export interface Theme {
