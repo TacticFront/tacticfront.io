@@ -46,6 +46,7 @@ export interface Config {
 	}
 	attackAmount(attacker: Player, defender: Player | TerraNullius): number
 	maxPopulation(player: Player): number
+	cityPopulationIncrease(): number
 	boatAttackAmount(attacker: Player, defender: Player | TerraNullius): number
 	boatMaxDistance(): number
 	boatMaxNumber(): number

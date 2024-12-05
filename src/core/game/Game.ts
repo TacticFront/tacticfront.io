@@ -39,7 +39,8 @@ export enum UnitType {
     HydrogenBomb = "Hydrogen Bomb",
     TradeShip = "Trade Ship",
     MissileSilo = "Missile Silo",
-    DefensePost = "Defense Post"
+    DefensePost = "Defense Post",
+    City = "City"
 }
 
 export class Nation {

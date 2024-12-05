@@ -8,6 +8,10 @@ import { pastelTheme } from "./PastelTheme";
 
 export class DefaultConfig implements Config {
 
+    cityPopulationIncrease(): number {
+        return 250_000
+    }
+
     falloutDefenseModifier(): number {
         return 2
     }
@@ -78,6 +82,11 @@ export class DefaultConfig implements Config {
             case UnitType.DefensePost:
                 return {
                     cost: (p: Player) => Math.pow(2, p.units(UnitType.Port).length) * 100_000,
+                    territoryBound: true
+                }
+            case UnitType.City:
+                return {
+                    cost: (p: Player) => Math.pow(2, p.units(UnitType.Port).length) * 250_000,
                     territoryBound: true
                 }
             default:
@@ -217,7 +226,7 @@ export class DefaultConfig implements Config {
         if (player.type() == PlayerType.Bot) {
             return maxPop
         }
-        return maxPop * 2
+        return maxPop * 2 + player.units(UnitType.City).length * this.cityPopulationIncrease()
     }
 
     populationIncreaseRate(player: Player): number {
