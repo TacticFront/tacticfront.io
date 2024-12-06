@@ -209,12 +209,19 @@
 * log stack traces & display them on screen DONE 12/3/2024
 * add radiation from nuke DONE 12/4/2024
 * add cities DONE 12/4/2024
+* write multiplayer games to GCS DONE 12/6/2024
+* write single player games to GCS
+* record game winner
+* record game difficulty
+* standardize game ids
+* record commit hash of game
+* store metadata in BigQuery
+* replay stored games
 * max price for units
 * when player dies, don't remove atom bombs
 * record and replay games for debugging purposes
 * add bug report button in game
 * bugfix: destroyers can't find path to dst and freeze
-* record single player game stats
 * alert on attack
 * alert on unit captured or destroyed
 * stop requesting lobby when playing game

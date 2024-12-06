@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Difficulty, GameMap, PlayerType, UnitType } from './game/Game';
+import { Difficulty, GameMap, GameType, PlayerType, UnitType } from './game/Game';
 
 export type GameID = string
 export type ClientID = string
@@ -41,6 +41,8 @@ export type ClientPingMessage = z.infer<typeof ClientPingMessageSchema>
 export type ClientIntentMessage = z.infer<typeof ClientIntentMessageSchema>
 export type ClientJoinMessage = z.infer<typeof ClientJoinMessageSchema>
 
+export type GameRecord = z.infer<typeof GameRecordSchema>
+
 const PlayerTypeSchema = z.nativeEnum(PlayerType);
 
 // TODO: create Cell schema
@@ -53,7 +55,8 @@ export interface Lobby {
 
 const GameConfigSchema = z.object({
     gameMap: z.nativeEnum(GameMap),
-    difficulty: z.nativeEnum(Difficulty)
+    difficulty: z.nativeEnum(Difficulty),
+    gameType: z.nativeEnum(GameType)
 })
 
 const EmojiSchema = z.string().refine(
@@ -64,6 +67,8 @@ const EmojiSchema = z.string().refine(
         message: "Must contain at least one emoji character"
     }
 );
+
+
 // Zod schemas
 const BaseIntentSchema = z.object({
     type: z.enum(['attack', 'spawn', 'boat', 'name', 'targetPlayer', 'emoji', 'troop_ratio', 'build_unit']),
@@ -80,7 +85,6 @@ export const AttackIntentSchema = BaseIntentSchema.extend({
     targetX: z.number().nullable(),
     targetY: z.number().nullable()
 });
-
 
 export const SpawnIntentSchema = BaseIntentSchema.extend({
     type: z.literal('spawn'),
@@ -224,3 +228,14 @@ export const ClientJoinMessageSchema = ClientBaseMessageSchema.extend({
 })
 
 export const ClientMessageSchema = z.union([ClientPingMessageSchema, ClientIntentMessageSchema, ClientJoinMessageSchema]);
+
+export const GameRecordSchema = z.object({
+    id: z.string(),
+    gameConfig: GameConfigSchema,
+    startTimestampMS: z.number(),
+    endTimestampMS: z.number(),
+    durationSeconds: z.number(),
+    date: z.string(),
+    usernames: z.array(z.string()),
+    turns: z.array(TurnSchema)
+})

@@ -5,6 +5,7 @@ import DOMPurify from 'dompurify';
 
 import { Cell, Game, Player, TerraNullius, Tile, Unit } from "./game/Game";
 import { number } from 'zod';
+import { GameRecord } from './Schemas';
 
 export function manhattanDist(c1: Cell, c2: Cell): number {
     return Math.abs(c1.x - c2.x) + Math.abs(c1.y - c2.y);
@@ -220,6 +221,29 @@ export function onlyImages(html: string) {
         ALLOWED_URI_REGEXP: /^https:\/\/cdn\.jsdelivr\.net\/gh\/twitter\/twemoji/,
         ADD_ATTR: ['style']
     });
+}
+
+export function ProcessGameRecord(record: GameRecord): GameRecord {
+    const packed: GameRecord = structuredClone(record);
+    packed.turns = []
+    const usernames = new Set<string>()
+    for (const turn of record.turns) {
+        if (turn.intents.length != 0) {
+            packed.turns.push(turn)
+            for (const intent of turn.intents) {
+                if (intent.type == 'spawn') {
+                    usernames.add(intent.name)
+                }
+            }
+        }
+    }
+    packed.usernames = Array.from(usernames)
+    packed.durationSeconds = Math.floor((record.endTimestampMS - record.startTimestampMS) / 1000)
+    return packed;
+}
+
+export function ToBigQuery(record: GameRecord) {
+
 }
 
 export function assertNever(x: never): never {

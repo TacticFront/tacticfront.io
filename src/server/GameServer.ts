@@ -1,9 +1,10 @@
-import { ClientMessage, ClientMessageSchema, GameConfig, Intent, ServerStartGameMessage, ServerStartGameMessageSchema, ServerTurnMessageSchema, Turn } from "../core/Schemas";
+import { ClientMessage, ClientMessageSchema, GameConfig, GameRecordSchema, Intent, ServerStartGameMessage, ServerStartGameMessageSchema, ServerTurnMessageSchema, Turn } from "../core/Schemas";
 import { Config } from "../core/configuration/Config";
 import { Client } from "./Client";
 import WebSocket from 'ws';
 import { slog } from "./StructuredLog";
 import { Storage } from '@google-cloud/storage';
+import { ProcessGameRecord as ProcessRecord } from "../core/Util";
 
 const storage = new Storage();
 
@@ -22,6 +23,7 @@ export class GameServer {
     private intents: Intent[] = []
     private clients: Client[] = []
     private _hasStarted = false
+    private _startTime: number = null
 
     private endTurnIntervalID
 
@@ -88,11 +90,13 @@ export class GameServer {
     }
 
     public startTime(): number {
-        return this.createdAt + this.config.lobbyLifetime()
+        return this._startTime
     }
 
     public start() {
         this._hasStarted = true
+        this._startTime = Date.now()
+
         this.clients.forEach(c => {
             console.log(`game ${this.id} sending start message to ${c.id}`)
             this.sendStartGameMsg(c.ws, 0)
@@ -138,7 +142,7 @@ export class GameServer {
         // Close all WebSocket connections
         clearInterval(this.endTurnIntervalID);
         this.clients.forEach(client => {
-            client.ws.removeAllListeners('message');
+            client.ws.removeAllListeners('message'); // TODO: remove this?
             if (client.ws.readyState === WebSocket.OPEN) {
                 client.ws.close(1000, "game has ended");
             }
@@ -151,10 +155,14 @@ export class GameServer {
                 const file = bucket.file(this.id);
                 const game = {
                     id: this.id,
+                    gameConfig: this.gameConfig,
+                    startTimestampMS: this._startTime,
+                    endTimestampMS: Date.now(),
                     date: new Date().toISOString().split('T')[0],
                     turns: this.turns
                 }
-                await file.save(JSON.stringify(game), {
+                const processed = ProcessRecord(game)
+                await file.save(JSON.stringify(GameRecordSchema.parse(processed)), {
                     contentType: 'application/json'
                 });
             }

@@ -23,6 +23,12 @@ export enum GameMap {
     Mena
 }
 
+export enum GameType {
+    Singleplayer,
+    Public,
+    Private,
+}
+
 export interface UnitInfo {
     cost: (player: Player) => Gold
     // Determines if its owner changes when its tile is conquered.
