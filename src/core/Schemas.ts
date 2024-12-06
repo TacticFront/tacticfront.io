@@ -31,16 +31,15 @@ export type BuildUnitIntent = z.infer<typeof BuildUnitIntentSchema>
 export type Turn = z.infer<typeof TurnSchema>
 export type GameConfig = z.infer<typeof GameConfigSchema>
 
-export type ClientMessage = ClientIntentMessage | ClientJoinMessage | ClientLeaveMessage
+export type ClientMessage = ClientPingMessage | ClientIntentMessage | ClientJoinMessage
 export type ServerMessage = ServerSyncMessage | ServerStartGameMessage
 
 export type ServerSyncMessage = z.infer<typeof ServerTurnMessageSchema>
 export type ServerStartGameMessage = z.infer<typeof ServerStartGameMessageSchema>
 
-
+export type ClientPingMessage = z.infer<typeof ClientPingMessageSchema>
 export type ClientIntentMessage = z.infer<typeof ClientIntentMessageSchema>
 export type ClientJoinMessage = z.infer<typeof ClientJoinMessageSchema>
-export type ClientLeaveMessage = z.infer<typeof ClientLeaveMessageSchema>
 
 const PlayerTypeSchema = z.nativeEnum(PlayerType);
 
@@ -204,28 +203,24 @@ export const ServerMessageSchema = z.union([ServerTurnMessageSchema, ServerStart
 // Client
 
 const ClientBaseMessageSchema = z.object({
-    type: z.string()
+    type: z.string(),
+    clientID: z.string(),
+    gameID: z.string(),
+})
+
+export const ClientPingMessageSchema = ClientBaseMessageSchema.extend({
+    type: z.literal('ping'),
 })
 
 export const ClientIntentMessageSchema = ClientBaseMessageSchema.extend({
     type: z.literal('intent'),
-    clientID: z.string(),
-    gameID: z.string(),
     intent: IntentSchema
 })
 
 export const ClientJoinMessageSchema = ClientBaseMessageSchema.extend({
     type: z.literal('join'),
-    clientID: z.string(),
     clientIP: z.string().nullable(),
-    gameID: z.string(),
     lastTurn: z.number() // The last turn the client saw.
 })
 
-export const ClientLeaveMessageSchema = ClientBaseMessageSchema.extend({
-    type: z.literal('leave'),
-    clientID: z.string(),
-    gameID: z.string(),
-})
-
-export const ClientMessageSchema = z.union([ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema]);
+export const ClientMessageSchema = z.union([ClientPingMessageSchema, ClientIntentMessageSchema, ClientJoinMessageSchema]);

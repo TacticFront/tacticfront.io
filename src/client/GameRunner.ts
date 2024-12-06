@@ -5,7 +5,7 @@ import { EventBus } from "../core/EventBus";
 import { Config, getConfig } from "../core/configuration/Config";
 import { createRenderer, GameRenderer } from "./graphics/GameRenderer";
 import { InputHandler, MouseUpEvent, ZoomEvent, DragEvent, MouseDownEvent } from "./InputHandler"
-import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema, ClientMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ServerSyncMessage, Turn } from "../core/Schemas";
+import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ServerSyncMessage, Turn } from "../core/Schemas";
 import { loadTerrainMap, TerrainMapImpl } from "../core/game/TerrainMapLoader";
 import { and, bfs, dist, manhattanDist } from "../core/Util";
 import { WinCheckExecution } from "../core/execution/WinCheckExecution";

@@ -25,7 +25,6 @@ export class GameServer {
 
     private endTurnIntervalID
 
-
     constructor(
         public readonly id: string,
         public readonly createdAt: number,
@@ -59,6 +58,7 @@ export class GameServer {
         }
         this.clients = this.clients.filter(c => c.id != client.id)
         this.clients.push(client)
+        client.lastPing = Date.now()
         client.ws.on('message', (message: string) => {
             const clientMsg: ClientMessage = ClientMessageSchema.parse(JSON.parse(message))
             if (clientMsg.type == "intent") {
@@ -68,16 +68,13 @@ export class GameServer {
                     console.warn(`client ${clientMsg.clientID} sent to wrong game`)
                 }
             }
-            if (clientMsg.type == "leave") {
-                // TODO: get rid of leave message, just use on close?
-                const toRemove = this.clients.filter(c => c.id)
-                if (toRemove.length == 0) {
-                    return
-                }
-                toRemove[0].ws.close()
-                console.log(`client ${toRemove[0].id} left game`)
-                this.clients = this.clients.filter(c => c.id != clientMsg.clientID)
+            if (clientMsg.type == "ping") {
+                client.lastPing = Date.now()
             }
+        })
+        client.ws.on('close', () => {
+            console.log(`client ${client.id} disconnected`)
+            this.clients = this.clients.filter(c => c.id != client.id)
         })
 
         // In case a client joined the game late and missed the start message.
@@ -143,11 +140,12 @@ export class GameServer {
         this.clients.forEach(client => {
             client.ws.removeAllListeners('message');
             if (client.ws.readyState === WebSocket.OPEN) {
-                client.ws.close();
+                client.ws.close(1000, "game has ended");
             }
         });
+        console.log(`ending game ${this.id} with ${this.turns.length} turns`)
         try {
-            if (this.turns.length > 350) {
+            if (this.turns.length > 100) {
                 console.log(`writing game ${this.id} to gcs`)
                 const bucket = storage.bucket(this.config.gameStorageBucketName());
                 const file = bucket.file(this.id);
@@ -166,14 +164,27 @@ export class GameServer {
     }
 
     phase(): GamePhase {
-        if (Date.now() > this.createdAt + this.config.lobbyLifetime() + this.maxGameDuration) {
+        const now = Date.now()
+        const alive = []
+        for (const client of this.clients) {
+            if (now - client.lastPing > 60_000) {
+                console.log(`no pings from ${client.id}, terminating connection`)
+                if (client.ws.readyState === WebSocket.OPEN) {
+                    client.ws.close(1000, "no heartbeats received, closing connection");
+                }
+            } else {
+                alive.push(client)
+            }
+        }
+        this.clients = alive
+        if (now > this.createdAt + this.config.lobbyLifetime() + this.maxGameDuration) {
             console.warn(`game past max duration ${this.id}`)
             return GamePhase.Finished
         }
         if (!this.isPublic) {
             if (this._hasStarted) {
                 if (this.clients.length == 0) {
-                    console.log()
+                    console.log(`private game: ${this.id} complete`)
                     return GamePhase.Finished
                 } else {
                     return GamePhase.Active
@@ -183,11 +194,11 @@ export class GameServer {
             }
         }
 
-        if (Date.now() - this.createdAt < this.config.lobbyLifetime()) {
+        if (now - this.createdAt < this.config.lobbyLifetime()) {
             return GamePhase.Lobby
         }
 
-        if (this.clients.length == 0 && Date.now() > this.createdAt + this.config.lobbyLifetime() + 30 * 60) { // wait at least 30s before ending game
+        if (this.clients.length == 0 && now > this.createdAt + this.config.lobbyLifetime() + 30 * 60) { // wait at least 30s before ending game
             return GamePhase.Finished
         }
 

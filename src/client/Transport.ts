@@ -1,7 +1,7 @@
 import { Config } from "../core/configuration/Config"
 import { EventBus, GameEvent } from "../core/EventBus"
 import { AllianceRequest, AllPlayers, Cell, Player, PlayerID, PlayerType, Tile, UnitType } from "../core/game/Game"
-import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientLeaveMessageSchema, BuildUnitIntentSchema, GameID, Intent, ServerMessage, ServerMessageSchema } from "../core/Schemas"
+import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ClientPingMessageSchema } from "../core/Schemas"
 import { LocalServer } from "./LocalServer"
 
 
@@ -93,6 +93,10 @@ export class Transport {
     private onconnect: () => void
     private onmessage: (msg: ServerMessage) => void
 
+
+    private pingInterval: number | null = null
+    private lastPingTime: number | null = null
+
     constructor(
         private isLocal: boolean,
         private eventBus: EventBus,
@@ -116,7 +120,28 @@ export class Transport {
         this.eventBus.on(BuildUnitIntentEvent, (e) => this.onBuildUnitIntent(e))
     }
 
-    connect(onconnect: () => void, onmessage: (message: ServerMessage) => void) {
+    private startPing() {
+        if (this.isLocal || this.pingInterval) return;
+
+        this.pingInterval = window.setInterval(() => {
+            if (this.socket != null && this.socket.readyState === WebSocket.OPEN) {
+                this.sendMsg(JSON.stringify(ClientPingMessageSchema.parse({
+                    type: 'ping',
+                    clientID: this.clientID,
+                    gameID: this.gameID,
+                })))
+            }
+        }, 10000);
+    }
+
+    private stopPing() {
+        if (this.pingInterval) {
+            window.clearInterval(this.pingInterval);
+            this.pingInterval = null;
+        }
+    }
+
+    public connect(onconnect: () => void, onmessage: (message: ServerMessage) => void) {
         if (this.isLocal) {
             this.connectLocal(onconnect, onmessage)
         } else {
@@ -130,6 +155,7 @@ export class Transport {
     }
 
     private connectRemote(onconnect: () => void, onmessage: (message: ServerMessage) => void) {
+        this.startPing()
         const isFirstConnect = this.socket == null
         if (isFirstConnect) {
             const wsHost = process.env.WEBSOCKET_URL || window.location.host;
@@ -155,8 +181,10 @@ export class Transport {
         };
         this.socket.onclose = (event: CloseEvent) => {
             console.log(`WebSocket closed. Code: ${event.code}, Reason: ${event.reason}`);
-            console.log(`reconnecting`)
-            this.connect(onconnect, onmessage)
+            if (event.code != 1000) {
+                console.log(`reconnecting`)
+                this.connect(onconnect, onmessage)
+            }
         };
         if (!isFirstConnect) {
             // Socket has already been opened, so simulate new connection.
@@ -182,14 +210,9 @@ export class Transport {
         if (this.isLocal) {
             return
         }
+        this.stopPing()
         if (this.socket.readyState === WebSocket.OPEN) {
             console.log('on stop: leaving game')
-            const msg = ClientLeaveMessageSchema.parse({
-                type: "leave",
-                clientID: this.clientID,
-                gameID: this.gameID,
-            })
-            this.sendMsg(JSON.stringify(msg))
             this.socket.close()
         } else {
             console.log('WebSocket is not open. Current state:', this.socket.readyState);
