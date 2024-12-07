@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { Lobby } from "../core/Schemas";
-import { Difficulty, GameMap } from '../core/game/Game';
+import { Difficulty, GameMap, GameType } from '../core/game/Game';
 
 @customElement('public-lobby')
 export class PublicLobby extends LitElement {
@@ -111,7 +111,7 @@ export class PublicLobby extends LitElement {
             this.dispatchEvent(new CustomEvent('join-lobby', {
                 detail: {
                     lobby: lobby,
-                    singlePlayer: false,
+                    gameType: GameType.Public,
                     map: GameMap.World,
                     difficulty: Difficulty.Medium,
                 },

@@ -34,7 +34,7 @@ export class Executor {
     // private random = new PseudoRandom(999)
     private random: PseudoRandom = null
 
-    constructor(private gs: Game, private difficulty: Difficulty, private gameID: GameID, private workerClient: WorkerClient) {
+    constructor(private gs: Game, private gameID: GameID, private workerClient: WorkerClient) {
         // Add one to avoid id collisions with bots.
         this.random = new PseudoRandom(simpleHash(gameID) + 1)
     }
@@ -127,7 +127,7 @@ export class Executor {
                     this.random.nextID()
                 ),
                 nation.cell,
-                nation.strength * this.difficulty
+                nation.strength * this.gs.gameConfig().difficulty
             ))
         }
         return execs

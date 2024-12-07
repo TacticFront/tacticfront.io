@@ -74,7 +74,7 @@ class Client {
         }
         this.gameStop = joinLobby(
             {
-                isLocal: event.detail.singlePlayer,
+                gameType: event.detail.gameType,
                 playerName: (): string => this.usernameInput.getCurrentUsername(),
                 gameID: lobby.id,
                 ip: clientIP,

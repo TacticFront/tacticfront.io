@@ -1,11 +1,11 @@
 import { Executor } from "../core/execution/ExecutionManager";
-import { Cell, MutableGame, PlayerEvent, PlayerID, MutablePlayer, TileEvent, Player, Game, UnitEvent, Tile, PlayerType, GameMap, Difficulty } from "../core/game/Game";
+import { Cell, MutableGame, PlayerEvent, PlayerID, MutablePlayer, TileEvent, Player, Game, UnitEvent, Tile, PlayerType, GameMap, Difficulty, GameType } from "../core/game/Game";
 import { createGame } from "../core/game/GameImpl";
 import { EventBus } from "../core/EventBus";
 import { Config, getConfig } from "../core/configuration/Config";
 import { createRenderer, GameRenderer } from "./graphics/GameRenderer";
 import { InputHandler, MouseUpEvent, ZoomEvent, DragEvent, MouseDownEvent } from "./InputHandler"
-import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ServerSyncMessage, Turn } from "../core/Schemas";
+import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientMessageSchema, GameConfig, GameID, Intent, ServerMessage, ServerMessageSchema, ServerSyncMessage, Turn } from "../core/Schemas";
 import { loadTerrainMap, TerrainMapImpl } from "../core/game/TerrainMapLoader";
 import { and, bfs, dist, manhattanDist } from "../core/Util";
 import { WinCheckExecution } from "../core/execution/WinCheckExecution";
@@ -17,7 +17,7 @@ import { WorkerClient } from "../core/worker/WorkerClient";
 
 
 export interface LobbyConfig {
-    isLocal: boolean
+    gameType: GameType
     playerName: () => string
     gameID: GameID
     ip: string | null
@@ -25,19 +25,21 @@ export interface LobbyConfig {
     difficulty: Difficulty | null
 }
 
-export interface GameConfig {
-    map: GameMap
-    difficulty: Difficulty
-    clientID: ClientID,
-    gameID: GameID,
-}
-
 export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => void {
     const clientID = uuidv4()
     const playerID = uuidv4()
     const eventBus = new EventBus()
     const config = getConfig()
-    const transport = new Transport(lobbyConfig.isLocal, eventBus, lobbyConfig.gameID, lobbyConfig.ip, clientID, playerID, config, lobbyConfig.playerName)
+    const transport = new Transport(
+        lobbyConfig.gameType == GameType.Singleplayer,
+        eventBus,
+        lobbyConfig.gameID,
+        lobbyConfig.ip,
+        clientID,
+        playerID,
+        config,
+        lobbyConfig.playerName
+    )
 
     const onconnect = () => {
         console.log(`Joined game lobby ${lobbyConfig.gameID}`);
@@ -48,13 +50,11 @@ export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => v
             console.log('lobby: game started')
             onjoin()
             const gameConfig = {
-                map: message.config?.gameMap || lobbyConfig.map,
+                gameMap: message.config?.gameMap || lobbyConfig.map,
                 difficulty: message.config?.difficulty || lobbyConfig.difficulty,
-                clientID: clientID,
-                gameID: lobbyConfig.gameID,
-                ip: lobbyConfig.ip,
+                gameType: lobbyConfig.gameType
             }
-            createClientGame(gameConfig, eventBus, transport).then(r => r.start())
+            createClientGame(gameConfig, eventBus, transport, lobbyConfig.gameID, clientID).then(r => r.start())
         };
     }
     transport.connect(onconnect, onmessage)
@@ -65,30 +65,30 @@ export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => v
 }
 
 
-export async function createClientGame(gameConfig: GameConfig, eventBus: EventBus, transport: Transport): Promise<GameRunner> {
+export async function createClientGame(gameConfig: GameConfig, eventBus: EventBus, transport: Transport, gameID: GameID, clientID: ClientID): Promise<GameRunner> {
     const config = getConfig()
 
-    const terrainMap = await loadTerrainMap(gameConfig.map)
+    const terrainMap = await loadTerrainMap(gameConfig.gameMap)
 
-    let game = createGame(terrainMap, eventBus, config)
+    let game = createGame(terrainMap, eventBus, config, gameConfig)
 
-    const worker = new WorkerClient(game, gameConfig.map)
+    const worker = new WorkerClient(game, gameConfig.gameMap)
     console.log('going to init path finder')
     await worker.initialize()
     console.log('inited path finder')
     const canvas = createCanvas()
-    let gameRenderer = createRenderer(canvas, game, eventBus, gameConfig.clientID)
+    let gameRenderer = createRenderer(canvas, game, eventBus, clientID)
 
 
     console.log(`creating private game got difficulty: ${gameConfig.difficulty}`)
 
     return new GameRunner(
-        gameConfig,
+        clientID,
         eventBus,
         game,
         gameRenderer,
         new InputHandler(canvas, eventBus),
-        new Executor(game, gameConfig.difficulty, gameConfig.gameID, worker),
+        new Executor(game, gameID, worker),
         transport,
     )
 }
@@ -106,7 +106,7 @@ export class GameRunner {
     private hasJoined = false
 
     constructor(
-        private gameConfig: GameConfig,
+        private clientID: ClientID,
         private eventBus: EventBus,
         private gs: Game,
         private renderer: GameRenderer,
@@ -187,7 +187,7 @@ export class GameRunner {
 
     private playerEvent(event: PlayerEvent) {
         console.log('received new player event!')
-        if (event.player.clientID() == this.gameConfig.clientID) {
+        if (event.player.clientID() == this.clientID) {
             console.log('setting name')
             this.myPlayer = event.player
         }

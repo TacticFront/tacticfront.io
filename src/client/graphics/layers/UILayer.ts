@@ -1,13 +1,13 @@
-import {GameEnv, Theme} from "../../../core/configuration/Config";
-import {EventBus} from "../../../core/EventBus";
-import {WinEvent} from "../../../core/execution/WinCheckExecution";
-import {AllianceRequest, AllianceRequestReplyEvent, Game, Player} from "../../../core/game/Game";
-import {ClientID} from "../../../core/Schemas";
-import {ContextMenuEvent} from "../../InputHandler";
-import {Layer} from "./Layer";
-import {TransformHandler} from "../TransformHandler";
-import {MessageType} from "./EventsDisplay";
-import {SendBreakAllianceIntentEvent} from "../../Transport";
+import { GameEnv, Theme } from "../../../core/configuration/Config";
+import { EventBus } from "../../../core/EventBus";
+import { WinEvent } from "../../../core/execution/WinCheckExecution";
+import { AllianceRequest, AllianceRequestReplyEvent, Game, Player } from "../../../core/game/Game";
+import { ClientID } from "../../../core/Schemas";
+import { ContextMenuEvent } from "../../InputHandler";
+import { Layer } from "./Layer";
+import { TransformHandler } from "../TransformHandler";
+import { MessageType } from "./EventsDisplay";
+import { SendBreakAllianceIntentEvent } from "../../Transport";
 
 interface MenuOption {
     label: string;
@@ -38,7 +38,7 @@ export class UILayer implements Layer {
         const barHeight = 15;
         const barBackgroundWidth = this.transformHandler.width();
 
-        const ratio = this.game.ticks() / this.game.config().numSpawnPhaseTurns()
+        const ratio = this.game.ticks() / this.game.config().numSpawnPhaseTurns(this.game.gameConfig().gameType)
 
         // Draw bar background
         context.fillStyle = 'rgba(0, 0, 0, 0.5)';

@@ -28,10 +28,6 @@ export class PlayerExecution implements Execution {
     }
 
     tick(ticks: number) {
-        if (ticks < this.config.numSpawnPhaseTurns()) {
-            return
-        }
-
         this.player.units().forEach(u => {
             const tileOwner = u.tile().owner()
             if (u.info().territoryBound) {

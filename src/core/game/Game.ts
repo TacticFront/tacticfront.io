@@ -1,6 +1,6 @@
 import { Config } from "../configuration/Config"
 import { GameEvent } from "../EventBus"
-import { ClientID, GameID } from "../Schemas"
+import { ClientID, GameConfig, GameID } from "../Schemas"
 import { MessageType } from "../../client/graphics/layers/EventsDisplay"
 import { SearchNode } from "../pathfinding/AStar"
 
@@ -306,6 +306,7 @@ export interface Game {
     addExecution(...exec: Execution[]): void
     nations(): Nation[]
     config(): Config
+    gameConfig(): GameConfig
     displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void
     units(...types: UnitType[]): Unit[]
     unitInfo(type: UnitType): UnitInfo

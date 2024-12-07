@@ -112,9 +112,6 @@ export class AttackExecution implements Execution {
         if (!this.active) {
             return
         }
-        if (ticks < this.mg.config().numSpawnPhaseTurns()) {
-            return
-        }
         const alliance = this._owner.allianceWith(this.target as Player)
         if (this.breakAlliance && alliance != null) {
             this.breakAlliance = false

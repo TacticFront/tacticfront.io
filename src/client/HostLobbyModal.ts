@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { Difficulty, GameMap } from '../core/game/Game';
+import { Difficulty, GameMap, GameType } from '../core/game/Game';
 import { Lobby } from '../core/Schemas';
 
 @customElement('host-lobby-modal')
@@ -146,7 +146,7 @@ export class HostLobbyModal extends LitElement {
     }).then(() => {
       this.dispatchEvent(new CustomEvent('join-lobby', {
         detail: {
-          singlePlayer: false,
+          gameType: GameType.Private,
           lobby: {
             id: this.lobbyId,
           },

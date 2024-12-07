@@ -1,6 +1,6 @@
-import {LitElement, html, css} from 'lit';
-import {customElement, property, state, query} from 'lit/decorators.js';
-import {GameMap} from '../core/game/Game';
+import { LitElement, html, css } from 'lit';
+import { customElement, property, state, query } from 'lit/decorators.js';
+import { GameMap, GameType } from '../core/game/Game';
 
 @customElement('join-private-lobby-modal')
 export class JoinPrivateLobbyModal extends LitElement {
@@ -138,7 +138,7 @@ export class JoinPrivateLobbyModal extends LitElement {
     this.hasJoined = false
     this.message = ""
     this.dispatchEvent(new CustomEvent('leave-lobby', {
-      detail: {lobby: this.lobbyIdInput.value},
+      detail: { lobby: this.lobbyIdInput.value },
       bubbles: true,
       composed: true
     }));
@@ -171,8 +171,8 @@ export class JoinPrivateLobbyModal extends LitElement {
           this.hasJoined = true
           this.dispatchEvent(new CustomEvent('join-lobby', {
             detail: {
-              lobby: {id: lobbyId},
-              singlePlayer: false,
+              lobby: { id: lobbyId },
+              gameType: GameType.Private,
               map: GameMap.World,
             },
             bubbles: true,

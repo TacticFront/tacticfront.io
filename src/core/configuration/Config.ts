@@ -1,4 +1,4 @@
-import { Gold, Player, PlayerID, PlayerInfo, TerraNullius, Tick, Tile, Unit, UnitInfo, UnitType } from "../game/Game";
+import { GameType, Gold, Player, PlayerID, PlayerInfo, TerraNullius, Tick, Tile, Unit, UnitInfo, UnitType } from "../game/Game";
 import { Colord, colord } from "colord";
 import { devConfig } from "./DevConfig";
 import { defaultConfig } from "./DefaultConfig";
@@ -32,7 +32,7 @@ export interface Config {
 	lobbyLifetime(): number
 	numBots(): number
 	spawnNPCs(): boolean
-	numSpawnPhaseTurns(): number
+	numSpawnPhaseTurns(gameType: GameType): number
 
 	startManpower(playerInfo: PlayerInfo): number
 	populationIncreaseRate(player: Player): number

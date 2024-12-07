@@ -8,12 +8,12 @@ import { TerraNulliusImpl } from "./TerraNulliusImpl";
 import { TileImpl } from "./TileImpl";
 import { AllianceRequestImpl } from "./AllianceRequestImpl";
 import { AllianceImpl } from "./AllianceImpl";
-import { ClientID } from "../Schemas";
+import { ClientID, GameConfig } from "../Schemas";
 import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/EventsDisplay";
 import { UnitImpl } from "./UnitImpl";
 
-export function createGame(terrainMap: TerrainMapImpl, eventBus: EventBus, config: Config): Game {
-    return new GameImpl(terrainMap, eventBus, config)
+export function createGame(terrainMap: TerrainMapImpl, eventBus: EventBus, config: Config, gameConfig: GameConfig): Game {
+    return new GameImpl(terrainMap, eventBus, config, gameConfig)
 }
 
 export type CellString = string
@@ -40,7 +40,12 @@ export class GameImpl implements MutableGame {
 
     private _terrainMiniMap: TerrainMap = null
 
-    constructor(private _terrainMap: TerrainMapImpl, public eventBus: EventBus, private _config: Config) {
+    constructor(
+        private _terrainMap: TerrainMapImpl,
+        public eventBus: EventBus,
+        private _config: Config,
+        private _gameConfig: GameConfig,
+    ) {
         this._terraNullius = new TerraNulliusImpl(this)
         this._width = _terrainMap.width();
         this._height = _terrainMap.height();
@@ -63,6 +68,10 @@ export class GameImpl implements MutableGame {
             console.log('mini map loaded!')
             this._terrainMiniMap = m
         })
+    }
+
+    gameConfig(): GameConfig {
+        return this._gameConfig
     }
 
     addFallout(tile: Tile) {
@@ -143,7 +152,7 @@ export class GameImpl implements MutableGame {
     }
 
     inSpawnPhase(): boolean {
-        return this._ticks <= this.config().numSpawnPhaseTurns()
+        return this._ticks <= this.config().numSpawnPhaseTurns(this._gameConfig.gameType)
     }
 
     ticks(): number {

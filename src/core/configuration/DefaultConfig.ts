@@ -1,4 +1,4 @@
-import { Gold, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tick, Tile, Unit, UnitInfo, UnitType } from "../game/Game";
+import { GameType, Gold, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tick, Tile, Unit, UnitInfo, UnitType } from "../game/Game";
 import { GameID } from "../Schemas";
 import { assertNever, distSort, manhattanDist, simpleHash, within } from "../Util";
 import { Config, Theme } from "./Config";
@@ -140,8 +140,8 @@ export class DefaultConfig implements Config {
     boatMaxDistance(): number {
         return 500
     }
-    numSpawnPhaseTurns(): number {
-        return 100
+    numSpawnPhaseTurns(gameType: GameType): number {
+        return gameType == GameType.Singleplayer ? 100 : 200
     }
     numBots(): number {
         return 400

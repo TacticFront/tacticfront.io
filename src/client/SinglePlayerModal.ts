@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { Difficulty, GameMap } from '../core/game/Game';
+import { Difficulty, GameMap, GameType } from '../core/game/Game';
 
 @customElement('single-player-modal')
 export class SinglePlayerModal extends LitElement {
@@ -125,7 +125,7 @@ export class SinglePlayerModal extends LitElement {
     console.log(`Starting single player game with map: ${GameMap[this.selectedMap]}`);
     this.dispatchEvent(new CustomEvent('join-lobby', {
       detail: {
-        singlePlayer: true,
+        gameType: GameType.Singleplayer,
         lobby: {
           id: "LOCAL",
         },
