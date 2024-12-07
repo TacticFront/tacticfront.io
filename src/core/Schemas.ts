@@ -176,7 +176,7 @@ const IntentSchema = z.union([
     BuildUnitIntentSchema,
 ]);
 
-const TurnSchema = z.object({
+export const TurnSchema = z.object({
     turnNumber: z.number(),
     gameID: z.string(),
     intents: z.array(IntentSchema)
