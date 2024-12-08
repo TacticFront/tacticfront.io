@@ -15,10 +15,10 @@ export const devConfig = new class extends DefaultConfig {
     percentageTilesOwnedToWin(): number {
         return 95
     }
-    // numSpawnPhaseTurns(gameType: GameType): number {
-    //     return 40
-    //     // return 100
-    // }
+    numSpawnPhaseTurns(gameType: GameType): number {
+        return 40
+        // return 100
+    }
     gameCreationRate(): number {
         return 10 * 1000
     }

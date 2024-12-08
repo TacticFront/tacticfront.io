@@ -32,10 +32,11 @@ export type Turn = z.infer<typeof TurnSchema>
 export type GameConfig = z.infer<typeof GameConfigSchema>
 
 export type ClientMessage = ClientPingMessage | ClientIntentMessage | ClientJoinMessage
-export type ServerMessage = ServerSyncMessage | ServerStartGameMessage
+export type ServerMessage = ServerSyncMessage | ServerStartGameMessage | ServerPingMessage
 
 export type ServerSyncMessage = z.infer<typeof ServerTurnMessageSchema>
 export type ServerStartGameMessage = z.infer<typeof ServerStartGameMessageSchema>
+export type ServerPingMessage = z.infer<typeof ServerPingMessageSchema>
 
 export type ClientPingMessage = z.infer<typeof ClientPingMessageSchema>
 export type ClientIntentMessage = z.infer<typeof ClientIntentMessageSchema>
@@ -193,6 +194,10 @@ export const ServerTurnMessageSchema = ServerBaseMessageSchema.extend({
     turn: TurnSchema,
 })
 
+export const ServerPingMessageSchema = ServerBaseMessageSchema.extend({
+    type: z.literal('ping')
+})
+
 export const ServerStartGameMessageSchema = ServerBaseMessageSchema.extend({
     type: z.literal('start'),
     // Turns the client missed if they are late to the game.
@@ -201,7 +206,7 @@ export const ServerStartGameMessageSchema = ServerBaseMessageSchema.extend({
 })
 
 
-export const ServerMessageSchema = z.union([ServerTurnMessageSchema, ServerStartGameMessageSchema]);
+export const ServerMessageSchema = z.union([ServerTurnMessageSchema, ServerStartGameMessageSchema, ServerPingMessageSchema]);
 
 
 // Client

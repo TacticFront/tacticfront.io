@@ -84,10 +84,6 @@ class Client {
         );
     }
 
-    private stopGame() {
-        this?.gameStop?.()
-    }
-
     private async handleLeaveLobby(event: CustomEvent) {
         if (this.gameStop == null) {
             return

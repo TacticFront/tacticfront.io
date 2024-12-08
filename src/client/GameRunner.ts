@@ -154,6 +154,7 @@ export class GameRunner {
             }
             if (message.type == "turn") {
                 if (!this.hasJoined) {
+                    this.transport.joinGame(0)
                     return
                 }
                 if (this.turns.length != message.turn.turnNumber) {
