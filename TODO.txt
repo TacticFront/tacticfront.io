@@ -214,9 +214,9 @@
 * record game difficulty DONE 12/7/2024
 * standardize game ids DONE 12/7/2024
 * bufix: mini map doesn't load in time DONE 12/7/2024
-* bugfix: private game host game doesn't start
-* record game winner
+* bugfix: private game host game doesn't start DONE 12/8/2024
 * record commit hash of game
+* record game winner
 * store metadata in BigQuery
 * replay stored games
 * max price for units

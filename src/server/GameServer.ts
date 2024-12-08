@@ -1,4 +1,4 @@
-import { ClientMessage, ClientMessageSchema, GameConfig, GameRecordSchema, Intent, ServerStartGameMessage, ServerStartGameMessageSchema, ServerTurnMessageSchema, Turn } from "../core/Schemas";
+import { ClientMessage, ClientMessageSchema, GameConfig, GameRecordSchema, Intent, ServerPingMessageSchema, ServerStartGameMessage, ServerStartGameMessageSchema, ServerTurnMessageSchema, Turn } from "../core/Schemas";
 import { Config } from "../core/configuration/Config";
 import { Client } from "./Client";
 import WebSocket from 'ws';
@@ -35,7 +35,7 @@ export class GameServer {
         private config: Config,
         private gameConfig: GameConfig,
 
-    ) { }
+    ) {}
 
     public updateGameConfig(gameConfig: GameConfig): void {
         if (gameConfig.gameMap != null) {
@@ -103,11 +103,11 @@ export class GameServer {
         this._hasStarted = true
         this._startTime = Date.now()
 
+        this.endTurnIntervalID = setInterval(() => this.endTurn(), this.config.turnIntervalMs());
         this.clients.forEach(c => {
             console.log(`game ${this.id} sending start message to ${c.id}`)
             this.sendStartGameMsg(c.ws, 0)
         })
-        this.endTurnIntervalID = setInterval(() => this.endTurn(), this.config.turnIntervalMs());
     }
 
     private addIntent(intent: Intent) {

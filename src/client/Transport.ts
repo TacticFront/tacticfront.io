@@ -123,16 +123,17 @@ export class Transport {
 
     private startPing() {
         if (this.isLocal || this.pingInterval) return;
-
-        this.pingInterval = window.setInterval(() => {
-            if (this.socket != null && this.socket.readyState === WebSocket.OPEN) {
-                this.sendMsg(JSON.stringify(ClientPingMessageSchema.parse({
-                    type: 'ping',
-                    clientID: this.clientID,
-                    gameID: this.gameID,
-                })))
-            }
-        }, 10000);
+        if (this.pingInterval == null) {
+            this.pingInterval = window.setInterval(() => {
+                if (this.socket != null && this.socket.readyState === WebSocket.OPEN) {
+                    this.sendMsg(JSON.stringify(ClientPingMessageSchema.parse({
+                        type: 'ping',
+                        clientID: this.clientID,
+                        gameID: this.gameID,
+                    })))
+                }
+            }, 10000);
+        }
     }
 
     private stopPing() {
@@ -157,12 +158,10 @@ export class Transport {
 
     private connectRemote(onconnect: () => void, onmessage: (message: ServerMessage) => void) {
         this.startPing()
-        const isFirstConnect = this.socket == null
-        if (isFirstConnect) {
-            const wsHost = process.env.WEBSOCKET_URL || window.location.host;
-            const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            this.socket = new WebSocket(`${wsProtocol}//${wsHost}`)
-        }
+        this.maybeKillSocket()
+        const wsHost = process.env.WEBSOCKET_URL || window.location.host;
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        this.socket = new WebSocket(`${wsProtocol}//${wsHost}`)
         this.onconnect = onconnect
         this.onmessage = onmessage
         this.socket.onopen = () => {
@@ -187,10 +186,6 @@ export class Transport {
                 this.connect(onconnect, onmessage)
             }
         };
-        if (!isFirstConnect) {
-            // Socket has already been opened, so simulate new connection.
-            onconnect()
-        }
     }
 
     joinGame(numTurns: number) {
@@ -368,4 +363,22 @@ export class Transport {
             }
         }
     }
+
+    private maybeKillSocket(): void {
+        if (this.socket == null) {
+            return
+        }
+        // Remove all event listeners
+        this.socket.onmessage = null;
+        this.socket.onopen = null;
+        this.socket.onclose = null;
+        this.socket.onerror = null;
+
+        // Close the connection if it's still open
+        if (this.socket.readyState === WebSocket.OPEN) {
+            this.socket.close();
+        }
+        this.socket = null
+    }
+
 }
