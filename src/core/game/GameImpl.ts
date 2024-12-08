@@ -12,8 +12,8 @@ import { ClientID, GameConfig } from "../Schemas";
 import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/EventsDisplay";
 import { UnitImpl } from "./UnitImpl";
 
-export function createGame(terrainMap: TerrainMapImpl, eventBus: EventBus, config: Config, gameConfig: GameConfig): Game {
-    return new GameImpl(terrainMap, eventBus, config, gameConfig)
+export function createGame(terrainMap: TerrainMapImpl, miniMap: TerrainMap, eventBus: EventBus, config: Config, gameConfig: GameConfig): Game {
+    return new GameImpl(terrainMap, miniMap, eventBus, config, gameConfig)
 }
 
 export type CellString = string
@@ -38,10 +38,10 @@ export class GameImpl implements MutableGame {
     allianceRequests: AllianceRequestImpl[] = []
     alliances_: AllianceImpl[] = []
 
-    private _terrainMiniMap: TerrainMap = null
 
     constructor(
         private _terrainMap: TerrainMapImpl,
+        private _miniMap: TerrainMap,
         public eventBus: EventBus,
         private _config: Config,
         private _gameConfig: GameConfig,
@@ -64,10 +64,6 @@ export class GameImpl implements MutableGame {
                 new Cell(n.coordinates[0], n.coordinates[1]),
                 n.strength
             ))
-        createMiniMap(_terrainMap).then(m => {
-            console.log('mini map loaded!')
-            this._terrainMiniMap = m
-        })
     }
 
     gameConfig(): GameConfig {
@@ -438,10 +434,7 @@ export class GameImpl implements MutableGame {
     }
 
     public terrainMiniMap(): TerrainMap {
-        if (this._terrainMiniMap == null) {
-            throw Error('mini map not loaded')
-        }
-        return this._terrainMiniMap
+        return this._miniMap
     }
 
     displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void {

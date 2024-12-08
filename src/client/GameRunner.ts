@@ -6,7 +6,7 @@ import { Config, getConfig } from "../core/configuration/Config";
 import { createRenderer, GameRenderer } from "./graphics/GameRenderer";
 import { InputHandler, MouseUpEvent, ZoomEvent, DragEvent, MouseDownEvent } from "./InputHandler"
 import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientMessageSchema, GameConfig, GameID, Intent, ServerMessage, ServerMessageSchema, ServerSyncMessage, Turn } from "../core/Schemas";
-import { loadTerrainMap, TerrainMapImpl } from "../core/game/TerrainMapLoader";
+import { createMiniMap, loadTerrainMap, TerrainMapImpl } from "../core/game/TerrainMapLoader";
 import { and, bfs, dist, manhattanDist } from "../core/Util";
 import { WinCheckExecution } from "../core/execution/WinCheckExecution";
 import { SendAttackIntentEvent, SendSpawnIntentEvent, Transport } from "./Transport";
@@ -74,9 +74,10 @@ export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => v
 export async function createClientGame(gameConfig: GameConfig, eventBus: EventBus, transport: Transport, gameID: GameID, clientID: ClientID): Promise<GameRunner> {
     const config = getConfig()
 
-    const terrainMap = await loadTerrainMap(gameConfig.gameMap)
+    const terrainMap = await loadTerrainMap(gameConfig.gameMap);
+    const miniMap = await createMiniMap(terrainMap);
 
-    let game = createGame(terrainMap, eventBus, config, gameConfig)
+    let game = createGame(terrainMap, miniMap, eventBus, config, gameConfig)
 
     const worker = new WorkerClient(game, gameConfig.gameMap)
     console.log('going to init path finder')
