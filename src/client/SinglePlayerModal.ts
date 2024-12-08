@@ -1,6 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { Difficulty, GameMap, GameType } from '../core/game/Game';
+import { generateGameID as generateGameID } from '../core/Util';
 
 @customElement('single-player-modal')
 export class SinglePlayerModal extends LitElement {
@@ -127,7 +128,7 @@ export class SinglePlayerModal extends LitElement {
       detail: {
         gameType: GameType.Singleplayer,
         lobby: {
-          id: "LOCAL",
+          id: generateGameID(),
         },
         map: this.selectedMap,
         difficulty: this.selectedDifficulty

@@ -4,9 +4,10 @@ import { Client } from "./Client";
 import WebSocket from 'ws';
 import { slog } from "./StructuredLog";
 import { Storage } from '@google-cloud/storage';
-import { ProcessGameRecord as ProcessRecord } from "../core/Util";
+import { CreateGameRecord, CreateGameRecord as ProcessRecord } from "../core/Util";
+import { archive } from "./Archive";
+import { arc } from "d3";
 
-const storage = new Storage();
 
 export enum GamePhase {
     Lobby = 'LOBBY',
@@ -90,7 +91,12 @@ export class GameServer {
     }
 
     public startTime(): number {
-        return this._startTime
+        if (this._startTime > 0) {
+            return this._startTime
+        } else {
+            //game hasn't started yet, only works for public games
+            return this.createdAt + this.config.lobbyLifetime()
+        }
     }
 
     public start() {
@@ -150,21 +156,8 @@ export class GameServer {
         console.log(`ending game ${this.id} with ${this.turns.length} turns`)
         try {
             if (this.turns.length > 100) {
-                console.log(`writing game ${this.id} to gcs`)
-                const bucket = storage.bucket(this.config.gameStorageBucketName());
-                const file = bucket.file(this.id);
-                const game = {
-                    id: this.id,
-                    gameConfig: this.gameConfig,
-                    startTimestampMS: this._startTime,
-                    endTimestampMS: Date.now(),
-                    date: new Date().toISOString().split('T')[0],
-                    turns: this.turns
-                }
-                const processed = ProcessRecord(game)
-                await file.save(JSON.stringify(GameRecordSchema.parse(processed)), {
-                    contentType: 'application/json'
-                });
+                const record = CreateGameRecord(this.id, this.gameConfig, this.turns, this._startTime, Date.now())
+                archive(record)
             }
         } catch (error) {
             console.log('error writing game to gcs: ' + error)

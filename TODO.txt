@@ -211,14 +211,17 @@
 * add cities DONE 12/4/2024
 * write multiplayer games to GCS DONE 12/6/2024
 * write single player games to GCS
+* bugfix: private game host game doesn't start
 * record game winner
 * record game difficulty
+* bufix: mini map doesn't load in time
 * standardize game ids
 * record commit hash of game
 * store metadata in BigQuery
 * replay stored games
 * max price for units
 * when player dies, don't remove atom bombs
+* remove alliance when player dies
 * record and replay games for debugging purposes
 * add bug report button in game
 * bugfix: destroyers can't find path to dst and freeze

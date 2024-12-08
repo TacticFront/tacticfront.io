@@ -1,7 +1,7 @@
 import { Config } from "../core/configuration/Config"
 import { EventBus, GameEvent } from "../core/EventBus"
 import { AllianceRequest, AllPlayers, Cell, Player, PlayerID, PlayerType, Tile, UnitType } from "../core/game/Game"
-import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ClientPingMessageSchema } from "../core/Schemas"
+import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ClientPingMessageSchema, GameConfig } from "../core/Schemas"
 import { LocalServer } from "./LocalServer"
 
 
@@ -99,6 +99,7 @@ export class Transport {
 
     constructor(
         private isLocal: boolean,
+        private gameConfig: GameConfig | null,
         private eventBus: EventBus,
         private gameID: GameID,
         private clientIP: string | null,
@@ -150,7 +151,7 @@ export class Transport {
     }
 
     private connectLocal(onconnect: () => void, onmessage: (message: ServerMessage) => void) {
-        this.localServer = new LocalServer(this.config, onconnect, onmessage)
+        this.localServer = new LocalServer(this.config, this.gameConfig, onconnect, onmessage)
         this.localServer.start()
     }
 
@@ -208,6 +209,7 @@ export class Transport {
 
     leaveGame() {
         if (this.isLocal) {
+            this.localServer.endGame()
             return
         }
         this.stopPing()

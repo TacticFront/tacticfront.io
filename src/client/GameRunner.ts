@@ -30,8 +30,19 @@ export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => v
     const playerID = uuidv4()
     const eventBus = new EventBus()
     const config = getConfig()
+
+    let gameConfig: GameConfig = null
+    if (lobbyConfig.gameType == GameType.Singleplayer) {
+        gameConfig = {
+            gameType: GameType.Singleplayer,
+            gameMap: lobbyConfig.map,
+            difficulty: lobbyConfig.difficulty,
+        }
+    }
+
     const transport = new Transport(
         lobbyConfig.gameType == GameType.Singleplayer,
+        gameConfig,
         eventBus,
         lobbyConfig.gameID,
         lobbyConfig.ip,
@@ -49,12 +60,7 @@ export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => v
         if (message.type == "start") {
             console.log('lobby: game started')
             onjoin()
-            const gameConfig = {
-                gameMap: message.config?.gameMap || lobbyConfig.map,
-                difficulty: message.config?.difficulty || lobbyConfig.difficulty,
-                gameType: lobbyConfig.gameType
-            }
-            createClientGame(gameConfig, eventBus, transport, lobbyConfig.gameID, clientID).then(r => r.start())
+            createClientGame(message.config, eventBus, transport, lobbyConfig.gameID, clientID).then(r => r.start())
         };
     }
     transport.connect(onconnect, onmessage)

@@ -29,11 +29,10 @@ class Client {
         if (!this.usernameInput) {
             console.warn('Username input element not found');
         }
-        const s = this.stopGame
-        window.addEventListener('beforeunload', function (event) {
+        window.addEventListener('beforeunload', (event) => {
             console.log('Browser is closing');
-            if (s != null) {
-                s()
+            if (this.gameStop != null) {
+                this.gameStop()
             }
         });
 

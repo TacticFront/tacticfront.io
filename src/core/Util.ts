@@ -5,7 +5,8 @@ import DOMPurify from 'dompurify';
 
 import { Cell, Game, Player, TerraNullius, Tile, Unit } from "./game/Game";
 import { number } from 'zod';
-import { GameRecord } from './Schemas';
+import { GameConfig, GameID, GameRecord, Turn } from './Schemas';
+import { nanoid } from 'nanoid';
 
 export function manhattanDist(c1: Cell, c2: Cell): number {
     return Math.abs(c1.x - c2.x) + Math.abs(c1.y - c2.y);
@@ -223,13 +224,19 @@ export function onlyImages(html: string) {
     });
 }
 
-export function ProcessGameRecord(record: GameRecord): GameRecord {
-    const packed: GameRecord = structuredClone(record);
-    packed.turns = []
+export function CreateGameRecord(id: GameID, gameConfig: GameConfig, turns: Turn[], start: number, end: number): GameRecord {
+    const record: GameRecord = {
+        id: id,
+        gameConfig: gameConfig,
+        startTimestampMS: start,
+        endTimestampMS: end,
+        date: new Date().toISOString().split('T')[0],
+        turns: []
+    }
     const usernames = new Set<string>()
-    for (const turn of record.turns) {
+    for (const turn of turns) {
         if (turn.intents.length != 0) {
-            packed.turns.push(turn)
+            record.turns.push(turn)
             for (const intent of turn.intents) {
                 if (intent.type == 'spawn') {
                     usernames.add(intent.name)
@@ -237,15 +244,15 @@ export function ProcessGameRecord(record: GameRecord): GameRecord {
             }
         }
     }
-    packed.usernames = Array.from(usernames)
-    packed.durationSeconds = Math.floor((record.endTimestampMS - record.startTimestampMS) / 1000)
-    return packed;
-}
-
-export function ToBigQuery(record: GameRecord) {
-
+    record.usernames = Array.from(usernames)
+    record.durationSeconds = Math.floor((record.endTimestampMS - record.startTimestampMS) / 1000)
+    return record;
 }
 
 export function assertNever(x: never): never {
     throw new Error('Unexpected value: ' + x);
+}
+
+export function generateGameID(): string {
+    return nanoid(8)
 }

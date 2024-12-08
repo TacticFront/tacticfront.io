@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Client } from "./Client";
 import { GamePhase, GameServer } from "./GameServer";
 import { Difficulty, GameMap, GameType } from "../core/game/Game";
+import { generateGameID } from "../core/Util";
 
 
 
@@ -38,7 +39,7 @@ export class GameManager {
     }
 
     createPrivateGame(): string {
-        const id = genSmallGameID()
+        const id = generateGameID()
         this.games.push(new GameServer(
             id,
             Date.now(),
@@ -77,9 +78,8 @@ export class GameManager {
         const now = Date.now()
         if (now > this.lastNewLobby + this.config.gameCreationRate()) {
             this.lastNewLobby = now
-            const id = uuidv4()
             lobbies.push(new GameServer(
-                id,
+                generateGameID(),
                 now,
                 true,
                 this.config,
@@ -97,15 +97,4 @@ export class GameManager {
         finished.map(g => g.endGame());  // Fire and forget
         this.games = [...lobbies, ...active]
     }
-}
-
-function genSmallGameID(): string {
-    // Generate a UUID
-    const uuid: string = uuidv4();
-
-    // Convert UUID to base64
-    const base64: string = btoa(uuid);
-
-    // Take the first 4 characters of the base64 string
-    return base64.slice(0, 4);
 }

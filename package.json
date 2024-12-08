@@ -76,6 +76,7 @@
     "jimp": "^0.22.12",
     "lit": "^3.2.1",
     "msgpack5": "^6.0.2",
+    "nanoid": "^5.0.9",
     "node-addon-api": "^8.1.0",
     "node-gyp": "^10.2.0",
     "priority-queue-typescript": "^1.0.1",

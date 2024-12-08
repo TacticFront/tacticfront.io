@@ -1,5 +1,5 @@
 import path from 'path';
-import {fileURLToPath} from 'url';
+import { fileURLToPath } from 'url';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import webpack from 'webpack';
 
@@ -95,7 +95,7 @@ export default (env, argv) => {
 					ws: true,
 				},
 				{
-					context: ['/lobbies', '/join_game', '/join_lobby', '/private_lobby', '/start_private_lobby', '/lobby'],
+					context: ['/lobbies', '/join_game', '/join_lobby', '/private_lobby', '/start_private_lobby', '/lobby', '/archive_singleplayer_game'],
 					target: 'http://localhost:3000',
 					secure: false,
 					changeOrigin: true,

@@ -97,7 +97,7 @@ export class PublicLobby extends LitElement {
         @click=${() => this.lobbyClicked(lobby)}
         class="lobby-button ${this.isLobbyHighlighted ? 'highlighted' : ''}"
       >
-        <div class="lobby-name">Game ${lobby.id.substring(0, 3)}</div>
+        <div class="lobby-name">Game ${lobby.id}</div>
         <div class="lobby-timer">Starts in: ${timeRemaining}s</div>
         <div class="player-count">Players: ${lobby.numClients}</div>
       </button>
