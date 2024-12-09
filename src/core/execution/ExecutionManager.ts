@@ -6,7 +6,6 @@ import { BotSpawner } from "./BotSpawner";
 import { TransportShipExecution } from "./TransportShipExecution";
 import { PseudoRandom } from "../PseudoRandom";
 import { FakeHumanExecution } from "./FakeHumanExecution";
-import Usernames from '../../../resources/Usernames.txt'
 import { processName, sanitize, simpleHash } from "../Util";
 import { AllianceRequestExecution } from "./alliance/AllianceRequestExecution";
 import { AllianceRequestReplyExecution } from "./alliance/AllianceRequestReplyExecution";
@@ -29,7 +28,6 @@ import { CityExecution } from "./CityExecution";
 
 export class Executor {
 
-    private usernames = Usernames.split('\n')
 
     // private random = new PseudoRandom(999)
     private random: PseudoRandom = null

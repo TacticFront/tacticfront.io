@@ -9,10 +9,18 @@ import worldInfo from "../../../resources/maps/WorldMap.json"
 import menaBin from "!!binary-loader!../../../resources/maps/Mena.bin"
 import menaInfo from "../../../resources/maps/Mena.json"
 
+import northAmericaBin from "!!binary-loader!../../../resources/maps/NorthAmerica.bin"
+import northAmericaInfo from "../../../resources/maps/NorthAmerica.json"
+
+import oceaniaBin from "!!binary-loader!../../../resources/maps/Oceania.bin"
+import oceaniaInfo from "../../../resources/maps/Oceania.json"
+
 const maps = new Map()
     .set(GameMap.World, { bin: worldBin, info: worldInfo })
     .set(GameMap.Europe, { bin: europeBin, info: europeInfo })
-    .set(GameMap.Mena, { bin: menaBin, info: menaInfo });
+    .set(GameMap.Mena, { bin: menaBin, info: menaInfo })
+    .set(GameMap.NorthAmerica, { bin: northAmericaBin, info: northAmericaInfo })
+    .set(GameMap.Oceania, { bin: oceaniaBin, info: oceaniaInfo })
 
 const loadedMaps = new Map<GameMap, TerrainMapImpl>()
 

@@ -8,7 +8,7 @@ import { TerrainTile } from '../core/game/Game';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const mapName = "Mena"
+const mapName = "Oceania"
 
 interface Coord {
     x: number;
@@ -40,7 +40,6 @@ export async function loadTerrainMap(): Promise<void> {
 
     let max = 0
     let min = 1000
-    const array: number[] = new Array(256).fill(0);
 
 
     // Iterate through each pixel
@@ -50,14 +49,12 @@ export async function loadTerrainMap(): Promise<void> {
             const alpha = color & 0xff;
             const blue = (color >> 8) & 0xff;
 
-            if (alpha < 20) { // transparent
+            if (alpha < 20 || blue == 106) { // transparent
                 terrain[x][y] = new Terrain(TerrainType.Water);
             } else {
                 terrain[x][y] = new Terrain(TerrainType.Land)
                 terrain[x][y].magnitude = 0
 
-
-                array[blue]++
 
                 // 140 -> 200 = 60
                 const mag = Math.min(200, Math.max(140, blue)) - 140

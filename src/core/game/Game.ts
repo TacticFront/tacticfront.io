@@ -20,7 +20,9 @@ export enum Difficulty {
 export enum GameMap {
     World,
     Europe,
-    Mena
+    Mena,
+    NorthAmerica,
+    Oceania
 }
 
 export enum GameType {

@@ -1,0 +1,271 @@
+{
+    "name": "Oceania",
+    "width": 2000,
+    "height": 1000,
+    "nations": [
+        {
+            "coordinates": [
+                718,
+                738
+            ],
+            "name": "Australia 🇦🇺",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1050,
+                809
+            ],
+            "name": "New Zealand 🇳🇿",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                686,
+                407
+            ],
+            "name": "Papua New Guinea 🇵🇬",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                436,
+                407
+            ],
+            "name": "East Timor 🇹🇱",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                182,
+                378
+            ],
+            "name": "Indonesia 🇮🇩",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                292,
+                243
+            ],
+            "name": "Brunei 🇧🇳",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                152,
+                282
+            ],
+            "name": "Singapore 🇸🇬",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                120,
+                261
+            ],
+            "name": "Malaysia 🇲🇾",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                106,
+                129
+            ],
+            "name": "Thailand 🇹🇭",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                51,
+                42
+            ],
+            "name": "Myanmar 🇲🇲",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                158,
+                162
+            ],
+            "name": "Cambodia 🇰🇭",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                182,
+                43
+            ],
+            "name": "Vietnam 🇻🇳",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                143,
+                37
+            ],
+            "name": "Laos 🇱🇦",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                278,
+                18
+            ],
+            "name": "Hong Kong 🇭🇰",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                359,
+                1
+            ],
+            "name": "Taiwan 🇹🇼",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                366,
+                119
+            ],
+            "name": "Philippines 🇵🇭",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                536,
+                207
+            ],
+            "name": "Palau 🇵🇼",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                834,
+                215
+            ],
+            "name": "Micronesia 🇫🇲",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                664,
+                113
+            ],
+            "name": "Guam 🇬🇺",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1042,
+                317
+            ],
+            "name": "Marshall Islands 🇲🇭",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                799,
+                385
+            ],
+            "name": "Bougainville 🇵🇬",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                862,
+                442
+            ],
+            "name": "Solomon Islands 🇸🇧",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                945,
+                497
+            ],
+            "name": "Vanuatu 🇻🇺",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                930,
+                574
+            ],
+            "name": "New Caledonia 🇳🇨",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1085,
+                526
+            ],
+            "name": "Fiji 🇫🇯",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1169,
+                568
+            ],
+            "name": "Tonga 🇹🇴",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1236,
+                541
+            ],
+            "name": "Niue 🇳🇺",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1204,
+                473
+            ],
+            "name": "Samoa 🇼🇸",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1491,
+                523
+            ],
+            "name": "Cook Islands 🇨🇰",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1623,
+                424
+            ],
+            "name": "Polynesia 🇵🇫",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1393,
+                278
+            ],
+            "name": "Kiribati 🇰🇮",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1420,
+                56
+            ],
+            "name": "Hawaii 🇺🇸",
+            "strength": 1
+        },
+        {
+            "coordinates": [
+                1996,
+                644
+            ],
+            "name": "Easter Island 🇨🇱",
+            "strength": 1
+        }
+    ]
+}
