@@ -117,6 +117,7 @@ export class Executor {
         const execs = []
         for (const nation of this.gs.nations()) {
             execs.push(new FakeHumanExecution(
+                this.gameID,
                 this.workerClient,
                 new PlayerInfo(
                     nation.name,
@@ -125,7 +126,7 @@ export class Executor {
                     this.random.nextID()
                 ),
                 nation.cell,
-                nation.strength * this.gs.gameConfig().difficulty
+                nation.strength * this.gs.config().difficultyModifier(this.gs.gameConfig().difficulty)
             ))
         }
         return execs

@@ -5,7 +5,7 @@ export const devConfig = new class extends DefaultConfig {
     unitInfo(type: UnitType): UnitInfo {
         const info = super.unitInfo(type)
         const oldCost = info.cost
-        info.cost = (p: Player) => oldCost(p) / 1000
+        info.cost = (p: Player) => oldCost(p) / 1000000
         return info
     }
     maxUnitCost(): number {
@@ -31,9 +31,9 @@ export const devConfig = new class extends DefaultConfig {
     tradeShipSpawnRate(): number {
         return 10
     }
-    // boatMaxDistance(): number {
-    //     return 5000
-    // }
+    boatMaxDistance(): number {
+        return 5000
+    }
 
     // numBots(): number {
     //     return 0
@@ -42,7 +42,4 @@ export const devConfig = new class extends DefaultConfig {
     //     return false
     // }
 
-    // boatMaxDistance(): number {
-    //     return 2000
-    // }
 }

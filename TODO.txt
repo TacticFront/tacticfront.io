@@ -216,23 +216,37 @@
 * bufix: mini map doesn't load in time DONE 12/7/2023
 * bugfix: private game host game doesn't start DONE 12/8/2023
 * add NA map DONE 12/8/2023
-* add Oceania map 12/8/2023
-* store in BigQuery
-* clicking on a player's name in the rank UI should teleport you to him (pretty useful to know who's who and to locate small nations)
-* record commit hash of game
+* add Oceania map DONE 12/8/2023
+* max price for units DONE 12/9/2024
+* better unit scaling DONE 12/9/2024
+* make hard & impossible harder DONE 12/9/2024
+* clicking on a player's name in the rank UI should teleport you to him DONE 12/9/2024
+* emojis should be displayed on top of your name not under it DONE 12/9/2024
+* the notification for a successful trade should be shorter, example: " 70k Gold from trade with "X" " DONE 12/9/2024
+* countries don't actually spawn with some randomness, it's always the same exact spawn DONE 12/9/2024
+* you should get a notification and a reward (some money) for eliminating an enemy DONE 12/9/2024
+* alert on attack DONE 12/20/2024
+* alert on unit captured or destroyed 12/20/2024
+* only check islands/clusters when being attacked DONE 12/10/2024
+* only calculate name if tile changes DONE 12/10/2024
+* store in BigQuery DONE 12/10/2024
+* allow longer names and allow them to be displayed in the Rank UI not be cut
+* make boats work on lakes (& oceania)
 * record game winner
+* add panama canal NA
+* repaint canvas after tab away to prevent blank screen
+* on mobile can't click away from build menu
 * replay stored games
-* max price for units
-* when player dies, don't remove atom bombs
+* record commit hash of game
 * remove alliance when player dies
-* alert on attack
-* alert on unit captured or destroyed
-* nuking an enemy and accidentally destroying a trade ship shouldn't break the alliance and make you a traitor
-* you should get a notification and a reward (some money) for eliminating an enemy (perhaps take wtvr gold the enemy had)
-* emojis should be displayed on top of your name not under it
-* the notification for a successful trade should be shorter, example: " 70k Gold from trade with "X" "
-* countries don't actually spawn with some randomness, it's always the same exact spawn
-* allow longer names and allow them to be displayed in the Rank UI not be cut (many are cut for now, even for countries)
+* put delay on adjust troop ratio to reduce number of messages
+* make clientID & playerID smaller
+* remove dash from game id
+* pause button in single player
+* when hovering over another player have the name not appear ontop of the exit cross
+* have a visual thing of who your attacking and how many boats you sent
+* make the sliders bigger. Like vertically.
+* add way to hide leaderboard n such
 * create behavior tests
 * create perf test
 
@@ -265,3 +279,12 @@ FEB 1st
 * REFACTOR: give terranullius an ID, game.player() returns terranullius
 * REFACTOR: ocean is considered TerraNullius ?
 
+Error: cannot delete [object Object] not active
+Stack: Error: cannot delete [object Object] not active
+    at UnitImpl.delete (webpack://openfront-client/./src/core/game/UnitImpl.ts?:54:19)
+    at ShellExecution.tick (webpack://openfront-client/./src/core/execution/ShellExecution.ts?:36:38)
+    at eval (webpack://openfront-client/./src/core/game/GameImpl.ts?:133:19)
+    at Array.forEach (<anonymous>)
+    at GameImpl.executeNextTick (webpack://openfront-client/./src/core/game/GameImpl.ts?:131:20)
+    at GameRunner.tick (webpack://openfront-client/./src/client/GameRunner.ts?:153:21)
+    at eval (webpack://openfront-client/./src/client/GameRunner.ts?:110:50)
