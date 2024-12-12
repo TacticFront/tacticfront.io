@@ -111,7 +111,7 @@ export class NukeExecution implements Execution {
         //     .filter(b => euclideanDist(this.cell, b.tile().cell()) < this.magnitude + 50)
         //     .forEach(b => b.delete())
         this.active = false
-        this.nuke.delete()
+        this.nuke.delete(false)
     }
 
     owner(): MutablePlayer {

@@ -57,14 +57,14 @@ export class UnitImpl implements MutableUnit {
         )
     }
 
-    delete(): void {
+    delete(displayMessage: boolean = true): void {
         if (!this.isActive()) {
             throw new Error(`cannot delete ${this} not active`)
         }
         this._owner._units = this._owner._units.filter(b => b != this);
         this._active = false;
         this.g.fireUnitUpdateEvent(this, this._tile);
-        if (this.type() != UnitType.AtomBomb && this.type() != UnitType.HydrogenBomb) {
+        if (displayMessage) {
             this.g.displayMessage(`Your ${this.type()} was destroyed`, MessageType.ERROR, this.owner().id())
         }
     }

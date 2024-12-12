@@ -199,7 +199,7 @@ export interface MutableUnit extends Unit {
     move(tile: Tile): void
     owner(): MutablePlayer
     setTroops(troops: number): void
-    delete(): void
+    delete(displayerMessage?: boolean): void
 }
 
 export interface TerraNullius {

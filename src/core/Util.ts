@@ -6,7 +6,7 @@ import DOMPurify from 'dompurify';
 import { Cell, Game, Player, TerraNullius, Tile, Unit } from "./game/Game";
 import { number } from 'zod';
 import { GameConfig, GameID, GameRecord, Turn } from './Schemas';
-import { nanoid } from 'nanoid';
+import { customAlphabet, nanoid } from 'nanoid';
 
 export function manhattanDist(c1: Cell, c2: Cell): number {
     return Math.abs(c1.x - c2.x) + Math.abs(c1.y - c2.y);
@@ -262,6 +262,7 @@ export function assertNever(x: never): never {
     throw new Error('Unexpected value: ' + x);
 }
 
-export function generateGameID(): string {
-    return nanoid(8)
+export function generateGameID(): GameID {
+    const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 8)
+    return nanoid()
 }

@@ -8,16 +8,13 @@ export const devConfig = new class extends DefaultConfig {
         info.cost = (p: Player) => oldCost(p) / 1000000
         return info
     }
-    maxUnitCost(): number {
-        return 10000
-    }
 
     percentageTilesOwnedToWin(): number {
         return 95
     }
     numSpawnPhaseTurns(gameType: GameType): number {
-        return 40
-        // return 100
+        // return 40
+        return 1000
     }
     gameCreationRate(): number {
         return 10 * 1000
@@ -25,12 +22,9 @@ export const devConfig = new class extends DefaultConfig {
     lobbyLifetime(): number {
         return 10 * 1000
     }
-    turnIntervalMs(): number {
-        return 100
-    }
-    tradeShipSpawnRate(): number {
-        return 10
-    }
+    // tradeShipSpawnRate(): number {
+    //     return 10
+    // }
     boatMaxDistance(): number {
         return 5000
     }
