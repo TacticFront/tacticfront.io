@@ -283,12 +283,3 @@ FEB 1st
 * REFACTOR: give terranullius an ID, game.player() returns terranullius
 * REFACTOR: ocean is considered TerraNullius ?
 
-Error: cannot delete [object Object] not active
-Stack: Error: cannot delete [object Object] not active
-    at UnitImpl.delete (webpack://openfront-client/./src/core/game/UnitImpl.ts?:54:19)
-    at ShellExecution.tick (webpack://openfront-client/./src/core/execution/ShellExecution.ts?:36:38)
-    at eval (webpack://openfront-client/./src/core/game/GameImpl.ts?:133:19)
-    at Array.forEach (<anonymous>)
-    at GameImpl.executeNextTick (webpack://openfront-client/./src/core/game/GameImpl.ts?:131:20)
-    at GameRunner.tick (webpack://openfront-client/./src/client/GameRunner.ts?:153:21)
-    at eval (webpack://openfront-client/./src/client/GameRunner.ts?:110:50)
