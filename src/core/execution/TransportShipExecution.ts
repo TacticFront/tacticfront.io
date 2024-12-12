@@ -102,7 +102,7 @@ export class TransportShipExecution implements Execution {
             case PathFindResultType.Completed:
                 if (this.dst.owner() == this.attacker) {
                     this.attacker.addTroops(this.troops)
-                    this.boat.delete()
+                    this.boat.delete(false)
                     this.active = false
                     return
                 }
@@ -114,7 +114,7 @@ export class TransportShipExecution implements Execution {
                         new AttackExecution(this.troops, this.attacker.id(), this.targetID, this.dst.cell(), null, false)
                     )
                 }
-                this.boat.delete()
+                this.boat.delete(false)
                 this.active = false
                 return
             case PathFindResultType.NextTile:
@@ -125,7 +125,7 @@ export class TransportShipExecution implements Execution {
             case PathFindResultType.PathNotFound:
                 // TODO: add to poisoned port list
                 console.warn(`path not found tot dst`)
-                this.boat.delete()
+                this.boat.delete(false)
                 this.active = false
                 return
 

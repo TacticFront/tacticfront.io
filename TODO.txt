@@ -230,9 +230,14 @@
 * only check islands/clusters when being attacked DONE 12/10/2024
 * only calculate name if tile changes DONE 12/10/2024
 * store in BigQuery DONE 12/10/2024
+* remove dash from game id DONE 12/11/2024
+* bug: transport display event when it lands DONE 12/11/2024
+* bug: name not updating location in spawn phase
+* have crash print stacktrace
 * allow longer names and allow them to be displayed in the Rank UI not be cut
 * make boats work on lakes (& oceania)
 * record game winner
+* record player ip in bigquery
 * add panama canal NA
 * repaint canvas after tab away to prevent blank screen
 * on mobile can't click away from build menu
@@ -241,7 +246,6 @@
 * remove alliance when player dies
 * put delay on adjust troop ratio to reduce number of messages
 * make clientID & playerID smaller
-* remove dash from game id
 * pause button in single player
 * when hovering over another player have the name not appear ontop of the exit cross
 * have a visual thing of who your attacking and how many boats you sent
