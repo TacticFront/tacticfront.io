@@ -232,10 +232,11 @@
 * store in BigQuery DONE 12/10/2024
 * remove dash from game id DONE 12/11/2024
 * bug: transport display event when it lands DONE 12/11/2024
-* bug: name not updating location in spawn phase
 * have crash print stacktrace
+* bug: name not updating location in spawn phase
 * allow longer names and allow them to be displayed in the Rank UI not be cut
-* make boats work on lakes (& oceania)
+* make boats work on oceania
+* make boats work on lakes 
 * record game winner
 * record player ip in bigquery
 * add panama canal NA
