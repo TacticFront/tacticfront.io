@@ -234,12 +234,12 @@
 * bug: transport display event when it lands DONE 12/11/2024
 * have crash print stacktrace DONE 12/11/2024
 * bug: name not updating location in spawn phase
-* allow longer names and allow them to be displayed in the Rank UI not be cut
 * make boats work on oceania
+* add panama canal NA
+* allow longer names and allow them to be displayed in the Rank UI not be cut
 * make boats work on lakes 
 * record game winner
 * record player ip in bigquery
-* add panama canal NA
 * repaint canvas after tab away to prevent blank screen
 * on mobile can't click away from build menu
 * replay stored games
