@@ -99,8 +99,16 @@ export class TradeShipExecution implements Execution {
             const gold = this.mg.config().tradeShipGold(this.srcPort, this.dstPort)
             this.srcPort.owner().addGold(gold)
             this.dstPort.owner().addGold(gold)
-            this.mg.displayMessage(`Received ${renderNumber(gold)} gold from trade with ${this.tradeShip.owner().displayName()}`, MessageType.SUCCESS, this.dstPort.owner().id())
-            this.mg.displayMessage(`Received ${renderNumber(gold)} gold from trade with ${this.tradeShip.owner().displayName()}`, MessageType.SUCCESS, this._owner)
+            this.mg.displayMessage(
+                `Received ${renderNumber(gold)} gold from trade with ${this.srcPort.owner().displayName()}`,
+                MessageType.SUCCESS,
+                this.dstPort.owner().id()
+            )
+            this.mg.displayMessage(
+                `Received ${renderNumber(gold)} gold from trade with ${this.dstPort.owner().displayName()}`,
+                MessageType.SUCCESS,
+                this.srcPort.owner().id()
+            )
             this.tradeShip.delete(false)
             return
         }

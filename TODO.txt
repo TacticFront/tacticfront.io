@@ -236,6 +236,7 @@
 * bug: name not updating location in spawn phase DONE 12/12/2024
 * add panama canal NA DONE 12/12/2024
 * make boats work on oceania 12/12/2024
+* add capture alert DONE 12/13/2024
 * allow longer names and allow them to be displayed in the Rank UI not be cut
 * make boats work on lakes 
 * record game winner
