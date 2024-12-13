@@ -234,8 +234,8 @@
 * bug: transport display event when it lands DONE 12/11/2024
 * have crash print stacktrace DONE 12/11/2024
 * bug: name not updating location in spawn phase DONE 12/12/2024
-* add panama canal NA
-* make boats work on oceania
+* add panama canal NA DONE 12/12/2024
+* make boats work on oceania 12/12/2024
 * allow longer names and allow them to be displayed in the Rank UI not be cut
 * make boats work on lakes 
 * record game winner
