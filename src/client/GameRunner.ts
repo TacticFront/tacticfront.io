@@ -183,7 +183,6 @@ export class GameRunner {
         this.gs.addExecution(...this.executor.createExecs(this.turns[this.currTurn]))
         try {
             this.gs.executeNextTick()
-            throw new Error('test')
         } catch (error) {
             const errorText = `Error: ${error.message}\nStack: ${error.stack}`;
             alert("Game crashed!\n Please paste the following your bug report in Discord:\n" + errorText);

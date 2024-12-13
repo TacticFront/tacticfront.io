@@ -232,7 +232,7 @@
 * store in BigQuery DONE 12/10/2024
 * remove dash from game id DONE 12/11/2024
 * bug: transport display event when it lands DONE 12/11/2024
-* have crash print stacktrace
+* have crash print stacktrace DONE 12/11/2024
 * bug: name not updating location in spawn phase
 * allow longer names and allow them to be displayed in the Rank UI not be cut
 * make boats work on oceania
