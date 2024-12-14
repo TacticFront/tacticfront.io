@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Client } from "./Client";
 import { GamePhase, GameServer } from "./GameServer";
 import { Difficulty, GameMap, GameType } from "../core/game/Game";
-import { generateGameID } from "../core/Util";
+import { generateID } from "../core/Util";
 
 
 
@@ -39,7 +39,7 @@ export class GameManager {
     }
 
     createPrivateGame(): string {
-        const id = generateGameID()
+        const id = generateID()
         this.games.push(new GameServer(
             id,
             Date.now(),
@@ -79,7 +79,7 @@ export class GameManager {
         if (now > this.lastNewLobby + this.config.gameCreationRate()) {
             this.lastNewLobby = now
             lobbies.push(new GameServer(
-                generateGameID(),
+                generateID(),
                 now,
                 true,
                 this.config,

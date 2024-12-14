@@ -43,17 +43,18 @@ app.post('/private_lobby', (req, res) => {
     });
 });
 
-
 app.post('/archive_singleplayer_game', (req, res) => {
     try {
-        const gameRecord = req.body
+        const gameRecord: GameRecord = req.body
+        const clientIP = req.ip || req.socket.remoteAddress || 'unknown';  // Added this line
+
         if (!gameRecord) {
             console.log('game record not found in request')
             res.status(404).json({ error: 'Game record not found' });
             return;
         }
+        gameRecord.players.forEach(p => p.ip = clientIP)
         GameRecordSchema.parse(gameRecord);
-        console.log(`archiving singleplayer game ${gameRecord.id}`)
         archive(gameRecord)
         res.json({
             success: true,
@@ -91,17 +92,20 @@ app.get('/private_lobby/:id', (req, res) => {
     });
 });
 
-wss.on('connection', (ws) => {
-
+wss.on('connection', (ws, req) => {
     ws.on('message', (message: string) => {
         const clientMsg: ClientMessage = ClientMessageSchema.parse(JSON.parse(message))
         slog('websocket_msg', 'server received websocket message', clientMsg, LogSeverity.DEBUG)
         if (clientMsg.type == "join") {
-            gm.addClient(new Client(clientMsg.clientID, clientMsg.clientIP, ws), clientMsg.gameID, clientMsg.lastTurn)
+            const forwarded = req.headers['x-forwarded-for']
+            const ip = Array.isArray(forwarded)
+                ? forwarded[0]  // Get the first IP if it's an array
+                : forwarded || req.socket.remoteAddress;
+
+            gm.addClient(new Client(clientMsg.clientID, ip, ws), clientMsg.gameID, clientMsg.lastTurn)
         }
         // TODO: send error message
     })
-
 });
 
 function runGame() {

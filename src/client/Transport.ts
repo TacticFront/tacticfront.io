@@ -102,7 +102,6 @@ export class Transport {
         private gameConfig: GameConfig | null,
         private eventBus: EventBus,
         private gameID: GameID,
-        private clientIP: string | null,
         private clientID: ClientID,
         private playerID: PlayerID,
         private config: Config,
@@ -152,7 +151,7 @@ export class Transport {
     }
 
     private connectLocal(onconnect: () => void, onmessage: (message: ServerMessage) => void) {
-        this.localServer = new LocalServer(this.config, this.gameConfig, onconnect, onmessage)
+        this.localServer = new LocalServer(this.clientID, this.config, this.gameConfig, onconnect, onmessage)
         this.localServer.start()
     }
 
@@ -195,7 +194,6 @@ export class Transport {
                     type: "join",
                     gameID: this.gameID,
                     clientID: this.clientID,
-                    clientIP: this.clientIP,
                     lastTurn: numTurns
                 })
             )

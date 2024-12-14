@@ -7,7 +7,7 @@ import { createRenderer, GameRenderer } from "./graphics/GameRenderer";
 import { InputHandler, MouseUpEvent, ZoomEvent, DragEvent, MouseDownEvent } from "./InputHandler"
 import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientMessageSchema, GameConfig, GameID, Intent, ServerMessage, ServerMessageSchema, ServerSyncMessage, Turn } from "../core/Schemas";
 import { createMiniMap, loadTerrainMap, TerrainMapImpl } from "../core/game/TerrainMapLoader";
-import { and, bfs, dist, manhattanDist } from "../core/Util";
+import { and, bfs, dist, generateID, manhattanDist } from "../core/Util";
 import { WinCheckExecution } from "../core/execution/WinCheckExecution";
 import { SendAttackIntentEvent, SendSpawnIntentEvent, Transport } from "./Transport";
 import { createCanvas } from "./graphics/Utils";
@@ -20,14 +20,13 @@ export interface LobbyConfig {
     gameType: GameType
     playerName: () => string
     gameID: GameID
-    ip: string | null
     map: GameMap | null
     difficulty: Difficulty | null
 }
 
 export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => void {
-    const clientID = uuidv4()
-    const playerID = uuidv4()
+    const clientID = generateID()
+    const playerID = generateID()
     const eventBus = new EventBus()
     const config = getConfig()
 
@@ -45,7 +44,6 @@ export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => v
         gameConfig,
         eventBus,
         lobbyConfig.gameID,
-        lobbyConfig.ip,
         clientID,
         playerID,
         config,

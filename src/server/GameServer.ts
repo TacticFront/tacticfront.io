@@ -1,10 +1,10 @@
-import { ClientMessage, ClientMessageSchema, GameConfig, GameRecordSchema, Intent, ServerPingMessageSchema, ServerStartGameMessage, ServerStartGameMessageSchema, ServerTurnMessageSchema, Turn } from "../core/Schemas";
+import { ClientID, ClientMessage, ClientMessageSchema, GameConfig, GameRecordSchema, Intent, PlayerRecord, ServerPingMessageSchema, ServerStartGameMessage, ServerStartGameMessageSchema, ServerTurnMessageSchema, Turn } from "../core/Schemas";
 import { Config } from "../core/configuration/Config";
 import { Client } from "./Client";
 import WebSocket from 'ws';
 import { slog } from "./StructuredLog";
 import { Storage } from '@google-cloud/storage';
-import { CreateGameRecord, CreateGameRecord as ProcessRecord } from "../core/Util";
+import { CreateGameRecord } from "../core/Util";
 import { archive } from "./Archive";
 import { arc } from "d3";
 
@@ -22,7 +22,9 @@ export class GameServer {
 
     private turns: Turn[] = []
     private intents: Intent[] = []
-    private clients: Client[] = []
+    private activeClients: Client[] = []
+    // Used for record record keeping
+    private allClients: Map<ClientID, Client> = new Map()
     private _hasStarted = false
     private _startTime: number = null
 
@@ -35,7 +37,7 @@ export class GameServer {
         private config: Config,
         private gameConfig: GameConfig,
 
-    ) {}
+    ) { }
 
     public updateGameConfig(gameConfig: GameConfig): void {
         if (gameConfig.gameMap != null) {
@@ -55,13 +57,16 @@ export class GameServer {
             isRejoin: lastTurn > 0
         })
         // Remove stale client if this is a reconnect
-        const existing = this.clients.find(c => c.id == client.id)
+        const existing = this.activeClients.find(c => c.id == client.id)
         if (existing != null) {
             existing.ws.removeAllListeners('message')
         }
-        this.clients = this.clients.filter(c => c.id != client.id)
-        this.clients.push(client)
+        this.activeClients = this.activeClients.filter(c => c.id != client.id)
+        this.activeClients.push(client)
         client.lastPing = Date.now()
+
+        this.allClients.set(client.id, client)
+
         client.ws.on('message', (message: string) => {
             const clientMsg: ClientMessage = ClientMessageSchema.parse(JSON.parse(message))
             if (clientMsg.type == "intent") {
@@ -77,7 +82,7 @@ export class GameServer {
         })
         client.ws.on('close', () => {
             console.log(`client ${client.id} disconnected`)
-            this.clients = this.clients.filter(c => c.id != client.id)
+            this.activeClients = this.activeClients.filter(c => c.id != client.id)
         })
 
         // In case a client joined the game late and missed the start message.
@@ -87,7 +92,7 @@ export class GameServer {
     }
 
     public numClients(): number {
-        return this.clients.length
+        return this.activeClients.length
     }
 
     public startTime(): number {
@@ -104,7 +109,7 @@ export class GameServer {
         this._startTime = Date.now()
 
         this.endTurnIntervalID = setInterval(() => this.endTurn(), this.config.turnIntervalMs());
-        this.clients.forEach(c => {
+        this.activeClients.forEach(c => {
             console.log(`game ${this.id} sending start message to ${c.id}`)
             this.sendStartGameMsg(c.ws, 0)
         })
@@ -139,7 +144,7 @@ export class GameServer {
                 turn: pastTurn
             }
         ))
-        this.clients.forEach(c => {
+        this.activeClients.forEach(c => {
             c.ws.send(msg)
         })
     }
@@ -147,7 +152,7 @@ export class GameServer {
     async endGame() {
         // Close all WebSocket connections
         clearInterval(this.endTurnIntervalID);
-        this.clients.forEach(client => {
+        this.activeClients.forEach(client => {
             client.ws.removeAllListeners('message'); // TODO: remove this?
             if (client.ws.readyState === WebSocket.OPEN) {
                 client.ws.close(1000, "game has ended");
@@ -156,7 +161,11 @@ export class GameServer {
         console.log(`ending game ${this.id} with ${this.turns.length} turns`)
         try {
             if (this.turns.length > 100) {
-                const record = CreateGameRecord(this.id, this.gameConfig, this.turns, this._startTime, Date.now())
+                const playerRecords: PlayerRecord[] = Array.from(this.allClients.values()).map(client => ({
+                    ip: client.ip,
+                    clientID: client.id,
+                }));
+                const record = CreateGameRecord(this.id, this.gameConfig, playerRecords, this.turns, this._startTime, Date.now())
                 archive(record)
             }
         } catch (error) {
@@ -167,7 +176,7 @@ export class GameServer {
     phase(): GamePhase {
         const now = Date.now()
         const alive = []
-        for (const client of this.clients) {
+        for (const client of this.activeClients) {
             if (now - client.lastPing > 60_000) {
                 console.log(`no pings from ${client.id}, terminating connection`)
                 if (client.ws.readyState === WebSocket.OPEN) {
@@ -177,14 +186,14 @@ export class GameServer {
                 alive.push(client)
             }
         }
-        this.clients = alive
+        this.activeClients = alive
         if (now > this.createdAt + this.config.lobbyLifetime() + this.maxGameDuration) {
             console.warn(`game past max duration ${this.id}`)
             return GamePhase.Finished
         }
         if (!this.isPublic) {
             if (this._hasStarted) {
-                if (this.clients.length == 0) {
+                if (this.activeClients.length == 0) {
                     console.log(`private game: ${this.id} complete`)
                     return GamePhase.Finished
                 } else {
@@ -199,7 +208,7 @@ export class GameServer {
             return GamePhase.Lobby
         }
 
-        if (this.clients.length == 0 && now > this.createdAt + this.config.lobbyLifetime() + 30 * 60) { // wait at least 30s before ending game
+        if (this.activeClients.length == 0 && now > this.createdAt + this.config.lobbyLifetime() + 30 * 60) { // wait at least 30s before ending game
             return GamePhase.Finished
         }
 

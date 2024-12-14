@@ -238,6 +238,7 @@
 * make boats work on oceania 12/12/2024
 * add capture alert DONE 12/13/2024
 * better emojis 🏳️🤦‍♂️🖕☮️🫡😡😈🤡 DONE 12/13/2024
+* store ips in bigquery table DONE 12/14/2024
 * bug: player names not updating sometimes
 * make player editeable configs
 * games disconnects on multplayer after some time

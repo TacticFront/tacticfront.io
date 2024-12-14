@@ -1,6 +1,6 @@
 import { Config } from "../core/configuration/Config";
-import { ClientMessage, ClientMessageSchema, GameConfig, GameID, GameRecordSchema, Intent, ServerMessage, ServerStartGameMessageSchema, ServerTurnMessageSchema, Turn } from "../core/Schemas";
-import { CreateGameRecord, generateGameID } from "../core/Util";
+import { ClientID, ClientMessage, ClientMessageSchema, GameConfig, GameID, GameRecordSchema, Intent, PlayerRecord, ServerMessage, ServerStartGameMessageSchema, ServerTurnMessageSchema, Turn } from "../core/Schemas";
+import { CreateGameRecord, generateID } from "../core/Util";
 
 export class LocalServer {
 
@@ -13,8 +13,8 @@ export class LocalServer {
 
     private gameID: GameID
 
-    constructor(private config: Config, private gameConfig: GameConfig, private clientConnect: () => void, private clientMessage: (message: ServerMessage) => void) {
-        this.gameID = generateGameID()
+    constructor(private clientID: ClientID, private config: Config, private gameConfig: GameConfig, private clientConnect: () => void, private clientMessage: (message: ServerMessage) => void) {
+        this.gameID = generateID()
     }
 
     start() {
@@ -52,7 +52,11 @@ export class LocalServer {
     public endGame() {
         console.log('local server ending game')
         clearInterval(this.endTurnIntervalID)
-        const record = CreateGameRecord(this.gameID, this.gameConfig, this.turns, this.startedAt, Date.now())
+        const players: PlayerRecord[] = [{
+            ip: null,
+            clientID: this.clientID
+        }]
+        const record = CreateGameRecord(this.gameID, this.gameConfig, players, this.turns, this.startedAt, Date.now())
         // Clear turns because beacon only supports up to 64kb
         record.turns = []
         // For unload events, sendBeacon is the only reliable method

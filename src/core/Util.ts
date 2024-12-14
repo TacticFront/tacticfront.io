@@ -5,7 +5,7 @@ import DOMPurify from 'dompurify';
 
 import { Cell, Game, Player, TerraNullius, Tile, Unit } from "./game/Game";
 import { number } from 'zod';
-import { GameConfig, GameID, GameRecord, Turn } from './Schemas';
+import { GameConfig, GameID, GameRecord, PlayerRecord, Turn } from './Schemas';
 import { customAlphabet, nanoid } from 'nanoid';
 
 export function manhattanDist(c1: Cell, c2: Cell): number {
@@ -232,7 +232,15 @@ export function onlyImages(html: string) {
     });
 }
 
-export function CreateGameRecord(id: GameID, gameConfig: GameConfig, turns: Turn[], start: number, end: number): GameRecord {
+export function CreateGameRecord(
+    id: GameID,
+    gameConfig: GameConfig,
+    // username does not need to be set.
+    players: PlayerRecord[],
+    turns: Turn[],
+    start: number,
+    end: number
+): GameRecord {
     const record: GameRecord = {
         id: id,
         gameConfig: gameConfig,
@@ -241,18 +249,22 @@ export function CreateGameRecord(id: GameID, gameConfig: GameConfig, turns: Turn
         date: new Date().toISOString().split('T')[0],
         turns: []
     }
-    const usernames = new Set<string>()
+
     for (const turn of turns) {
         if (turn.intents.length != 0) {
             record.turns.push(turn)
             for (const intent of turn.intents) {
-                if (intent.type == 'spawn') {
-                    usernames.add(intent.name)
+                if (intent.type == "spawn") {
+                    for (const playerRecord of players) {
+                        if (playerRecord.clientID == intent.clientID) {
+                            playerRecord.username = intent.name
+                        }
+                    }
                 }
             }
         }
     }
-    record.usernames = Array.from(usernames)
+    record.players = players
     record.durationSeconds = Math.floor((record.endTimestampMS - record.startTimestampMS) / 1000)
     record.num_turns = turns.length
     return record;
@@ -262,7 +274,7 @@ export function assertNever(x: never): never {
     throw new Error('Unexpected value: ' + x);
 }
 
-export function generateGameID(): GameID {
+export function generateID(): GameID {
     const nanoid = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 8)
     return nanoid()
 }

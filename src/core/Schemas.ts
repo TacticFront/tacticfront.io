@@ -42,6 +42,7 @@ export type ClientPingMessage = z.infer<typeof ClientPingMessageSchema>
 export type ClientIntentMessage = z.infer<typeof ClientIntentMessageSchema>
 export type ClientJoinMessage = z.infer<typeof ClientJoinMessageSchema>
 
+export type PlayerRecord = z.infer<typeof PlayerRecordSchema>
 export type GameRecord = z.infer<typeof GameRecordSchema>
 
 const PlayerTypeSchema = z.nativeEnum(PlayerType);
@@ -103,11 +104,6 @@ export const BoatAttackIntentSchema = BaseIntentSchema.extend({
     troops: z.number().nullable(),
     x: z.number(),
     y: z.number(),
-})
-
-export const UpdateNameIntentSchema = BaseIntentSchema.extend({
-    type: z.literal('updateName'),
-    name: z.string(),
 })
 
 export const AllianceRequestIntentSchema = BaseIntentSchema.extend({
@@ -228,20 +224,25 @@ export const ClientIntentMessageSchema = ClientBaseMessageSchema.extend({
 
 export const ClientJoinMessageSchema = ClientBaseMessageSchema.extend({
     type: z.literal('join'),
-    clientIP: z.string().nullable(),
     lastTurn: z.number() // The last turn the client saw.
 })
 
 export const ClientMessageSchema = z.union([ClientPingMessageSchema, ClientIntentMessageSchema, ClientJoinMessageSchema]);
 
+export const PlayerRecordSchema = z.object({
+    clientID: z.string(),
+    username: z.string(),
+    ip: z.string().nullable(),
+})
+
 export const GameRecordSchema = z.object({
     id: z.string(),
     gameConfig: GameConfigSchema,
+    players: z.array(PlayerRecordSchema),
     startTimestampMS: z.number(),
     endTimestampMS: z.number(),
     durationSeconds: z.number(),
     date: z.string(),
-    usernames: z.array(z.string()),
     num_turns: z.number(),
     turns: z.array(TurnSchema)
 })
