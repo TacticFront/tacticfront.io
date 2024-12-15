@@ -3,6 +3,8 @@ import { Colord, colord } from "colord";
 import { devConfig } from "./DevConfig";
 import { defaultConfig } from "./DefaultConfig";
 import { GameID } from "../Schemas";
+import { preprodConfig } from "./PreprodConfig";
+import { prodConfig } from "./ProdConfig";
 
 export enum GameEnv {
 	Dev,
@@ -10,13 +12,18 @@ export enum GameEnv {
 }
 
 export function getConfig(): Config {
-	// TODO: 'prod' not found in prod env
-	if (process.env.GAME_ENV == 'dev') {
-		console.log('Using dev config')
-		return devConfig
-	} else {
-		console.log('Using prod config')
-		return defaultConfig
+	switch (process.env.GAME_ENV) {
+		case 'dev':
+			console.log('using dev config')
+			return devConfig
+		case 'preprod':
+			console.log('using preprod config')
+			return preprodConfig
+		case 'prod':
+			console.log('using prod config')
+			return prodConfig
+		default:
+			throw Error(`unsupported server configuration: ${process.env.GAME_ENV}`)
 	}
 }
 
@@ -25,6 +32,7 @@ export function getGameEnv(): GameEnv {
 }
 
 export interface Config {
+	discordBotSecret(): string
 	theme(): Theme;
 	percentageTilesOwnedToWin(): number
 	turnIntervalMs(): number

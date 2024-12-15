@@ -6,7 +6,9 @@ import { pastelTheme } from "./PastelTheme";
 
 
 
-export class DefaultConfig implements Config {
+export abstract class DefaultConfig implements Config {
+    abstract discordBotSecret(): string
+
     difficultyModifier(difficulty: Difficulty): number {
         switch (difficulty) {
             case Difficulty.Easy:
