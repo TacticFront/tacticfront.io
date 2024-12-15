@@ -208,7 +208,7 @@ export class GameServer {
             return GamePhase.Lobby
         }
 
-        if (this.activeClients.length == 0 && now > this.createdAt + this.config.lobbyLifetime() + 30 * 60) { // wait at least 30s before ending game
+        if (this.activeClients.length == 0 && now > this.createdAt + this.config.lobbyLifetime() + 30 * 60 * 1000) { // wait at least 30s before ending game
             return GamePhase.Finished
         }
 
@@ -218,5 +218,4 @@ export class GameServer {
     hasStarted(): boolean {
         return this._hasStarted
     }
-
 }
