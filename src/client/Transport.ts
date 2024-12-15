@@ -131,7 +131,7 @@ export class Transport {
                         gameID: this.gameID,
                     })))
                 }
-            }, 10000);
+            }, 5 * 1000);
         }
     }
 

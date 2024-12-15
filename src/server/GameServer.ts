@@ -30,6 +30,8 @@ export class GameServer {
 
     private endTurnIntervalID
 
+    private lastPingUpdate = 0
+
     constructor(
         public readonly id: string,
         public readonly createdAt: number,
@@ -77,6 +79,7 @@ export class GameServer {
                 }
             }
             if (clientMsg.type == "ping") {
+                this.lastPingUpdate = Date.now()
                 client.lastPing = Date.now()
             }
         })
@@ -210,7 +213,11 @@ export class GameServer {
             return GamePhase.Lobby
         }
 
-        if (this.activeClients.length == 0 && now > this.createdAt + this.config.lobbyLifetime() + 30 * 1000) { // wait at least 30s before ending game
+        const noActive = this.activeClients.length
+        const warmupOver = now > this.createdAt + this.config.lobbyLifetime() + 30 * 1000
+        const noRecentPings = now > this.lastPingUpdate + 20 * 1000
+
+        if (noActive && warmupOver && noRecentPings) {
             return GamePhase.Finished
         }
 
