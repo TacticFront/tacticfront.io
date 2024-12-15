@@ -160,13 +160,15 @@ export class GameServer {
         });
         console.log(`ending game ${this.id} with ${this.turns.length} turns`)
         try {
-            if (this.turns.length > 100) {
+            if (this.allClients.size > 0) {
                 const playerRecords: PlayerRecord[] = Array.from(this.allClients.values()).map(client => ({
                     ip: client.ip,
                     clientID: client.id,
                 }));
                 const record = CreateGameRecord(this.id, this.gameConfig, playerRecords, this.turns, this._startTime, Date.now())
                 archive(record)
+            } else {
+                console.log(`game ${this.id} no clients joined, not archiving game`)
             }
         } catch (error) {
             console.log('error writing game to gcs: ' + error)
@@ -208,7 +210,7 @@ export class GameServer {
             return GamePhase.Lobby
         }
 
-        if (this.activeClients.length == 0 && now > this.createdAt + this.config.lobbyLifetime() + 30 * 60 * 1000) { // wait at least 30s before ending game
+        if (this.activeClients.length == 0 && now > this.createdAt + this.config.lobbyLifetime() + 30 * 1000) { // wait at least 30s before ending game
             return GamePhase.Finished
         }
 
