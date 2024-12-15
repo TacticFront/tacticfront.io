@@ -10,6 +10,7 @@ import { LogSeverity, slog } from './StructuredLog';
 import { Client } from './Client';
 import { GamePhase, GameServer } from './GameServer';
 import { archive } from './Archive';
+import { DiscordBot } from './DiscordBot';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,6 +24,13 @@ app.use(express.static(path.join(__dirname, '../../out')));
 app.use(express.json())
 
 const gm = new GameManager(getConfig())
+
+const bot = new DiscordBot();
+try {
+    await bot.start();
+} catch (error) {
+    console.error('Failed to start bot:', error);
+}
 
 // New GET endpoint to list lobbies
 app.get('/lobbies', (req, res) => {
