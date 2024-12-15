@@ -213,7 +213,7 @@ export class GameServer {
             return GamePhase.Lobby
         }
 
-        const noActive = this.activeClients.length
+        const noActive = this.activeClients.length == 0
         const warmupOver = now > this.createdAt + this.config.lobbyLifetime() + 30 * 1000
         const noRecentPings = now > this.lastPingUpdate + 20 * 1000
 
