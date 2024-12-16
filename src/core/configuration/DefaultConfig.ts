@@ -295,5 +295,3 @@ export abstract class DefaultConfig implements Config {
         return adjustment
     }
 }
-
-export const defaultConfig = new DefaultConfig()

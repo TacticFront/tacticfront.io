@@ -1,7 +1,6 @@
 import { Difficulty, GameType, Gold, Player, PlayerID, PlayerInfo, TerraNullius, Tick, Tile, Unit, UnitInfo, UnitType } from "../game/Game";
 import { Colord, colord } from "colord";
 import { devConfig } from "./DevConfig";
-import { defaultConfig } from "./DefaultConfig";
 import { GameID } from "../Schemas";
 import { preprodConfig } from "./PreprodConfig";
 import { prodConfig } from "./ProdConfig";

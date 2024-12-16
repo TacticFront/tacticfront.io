@@ -2,6 +2,9 @@ import { GameType, Player, PlayerInfo, UnitInfo, UnitType } from "../game/Game";
 import { DefaultConfig } from "./DefaultConfig";
 
 export const devConfig = new class extends DefaultConfig {
+    discordBotSecret(): string {
+        throw new Error("Method not implemented.");
+    }
     unitInfo(type: UnitType): UnitInfo {
         const info = super.unitInfo(type)
         const oldCost = info.cost
