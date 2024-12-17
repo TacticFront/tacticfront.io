@@ -50,23 +50,23 @@ export class GameServer {
     }
 
     public addClient(client: Client, lastTurn: number) {
-        console.log(`${this.id}: adding client ${client.id}`)
-        slog('client_joined_game', `client ${client.id} (re)joining game ${this.id}`, {
-            clientID: client.id,
+        console.log(`${this.id}: adding client ${client.clientID}`)
+        slog('client_joined_game', `client ${client.clientID} (re)joining game ${this.id}`, {
+            clientID: client.clientID,
             clientIP: client.ip,
             gameID: this.id,
             isRejoin: lastTurn > 0
         })
         // Remove stale client if this is a reconnect
-        const existing = this.activeClients.find(c => c.id == client.id)
+        const existing = this.activeClients.find(c => c.clientID == client.clientID)
         if (existing != null) {
             existing.ws.removeAllListeners('message')
         }
-        this.activeClients = this.activeClients.filter(c => c.id != client.id)
+        this.activeClients = this.activeClients.filter(c => c.clientID != client.clientID)
         this.activeClients.push(client)
         client.lastPing = Date.now()
 
-        this.allClients.set(client.id, client)
+        this.allClients.set(client.clientID, client)
 
         client.ws.on('message', (message: string) => {
             const clientMsg: ClientMessage = ClientMessageSchema.parse(JSON.parse(message))
@@ -83,8 +83,8 @@ export class GameServer {
             }
         })
         client.ws.on('close', () => {
-            console.log(`${this.id}: client ${client.id} disconnected`)
-            this.activeClients = this.activeClients.filter(c => c.id != client.id)
+            console.log(`${this.id}: client ${client.clientID} disconnected`)
+            this.activeClients = this.activeClients.filter(c => c.clientID != client.clientID)
         })
 
         // In case a client joined the game late and missed the start message.
@@ -112,7 +112,7 @@ export class GameServer {
 
         this.endTurnIntervalID = setInterval(() => this.endTurn(), this.config.turnIntervalMs());
         this.activeClients.forEach(c => {
-            console.log(`${this.id}: sending start message to ${c.id}`)
+            console.log(`${this.id}: sending start message to ${c.clientID}`)
             this.sendStartGameMsg(c.ws, 0)
         })
     }
@@ -165,7 +165,7 @@ export class GameServer {
             if (this.allClients.size > 0) {
                 const playerRecords: PlayerRecord[] = Array.from(this.allClients.values()).map(client => ({
                     ip: client.ip,
-                    clientID: client.id,
+                    clientID: client.clientID,
                 }));
                 const record = CreateGameRecord(this.id, this.gameConfig, playerRecords, this.turns, this._startTime, Date.now())
                 archive(record)
@@ -202,7 +202,7 @@ export class GameServer {
         const alive = []
         for (const client of this.activeClients) {
             if (now - client.lastPing > 60_000) {
-                console.log(`${this.id}: no pings from ${client.id}, terminating connection`)
+                console.log(`${this.id}: no pings from ${client.clientID}, terminating connection`)
                 if (client.ws.readyState === WebSocket.OPEN) {
                     client.ws.close(1000, "no heartbeats received, closing connection");
                 }

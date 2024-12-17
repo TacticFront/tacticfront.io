@@ -7,7 +7,8 @@ export class Client {
     public lastPing: number
 
     constructor(
-        public readonly id: ClientID,
+        public readonly clientID: ClientID,
+        public readonly persistentID: string,
         public readonly ip: string | null,
         public readonly ws: WebSocket,
     ) { }

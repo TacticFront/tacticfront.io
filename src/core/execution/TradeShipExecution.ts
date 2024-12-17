@@ -1,5 +1,5 @@
 import { MessageType } from "../../client/graphics/layers/EventsDisplay";
-import { renderNumber } from "../../client/graphics/Utils";
+import { renderNumber } from "../../client/Utils";
 import { AllPlayers, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, Tile, Unit, UnitType } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";

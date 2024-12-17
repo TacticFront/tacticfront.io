@@ -5,7 +5,7 @@ import { Theme } from "../../../core/configuration/Config"
 import { Layer } from "./Layer"
 import { placeName } from "../NameBoxCalculator"
 import { TransformHandler } from "../TransformHandler"
-import { renderTroops } from "../Utils"
+import { renderTroops } from "../../Utils"
 import traitorIcon from '../../../../resources/images/TraitorIcon.png';
 import allianceIcon from '../../../../resources/images/AllianceIcon.png';
 import crownIcon from '../../../../resources/images/CrownIcon.png';

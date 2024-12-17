@@ -10,7 +10,7 @@ import { createMiniMap, loadTerrainMap, TerrainMapImpl } from "../core/game/Terr
 import { and, bfs, dist, generateID, manhattanDist } from "../core/Util";
 import { WinCheckExecution } from "../core/execution/WinCheckExecution";
 import { SendAttackIntentEvent, SendSpawnIntentEvent, Transport } from "./Transport";
-import { createCanvas } from "./graphics/Utils";
+import { createCanvas } from "./Utils";
 import { DisplayMessageEvent, MessageType } from "./graphics/layers/EventsDisplay";
 import { v4 as uuidv4 } from 'uuid';
 import { WorkerClient } from "../core/worker/WorkerClient";

@@ -110,7 +110,16 @@ wss.on('connection', (ws, req) => {
                 ? forwarded[0]  // Get the first IP if it's an array
                 : forwarded || req.socket.remoteAddress;
 
-            gm.addClient(new Client(clientMsg.clientID, ip, ws), clientMsg.gameID, clientMsg.lastTurn)
+            gm.addClient(
+                new Client(
+                    clientMsg.clientID,
+                    clientMsg.persistentID,
+                    ip,
+                    ws
+                ),
+                clientMsg.gameID,
+                clientMsg.lastTurn
+            )
         }
         // TODO: send error message
     })

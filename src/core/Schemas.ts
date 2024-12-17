@@ -224,6 +224,7 @@ export const ClientIntentMessageSchema = ClientBaseMessageSchema.extend({
 
 export const ClientJoinMessageSchema = ClientBaseMessageSchema.extend({
     type: z.literal('join'),
+    persistentID: z.string(),
     lastTurn: z.number() // The last turn the client saw.
 })
 
@@ -236,7 +237,8 @@ export const PlayerRecordSchema = z.object({
 })
 
 export const GameRecordSchema = z.object({
-    id: z.string(),
+    id: z.string(), // WARNING: PII
+    persistentID: z.string(), // WARNING: PII
     gameConfig: GameConfigSchema,
     players: z.array(PlayerRecordSchema),
     startTimestampMS: z.number(),

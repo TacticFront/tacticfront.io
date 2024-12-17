@@ -3,6 +3,7 @@ import { EventBus, GameEvent } from "../core/EventBus"
 import { AllianceRequest, AllPlayers, Cell, Player, PlayerID, PlayerType, Tile, UnitType } from "../core/game/Game"
 import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ClientPingMessageSchema, GameConfig } from "../core/Schemas"
 import { LocalServer } from "./LocalServer"
+import { getPersistentIDFromCookie } from "./Utils"
 
 
 export class SendAllianceRequestIntentEvent implements GameEvent {
@@ -194,7 +195,8 @@ export class Transport {
                     type: "join",
                     gameID: this.gameID,
                     clientID: this.clientID,
-                    lastTurn: numTurns
+                    lastTurn: numTurns,
+                    persistentID: getPersistentIDFromCookie(),
                 })
             )
         )

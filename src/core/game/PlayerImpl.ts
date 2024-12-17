@@ -5,7 +5,7 @@ import { CellString, GameImpl } from "./GameImpl";
 import { UnitImpl } from "./UnitImpl";
 import { TileImpl } from "./TileImpl";
 import { MessageType } from "../../client/graphics/layers/EventsDisplay";
-import { renderTroops } from "../../client/graphics/Utils";
+import { renderTroops } from "../../client/Utils";
 
 interface Target {
     tick: Tick

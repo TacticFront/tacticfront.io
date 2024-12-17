@@ -3,7 +3,7 @@ import { Cell, Execution, MutableGame, MutablePlayer, Player, PlayerID, PlayerTy
 import { PseudoRandom } from "../PseudoRandom";
 import { manhattanDist } from "../Util";
 import { MessageType } from "../../client/graphics/layers/EventsDisplay";
-import { renderNumber } from "../../client/graphics/Utils";
+import { renderNumber } from "../../client/Utils";
 
 export class AttackExecution implements Execution {
     private breakAlliance = false

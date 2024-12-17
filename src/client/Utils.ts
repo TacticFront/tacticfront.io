@@ -34,3 +34,29 @@ export function createCanvas(): HTMLCanvasElement {
 
     return canvas
 }
+
+// WARNING: DO NOT EXPOSE THIS ID
+export function getPersistentIDFromCookie(): string {
+    const COOKIE_NAME = 'player_persistent_id';
+
+    // Try to get existing cookie
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [cookieName, cookieValue] = cookie.split('=').map(c => c.trim());
+        if (cookieName === COOKIE_NAME) {
+            return cookieValue;
+        }
+    }
+
+    // If no cookie exists, create new ID and set cookie
+    const newId = crypto.randomUUID(); // Using built-in UUID generator
+    document.cookie = [
+        `${COOKIE_NAME}=${newId}`,
+        `max-age=${5 * 365 * 24 * 60 * 60}`, // 5 years
+        'path=/',
+        'SameSite=Strict',
+        'Secure'
+    ].join(';');
+
+    return newId;
+}

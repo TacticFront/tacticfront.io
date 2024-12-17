@@ -12,7 +12,7 @@ import goldCoinIcon from '../../../../../resources/images/GoldCoinIcon.svg';
 import portIcon from '../../../../../resources/images/PortIcon.svg';
 import shieldIcon from '../../../../../resources/images/ShieldIconWhite.svg';
 import cityIcon from '../../../../../resources/images/CityIconWhite.svg';
-import { renderNumber } from '../../Utils';
+import { renderNumber } from '../../../Utils';
 import { ContextMenuEvent } from '../../../InputHandler';
 
 interface BuildItemDisplay {

@@ -3,7 +3,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { Layer } from './Layer';
 import { Game } from '../../../core/game/Game';
 import { ClientID } from '../../../core/Schemas';
-import { renderNumber, renderTroops } from '../Utils';
+import { renderNumber, renderTroops } from '../../Utils';
 import { EventBus } from '../../../core/EventBus';
 import { UIState } from '../UIState';
 import { SendSetTargetTroopRatioEvent } from '../../Transport';
