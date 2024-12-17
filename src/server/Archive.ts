@@ -1,6 +1,10 @@
 import { GameConfig, GameID, GameRecord, GameRecordSchema, Turn } from "../core/Schemas";
 import { Storage } from '@google-cloud/storage';
 import { BigQuery } from '@google-cloud/bigquery';
+// import { anonymize } from 'ip-anonymize';
+import anonymize from 'ip-anonymize';
+
+
 
 const storage = new Storage();
 const bigquery = new BigQuery();
@@ -20,7 +24,9 @@ export async function archive(gameRecord: GameRecord) {
             map: gameRecord.gameConfig.gameMap,
             players: gameRecord.players.map(p => ({
                 username: p.username,
-                ip: p.ip,
+                // Masks last couple of bits from ip for
+                // user privacy.
+                ip: anonymize(p.ip),
                 persistentID: p.persistentID,
                 clientID: p.clientID,
             })),
@@ -34,6 +40,7 @@ export async function archive(gameRecord: GameRecord) {
         console.log(`wrote game metadata to BigQuery: ${gameRecord.id}`);
 
         if (gameRecord.turns.length > 0) {
+            console.log(`${gameRecord.id}: game has more than zero turns, attempting to write to gcs`)
             // Players may see this so make sure to clear PII
             gameRecord.players.forEach(p => {
                 p.ip = "REDACTED"
@@ -46,6 +53,7 @@ export async function archive(gameRecord: GameRecord) {
             await file.save(JSON.stringify(GameRecordSchema.parse(gameRecord)), {
                 contentType: 'application/json'
             });
+            console.log(`${gameRecord.id}: game record successfully writting to gcs`)
         }
     } catch (error) {
         try {
