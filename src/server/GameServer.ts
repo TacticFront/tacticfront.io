@@ -166,9 +166,19 @@ export class GameServer {
                 const playerRecords: PlayerRecord[] = Array.from(this.allClients.values()).map(client => ({
                     ip: client.ip,
                     clientID: client.clientID,
+                    username: client.username,
+                    persistentID: client.persistentID,
                 }));
-                const record = CreateGameRecord(this.id, this.gameConfig, playerRecords, this.turns, this._startTime, Date.now())
-                archive(record)
+                archive(
+                    CreateGameRecord(
+                        this.id,
+                        this.gameConfig,
+                        playerRecords,
+                        this.turns,
+                        this._startTime,
+                        Date.now()
+                    )
+                )
             } else {
                 console.log(`${this.id}: no clients joined, not archiving game`)
             }

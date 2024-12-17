@@ -10,6 +10,7 @@ export class Client {
         public readonly clientID: ClientID,
         public readonly persistentID: string,
         public readonly ip: string | null,
+        public readonly username: string,
         public readonly ws: WebSocket,
     ) { }
 }

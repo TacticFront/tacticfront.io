@@ -1,9 +1,9 @@
 import { Config } from "../core/configuration/Config"
 import { EventBus, GameEvent } from "../core/EventBus"
-import { AllianceRequest, AllPlayers, Cell, Player, PlayerID, PlayerType, Tile, UnitType } from "../core/game/Game"
+import { AllianceRequest, AllPlayers, Cell, GameType, Player, PlayerID, PlayerType, Tile, UnitType } from "../core/game/Game"
 import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ClientPingMessageSchema, GameConfig } from "../core/Schemas"
+import { LobbyConfig } from "./GameRunner"
 import { LocalServer } from "./LocalServer"
-import { getPersistentIDFromCookie } from "./Utils"
 
 
 export class SendAllianceRequestIntentEvent implements GameEvent {
@@ -96,18 +96,17 @@ export class Transport {
 
 
     private pingInterval: number | null = null
-    private lastPingTime: number | null = null
+    private isLocal: boolean
 
     constructor(
-        private isLocal: boolean,
+        private lobbyConfig: LobbyConfig,
+        // gameConfig only set on private games
         private gameConfig: GameConfig | null,
         private eventBus: EventBus,
-        private gameID: GameID,
-        private clientID: ClientID,
-        private playerID: PlayerID,
         private config: Config,
-        private playerName: () => string,
     ) {
+        this.isLocal = lobbyConfig.gameType == GameType.Singleplayer
+
         this.eventBus.on(SendAllianceRequestIntentEvent, (e) => this.onSendAllianceRequest(e))
         this.eventBus.on(SendAllianceReplyIntentEvent, (e) => this.onAllianceRequestReplyUIEvent(e))
         this.eventBus.on(SendBreakAllianceIntentEvent, (e) => this.onBreakAllianceRequestUIEvent(e))
@@ -128,8 +127,8 @@ export class Transport {
                 if (this.socket != null && this.socket.readyState === WebSocket.OPEN) {
                     this.sendMsg(JSON.stringify(ClientPingMessageSchema.parse({
                         type: 'ping',
-                        clientID: this.clientID,
-                        gameID: this.gameID,
+                        clientID: this.lobbyConfig.clientID,
+                        gameID: this.lobbyConfig.gameID,
                     })))
                 }
             }, 5 * 1000);
@@ -152,7 +151,7 @@ export class Transport {
     }
 
     private connectLocal(onconnect: () => void, onmessage: (message: ServerMessage) => void) {
-        this.localServer = new LocalServer(this.clientID, this.config, this.gameConfig, onconnect, onmessage)
+        this.localServer = new LocalServer(this.config, this.gameConfig, this.lobbyConfig, onconnect, onmessage)
         this.localServer.start()
     }
 
@@ -193,10 +192,11 @@ export class Transport {
             JSON.stringify(
                 ClientJoinMessageSchema.parse({
                     type: "join",
-                    gameID: this.gameID,
-                    clientID: this.clientID,
+                    gameID: this.lobbyConfig.gameID,
+                    clientID: this.lobbyConfig.clientID,
                     lastTurn: numTurns,
-                    persistentID: getPersistentIDFromCookie(),
+                    persistentID: this.lobbyConfig.persistentID,
+                    username: this.lobbyConfig.playerName()
                 })
             )
         )
@@ -221,7 +221,7 @@ export class Transport {
     private onSendAllianceRequest(event: SendAllianceRequestIntentEvent) {
         this.sendIntent({
             type: "allianceRequest",
-            clientID: this.clientID,
+            clientID: this.lobbyConfig.clientID,
             requestor: event.requestor.id(),
             recipient: event.recipient.id(),
         })
@@ -230,7 +230,7 @@ export class Transport {
     private onAllianceRequestReplyUIEvent(event: SendAllianceReplyIntentEvent) {
         this.sendIntent({
             type: "allianceRequestReply",
-            clientID: this.clientID,
+            clientID: this.lobbyConfig.clientID,
             requestor: event.allianceRequest.requestor().id(),
             recipient: event.allianceRequest.recipient().id(),
             accept: event.accepted,
@@ -240,7 +240,7 @@ export class Transport {
     private onBreakAllianceRequestUIEvent(event: SendBreakAllianceIntentEvent) {
         this.sendIntent({
             type: "breakAlliance",
-            clientID: this.clientID,
+            clientID: this.lobbyConfig.clientID,
             requestor: event.requestor.id(),
             recipient: event.recipient.id(),
         })
@@ -249,9 +249,9 @@ export class Transport {
     private onSendSpawnIntentEvent(event: SendSpawnIntentEvent) {
         this.sendIntent({
             type: "spawn",
-            clientID: this.clientID,
-            playerID: this.playerID,
-            name: this.playerName(),
+            clientID: this.lobbyConfig.clientID,
+            playerID: this.lobbyConfig.playerID,
+            name: this.lobbyConfig.playerName(),
             playerType: PlayerType.Human,
             x: event.cell.x,
             y: event.cell.y
@@ -261,8 +261,8 @@ export class Transport {
     private onSendAttackIntent(event: SendAttackIntentEvent) {
         this.sendIntent({
             type: "attack",
-            clientID: this.clientID,
-            attackerID: this.playerID,
+            clientID: this.lobbyConfig.clientID,
+            attackerID: this.lobbyConfig.playerID,
             targetID: event.targetID,
             troops: event.troops,
             sourceX: null,
@@ -275,8 +275,8 @@ export class Transport {
     private onSendBoatAttackIntent(event: SendBoatAttackIntentEvent) {
         this.sendIntent({
             type: "boat",
-            clientID: this.clientID,
-            attackerID: this.playerID,
+            clientID: this.lobbyConfig.clientID,
+            attackerID: this.lobbyConfig.playerID,
             targetID: event.targetID,
             troops: event.troops,
             x: event.cell.x,
@@ -287,8 +287,8 @@ export class Transport {
     private onSendTargetPlayerIntent(event: SendTargetPlayerIntentEvent) {
         this.sendIntent({
             type: "targetPlayer",
-            clientID: this.clientID,
-            requestor: this.playerID,
+            clientID: this.lobbyConfig.clientID,
+            requestor: this.lobbyConfig.playerID,
             target: event.targetID,
         })
     }
@@ -296,8 +296,8 @@ export class Transport {
     private onSendEmojiIntent(event: SendEmojiIntentEvent) {
         this.sendIntent({
             type: "emoji",
-            clientID: this.clientID,
-            sender: this.playerID,
+            clientID: this.lobbyConfig.clientID,
+            sender: this.lobbyConfig.playerID,
             recipient: event.recipient == AllPlayers ? AllPlayers : event.recipient.id(),
             emoji: event.emoji
         })
@@ -306,7 +306,7 @@ export class Transport {
     private onSendDonateIntent(event: SendDonateIntentEvent) {
         this.sendIntent({
             type: "donate",
-            clientID: this.clientID,
+            clientID: this.lobbyConfig.clientID,
             sender: event.sender.id(),
             recipient: event.recipient.id(),
             troops: event.troops,
@@ -316,8 +316,8 @@ export class Transport {
     private onSendSetTargetTroopRatioEvent(event: SendSetTargetTroopRatioEvent) {
         this.sendIntent({
             type: "troop_ratio",
-            clientID: this.clientID,
-            player: this.playerID,
+            clientID: this.lobbyConfig.clientID,
+            player: this.lobbyConfig.playerID,
             ratio: event.ratio,
         })
     }
@@ -325,8 +325,8 @@ export class Transport {
     private onBuildUnitIntent(event: BuildUnitIntentEvent) {
         this.sendIntent({
             type: "build_unit",
-            clientID: this.clientID,
-            player: this.playerID,
+            clientID: this.lobbyConfig.clientID,
+            player: this.lobbyConfig.playerID,
             unit: event.unit,
             x: event.cell.x,
             y: event.cell.y,
@@ -337,8 +337,8 @@ export class Transport {
         if (this.isLocal || this.socket.readyState === WebSocket.OPEN) {
             const msg = ClientIntentMessageSchema.parse({
                 type: "intent",
-                clientID: this.clientID,
-                gameID: this.gameID,
+                clientID: this.lobbyConfig.clientID,
+                gameID: this.lobbyConfig.gameID,
                 intent: intent
             })
             this.sendMsg(JSON.stringify(msg))

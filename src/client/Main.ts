@@ -9,6 +9,7 @@ import { UsernameInput } from "./UsernameInput";
 import { SinglePlayerModal } from "./SinglePlayerModal";
 import { HostLobbyModal as HostPrivateLobbyModal } from "./HostLobbyModal";
 import { JoinPrivateLobbyModal } from "./JoinPrivateLobbyModal";
+import { generateID } from "../core/Util";
 
 
 
@@ -71,6 +72,9 @@ class Client {
                 gameType: event.detail.gameType,
                 playerName: (): string => this.usernameInput.getCurrentUsername(),
                 gameID: lobby.id,
+                persistentID: getPersistentIDFromCookie(),
+                playerID: generateID(),
+                clientID: generateID(),
                 map: event.detail.map,
                 difficulty: event.detail.difficulty,
             },
@@ -105,4 +109,30 @@ function setFavicon(): void {
     link.rel = 'shortcut icon';
     link.href = favicon;
     document.head.appendChild(link);
+}
+
+// WARNING: DO NOT EXPOSE THIS ID
+export function getPersistentIDFromCookie(): string {
+    const COOKIE_NAME = 'player_persistent_id'
+
+    // Try to get existing cookie
+    const cookies = document.cookie.split(';')
+    for (let cookie of cookies) {
+        const [cookieName, cookieValue] = cookie.split('=').map(c => c.trim())
+        if (cookieName === COOKIE_NAME) {
+            return cookieValue
+        }
+    }
+
+    // If no cookie exists, create new ID and set cookie
+    const newId = crypto.randomUUID() // Using built-in UUID generator
+    document.cookie = [
+        `${COOKIE_NAME}=${newId}`,
+        `max-age=${5 * 365 * 24 * 60 * 60}`, // 5 years
+        'path=/',
+        'SameSite=Strict',
+        'Secure'
+    ].join(';')
+
+    return newId
 }

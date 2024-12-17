@@ -222,10 +222,12 @@ export const ClientIntentMessageSchema = ClientBaseMessageSchema.extend({
     intent: IntentSchema
 })
 
+// WARNING: never send this message to clients.
 export const ClientJoinMessageSchema = ClientBaseMessageSchema.extend({
     type: z.literal('join'),
-    persistentID: z.string(),
-    lastTurn: z.number() // The last turn the client saw.
+    persistentID: z.string(), // WARNING: persistent id is private.
+    lastTurn: z.number(), // The last turn the client saw.
+    username: z.string(),
 })
 
 export const ClientMessageSchema = z.union([ClientPingMessageSchema, ClientIntentMessageSchema, ClientJoinMessageSchema]);
@@ -233,12 +235,12 @@ export const ClientMessageSchema = z.union([ClientPingMessageSchema, ClientInten
 export const PlayerRecordSchema = z.object({
     clientID: z.string(),
     username: z.string(),
-    ip: z.string().nullable(),
+    ip: z.string().nullable(), // WARNING: PII
+    persistentID: z.string(), // WARNING: PII
 })
 
 export const GameRecordSchema = z.object({
-    id: z.string(), // WARNING: PII
-    persistentID: z.string(), // WARNING: PII
+    id: z.string(),
     gameConfig: GameConfigSchema,
     players: z.array(PlayerRecordSchema),
     startTimestampMS: z.number(),

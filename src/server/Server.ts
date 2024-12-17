@@ -115,6 +115,7 @@ wss.on('connection', (ws, req) => {
                     clientMsg.clientID,
                     clientMsg.persistentID,
                     ip,
+                    clientMsg.username,
                     ws
                 ),
                 clientMsg.gameID,

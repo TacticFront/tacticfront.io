@@ -1,6 +1,8 @@
 import { Config } from "../core/configuration/Config";
 import { ClientID, ClientMessage, ClientMessageSchema, GameConfig, GameID, GameRecordSchema, Intent, PlayerRecord, ServerMessage, ServerStartGameMessageSchema, ServerTurnMessageSchema, Turn } from "../core/Schemas";
 import { CreateGameRecord, generateID } from "../core/Util";
+import { LobbyConfig } from "./GameRunner";
+import { getPersistentIDFromCookie } from "./Main";
 
 export class LocalServer {
 
@@ -11,10 +13,14 @@ export class LocalServer {
 
     private endTurnIntervalID
 
-    private gameID: GameID
 
-    constructor(private clientID: ClientID, private config: Config, private gameConfig: GameConfig, private clientConnect: () => void, private clientMessage: (message: ServerMessage) => void) {
-        this.gameID = generateID()
+    constructor(
+        private config: Config,
+        private gameConfig: GameConfig,
+        private lobbyConfig: LobbyConfig,
+        private clientConnect: () => void,
+        private clientMessage: (message: ServerMessage) => void
+    ) {
     }
 
     start() {
@@ -38,7 +44,7 @@ export class LocalServer {
     private endTurn() {
         const pastTurn: Turn = {
             turnNumber: this.turns.length,
-            gameID: this.gameID,
+            gameID: this.lobbyConfig.gameID,
             intents: this.intents
         }
         this.turns.push(pastTurn)
@@ -54,9 +60,18 @@ export class LocalServer {
         clearInterval(this.endTurnIntervalID)
         const players: PlayerRecord[] = [{
             ip: null,
-            clientID: this.clientID
+            persistentID: getPersistentIDFromCookie(),
+            username: this.lobbyConfig.playerName(),
+            clientID: this.lobbyConfig.clientID
         }]
-        const record = CreateGameRecord(this.gameID, this.gameConfig, players, this.turns, this.startedAt, Date.now())
+        const record = CreateGameRecord(
+            this.lobbyConfig.gameID,
+            this.gameConfig,
+            players,
+            this.turns,
+            this.startedAt,
+            Date.now()
+        )
         // Clear turns because beacon only supports up to 64kb
         record.turns = []
         // For unload events, sendBeacon is the only reliable method

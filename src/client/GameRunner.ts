@@ -12,21 +12,20 @@ import { WinCheckExecution } from "../core/execution/WinCheckExecution";
 import { SendAttackIntentEvent, SendSpawnIntentEvent, Transport } from "./Transport";
 import { createCanvas } from "./Utils";
 import { DisplayMessageEvent, MessageType } from "./graphics/layers/EventsDisplay";
-import { v4 as uuidv4 } from 'uuid';
 import { WorkerClient } from "../core/worker/WorkerClient";
 
-
 export interface LobbyConfig {
-    gameType: GameType
     playerName: () => string
-    gameID: GameID
+    clientID: ClientID,
+    playerID: PlayerID,
+    persistentID: string,
+    gameType: GameType
+    gameID: GameID,
     map: GameMap | null
     difficulty: Difficulty | null
 }
 
 export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => void {
-    const clientID = generateID()
-    const playerID = generateID()
     const eventBus = new EventBus()
     const config = getConfig()
 
@@ -40,14 +39,10 @@ export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => v
     }
 
     const transport = new Transport(
-        lobbyConfig.gameType == GameType.Singleplayer,
+        lobbyConfig,
         gameConfig,
         eventBus,
-        lobbyConfig.gameID,
-        clientID,
-        playerID,
         config,
-        lobbyConfig.playerName
     )
 
     const onconnect = () => {
@@ -58,7 +53,7 @@ export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => v
         if (message.type == "start") {
             console.log('lobby: game started')
             onjoin()
-            createClientGame(message.config, eventBus, transport, lobbyConfig.gameID, clientID).then(r => r.start())
+            createClientGame(lobbyConfig, message.config, eventBus, transport).then(r => r.start())
         };
     }
     transport.connect(onconnect, onmessage)
@@ -69,7 +64,7 @@ export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => v
 }
 
 
-export async function createClientGame(gameConfig: GameConfig, eventBus: EventBus, transport: Transport, gameID: GameID, clientID: ClientID): Promise<GameRunner> {
+export async function createClientGame(lobbyConfig: LobbyConfig, gameConfig: GameConfig, eventBus: EventBus, transport: Transport): Promise<GameRunner> {
     const config = getConfig()
 
     const terrainMap = await loadTerrainMap(gameConfig.gameMap);
@@ -82,18 +77,18 @@ export async function createClientGame(gameConfig: GameConfig, eventBus: EventBu
     await worker.initialize()
     console.log('inited path finder')
     const canvas = createCanvas()
-    let gameRenderer = createRenderer(canvas, game, eventBus, clientID)
+    let gameRenderer = createRenderer(canvas, game, eventBus, lobbyConfig.clientID)
 
 
     console.log(`creating private game got difficulty: ${gameConfig.difficulty}`)
 
     return new GameRunner(
-        clientID,
+        lobbyConfig.clientID,
         eventBus,
         game,
         gameRenderer,
         new InputHandler(canvas, eventBus),
-        new Executor(game, gameID, worker),
+        new Executor(game, lobbyConfig.gameID, worker),
         transport,
     )
 }
