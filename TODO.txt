@@ -240,7 +240,7 @@
 * better emojis 🏳️🤦‍♂️🖕☮️🫡😡😈🤡 DONE 12/13/2024
 * store ips in bigquery table DONE 12/14/2024
 * better error logging in server DONE 12/16/2024
-* store and archive player cookies
+* store and archive player cookies DONE 12/17/2024
 * make ips less precise
 * send client logs back to server
 * seperate server config from client config
