@@ -18,7 +18,7 @@ export enum GamePhase {
 export class GameServer {
 
 
-    private maxGameDuration = 2 * 60 * 60 * 1000 // 2 hours
+    private maxGameDuration = 5 * 60 * 60 * 1000 // 5 hours
 
     private turns: Turn[] = []
     private intents: Intent[] = []
@@ -196,9 +196,13 @@ export class GameServer {
             console.warn(`game past max duration ${this.id}`)
             return GamePhase.Finished
         }
+
+        const noRecentPings = now > this.lastPingUpdate + 20 * 1000
+        const noActive = this.activeClients.length == 0
+
         if (!this.isPublic) {
             if (this._hasStarted) {
-                if (this.activeClients.length == 0) {
+                if (noActive && noRecentPings) {
                     console.log(`private game: ${this.id} complete`)
                     return GamePhase.Finished
                 } else {
@@ -212,11 +216,7 @@ export class GameServer {
         if (now - this.createdAt < this.config.lobbyLifetime()) {
             return GamePhase.Lobby
         }
-
-        const noActive = this.activeClients.length == 0
         const warmupOver = now > this.createdAt + this.config.lobbyLifetime() + 30 * 1000
-        const noRecentPings = now > this.lastPingUpdate + 20 * 1000
-
         if (noActive && warmupOver && noRecentPings) {
             return GamePhase.Finished
         }
