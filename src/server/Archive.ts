@@ -42,6 +42,6 @@ export async function archive(gameRecord: GameRecord) {
             });
         }
     } catch (error) {
-        console.log(`error archiving game record: ${error}`)
+        console.error(`error archiving game record: ${error}`)
     }
 }

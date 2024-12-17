@@ -8,7 +8,7 @@ export const devConfig = new class extends DefaultConfig {
     unitInfo(type: UnitType): UnitInfo {
         const info = super.unitInfo(type)
         const oldCost = info.cost
-        info.cost = (p: Player) => oldCost(p) / 1000000
+        info.cost = (p: Player) => oldCost(p) / 20
         return info
     }
 

@@ -3,7 +3,6 @@ import { Config } from "../core/configuration/Config";
 import { Client } from "./Client";
 import WebSocket from 'ws';
 import { slog } from "./StructuredLog";
-import { Storage } from '@google-cloud/storage';
 import { CreateGameRecord } from "../core/Util";
 import { archive } from "./Archive";
 import { arc } from "d3";
@@ -51,7 +50,7 @@ export class GameServer {
     }
 
     public addClient(client: Client, lastTurn: number) {
-        console.log(`game ${this.id} adding client ${client.id}`)
+        console.log(`${this.id}: adding client ${client.id}`)
         slog('client_joined_game', `client ${client.id} (re)joining game ${this.id}`, {
             clientID: client.id,
             clientIP: client.ip,
@@ -75,7 +74,7 @@ export class GameServer {
                 if (clientMsg.gameID == this.id) {
                     this.addIntent(clientMsg.intent)
                 } else {
-                    console.warn(`client ${clientMsg.clientID} sent to wrong game`)
+                    console.warn(`${this.id}: client ${clientMsg.clientID} sent to wrong game`)
                 }
             }
             if (clientMsg.type == "ping") {
@@ -84,7 +83,7 @@ export class GameServer {
             }
         })
         client.ws.on('close', () => {
-            console.log(`client ${client.id} disconnected`)
+            console.log(`${this.id}: client ${client.id} disconnected`)
             this.activeClients = this.activeClients.filter(c => c.id != client.id)
         })
 
@@ -113,7 +112,7 @@ export class GameServer {
 
         this.endTurnIntervalID = setInterval(() => this.endTurn(), this.config.turnIntervalMs());
         this.activeClients.forEach(c => {
-            console.log(`game ${this.id} sending start message to ${c.id}`)
+            console.log(`${this.id}: sending start message to ${c.id}`)
             this.sendStartGameMsg(c.ws, 0)
         })
     }
@@ -161,7 +160,7 @@ export class GameServer {
                 client.ws.close(1000, "game has ended");
             }
         });
-        console.log(`ending game ${this.id} with ${this.turns.length} turns`)
+        console.log(`${this.id}: ending game ${this.id} with ${this.turns.length} turns`)
         try {
             if (this.allClients.size > 0) {
                 const playerRecords: PlayerRecord[] = Array.from(this.allClients.values()).map(client => ({
@@ -171,10 +170,30 @@ export class GameServer {
                 const record = CreateGameRecord(this.id, this.gameConfig, playerRecords, this.turns, this._startTime, Date.now())
                 archive(record)
             } else {
-                console.log(`game ${this.id} no clients joined, not archiving game`)
+                console.log(`${this.id}: no clients joined, not archiving game`)
             }
         } catch (error) {
-            console.log('error writing game to gcs: ' + error)
+            let errorDetails;
+            if (error instanceof Error) {
+                errorDetails = {
+                    message: error.message,
+                    stack: error.stack
+                };
+            } else if (Array.isArray(error)) {
+                errorDetails = error; // Now we'll actually see the array contents
+            } else {
+                try {
+                    errorDetails = JSON.stringify(error, null, 2);
+                } catch (e) {
+                    errorDetails = String(error);
+                }
+            }
+
+            console.error("Error archiving game record details:", {
+                gameId: this.id,
+                errorType: typeof error,
+                error: errorDetails
+            });
         }
     }
 
@@ -183,7 +202,7 @@ export class GameServer {
         const alive = []
         for (const client of this.activeClients) {
             if (now - client.lastPing > 60_000) {
-                console.log(`no pings from ${client.id}, terminating connection`)
+                console.log(`${this.id}: no pings from ${client.id}, terminating connection`)
                 if (client.ws.readyState === WebSocket.OPEN) {
                     client.ws.close(1000, "no heartbeats received, closing connection");
                 }
@@ -193,7 +212,7 @@ export class GameServer {
         }
         this.activeClients = alive
         if (now > this.createdAt + this.config.lobbyLifetime() + this.maxGameDuration) {
-            console.warn(`game past max duration ${this.id}`)
+            console.warn(`${this.id}: game past max duration ${this.id}`)
             return GamePhase.Finished
         }
 
@@ -203,7 +222,7 @@ export class GameServer {
         if (!this.isPublic) {
             if (this._hasStarted) {
                 if (noActive && noRecentPings) {
-                    console.log(`private game: ${this.id} complete`)
+                    console.log(`${this.id}: private game: ${this.id} complete`)
                     return GamePhase.Finished
                 } else {
                     return GamePhase.Active
@@ -227,4 +246,6 @@ export class GameServer {
     hasStarted(): boolean {
         return this._hasStarted
     }
+
+
 }
