@@ -13,7 +13,7 @@ import { SendAttackIntentEvent, SendSpawnIntentEvent, Transport } from "./Transp
 import { createCanvas } from "./Utils";
 import { DisplayMessageEvent, MessageType } from "./graphics/layers/EventsDisplay";
 import { WorkerClient } from "../core/worker/WorkerClient";
-import { initializeLogSender } from "./LogSender";
+import { consolex, initRemoteSender } from "../core/Consolex";
 
 export interface LobbyConfig {
     playerName: () => string
@@ -27,9 +27,11 @@ export interface LobbyConfig {
 }
 
 export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => void {
-    console.log(`joinging lobby: gameID: ${lobbyConfig.gameID}, clientID: ${lobbyConfig.clientID}, persistentID: ${lobbyConfig.persistentID}`)
     const eventBus = new EventBus()
-    initializeLogSender(eventBus)
+    initRemoteSender(eventBus)
+
+    consolex.log(`joinging lobby: gameID: ${lobbyConfig.gameID}, clientID: ${lobbyConfig.clientID}, persistentID: ${lobbyConfig.persistentID}`)
+
     const config = getConfig()
 
     let gameConfig: GameConfig = null

@@ -10,11 +10,7 @@ import { SinglePlayerModal } from "./SinglePlayerModal";
 import { HostLobbyModal as HostPrivateLobbyModal } from "./HostLobbyModal";
 import { JoinPrivateLobbyModal } from "./JoinPrivateLobbyModal";
 import { generateID } from "../core/Util";
-import { initializeLogSender } from "./LogSender";
 import { generateCryptoRandomUUID } from "./Utils";
-
-
-
 
 class Client {
     private gameStop: () => void
