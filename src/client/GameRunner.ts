@@ -13,6 +13,7 @@ import { SendAttackIntentEvent, SendSpawnIntentEvent, Transport } from "./Transp
 import { createCanvas } from "./Utils";
 import { DisplayMessageEvent, MessageType } from "./graphics/layers/EventsDisplay";
 import { WorkerClient } from "../core/worker/WorkerClient";
+import { initializeLogSender } from "./LogSender";
 
 export interface LobbyConfig {
     playerName: () => string
@@ -27,6 +28,7 @@ export interface LobbyConfig {
 
 export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => void {
     const eventBus = new EventBus()
+    initializeLogSender(eventBus)
     const config = getConfig()
 
     let gameConfig: GameConfig = null
@@ -186,7 +188,6 @@ export class GameRunner {
     }
 
     private playerEvent(event: PlayerEvent) {
-        console.log('received new player event!')
         if (event.player.clientID() == this.clientID) {
             console.log('setting name')
             this.myPlayer = event.player

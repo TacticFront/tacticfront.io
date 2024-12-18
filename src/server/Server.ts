@@ -4,9 +4,9 @@ import { WebSocketServer } from 'ws';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { GameManager } from './GameManager';
-import { ClientMessage, ClientMessageSchema, GameRecord, GameRecordSchema, Turn, TurnSchema } from '../core/Schemas';
+import { ClientMessage, ClientMessageSchema, GameRecord, GameRecordSchema, LogSeverity } from '../core/Schemas';
 import { getConfig } from '../core/configuration/Config';
-import { LogSeverity, slog } from './StructuredLog';
+import { slog } from './StructuredLog';
 import { Client } from './Client';
 import { GamePhase, GameServer } from './GameServer';
 import { archive } from './Archive';
@@ -68,7 +68,7 @@ app.post('/archive_singleplayer_game', (req, res) => {
             success: true,
         });
     } catch (error) {
-        slog('complete_single_player_game_record', 'Failed to complete game record', { error }, LogSeverity.ERROR);
+        slog('complete_single_player_game_record', 'Failed to complete game record', { error }, LogSeverity.Error);
         res.status(400).json({ error: 'Invalid game record format' });
     }
 })
@@ -103,7 +103,7 @@ app.get('/private_lobby/:id', (req, res) => {
 wss.on('connection', (ws, req) => {
     ws.on('message', (message: string) => {
         const clientMsg: ClientMessage = ClientMessageSchema.parse(JSON.parse(message))
-        slog('websocket_msg', 'server received websocket message', clientMsg, LogSeverity.DEBUG)
+        slog('websocket_msg', 'server received websocket message', clientMsg, LogSeverity.Debug)
         if (clientMsg.type == "join") {
             const forwarded = req.headers['x-forwarded-for']
             const ip = Array.isArray(forwarded)
@@ -122,8 +122,8 @@ wss.on('connection', (ws, req) => {
                 clientMsg.lastTurn
             )
         }
-        if(clientMsg.type == "log") {
-            console.log()
+        if (clientMsg.type == "log") {
+            console.log(clientMsg.log)
         }
     })
 });

@@ -48,6 +48,14 @@ export type GameRecord = z.infer<typeof GameRecordSchema>
 
 const PlayerTypeSchema = z.nativeEnum(PlayerType);
 
+export enum LogSeverity {
+    Debug = 'DEBUG',
+    Info = 'INFO',
+    Warn = 'WARN',
+    Error = 'ERROR',
+    Fatal = 'FATAL'
+}
+
 // TODO: create Cell schema
 
 export interface Lobby {
@@ -216,7 +224,7 @@ const ClientBaseMessageSchema = z.object({
 
 export const ClientLogMessageSchema = ClientBaseMessageSchema.extend({
     type: z.literal('log'),
-    severity: z.enum([''])
+    severity: z.nativeEnum(LogSeverity),
     log: z.string(),
 })
 

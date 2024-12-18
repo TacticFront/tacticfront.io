@@ -1,10 +1,9 @@
 import { Config } from "../core/configuration/Config"
 import { EventBus, GameEvent } from "../core/EventBus"
 import { AllianceRequest, AllPlayers, Cell, GameType, Player, PlayerID, PlayerType, Tile, UnitType } from "../core/game/Game"
-import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ClientPingMessageSchema, GameConfig, ClientLogMessageSchema } from "../core/Schemas"
+import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ClientPingMessageSchema, GameConfig, ClientLogMessageSchema, LogSeverity } from "../core/Schemas"
 import { LobbyConfig } from "./GameRunner"
 import { LocalServer } from "./LocalServer"
-import { LogSeverity } from "./LogSender"
 
 
 export class SendAllianceRequestIntentEvent implements GameEvent {
@@ -206,6 +205,7 @@ export class Transport {
                     clientID: this.lobbyConfig.clientID,
                     persistentID: this.lobbyConfig.persistentID,
                     log: event.log,
+                    severity: event.severity,
                 })
             )
         )
