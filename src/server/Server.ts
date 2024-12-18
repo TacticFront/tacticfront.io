@@ -122,7 +122,9 @@ wss.on('connection', (ws, req) => {
                 clientMsg.lastTurn
             )
         }
-        // TODO: send error message
+        if(clientMsg.type == "log") {
+            console.log()
+        }
     })
 });
 

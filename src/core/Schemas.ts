@@ -31,7 +31,7 @@ export type BuildUnitIntent = z.infer<typeof BuildUnitIntentSchema>
 export type Turn = z.infer<typeof TurnSchema>
 export type GameConfig = z.infer<typeof GameConfigSchema>
 
-export type ClientMessage = ClientPingMessage | ClientIntentMessage | ClientJoinMessage
+export type ClientMessage = ClientPingMessage | ClientIntentMessage | ClientJoinMessage | ClientLogMessage
 export type ServerMessage = ServerSyncMessage | ServerStartGameMessage | ServerPingMessage
 
 export type ServerSyncMessage = z.infer<typeof ServerTurnMessageSchema>
@@ -41,6 +41,7 @@ export type ServerPingMessage = z.infer<typeof ServerPingMessageSchema>
 export type ClientPingMessage = z.infer<typeof ClientPingMessageSchema>
 export type ClientIntentMessage = z.infer<typeof ClientIntentMessageSchema>
 export type ClientJoinMessage = z.infer<typeof ClientJoinMessageSchema>
+export type ClientLogMessage = z.infer<typeof ClientLogMessageSchema>
 
 export type PlayerRecord = z.infer<typeof PlayerRecordSchema>
 export type GameRecord = z.infer<typeof GameRecordSchema>
@@ -208,9 +209,15 @@ export const ServerMessageSchema = z.union([ServerTurnMessageSchema, ServerStart
 // Client
 
 const ClientBaseMessageSchema = z.object({
-    type: z.string(),
+    type: z.enum(['join', 'intent', 'ping', 'log']),
     clientID: z.string(),
     gameID: z.string(),
+})
+
+export const ClientLogMessageSchema = ClientBaseMessageSchema.extend({
+    type: z.literal('log'),
+    severity: z.enum([''])
+    log: z.string(),
 })
 
 export const ClientPingMessageSchema = ClientBaseMessageSchema.extend({
@@ -230,7 +237,12 @@ export const ClientJoinMessageSchema = ClientBaseMessageSchema.extend({
     username: z.string(),
 })
 
-export const ClientMessageSchema = z.union([ClientPingMessageSchema, ClientIntentMessageSchema, ClientJoinMessageSchema]);
+export const ClientMessageSchema = z.union([
+    ClientPingMessageSchema,
+    ClientIntentMessageSchema,
+    ClientJoinMessageSchema,
+    ClientLogMessageSchema,
+]);
 
 export const PlayerRecordSchema = z.object({
     clientID: z.string(),

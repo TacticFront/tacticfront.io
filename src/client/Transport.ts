@@ -1,9 +1,10 @@
 import { Config } from "../core/configuration/Config"
 import { EventBus, GameEvent } from "../core/EventBus"
 import { AllianceRequest, AllPlayers, Cell, GameType, Player, PlayerID, PlayerType, Tile, UnitType } from "../core/game/Game"
-import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ClientPingMessageSchema, GameConfig } from "../core/Schemas"
+import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ClientPingMessageSchema, GameConfig, ClientLogMessageSchema } from "../core/Schemas"
 import { LobbyConfig } from "./GameRunner"
 import { LocalServer } from "./LocalServer"
+import { LogSeverity } from "./LogSender"
 
 
 export class SendAllianceRequestIntentEvent implements GameEvent {
@@ -82,6 +83,13 @@ export class SendSetTargetTroopRatioEvent implements GameEvent {
     ) { }
 }
 
+export class SendLogEvent implements GameEvent {
+    constructor(
+        public readonly severity: LogSeverity,
+        public readonly log: string,
+    ) { }
+}
+
 export class Transport {
 
     private socket: WebSocket
@@ -118,6 +126,8 @@ export class Transport {
         this.eventBus.on(SendDonateIntentEvent, (e) => this.onSendDonateIntent(e))
         this.eventBus.on(SendSetTargetTroopRatioEvent, (e) => this.onSendSetTargetTroopRatioEvent(e))
         this.eventBus.on(BuildUnitIntentEvent, (e) => this.onBuildUnitIntent(e))
+
+        this.eventBus.on(SendLogEvent, (e) => this.onSendLogEvent(e))
     }
 
     private startPing() {
@@ -187,6 +197,20 @@ export class Transport {
         };
     }
 
+    private onSendLogEvent(event: SendLogEvent) {
+        this.sendMsg(
+            JSON.stringify(
+                ClientLogMessageSchema.parse({
+                    type: "log",
+                    gameID: this.lobbyConfig.gameID,
+                    clientID: this.lobbyConfig.clientID,
+                    persistentID: this.lobbyConfig.persistentID,
+                    log: event.log,
+                })
+            )
+        )
+    }
+
     joinGame(numTurns: number) {
         this.sendMsg(
             JSON.stringify(
@@ -217,6 +241,7 @@ export class Transport {
         }
         this.socket.onclose = (event: CloseEvent) => { }
     }
+
 
     private onSendAllianceRequest(event: SendAllianceRequestIntentEvent) {
         this.sendIntent({

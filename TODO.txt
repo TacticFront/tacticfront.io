@@ -248,7 +248,6 @@
 * give naval units health
 * bug: player names not updating sometimes
 * make player editeable configs
-* games disconnects on multplayer after some time
 * couldn't scroll left on build menu to deploy bombs (mobile)
 * UI/test too big on mobile
 * bug: build city 25k bump doesn't match troop/worker ratio
