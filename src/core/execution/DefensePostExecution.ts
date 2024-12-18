@@ -1,3 +1,4 @@
+import { consolex } from "../Consolex";
 import { Cell, DefenseBonus, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, Tile, UnitType } from "../game/Game";
 import { bfs, dist } from "../Util";
 
@@ -23,7 +24,7 @@ export class DefensePostExecution implements Execution {
         if (this.post == null) {
             const spawnTile = this.player.canBuild(UnitType.DefensePost, this.tile)
             if (spawnTile == false) {
-                console.warn('cannot build Defense Post')
+                consolex.warn('cannot build Defense Post')
                 this.active = false
                 return
             }

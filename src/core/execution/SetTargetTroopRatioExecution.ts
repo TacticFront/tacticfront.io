@@ -1,3 +1,4 @@
+import { consolex } from "../Consolex";
 import { Execution, MutableGame, MutablePlayer, PlayerID } from "../game/Game";
 
 export class SetTargetTroopRatioExecution implements Execution {
@@ -15,7 +16,7 @@ export class SetTargetTroopRatioExecution implements Execution {
 
     tick(ticks: number): void {
         if (this.targetTroopsRatio < 0 || this.targetTroopsRatio > 1) {
-            console.warn(`target troop ratio of ${this.targetTroopsRatio} for player ${this.player} invalid`)
+            consolex.warn(`target troop ratio of ${this.targetTroopsRatio} for player ${this.player} invalid`)
         } else {
             this.player.setTargetTroopRatio(this.targetTroopsRatio)
         }

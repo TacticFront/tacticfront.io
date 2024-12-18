@@ -1,6 +1,5 @@
-import { EventBus } from "./EventBus"
+import { EventBus, GameEvent } from "./EventBus"
 import { LogSeverity } from "./Schemas"
-import { SendLogEvent } from "../client/Transport"
 
 export const consolex = {
     log: console.log,
@@ -31,4 +30,10 @@ export function initRemoteSender(eventBus: EventBus) {
         console.error(...args);
         eventBus.emit(new SendLogEvent(LogSeverity.Error, args.join(' ')))
     }
+}
+export class SendLogEvent implements GameEvent {
+    constructor(
+        public readonly severity: LogSeverity,
+        public readonly log: string
+    ) { }
 }

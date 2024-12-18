@@ -4,6 +4,7 @@ import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { PseudoRandom } from "../PseudoRandom";
 import { bfs, dist, distSortUnit, euclideanDist, manhattanDist } from "../Util";
+import { consolex } from "../Consolex";
 
 export class NukeExecution implements Execution {
 
@@ -35,7 +36,7 @@ export class NukeExecution implements Execution {
         if (this.nuke == null) {
             const spawn = this.player.canBuild(this.type, this.dst)
             if (spawn == false) {
-                console.warn(`cannot build Nuke`)
+                consolex.warn(`cannot build Nuke`)
                 this.active = false
                 return
             }
@@ -55,7 +56,7 @@ export class NukeExecution implements Execution {
                 case PathFindResultType.Pending:
                     break
                 case PathFindResultType.PathNotFound:
-                    console.warn(`nuke cannot find path from ${this.nuke.tile()} to ${this.dst}`)
+                    consolex.warn(`nuke cannot find path from ${this.nuke.tile()} to ${this.dst}`)
                     this.active = false
                     return
             }

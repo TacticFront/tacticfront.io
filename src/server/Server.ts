@@ -45,7 +45,7 @@ app.get('/lobbies', (req, res) => {
 
 app.post('/private_lobby', (req, res) => {
     const id = gm.createPrivateGame()
-    console.logx('creating private lobby with id ${id}')
+    console.log('creating private lobby with id ${id}')
     res.json({
         id: id
     });
@@ -79,7 +79,7 @@ app.post('/archive_singleplayer_game', (req, res) => {
 })
 
 app.post('/start_private_lobby/:id', (req, res) => {
-    console.logx(`starting private lobby with id ${req.params.id}`)
+    console.log(`starting private lobby with id ${req.params.id}`)
     gm.startPrivateGame(req.params.id)
 });
 

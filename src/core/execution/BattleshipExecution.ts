@@ -5,6 +5,7 @@ import { SerialAStar } from "../pathfinding/SerialAStar";
 import { PseudoRandom } from "../PseudoRandom";
 import { distSort, distSortUnit, manhattanDist } from "../Util";
 import { ShellExecution } from "./ShellExecution";
+import { consolex } from "../Consolex";
 
 export class BattleshipExecution implements Execution {
     private random: PseudoRandom
@@ -66,7 +67,7 @@ export class BattleshipExecution implements Execution {
                 case PathFindResultType.Pending:
                     return
                 case PathFindResultType.PathNotFound:
-                    console.log(`path not found to patrol tile`)
+                    consolex.log(`path not found to patrol tile`)
                     this.patrolTile = this.randomTile()
                     break
             }

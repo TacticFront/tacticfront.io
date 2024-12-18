@@ -1,6 +1,7 @@
 import { Execution, MutableGame, MutablePlayer, MutableUnit, Tile, Unit, UnitType } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
+import { consolex } from "../Consolex";
 
 export class ShellExecution implements Execution {
 
@@ -43,7 +44,7 @@ export class ShellExecution implements Execution {
                 case PathFindResultType.Pending:
                     return
                 case PathFindResultType.PathNotFound:
-                    console.log(`Shell ${this.shell} could not find target`)
+                    consolex.log(`Shell ${this.shell} could not find target`)
                     this.active = false
                     this.shell.delete(false)
                     return

@@ -6,6 +6,7 @@ import { PseudoRandom } from "../PseudoRandom";
 import { bfs, dist, manhattanDist } from "../Util";
 import { TradeShipExecution } from "./TradeShipExecution";
 import { ParallelAStar, WorkerClient } from "../worker/WorkerClient";
+import { consolex } from "../Consolex";
 
 export class PortExecution implements Execution {
 
@@ -35,7 +36,7 @@ export class PortExecution implements Execution {
             const tile = this.mg.tile(this.cell)
             const player = this.mg.player(this._owner)
             if (!player.canBuild(UnitType.Port, tile)) {
-                console.warn(`player ${player} cannot build port at ${this.cell}`)
+                consolex.warn(`player ${player} cannot build port at ${this.cell}`)
                 this.active = false
                 return
             }
@@ -44,7 +45,7 @@ export class PortExecution implements Execution {
                 .sort((a, b) => manhattanDist(a.cell(), tile.cell()) - manhattanDist(b.cell(), tile.cell()))
 
             if (spawns.length == 0) {
-                console.warn(`cannot find spawn for port`)
+                consolex.warn(`cannot find spawn for port`)
                 this.active = false
                 return
             }
@@ -78,13 +79,13 @@ export class PortExecution implements Execution {
                     case PathFindResultType.Pending:
                         break
                     case PathFindResultType.PathNotFound:
-                        console.warn(`path not found to port`)
+                        consolex.warn(`path not found to port`)
                         break
                 }
                 continue
             }
             const asyncPF = this.worker.createParallelAStar(this.port.tile(), port.tile(), 25, [TerrainType.Ocean])
-            // console.log(`adding new port path from ${this.player().name()}:${this.port.tile().cell()} to ${port.owner().name()}:${port.tile().cell()}`)
+            // consolex.log(`adding new port path from ${this.player().name()}:${this.port.tile().cell()} to ${port.owner().name()}:${port.tile().cell()}`)
             this.computingPaths.set(port, asyncPF)
         }
 

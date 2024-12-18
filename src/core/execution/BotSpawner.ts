@@ -1,3 +1,4 @@
+import { consolex } from "../Consolex";
 import {Cell, Game, PlayerType, Tile, TileEvent} from "../game/Game";
 import {PseudoRandom} from "../PseudoRandom";
 import {GameID, SpawnIntent} from "../Schemas";
@@ -16,7 +17,7 @@ export class BotSpawner {
         let tries = 0
         while (this.bots.length < numBots) {
             if (tries > 10000) {
-                console.log('too many retries while spawning bots, giving up')
+                consolex.log('too many retries while spawning bots, giving up')
                 return this.bots
             }
             const spawn = this.spawnBot("Bot" + this.bots.length)

@@ -1,3 +1,4 @@
+import { consolex } from "../../Consolex";
 import {AllianceRequest, Execution, MutableGame, MutablePlayer, Player, PlayerID} from "../../game/Game";
 
 export class AllianceRequestReplyExecution implements Execution {
@@ -16,11 +17,11 @@ export class AllianceRequestReplyExecution implements Execution {
 
     tick(ticks: number): void {
         if (this.requestor.isAlliedWith(this.recipient)) {
-            console.warn('already allied')
+            consolex.warn('already allied')
         } else {
             const request = this.requestor.outgoingAllianceRequests().find(ar => ar.recipient() == this.recipient)
             if (request == null) {
-                console.warn('no alliance request found')
+                consolex.warn('no alliance request found')
             } else {
                 if (this.accept) {
                     request.accept()

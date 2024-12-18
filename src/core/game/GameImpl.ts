@@ -11,6 +11,7 @@ import { AllianceImpl } from "./AllianceImpl";
 import { ClientID, GameConfig } from "../Schemas";
 import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/EventsDisplay";
 import { UnitImpl } from "./UnitImpl";
+import { consolex } from "../Consolex";
 
 export function createGame(terrainMap: TerrainMapImpl, miniMap: TerrainMap, eventBus: EventBus, config: Config, gameConfig: GameConfig): Game {
     return new GameImpl(terrainMap, miniMap, eventBus, config, gameConfig)
@@ -104,16 +105,16 @@ export class GameImpl implements MutableGame {
 
     createAllianceRequest(requestor: MutablePlayer, recipient: Player): MutableAllianceRequest {
         if (requestor.isAlliedWith(recipient)) {
-            console.log('cannot request alliance, already allied')
+            consolex.log('cannot request alliance, already allied')
             return
         }
         if (recipient.incomingAllianceRequests().find(ar => ar.requestor() == requestor) != null) {
-            console.log(`duplicate alliance request from ${requestor.name()}`)
+            consolex.log(`duplicate alliance request from ${requestor.name()}`)
             return
         }
         const correspondingReq = requestor.incomingAllianceRequests().find(ar => ar.requestor() == recipient)
         if (correspondingReq != null) {
-            console.log(`got corresponding alliance requests, accepting`)
+            consolex.log(`got corresponding alliance requests, accepting`)
             correspondingReq.accept()
             return
         }
@@ -182,7 +183,7 @@ export class GameImpl implements MutableGame {
             this._players.forEach(p => {
                 hash += p.hash()
             })
-            console.log(`tick ${this._ticks}: hash ${hash}`)
+            consolex.log(`tick ${this._ticks}: hash ${hash}`)
         }
     }
 

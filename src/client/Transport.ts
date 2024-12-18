@@ -1,7 +1,8 @@
 import { Config } from "../core/configuration/Config"
+import { SendLogEvent } from "../core/Consolex"
 import { EventBus, GameEvent } from "../core/EventBus"
 import { AllianceRequest, AllPlayers, Cell, GameType, Player, PlayerID, PlayerType, Tile, UnitType } from "../core/game/Game"
-import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ClientPingMessageSchema, GameConfig, ClientLogMessageSchema, LogSeverity } from "../core/Schemas"
+import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ClientPingMessageSchema, GameConfig, ClientLogMessageSchema } from "../core/Schemas"
 import { LobbyConfig } from "./GameRunner"
 import { LocalServer } from "./LocalServer"
 
@@ -79,13 +80,6 @@ export class SendDonateIntentEvent implements GameEvent {
 export class SendSetTargetTroopRatioEvent implements GameEvent {
     constructor(
         public readonly ratio: number,
-    ) { }
-}
-
-export class SendLogEvent implements GameEvent {
-    constructor(
-        public readonly severity: LogSeverity,
-        public readonly log: string,
     ) { }
 }
 

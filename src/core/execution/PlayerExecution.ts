@@ -2,6 +2,7 @@ import { Config } from "../configuration/Config"
 import { Execution, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, Tile } from "../game/Game"
 import { bfs, calculateBoundingBox, getMode, inscribed, simpleHash } from "../Util"
 import { GameImpl } from "../game/GameImpl"
+import { consolex } from "../Consolex"
 
 export class PlayerExecution implements Execution {
 
@@ -71,7 +72,7 @@ export class PlayerExecution implements Execution {
                 this.removeClusters()
                 const end = performance.now()
                 if (end - start > 1000) {
-                    console.log(`player ${this.player.name()}, took ${end - start}ms`)
+                    consolex.log(`player ${this.player.name()}, took ${end - start}ms`)
                 }
             }
         }
@@ -138,7 +139,7 @@ export class PlayerExecution implements Execution {
         const arr = Array.from(cluster)
         const mode = getMode(arr.flatMap(t => t.neighbors()).filter(t => t.hasOwner() && t.owner() != this.player).map(t => t.owner().id()))
         if (!this.mg.hasPlayer(mode)) {
-            console.warn('mode is not found')
+            consolex.warn('mode is not found')
             return
         }
         const firstTile = arr[0]
@@ -147,7 +148,7 @@ export class PlayerExecution implements Execution {
 
         const modePlayer = this.mg.player(mode)
         if (modePlayer == null) {
-            console.warn('mode player is null')
+            consolex.warn('mode player is null')
         }
         for (const tile of tiles) {
             modePlayer.conquer(tile)

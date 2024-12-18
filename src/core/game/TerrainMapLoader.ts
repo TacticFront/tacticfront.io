@@ -14,6 +14,7 @@ import northAmericaInfo from "../../../resources/maps/NorthAmerica.json"
 
 import oceaniaBin from "!!binary-loader!../../../resources/maps/Oceania.bin"
 import oceaniaInfo from "../../../resources/maps/Oceania.json"
+import { consolex } from '../Consolex';
 
 const maps = new Map()
     .set(GameMap.World, { bin: worldBin, info: worldInfo })
@@ -113,13 +114,13 @@ export async function loadTerrainMap(map: GameMap): Promise<TerrainMapImpl> {
         setTimeout(() => resolve(mapData.bin), 100);
     });
 
-    console.log(`Loaded data length: ${fileData.length} bytes`);
+    consolex.log(`Loaded data length: ${fileData.length} bytes`);
 
     // Extract width and height from the first 4 bytes
     const width = (fileData.charCodeAt(1) << 8) | fileData.charCodeAt(0);
     const height = (fileData.charCodeAt(3) << 8) | fileData.charCodeAt(2);
 
-    console.log(`Decoded dimensions: ${width}x${height}`);
+    consolex.log(`Decoded dimensions: ${width}x${height}`);
 
     // Check if the data length matches the expected size
     if (fileData.length != width * height + 4) {  // +4 for the width and height bytes
@@ -221,13 +222,13 @@ export async function createMiniMap(tm: TerrainMap): Promise<TerrainMap> {
 
 
 function logBinaryAsAscii(data: string, length: number = 8) {
-    console.log('Binary data (1 = set bit, 0 = unset bit):');
+    consolex.log('Binary data (1 = set bit, 0 = unset bit):');
     for (let i = 0; i < Math.min(length, data.length); i++) {
         let byte = data.charCodeAt(i);
         let byteString = '';
         for (let j = 7; j >= 0; j--) {
             byteString += (byte & (1 << j)) ? '1' : '0';
         }
-        console.log(`Byte ${i}: ${byteString}`);
+        consolex.log(`Byte ${i}: ${byteString}`);
     }
 }

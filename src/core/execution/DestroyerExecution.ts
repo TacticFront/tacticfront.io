@@ -4,6 +4,7 @@ import { PathFindResultType } from "../pathfinding/AStar";
 import { SerialAStar } from "../pathfinding/SerialAStar";
 import { PseudoRandom } from "../PseudoRandom";
 import { distSort, distSortUnit, manhattanDist } from "../Util";
+import { consolex } from "../Consolex";
 
 export class DestroyerExecution implements Execution {
     private random: PseudoRandom
@@ -72,7 +73,7 @@ export class DestroyerExecution implements Execution {
                     case PathFindResultType.Pending:
                         return
                     case PathFindResultType.PathNotFound:
-                        console.log(`path not found to patrol tile`)
+                        consolex.log(`path not found to patrol tile`)
                         this.patrolTile = this.randomTile()
                         break
                 }
@@ -110,7 +111,7 @@ export class DestroyerExecution implements Execution {
                 case PathFindResultType.Pending:
                     break
                 case PathFindResultType.PathNotFound:
-                    console.log(`path not found to target`)
+                    consolex.log(`path not found to target`)
                     break
             }
         }

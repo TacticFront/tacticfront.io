@@ -5,6 +5,7 @@ import { PriorityQueue } from "@datastructures-js/priority-queue";
 import { SerialAStar } from "../pathfinding/SerialAStar";
 import { AStar, PathFindResultType, SearchNode } from "../pathfinding/AStar";
 import { MiniAStar } from "../pathfinding/MiniAStar";
+import { consolex } from "../Consolex";
 
 let terrainMapPromise: Promise<{
     terrainMap: TerrainMap,
@@ -99,7 +100,7 @@ function computeSearches() {
                     searches.push(search)
                     break
                 case PathFindResultType.PathNotFound:
-                    console.warn(`worker: path not found to port`);
+                    consolex.warn(`worker: path not found to port`);
                     self.postMessage({
                         type: 'pathNotFound',
                         requestId: search.requestId,

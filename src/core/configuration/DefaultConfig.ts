@@ -264,7 +264,7 @@ export abstract class DefaultConfig implements Config {
         const ratio = 1 - (player.population() / max)
         toAdd *= ratio
         toAdd *= .5
-        // console.log(`to add ${toAdd}`)
+        // consolex.log(`to add ${toAdd}`)
 
         if (player.type() == PlayerType.FakeHuman) {
             toAdd *= 1.0

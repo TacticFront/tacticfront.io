@@ -2,6 +2,7 @@ import { PriorityQueue } from "@datastructures-js/priority-queue";
 import { AStar, SearchNode } from "./AStar";
 import { PathFindResultType } from "./AStar";
 import { Cell } from "../game/Game";
+import { consolex } from "../Consolex";
 
 
 export class SerialAStar implements AStar {
@@ -111,7 +112,7 @@ export class SerialAStar implements AStar {
         try {
             return 1.1 * Math.abs(a.cell().x - b.cell().x) + Math.abs(a.cell().y - b.cell().y);
         } catch {
-            console.log('uh oh')
+            consolex.log('uh oh')
         }
     }
 

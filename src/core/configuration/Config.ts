@@ -4,6 +4,7 @@ import { devConfig } from "./DevConfig";
 import { GameID } from "../Schemas";
 import { preprodConfig } from "./PreprodConfig";
 import { prodConfig } from "./ProdConfig";
+import { consolex } from "../Consolex";
 
 export enum GameEnv {
 	Dev,
@@ -13,13 +14,13 @@ export enum GameEnv {
 export function getConfig(): Config {
 	switch (process.env.GAME_ENV) {
 		case 'dev':
-			console.log('using dev config')
+			consolex.log('using dev config')
 			return devConfig
 		case 'preprod':
-			console.log('using preprod config')
+			consolex.log('using preprod config')
 			return preprodConfig
 		case 'prod':
-			console.log('using prod config')
+			consolex.log('using prod config')
 			return prodConfig
 		default:
 			throw Error(`unsupported server configuration: ${process.env.GAME_ENV}`)

@@ -4,6 +4,7 @@ import { AStar, PathFindResultType, SearchNode, TileResult } from "./AStar";
 import { ParallelAStar, WorkerClient } from "../worker/WorkerClient";
 import { SerialAStar } from "./SerialAStar";
 import { MiniAStar } from "./MiniAStar";
+import { consolex } from "../Consolex";
 
 export class PathFinder {
 
@@ -65,10 +66,10 @@ export class PathFinder {
 
     nextTile(curr: Tile, dst: Tile, dist: number = 1): TileResult {
         if (curr == null) {
-            console.error('curr is null')
+            consolex.error('curr is null')
         }
         if (dst == null) {
-            console.error('dst is null')
+            consolex.error('dst is null')
         }
 
         if (manhattanDist(curr.cell(), dst.cell()) < dist) {

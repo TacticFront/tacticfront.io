@@ -10,6 +10,7 @@ import { PathFinder } from "../pathfinding/PathFinding";
 import { DestroyerExecution } from "./DestroyerExecution";
 import { BattleshipExecution } from "./BattleshipExecution";
 import { GameID } from "../Schemas";
+import { consolex } from "../Consolex";
 
 export class FakeHumanExecution implements Execution {
 
@@ -42,7 +43,7 @@ export class FakeHumanExecution implements Execution {
             if (ticks % this.random.nextInt(5, 30) == 0) {
                 const rl = this.randomLand()
                 if (rl == null) {
-                    console.warn(`cannot spawn ${this.playerInfo.name}`)
+                    consolex.warn(`cannot spawn ${this.playerInfo.name}`)
                     return
                 }
                 this.mg.addExecution(new SpawnExecution(
@@ -180,7 +181,7 @@ export class FakeHumanExecution implements Execution {
             }
             const canBuild = this.player.canBuild(UnitType.Destroyer, targetTile)
             if (canBuild == false) {
-                console.warn('cannot spawn destroyer')
+                consolex.warn('cannot spawn destroyer')
                 return false
             }
             switch (shipType) {

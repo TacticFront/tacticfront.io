@@ -1,3 +1,4 @@
+import { consolex } from "../../Consolex";
 import {AllianceRequest, Execution, MutableGame, MutablePlayer, Player, PlayerID} from "../../game/Game";
 
 export class BreakAllianceExecution implements Execution {
@@ -15,7 +16,7 @@ export class BreakAllianceExecution implements Execution {
     tick(ticks: number): void {
         const alliance = this.requestor.allianceWith(this.recipient)
         if (alliance == null) {
-            console.warn('cant break alliance, not allied')
+            consolex.warn('cant break alliance, not allied')
         } else {
             this.requestor.breakAlliance(alliance)
         }

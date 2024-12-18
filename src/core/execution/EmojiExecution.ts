@@ -1,3 +1,4 @@
+import { consolex } from "../Consolex";
 import {AllPlayers, Execution, MutableGame, MutablePlayer, PlayerID} from "../game/Game";
 
 export class EmojiExecution implements Execution {
@@ -23,7 +24,7 @@ export class EmojiExecution implements Execution {
         if (this.requestor.canSendEmoji(this.recipient)) {
             this.requestor.sendEmoji(this.recipient, this.emoji)
         } else {
-            console.warn(`cannot send emoji from ${this.requestor} to ${this.recipient}`)
+            consolex.warn(`cannot send emoji from ${this.requestor} to ${this.recipient}`)
         }
         this.active = false
     }

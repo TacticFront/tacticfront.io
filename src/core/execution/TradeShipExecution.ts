@@ -6,6 +6,7 @@ import { PathFindResultType } from "../pathfinding/AStar";
 import { SerialAStar } from "../pathfinding/SerialAStar";
 import { PseudoRandom } from "../PseudoRandom";
 import { bfs, dist, distSortUnit, manhattanDist } from "../Util";
+import { consolex } from "../Consolex";
 
 export class TradeShipExecution implements Execution {
 
@@ -35,7 +36,7 @@ export class TradeShipExecution implements Execution {
         if (this.tradeShip == null) {
             const spawn = this.origOwner.canBuild(UnitType.TradeShip, this.srcPort.tile())
             if (spawn == false) {
-                console.warn(`cannot build trade ship`)
+                consolex.warn(`cannot build trade ship`)
                 this.active = false
                 return
             }
@@ -86,7 +87,7 @@ export class TradeShipExecution implements Execution {
                     this.tradeShip.move(result.tile)
                     break
                 case PathFindResultType.PathNotFound:
-                    console.warn('captured trade ship cannot find route')
+                    consolex.warn('captured trade ship cannot find route')
                     this.active = false
                     break
             }

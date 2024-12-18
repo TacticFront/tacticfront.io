@@ -1,3 +1,4 @@
+import { consolex } from "../Consolex";
 import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, Tile, Unit, UnitType } from "../game/Game";
 
 export class MissileSiloExecution implements Execution {
@@ -22,7 +23,7 @@ export class MissileSiloExecution implements Execution {
         if (this.silo == null) {
             const tile = this.mg.tile(this.cell)
             if (!this.player.canBuild(UnitType.MissileSilo, tile)) {
-                console.warn(`player ${this.player} cannot build port at ${this.cell}`)
+                consolex.warn(`player ${this.player} cannot build port at ${this.cell}`)
                 this.active = false
                 return
             }

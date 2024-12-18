@@ -5,6 +5,7 @@ import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/E
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { SerialAStar } from "../pathfinding/SerialAStar";
+import { consolex } from "../Consolex";
 
 export class TransportShipExecution implements Execution {
 
@@ -68,13 +69,13 @@ export class TransportShipExecution implements Execution {
 
         this.dst = targetTransportTile(this.mg, this.mg.tile(this.cell))
         if (this.dst == null) {
-            console.warn(`${this.attacker} cannot send ship to ${this.target}, cannot find attack tile`)
+            consolex.warn(`${this.attacker} cannot send ship to ${this.target}, cannot find attack tile`)
             this.active = false
             return
         }
         const src = this.attacker.canBuild(UnitType.TransportShip, this.dst)
         if (src == false) {
-            console.warn(`can't build transport ship`)
+            consolex.warn(`can't build transport ship`)
             this.active = false
             return
         }
@@ -124,7 +125,7 @@ export class TransportShipExecution implements Execution {
                 break
             case PathFindResultType.PathNotFound:
                 // TODO: add to poisoned port list
-                console.warn(`path not found tot dst`)
+                consolex.warn(`path not found tot dst`)
                 this.boat.delete(false)
                 this.active = false
                 return
