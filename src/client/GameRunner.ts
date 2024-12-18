@@ -27,6 +27,7 @@ export interface LobbyConfig {
 }
 
 export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => void {
+    console.log(`joinging lobby: gameID: ${lobbyConfig.gameID}, clientID: ${lobbyConfig.clientID}, persistentID: ${lobbyConfig.persistentID}`)
     const eventBus = new EventBus()
     initializeLogSender(eventBus)
     const config = getConfig()
