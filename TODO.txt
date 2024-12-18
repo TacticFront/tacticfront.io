@@ -243,6 +243,7 @@
 * store and archive player cookies DONE 12/17/2024
 * make ips less precise for user safety DONE 12/17/2024
 * send client logs back to server  DONE 12/17/2024
+* make info panel merge with X, display more info
 * right click brings up player info menu
 * seperate server config from client config
 * give naval units health
