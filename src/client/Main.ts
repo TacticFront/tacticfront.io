@@ -11,6 +11,7 @@ import { HostLobbyModal as HostPrivateLobbyModal } from "./HostLobbyModal";
 import { JoinPrivateLobbyModal } from "./JoinPrivateLobbyModal";
 import { generateID } from "../core/Util";
 import { initializeLogSender } from "./LogSender";
+import { generateCryptoRandomUUID } from "./Utils";
 
 
 
@@ -126,14 +127,14 @@ export function getPersistentIDFromCookie(): string {
     }
 
     // If no cookie exists, create new ID and set cookie
-    const newId = crypto.randomUUID() // Using built-in UUID generator
+    const newID = generateCryptoRandomUUID()
     document.cookie = [
-        `${COOKIE_NAME}=${newId}`,
+        `${COOKIE_NAME}=${newID}`,
         `max-age=${5 * 365 * 24 * 60 * 60}`, // 5 years
         'path=/',
         'SameSite=Strict',
         'Secure'
     ].join(';')
 
-    return newId
+    return newID
 }
