@@ -2,6 +2,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { Difficulty, GameMap, GameType } from '../core/game/Game';
 import { Lobby } from '../core/Schemas';
+import { consolex } from '../core/Consolex';
 
 @customElement('host-lobby-modal')
 export class HostLobbyModal extends LitElement {
@@ -168,13 +169,13 @@ export class HostLobbyModal extends LitElement {
 
   private async handleMapChange(e: Event) {
     this.selectedMap = String((e.target as HTMLSelectElement).value) as GameMap;
-    console.log(`updating map to ${this.selectedMap}`)
+    consolex.log(`updating map to ${this.selectedMap}`)
     this.putGameConfig()
   }
 
   private async handleDifficultyChange(e: Event) {
     this.selectedDiffculty = String((e.target as HTMLSelectElement).value) as Difficulty;
-    console.log(`updating difficulty to ${this.selectedDiffculty}`)
+    consolex.log(`updating difficulty to ${this.selectedDiffculty}`)
     this.putGameConfig()
   }
 
@@ -189,7 +190,7 @@ export class HostLobbyModal extends LitElement {
   }
 
   private async startGame() {
-    console.log(`Starting private game with map: ${GameMap[this.selectedMap]}`);
+    consolex.log(`Starting private game with map: ${GameMap[this.selectedMap]}`);
     this.close();
     const response = await fetch(`/start_private_lobby/${this.lobbyId}`, {
       method: 'POST',
@@ -208,7 +209,7 @@ export class HostLobbyModal extends LitElement {
         this.copySuccess = false;
       }, 2000);
     } catch (err) {
-      console.error('Failed to copy text: ', err);
+      consolex.error('Failed to copy text: ', err);
     }
   }
 
@@ -230,7 +231,7 @@ async function createLobby(): Promise<Lobby> {
     }
 
     const data = await response.json();
-    console.log('Success:', data);
+    consolex.log('Success:', data);
 
     // Assuming the server returns an object with an 'id' property
     const lobby: Lobby = {
@@ -240,7 +241,7 @@ async function createLobby(): Promise<Lobby> {
 
     return lobby;
   } catch (error) {
-    console.error('Error creating lobby:', error);
+    consolex.error('Error creating lobby:', error);
     throw error; // Re-throw the error so the caller can handle it
   }
 }

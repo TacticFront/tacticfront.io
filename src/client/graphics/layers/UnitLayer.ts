@@ -4,6 +4,7 @@ import { Unit, UnitEvent, Cell, Game, Tile, UnitType } from "../../../core/game/
 import { bfs, dist, euclDist } from "../../../core/Util";
 import { Layer } from "./Layer";
 import { EventBus } from "../../../core/EventBus";
+import { consolex } from "../../../core/Consolex";
 
 export class UnitLayer implements Layer {
     private canvas: HTMLCanvasElement;
@@ -150,7 +151,7 @@ export class UnitLayer implements Layer {
                     }
                 );
             } catch {
-                console.log('uh oh')
+                consolex.log('uh oh')
             }
             bfs(event.unit.tile(), dist(event.unit.tile(), 2))
                 .forEach(t => this.paintCell(t.cell(), this.theme.borderColor(event.unit.owner().info()), 255));

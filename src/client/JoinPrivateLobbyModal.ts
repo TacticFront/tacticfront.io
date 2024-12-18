@@ -1,6 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 import { GameMap, GameType } from '../core/game/Game';
+import { consolex } from '../core/Consolex';
 
 @customElement('join-private-lobby-modal')
 export class JoinPrivateLobbyModal extends LitElement {
@@ -149,13 +150,13 @@ export class JoinPrivateLobbyModal extends LitElement {
       const clipText = await navigator.clipboard.readText();
       this.lobbyIdInput.value = clipText;
     } catch (err) {
-      console.error('Failed to read clipboard contents: ', err);
+      consolex.error('Failed to read clipboard contents: ', err);
     }
   }
 
   private joinLobby() {
     const lobbyId = this.lobbyIdInput.value;
-    console.log(`Joining lobby with ID: ${lobbyId}`);
+    consolex.log(`Joining lobby with ID: ${lobbyId}`);
     this.message = 'Checking lobby...'; // Set initial message
 
     fetch(`/lobby/${lobbyId}/exists`, {
@@ -183,7 +184,7 @@ export class JoinPrivateLobbyModal extends LitElement {
         }
       })
       .catch(error => {
-        console.error('Error checking lobby existence:', error);
+        consolex.error('Error checking lobby existence:', error);
         this.message = 'An error occurred. Please try again.';
       });
   }

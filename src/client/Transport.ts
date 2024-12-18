@@ -1,5 +1,5 @@
 import { Config } from "../core/configuration/Config"
-import { SendLogEvent } from "../core/Consolex"
+import { consolex, SendLogEvent } from "../core/Consolex"
 import { EventBus, GameEvent } from "../core/EventBus"
 import { AllianceRequest, AllPlayers, Cell, GameType, Player, PlayerID, PlayerType, Tile, UnitType } from "../core/game/Game"
 import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ClientPingMessageSchema, GameConfig, ClientLogMessageSchema } from "../core/Schemas"
@@ -167,9 +167,9 @@ export class Transport {
         this.onconnect = onconnect
         this.onmessage = onmessage
         this.socket.onopen = () => {
-            console.log('Connected to game server!');
+            consolex.log('Connected to game server!');
             while (this.buffer.length > 0) {
-                console.log('sending dropped message')
+                consolex.log('sending dropped message')
                 this.sendMsg(this.buffer.pop())
             }
             onconnect()
@@ -178,13 +178,13 @@ export class Transport {
             onmessage(ServerMessageSchema.parse(JSON.parse(event.data)))
         };
         this.socket.onerror = (err) => {
-            console.error('Socket encountered error: ', err, 'Closing socket');
+            consolex.error('Socket encountered error: ', err, 'Closing socket');
             this.socket.close();
         };
         this.socket.onclose = (event: CloseEvent) => {
-            console.log(`WebSocket closed. Code: ${event.code}, Reason: ${event.reason}`);
+            consolex.log(`WebSocket closed. Code: ${event.code}, Reason: ${event.reason}`);
             if (event.code != 1000) {
-                console.log(`reconnecting`)
+                consolex.log(`reconnecting`)
                 this.connect(onconnect, onmessage)
             }
         };
@@ -227,11 +227,11 @@ export class Transport {
         }
         this.stopPing()
         if (this.socket.readyState === WebSocket.OPEN) {
-            console.log('on stop: leaving game')
+            consolex.log('on stop: leaving game')
             this.socket.close()
         } else {
-            console.log('WebSocket is not open. Current state:', this.socket.readyState);
-            console.error('attempting reconnect')
+            consolex.log('WebSocket is not open. Current state:', this.socket.readyState);
+            consolex.error('attempting reconnect')
         }
         this.socket.onclose = (event: CloseEvent) => { }
     }
@@ -362,8 +362,8 @@ export class Transport {
             })
             this.sendMsg(JSON.stringify(msg))
         } else {
-            console.log('WebSocket is not open. Current state:', this.socket.readyState);
-            console.log('attempting reconnect')
+            consolex.log('WebSocket is not open. Current state:', this.socket.readyState);
+            consolex.log('attempting reconnect')
         }
     }
 
@@ -372,7 +372,7 @@ export class Transport {
             this.localServer.onMessage(msg)
         } else {
             if (this.socket.readyState == WebSocket.CLOSED || this.socket.readyState == WebSocket.CLOSED) {
-                console.warn('socket not ready, closing and trying later')
+                consolex.warn('socket not ready, closing and trying later')
                 this.socket.close()
                 this.socket = null
                 this.connectRemote(this.onconnect, this.onmessage)

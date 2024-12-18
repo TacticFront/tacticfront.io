@@ -19,6 +19,7 @@ import buildIcon from '../../../../../resources/images/BuildIconWhite.svg';
 import { EmojiTable } from "./EmojiTable";
 import { UIState } from "../../UIState";
 import { BuildMenu } from "./BuildMenu";
+import { consolex } from "../../../../core/Consolex";
 
 
 enum Slot {
@@ -228,7 +229,7 @@ export class RadialMenu implements Layer {
 
         const myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
         if (!myPlayer) {
-            console.warn('my player not found')
+            consolex.warn('my player not found')
             return
         }
 
@@ -383,7 +384,7 @@ export class RadialMenu implements Layer {
         if (!this.isCenterButtonEnabled) {
             return
         }
-        console.log('Center button clicked');
+        consolex.log('Center button clicked');
         const clicked = this.game.tile(this.clickedCell)
         if (this.game.inSpawnPhase()) {
             this.eventBus.emit(new SendSpawnIntentEvent(this.clickedCell))

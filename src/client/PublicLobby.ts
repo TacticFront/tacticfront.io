@@ -2,6 +2,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { Lobby } from "../core/Schemas";
 import { Difficulty, GameMap, GameType } from '../core/game/Game';
+import { consolex } from '../core/Consolex';
 
 @customElement('public-lobby')
 export class PublicLobby extends LitElement {
@@ -65,7 +66,7 @@ export class PublicLobby extends LitElement {
             const lobbies = await this.fetchLobbies();
             this.lobbies = lobbies;
         } catch (error) {
-            console.error('Error fetching and updating lobbies:', error);
+            consolex.error('Error fetching and updating lobbies:', error);
         }
     }
 
@@ -79,7 +80,7 @@ export class PublicLobby extends LitElement {
             const data = await response.json();
             return data.lobbies;
         } catch (error) {
-            console.error('Error fetching lobbies:', error);
+            consolex.error('Error fetching lobbies:', error);
             throw error;
         }
     }

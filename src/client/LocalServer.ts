@@ -1,4 +1,5 @@
 import { Config } from "../core/configuration/Config";
+import { consolex } from "../core/Consolex";
 import { ClientID, ClientMessage, ClientMessageSchema, GameConfig, GameID, GameRecordSchema, Intent, PlayerRecord, ServerMessage, ServerStartGameMessageSchema, ServerTurnMessageSchema, Turn } from "../core/Schemas";
 import { CreateGameRecord, generateID } from "../core/Util";
 import { LobbyConfig } from "./GameRunner";
@@ -56,7 +57,7 @@ export class LocalServer {
     }
 
     public endGame() {
-        console.log('local server ending game')
+        consolex.log('local server ending game')
         clearInterval(this.endTurnIntervalID)
         const players: PlayerRecord[] = [{
             ip: null,

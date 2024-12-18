@@ -2,6 +2,7 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { Difficulty, GameMap, GameType } from '../core/game/Game';
 import { generateID as generateID } from '../core/Util';
+import { consolex } from '../core/Consolex';
 
 @customElement('single-player-modal')
 export class SinglePlayerModal extends LitElement {
@@ -123,7 +124,7 @@ export class SinglePlayerModal extends LitElement {
     this.selectedDifficulty = String((e.target as HTMLSelectElement).value) as Difficulty;
   }
   private startGame() {
-    console.log(`Starting single player game with map: ${GameMap[this.selectedMap]}`);
+    consolex.log(`Starting single player game with map: ${GameMap[this.selectedMap]}`);
     this.dispatchEvent(new CustomEvent('join-lobby', {
       detail: {
         gameType: GameType.Singleplayer,

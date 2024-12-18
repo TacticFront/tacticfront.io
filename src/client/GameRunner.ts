@@ -51,19 +51,19 @@ export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => v
     )
 
     const onconnect = () => {
-        console.log(`Joined game lobby ${lobbyConfig.gameID}`);
+        consolex.log(`Joined game lobby ${lobbyConfig.gameID}`);
         transport.joinGame(0)
     };
     const onmessage = (message: ServerMessage) => {
         if (message.type == "start") {
-            console.log('lobby: game started')
+            consolex.log('lobby: game started')
             onjoin()
             createClientGame(lobbyConfig, message.config, eventBus, transport).then(r => r.start())
         };
     }
     transport.connect(onconnect, onmessage)
     return () => {
-        console.log('leaving game')
+        consolex.log('leaving game')
         transport.leaveGame()
     }
 }
@@ -78,14 +78,14 @@ export async function createClientGame(lobbyConfig: LobbyConfig, gameConfig: Gam
     let game = createGame(terrainMap, miniMap, eventBus, config, gameConfig)
 
     const worker = new WorkerClient(game, gameConfig.gameMap)
-    console.log('going to init path finder')
+    consolex.log('going to init path finder')
     await worker.initialize()
-    console.log('inited path finder')
+    consolex.log('inited path finder')
     const canvas = createCanvas()
     let gameRenderer = createRenderer(canvas, game, eventBus, lobbyConfig.clientID)
 
 
-    console.log(`creating private game got difficulty: ${gameConfig.difficulty}`)
+    consolex.log(`creating private game got difficulty: ${gameConfig.difficulty}`)
 
     return new GameRunner(
         lobbyConfig.clientID,
@@ -121,7 +121,7 @@ export class GameRunner {
     ) { }
 
     public start() {
-        console.log('starting client game')
+        consolex.log('starting client game')
         this.isActive = true
         this.eventBus.on(PlayerEvent, (e) => this.playerEvent(e))
         this.eventBus.on(MouseUpEvent, (e) => this.inputEvent(e))
@@ -137,13 +137,13 @@ export class GameRunner {
         this.intervalID = setInterval(() => this.tick(), 10);
 
         const onconnect = () => {
-            console.log('Connected to game server!');
+            consolex.log('Connected to game server!');
             this.transport.joinGame(this.turns.length)
         };
         const onmessage = (message: ServerMessage) => {
             if (message.type == "start") {
                 this.hasJoined = true
-                console.log("starting game!")
+                consolex.log("starting game!")
                 for (const turn of message.turns) {
                     if (turn.turnNumber < this.turns.length) {
                         continue
@@ -157,7 +157,7 @@ export class GameRunner {
                     return
                 }
                 if (this.turns.length != message.turn.turnNumber) {
-                    console.error(`got wrong turn have turns ${this.turns.length}, received turn ${message.turn.turnNumber}`)
+                    consolex.error(`got wrong turn have turns ${this.turns.length}, received turn ${message.turn.turnNumber}`)
                 } else {
                     this.turns.push(message.turn)
                 }
@@ -183,7 +183,7 @@ export class GameRunner {
             this.gs.executeNextTick()
         } catch (error) {
             const errorText = `Error: ${error.message}\nStack: ${error.stack}`;
-            console.error(errorText)
+            consolex.error(errorText)
             alert(`Game crashed! client id: ${this.clientID}\n Please paste the following your bug report in Discord:\n` + errorText);
         }
         this.renderer.tick()
@@ -193,7 +193,7 @@ export class GameRunner {
 
     private playerEvent(event: PlayerEvent) {
         if (event.player.clientID() == this.clientID) {
-            console.log('setting name')
+            consolex.log('setting name')
             this.myPlayer = event.player
         }
     }
@@ -206,7 +206,7 @@ export class GameRunner {
         if (!this.gs.isOnMap(cell)) {
             return
         }
-        console.log(`clicked cell ${cell}`)
+        consolex.log(`clicked cell ${cell}`)
         const tile = this.gs.tile(cell)
         if (tile.isLand() && !tile.hasOwner() && this.gs.inSpawnPhase()) {
             this.eventBus.emit(new SendSpawnIntentEvent(cell))

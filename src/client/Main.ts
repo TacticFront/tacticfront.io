@@ -11,6 +11,7 @@ import { HostLobbyModal as HostPrivateLobbyModal } from "./HostLobbyModal";
 import { JoinPrivateLobbyModal } from "./JoinPrivateLobbyModal";
 import { generateID } from "../core/Util";
 import { generateCryptoRandomUUID } from "./Utils";
+import { consolex } from "../core/Consolex";
 
 class Client {
     private gameStop: () => void
@@ -24,10 +25,10 @@ class Client {
     initialize(): void {
         this.usernameInput = document.querySelector('username-input') as UsernameInput;
         if (!this.usernameInput) {
-            console.warn('Username input element not found');
+            consolex.warn('Username input element not found');
         }
         window.addEventListener('beforeunload', (event) => {
-            console.log('Browser is closing');
+            consolex.log('Browser is closing');
             if (this.gameStop != null) {
                 this.gameStop()
             }
@@ -60,9 +61,9 @@ class Client {
 
     private async handleJoinLobby(event: CustomEvent) {
         const lobby = event.detail.lobby
-        console.log(`joining lobby ${lobby.id}`)
+        consolex.log(`joining lobby ${lobby.id}`)
         if (this.gameStop != null) {
-            console.log('joining lobby, stopping existing game')
+            consolex.log('joining lobby, stopping existing game')
             this.gameStop()
         }
         this.gameStop = joinLobby(
@@ -84,7 +85,7 @@ class Client {
         if (this.gameStop == null) {
             return
         }
-        console.log('leaving lobby, cancelling game')
+        consolex.log('leaving lobby, cancelling game')
         this.gameStop()
         this.gameStop = null
     }

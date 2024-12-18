@@ -8,6 +8,7 @@ import { Layer } from "./Layer";
 import { TransformHandler } from "../TransformHandler";
 import { MessageType } from "./EventsDisplay";
 import { SendBreakAllianceIntentEvent } from "../../Transport";
+import { consolex } from "../../../core/Consolex";
 
 interface MenuOption {
     label: string;
@@ -64,7 +65,7 @@ export class UILayer implements Layer {
 
     initRightClickMenu() {
         if (!this.customMenu) {
-            console.error('Custom menu not found');
+            consolex.error('Custom menu not found');
             return;
         }
 
@@ -82,7 +83,7 @@ export class UILayer implements Layer {
     }
 
     createWinModal() {
-        console.log("Creating win modal");
+        consolex.log("Creating win modal");
         this.winModal = document.createElement('div');
         this.winModal.style.cssText = `
             display: none;
@@ -133,7 +134,7 @@ export class UILayer implements Layer {
         this.winModal.appendChild(content);
         document.body.appendChild(this.winModal);
 
-        console.log("Win modal appended to body");
+        consolex.log("Win modal appended to body");
     }
 
     styleButton(button: HTMLButtonElement) {
@@ -185,7 +186,7 @@ export class UILayer implements Layer {
     }
 
     onWinEvent(event: WinEvent) {
-        console.log(`${event.winner.name()} won the game!!}`)
+        consolex.log(`${event.winner.name()} won the game!!}`)
         this.showWinModal(event.winner)
     }
 
@@ -206,7 +207,7 @@ export class UILayer implements Layer {
     }
 
     onExitButtonClick() {
-        console.log('Button clicked!');
+        consolex.log('Button clicked!');
         window.location.reload();
     }
 

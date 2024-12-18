@@ -17,6 +17,7 @@ import { BuildMenu } from "./layers/radial/BuildMenu";
 import { UnitLayer } from "./layers/UnitLayer";
 import { StructureLayer } from "./layers/StructureLayer";
 import { PlayerInfoOverlay } from "./layers/PlayerInfoOverlay";
+import { consolex } from "../../core/Consolex";
 
 
 export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: EventBus, clientID: ClientID): GameRenderer {
@@ -27,18 +28,18 @@ export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: 
 	// TODO maybe append this to dcoument instead of querying for them?
 	const emojiTable = document.querySelector('emoji-table') as EmojiTable;
 	if (!emojiTable || !(emojiTable instanceof EmojiTable)) {
-		console.error('EmojiTable element not found in the DOM');
+		consolex.error('EmojiTable element not found in the DOM');
 	}
 	const buildMenu = document.querySelector('build-menu') as BuildMenu;
 	if (!buildMenu || !(buildMenu instanceof BuildMenu)) {
-		console.error('BuildMenu element not found in the DOM')
+		consolex.error('BuildMenu element not found in the DOM')
 	}
 	buildMenu.game = game
 	buildMenu.eventBus = eventBus
 
 	const leaderboard = document.querySelector('leader-board') as Leaderboard;
 	if (!emojiTable || !(leaderboard instanceof Leaderboard)) {
-		console.error('EmojiTable element not found in the DOM');
+		consolex.error('EmojiTable element not found in the DOM');
 	}
 	leaderboard.clientID = clientID
 	leaderboard.eventBus = eventBus
@@ -46,7 +47,7 @@ export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: 
 
 	const controlPanel = document.querySelector('control-panel') as ControlPanel;
 	if (!(controlPanel instanceof ControlPanel)) {
-		console.error('ControlPanel element not found in the DOM');
+		consolex.error('ControlPanel element not found in the DOM');
 	}
 	controlPanel.clientID = clientID
 	controlPanel.eventBus = eventBus
@@ -54,7 +55,7 @@ export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: 
 
 	const eventsDisplay = document.querySelector('events-display') as EventsDisplay;
 	if (!(eventsDisplay instanceof EventsDisplay)) {
-		console.error('events display not found')
+		consolex.error('events display not found')
 	}
 	eventsDisplay.eventBus = eventBus
 	eventsDisplay.game = game
@@ -62,7 +63,7 @@ export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: 
 
 	const playerInfo = document.querySelector('player-info-overlay') as PlayerInfoOverlay
 	if (!(playerInfo instanceof PlayerInfoOverlay)) {
-		console.error('player info overlay not found')
+		consolex.error('player info overlay not found')
 	}
 	playerInfo.eventBus = eventBus
 	playerInfo.clientID = clientID
