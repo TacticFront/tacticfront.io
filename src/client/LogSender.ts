@@ -1,3 +1,11 @@
+declare global {
+    interface Console {
+        localLog: typeof console.log;
+        localWarn: typeof console.warn;
+        localError: typeof console.error;
+    }
+}
+
 import { EventBus } from "../core/EventBus"
 import { LogSeverity } from "../core/Schemas"
 import { SendLogEvent } from "./Transport"
@@ -15,22 +23,28 @@ export function initializeLogSender(eventBus: EventBus) {
     const originalWarn = console.warn
     const originalError = console.error
 
-    const log = (msg: string): void => {
-        eventBus.emit(new SendLogEvent(LogSeverity.Info, msg))
-        originalLog.call(console, msg)  // Use the original method
+    // Define networked logging functions (both local and remote)
+    const log = (...args: any[]): void => {
+        eventBus.emit(new SendLogEvent(LogSeverity.Info, args.join(' ')))
+        originalLog.apply(console, args)
     }
 
-    const warn = (msg: string): void => {
-        eventBus.emit(new SendLogEvent(LogSeverity.Warn, msg))
-        originalWarn.call(console, msg)  // Use the original method
+    const warn = (...args: any[]): void => {
+        eventBus.emit(new SendLogEvent(LogSeverity.Warn, args.join(' ')))
+        originalWarn.apply(console, args)
     }
 
-    const error = (msg: string): void => {
-        eventBus.emit(new SendLogEvent(LogSeverity.Error, msg))
-        originalError.call(console, msg)  // Use the original method
+    const error = (...args: any[]): void => {
+        eventBus.emit(new SendLogEvent(LogSeverity.Error, args.join(' ')))
+        originalError.apply(console, args)
     }
 
-    // Replace console methods
+    // Store local-only logging functions
+    console.localLog = originalLog.bind(console)
+    console.localWarn = originalWarn.bind(console)
+    console.localError = originalError.bind(console)
+
+    // Replace main console methods with networked versions
     console.log = log
     console.warn = warn
     console.error = error

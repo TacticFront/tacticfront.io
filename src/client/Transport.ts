@@ -175,7 +175,7 @@ export class Transport {
         this.socket.onopen = () => {
             console.log('Connected to game server!');
             while (this.buffer.length > 0) {
-                console.log('sending dropped message')
+                console.localLog('sending dropped message')
                 this.sendMsg(this.buffer.pop())
             }
             onconnect()
@@ -184,13 +184,13 @@ export class Transport {
             onmessage(ServerMessageSchema.parse(JSON.parse(event.data)))
         };
         this.socket.onerror = (err) => {
-            console.error('Socket encountered error: ', err, 'Closing socket');
+            console.localError('Socket encountered error: ', err, 'Closing socket');
             this.socket.close();
         };
         this.socket.onclose = (event: CloseEvent) => {
             console.log(`WebSocket closed. Code: ${event.code}, Reason: ${event.reason}`);
             if (event.code != 1000) {
-                console.log(`reconnecting`)
+                console.localLog(`reconnecting`)
                 this.connect(onconnect, onmessage)
             }
         };
@@ -236,8 +236,8 @@ export class Transport {
             console.log('on stop: leaving game')
             this.socket.close()
         } else {
-            console.log('WebSocket is not open. Current state:', this.socket.readyState);
-            console.log('attempting reconnect')
+            console.localLog('WebSocket is not open. Current state:', this.socket.readyState);
+            console.localError('attempting reconnect')
         }
         this.socket.onclose = (event: CloseEvent) => { }
     }
@@ -368,8 +368,8 @@ export class Transport {
             })
             this.sendMsg(JSON.stringify(msg))
         } else {
-            console.log('WebSocket is not open. Current state:', this.socket.readyState);
-            console.log('attempting reconnect')
+            console.localLog('WebSocket is not open. Current state:', this.socket.readyState);
+            console.localLog('attempting reconnect')
         }
     }
 
@@ -378,7 +378,7 @@ export class Transport {
             this.localServer.onMessage(msg)
         } else {
             if (this.socket.readyState == WebSocket.CLOSED || this.socket.readyState == WebSocket.CLOSED) {
-                console.warn('socket not ready, closing and trying later')
+                console.localWarn('socket not ready, closing and trying later')
                 this.socket.close()
                 this.socket = null
                 this.connectRemote(this.onconnect, this.onmessage)
