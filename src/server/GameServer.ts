@@ -51,11 +51,18 @@ export class GameServer {
 
     public addClient(client: Client, lastTurn: number) {
         console.log(`${this.id}: adding client ${client.clientID}`)
-        slog('client_joined_game', `client ${client.clientID} (re)joining game ${this.id}`, {
+        slog({
+            logKey: 'client_joined_game',
+            msg: `client ${client.clientID} (re)joining game ${this.id}`,
+            data: {
+                clientID: client.clientID,
+                clientIP: client.ip,
+                gameID: this.id,
+                isRejoin: lastTurn > 0
+            },
             clientID: client.clientID,
-            clientIP: client.ip,
+            persistentID: client.persistentID,
             gameID: this.id,
-            isRejoin: lastTurn > 0
         })
         // Remove stale client if this is a reconnect
         const existing = this.activeClients.find(c => c.clientID == client.clientID)

@@ -226,6 +226,7 @@ export const ClientLogMessageSchema = ClientBaseMessageSchema.extend({
     type: z.literal('log'),
     severity: z.nativeEnum(LogSeverity),
     log: z.string(),
+    persistentID: z.string(),
 })
 
 export const ClientPingMessageSchema = ClientBaseMessageSchema.extend({
