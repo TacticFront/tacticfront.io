@@ -1,13 +1,9 @@
-import { GameEnv, Theme } from "../../../core/configuration/Config";
 import { EventBus } from "../../../core/EventBus";
 import { WinEvent } from "../../../core/execution/WinCheckExecution";
 import { AllianceRequest, AllianceRequestReplyEvent, Game, Player } from "../../../core/game/Game";
 import { ClientID } from "../../../core/Schemas";
-import { ContextMenuEvent } from "../../InputHandler";
 import { Layer } from "./Layer";
 import { TransformHandler } from "../TransformHandler";
-import { MessageType } from "./EventsDisplay";
-import { SendBreakAllianceIntentEvent } from "../../Transport";
 import { consolex } from "../../../core/Consolex";
 
 interface MenuOption {
@@ -150,6 +146,7 @@ export class UILayer implements Layer {
         button.onmouseover = () => button.style.backgroundColor = '#3A7BCE';
         button.onmouseout = () => button.style.backgroundColor = '#4A90E2';
     }
+
 
     onWinEvent(event: WinEvent) {
         consolex.log(`${event.winner.name()} won the game!!}`)
