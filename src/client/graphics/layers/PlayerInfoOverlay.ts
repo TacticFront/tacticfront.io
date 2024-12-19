@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { Layer } from './Layer';
-import { Game, Player } from '../../../core/game/Game';
+import { Game, Player, Unit } from '../../../core/game/Game';
 import { ClientID } from '../../../core/Schemas';
 import { EventBus } from '../../../core/EventBus';
 import { TransformHandler } from '../TransformHandler';
@@ -16,9 +16,14 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     public transform: TransformHandler;
 
     @state()
-    private _playerName: string = '';
+    private selectedType: "player" | "unit" | null = null
+
     @state()
-    private _isAlly: boolean = false;
+    private player: Player
+
+    @state()
+    private unit: Unit
+
     @state()
     private _isVisible: boolean = false;
 
@@ -45,13 +50,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
             }
             owner = units[0].owner();
         }
-        const myPlayer = this.game.playerByClientID(this.clientID);
-        if (myPlayer == null) {
-            return;
-        }
         this._isVisible = true;
-        this._isAlly = owner == myPlayer || myPlayer.isAlliedWith(owner);
-        this._playerName = owner.name();
     }
 
     private onExitButtonClick() {
@@ -59,6 +58,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     }
 
     tick() {
+        this.unit = this.unit
     }
 
     renderLayer(context: CanvasRenderingContext2D) {
@@ -156,19 +156,49 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
                 width: 30px;
                 height: 30px;
                 font-size: 16px;
+            .exit-button {
+                width: 30px;
+                height: 30px;
+                font-size: 16px;
             }
         }
     `;
+
+    private renderPlayerInfo(player: Player) {
+        return html`
+            <div class="info-content">
+                <div class="name ${player.isAlly ? 'ally' : 'enemy'}">${player.name}</div>
+                <div class="type-label">Player Territory</div>
+            </div>
+        `;
+    }
+
+    private renderUnitInfo(unit: Unit) {
+        return html`
+            <div class="info-content">
+                <div class="name ${unit.isAlly ? 'ally' : 'enemy'}">${unit.owner}</div>
+                <div class="unit-details">
+                    <div class="type-label">${unit.type}</div>
+                    <div class="health-bar">
+                        <div class="health-fill" style="width: ${unit.health}%"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
 
     render() {
         return html`
             <div class="overlay-container">
                 <div class="controls">
                     <button class="exit-button" @click=${this.onExitButtonClick}>×</button>
-                    <!-- Future buttons can be added here -->
                 </div>
-                <div class="player-info ${this._isVisible ? '' : 'hidden'}">
-                    <div class="player-name ${this._isAlly ? 'ally' : ''}">${this._playerName}</div>
+                <div class="info-panel ${this._infoType === 'none' ? 'hidden' : ''}">
+                    ${this._infoType === 'player' && this._playerInfo
+                ? this.renderPlayerInfo(this._playerInfo)
+                : this._infoType === 'unit' && this._unitInfo
+                    ? this.renderUnitInfo(this._unitInfo)
+                    : nothing}
                 </div>
             </div>
         `;
