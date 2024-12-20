@@ -75,7 +75,7 @@ export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: 
 		new TerrainLayer(game),
 		new TerritoryLayer(game, eventBus),
 		new StructureLayer(game, eventBus),
-		new UnitLayer(game, eventBus),
+		new UnitLayer(game, eventBus, clientID),
 		new NameLayer(game, game.config().theme(), transformHandler, clientID),
 		new UILayer(eventBus, game, clientID, transformHandler),
 		eventsDisplay,

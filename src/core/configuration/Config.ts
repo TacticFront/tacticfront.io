@@ -84,5 +84,9 @@ export interface Theme {
 	backgroundColor(): Colord;
 	falloutColor(): Colord
 	font(): string;
+	// unit color for alternate view
+	selfColor(): Colord
+	allyColor(): Colord
+	enemyColor(): Colord
 }
 

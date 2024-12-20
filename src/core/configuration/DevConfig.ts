@@ -25,9 +25,9 @@ export const devConfig = new class extends DefaultConfig {
     lobbyLifetime(): number {
         return 10 * 1000
     }
-    // tradeShipSpawnRate(): number {
-    //     return 10
-    // }
+    tradeShipSpawnRate(): number {
+        return 10
+    }
     boatMaxDistance(): number {
         return 5000
     }

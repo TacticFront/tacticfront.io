@@ -122,6 +122,11 @@ export const pastelTheme = new class implements Theme {
         colord({ r: 170, g: 150, b: 170 })  // Dusty Rose
     ];
 
+    private _selfColor = colord({ r: 0, g: 255, b: 0 })
+    private _allyColor = colord({ r: 255, g: 255, b: 0 })
+    private _enemyColor = colord({ r: 255, g: 0, b: 0 })
+
+
     playerInfoColor(id: PlayerID): Colord {
         return colord({ r: 50, g: 50, b: 50 })
     }
@@ -198,5 +203,15 @@ export const pastelTheme = new class implements Theme {
 
     font(): string {
         return "Overpass, sans-serif";
+    }
+
+    selfColor(): Colord {
+        return this._selfColor
+    }
+    allyColor(): Colord {
+        return this._allyColor
+    }
+    enemyColor(): Colord {
+        return this._enemyColor
     }
 }

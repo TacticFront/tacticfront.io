@@ -44,6 +44,10 @@ export class DragEvent implements GameEvent {
     ) { }
 }
 
+export class AlternateViewEvent implements GameEvent {
+    constructor(public readonly alternateView: boolean) { }
+}
+
 export class InputHandler {
 
     private lastPointerX: number = 0;
@@ -57,6 +61,8 @@ export class InputHandler {
     private lastPinchDistance: number = 0;
 
     private pointerDown: boolean = false
+
+    private alternateView = false
 
     constructor(private canvas: HTMLCanvasElement, private eventBus: EventBus) { }
 
@@ -72,6 +78,25 @@ export class InputHandler {
             this.eventBus.emit(new MouseMoveEvent(e.clientX, e.clientY))
         });
         this.pointers.clear()
+
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault(); // Prevent page scrolling
+                if (!this.alternateView) {
+                    this.alternateView = true
+                    this.eventBus.emit(new AlternateViewEvent(true))
+                }
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                this.alternateView = false
+                this.eventBus.emit(new AlternateViewEvent(false))
+            }
+        });
     }
 
     private onPointerDown(event: PointerEvent) {
