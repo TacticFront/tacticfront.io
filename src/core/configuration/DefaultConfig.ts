@@ -32,10 +32,10 @@ export abstract class DefaultConfig implements Config {
     }
 
     defensePostRange(): number {
-        return 30
+        return 40
     }
     defensePostDefenseBonus(): number {
-        return 3
+        return 5
     }
     spawnNPCs(): boolean {
         return true
@@ -208,9 +208,9 @@ export abstract class DefaultConfig implements Config {
 
         if (defender.isPlayer()) {
             return {
-                attackerTroopLoss: within(defender.troops() / attacker.troops(), .5, 2) * mag,
+                attackerTroopLoss: within(defender.troops() / (5 * attackTroops), .5, 2) * mag,
                 defenderTroopLoss: defender.troops() / defender.numTilesOwned(),
-                tilesPerTickUsed: within(defender.troops() / (attackTroops * 5), .2, 1.5) * speed
+                tilesPerTickUsed: within(defender.troops() / (5 * attackTroops), .2, 1.5) * speed
             }
         } else {
             return {
@@ -221,9 +221,9 @@ export abstract class DefaultConfig implements Config {
         }
     }
 
-    attackTilesPerTick(attacker: Player, defender: Player | TerraNullius, numAdjacentTilesWithEnemy: number): number {
+    attackTilesPerTick(attackTroops: number, attacker: Player, defender: Player | TerraNullius, numAdjacentTilesWithEnemy: number): number {
         if (defender.isPlayer()) {
-            return within(attacker.troops() / defender.troops() * 2, .01, .5) * numAdjacentTilesWithEnemy * 3
+            return within((5 * attackTroops) / defender.troops() * 2, .01, .5) * numAdjacentTilesWithEnemy * 3
         } else {
             return numAdjacentTilesWithEnemy * 2
         }

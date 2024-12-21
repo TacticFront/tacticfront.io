@@ -46,7 +46,7 @@ export interface Config {
 	populationIncreaseRate(player: Player): number
 	goldAdditionRate(player: Player): number
 	troopAdjustmentRate(player: Player): number
-	attackTilesPerTick(attacker: Player, defender: Player | TerraNullius, numAdjacentTilesWithEnemy: number): number
+	attackTilesPerTick(attckTroops: number, attacker: Player, defender: Player | TerraNullius, numAdjacentTilesWithEnemy: number): number
 	attackLogic(attackTroops: number, attacker: Player, defender: Player | TerraNullius, tileToConquer: Tile): {
 		attackerTroopLoss: number,
 		defenderTroopLoss: number,

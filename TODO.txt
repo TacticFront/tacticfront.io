@@ -249,16 +249,16 @@
 * make shells larger DONE 12/20/2024
 * make shells more frequent & less attack DONE 12/20/2024
 * have game start every 10 mins DONE 12/20/2024
-* bug: NPCs don't have money
-* create more prominant discord link
+* make fallout harder to capture, h-bombs little smaller DONE 12/20/2024
+* create more prominant discord link DONE 12/20/2024
+* make defense post stronger & larger radius DONE 12/20/2024
+* make event box wider DONE 12/20/2024
 * make attack bonus based on current attack size
-* make fallout harder to capture, h-bombs little smaller
-* make atom bombs a bit cheaper & smaller
-* make defense post stronger & larger radius
+* highlight player spawn
+* troop density affects attack bonus
+* bug: NPCs don't have money
 * right click brings up player info menu
 * seperate server config from client config
-* make event box wider
-* highlight player spawn
 * bug: player names not updating sometimes
 * make player editeable configs
 * couldn't scroll left on build menu to deploy bombs (mobile)

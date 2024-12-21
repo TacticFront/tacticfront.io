@@ -64,7 +64,7 @@ export class EventsDisplay extends LitElement implements Layer {
       bottom: 10px;
       right: 10px;
       z-index: 1000;
-      max-width: 400px;
+      max-width: 800px;
     }
 
     .events-table {

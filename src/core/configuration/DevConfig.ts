@@ -33,7 +33,7 @@ export const devConfig = new class extends DefaultConfig {
     }
 
     // numBots(): number {
-    //     return 0
+    //     return 1
     // }
     // spawnNPCs(): boolean {
     //     return false

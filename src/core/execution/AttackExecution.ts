@@ -129,7 +129,7 @@ export class AttackExecution implements Execution {
             return
         }
 
-        let numTilesPerTick = this.mg.config().attackTilesPerTick(this._owner, this.target, this.border.size + this.random.nextInt(0, 5))
+        let numTilesPerTick = this.mg.config().attackTilesPerTick(this.troops, this._owner, this.target, this.border.size + this.random.nextInt(0, 5))
         // consolex.log(`num tiles per tick: ${numTilesPerTick}`)
         // consolex.log(`num execs: ${this.mg.executions().length}`)
 
