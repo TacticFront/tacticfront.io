@@ -64,7 +64,7 @@ export class NukeExecution implements Execution {
     }
 
     private detonate() {
-        const magnitude = this.type == UnitType.AtomBomb ? { inner: 20, outer: 40 } : { inner: 160, outer: 180 }
+        const magnitude = this.type == UnitType.AtomBomb ? { inner: 15, outer: 40 } : { inner: 140, outer: 160 }
         const rand = new PseudoRandom(this.mg.ticks())
         const tile = this.mg.tile(this.cell)
         const toDestroy = bfs(tile, (n: Tile) => {

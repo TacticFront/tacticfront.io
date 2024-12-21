@@ -28,7 +28,7 @@ export abstract class DefaultConfig implements Config {
     }
 
     falloutDefenseModifier(): number {
-        return 2
+        return 5
     }
 
     defensePostRange(): number {
