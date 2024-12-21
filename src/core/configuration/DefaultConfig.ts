@@ -84,7 +84,7 @@ export abstract class DefaultConfig implements Config {
                 }
             case UnitType.AtomBomb:
                 return {
-                    cost: () => 1_000_000,
+                    cost: () => 500_000,
                     territoryBound: false
                 }
             case UnitType.HydrogenBomb:
