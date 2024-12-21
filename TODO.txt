@@ -257,7 +257,7 @@
 * bug: ips are not stored DONE 12/20/2024
 * highlight player spawn DONE 12/21/2024
 * make bots less likely to build ships DONE 12/21/2024
-* bugix: wait for css to load on front page
+* bugix: wait for css to load on front page DONE 12/21/2024
 
 -- v0.13.0 release
 
