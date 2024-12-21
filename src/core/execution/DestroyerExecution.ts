@@ -58,6 +58,7 @@ export class DestroyerExecution implements Execution {
         if (this.target == null) {
             const ships = this.mg.units(UnitType.TransportShip, UnitType.Destroyer, UnitType.TradeShip, UnitType.Battleship)
                 .filter(u => manhattanDist(u.tile().cell(), this.destroyer.tile().cell()) < 100)
+                .filter(u => u.type() != UnitType.Destroyer || u.health() < this.destroyer.health()) // only attack Destroyers weaker than it.
                 .filter(u => u.owner() != this.destroyer.owner())
                 .filter(u => u != this.destroyer)
                 .filter(u => !u.owner().isAlliedWith(this.destroyer.owner()))
@@ -93,14 +94,16 @@ export class DestroyerExecution implements Execution {
                 case PathFindResultType.Completed:
                     switch (this.target.type()) {
                         case UnitType.TransportShip:
+                        case UnitType.Battleship:
                             this.target.delete()
                             break
                         case UnitType.TradeShip:
                             this.owner().captureUnit(this.target)
                             break
                         case UnitType.Destroyer:
-                            this.target.delete()
-                            this.destroyer.delete()
+                            const health = this.target.health()
+                            this.target.modifyHealth(-this.destroyer.health())
+                            this.destroyer.modifyHealth(-health)
                             break
                     }
                     this.target = null

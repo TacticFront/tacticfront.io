@@ -9,7 +9,7 @@ export class ShellExecution implements Execution {
     private pathFinder: PathFinder
     private shell: MutableUnit
 
-    constructor(private spawn: Tile, private _owner: MutablePlayer, private target: MutableUnit) {
+    constructor(private spawn: Tile, private _owner: MutablePlayer, private ownerUnit: Unit, private target: MutableUnit) {
 
     }
 
@@ -25,17 +25,17 @@ export class ShellExecution implements Execution {
             this.active = false
             return
         }
-        if (!this.target.isActive()) {
+        if (!this.target.isActive() || !this.ownerUnit.isActive()) {
             this.shell.delete(false)
             this.active = false
             return
         }
         for (let i = 0; i < 3; i++) {
-            const result = this.pathFinder.nextTile(this.shell.tile(), this.target.tile())
+            const result = this.pathFinder.nextTile(this.shell.tile(), this.target.tile(), 3)
             switch (result.type) {
                 case PathFindResultType.Completed:
                     this.active = false
-                    this.target.delete()
+                    this.target.modifyHealth(-this.shell.info().damage)
                     this.shell.delete(false)
                     return
                 case PathFindResultType.NextTile:

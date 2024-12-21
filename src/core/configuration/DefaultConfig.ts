@@ -53,22 +53,25 @@ export abstract class DefaultConfig implements Config {
             case UnitType.TransportShip:
                 return {
                     cost: () => 0,
-                    territoryBound: false
+                    territoryBound: false,
                 }
             case UnitType.Destroyer:
                 return {
                     cost: (p: Player) => (p.units(UnitType.Destroyer).length + 1) * 250_000,
-                    territoryBound: false
+                    territoryBound: false,
+                    maxHealth: 1000,
                 }
             case UnitType.Battleship:
                 return {
                     cost: (p: Player) => (p.units(UnitType.Battleship).length + 1) * 500_000,
-                    territoryBound: false
+                    territoryBound: false,
+                    maxHealth: 5000
                 }
             case UnitType.Shell:
                 return {
                     cost: () => 0,
-                    territoryBound: false
+                    territoryBound: false,
+                    damage: 250
                 }
             case UnitType.Port:
                 return {

@@ -30,6 +30,11 @@ export class PlayerExecution implements Execution {
 
     tick(ticks: number) {
         this.player.units().forEach(u => {
+            if (u.health() <= 0) {
+                u.delete()
+                return
+            }
+            u.modifyHealth(1)
             const tileOwner = u.tile().owner()
             if (u.info().territoryBound) {
                 if (tileOwner.isPlayer()) {

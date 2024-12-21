@@ -1,4 +1,4 @@
-import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, TerrainType, Tile, UnitType } from "../game/Game";
+import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, TerrainType, Tile, Unit, UnitType } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { SerialAStar } from "../pathfinding/SerialAStar";
@@ -22,8 +22,10 @@ export class BattleshipExecution implements Execution {
 
     // TODO: put in config
     private searchRange = 100
-    private attackRate = 20
+    private attackRate = 5
     private lastAttack = 0
+
+    private alreadyTargeted = new Set<Unit>()
 
     constructor(
         private playerID: PlayerID,
@@ -41,6 +43,11 @@ export class BattleshipExecution implements Execution {
     }
 
     tick(ticks: number): void {
+        this.alreadyTargeted.forEach(u => {
+            if (!u.isActive()) {
+                this.alreadyTargeted.delete(u)
+            }
+        })
         if (this.battleship == null) {
             const spawn = this._owner.canBuild(UnitType.Battleship, this.patrolTile)
             if (spawn == false) {
@@ -82,11 +89,17 @@ export class BattleshipExecution implements Execution {
             .filter(u => u.owner() != this.battleship.owner())
             .filter(u => u != this.battleship)
             .filter(u => !u.owner().isAlliedWith(this.battleship.owner()))
+            .filter(u => !this.alreadyTargeted.has(u))
             .sort(distSortUnit(this.battleship));
 
         if (ships.length > 0) {
+            const toAttack = ships[0]
+            if (!toAttack.hasHealth()) {
+                // Don't send multiple shells to target if it can be one-shotted.
+                this.alreadyTargeted.add(toAttack)
+            }
             this.lastAttack = this.mg.ticks()
-            this.mg.addExecution(new ShellExecution(this.battleship.tile(), this.battleship.owner(), ships[0]))
+            this.mg.addExecution(new ShellExecution(this.battleship.tile(), this.battleship.owner(), this.battleship, toAttack))
         }
     }
 

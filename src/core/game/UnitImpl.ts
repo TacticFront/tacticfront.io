@@ -1,5 +1,5 @@
 import { MessageType } from "../../client/graphics/layers/EventsDisplay";
-import { simpleHash } from "../Util";
+import { simpleHash, within } from "../Util";
 import { MutableUnit, Tile, TerraNullius, UnitType, Player, UnitInfo } from "./Game";
 import { GameImpl } from "./GameImpl";
 import { PlayerImpl } from "./PlayerImpl";
@@ -8,6 +8,7 @@ import { TerraNulliusImpl } from "./TerraNulliusImpl";
 
 export class UnitImpl implements MutableUnit {
     private _active = true;
+    private _health: number
 
     constructor(
         private _type: UnitType,
@@ -15,7 +16,10 @@ export class UnitImpl implements MutableUnit {
         private _tile: Tile,
         private _troops: number,
         public _owner: PlayerImpl,
-    ) { }
+    ) {
+        // default to half health (or 1 is no health specified)
+        this._health = (this.g.unitInfo(_type).maxHealth ?? 2) / 2
+    }
 
     type(): UnitType {
         return this._type
@@ -34,6 +38,12 @@ export class UnitImpl implements MutableUnit {
     }
     troops(): number {
         return this._troops;
+    }
+    health(): number {
+        return this._health
+    }
+    hasHealth(): boolean {
+        return this.info().maxHealth != undefined
     }
     tile(): Tile {
         return this._tile;
@@ -56,6 +66,15 @@ export class UnitImpl implements MutableUnit {
             oldOwner.id()
         )
     }
+
+    modifyHealth(delta: number): void {
+        this._health = within(
+            this._health + delta,
+            0,
+            this.info().maxHealth ?? 1
+        )
+    }
+
 
     delete(displayMessage: boolean = true): void {
         if (!this.isActive()) {

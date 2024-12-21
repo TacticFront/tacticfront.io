@@ -16,7 +16,7 @@ export const devConfig = new class extends DefaultConfig {
         return 95
     }
     numSpawnPhaseTurns(gameType: GameType): number {
-        return gameType == GameType.Singleplayer ? 40 : 100
+        return gameType == GameType.Singleplayer ? 40 : 200
         // return 100
     }
     gameCreationRate(): number {

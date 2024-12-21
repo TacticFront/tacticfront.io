@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { Layer } from './Layer';
-import { Game, Player, Unit } from '../../../core/game/Game';
+import { Game, Player, Unit, UnitType } from '../../../core/game/Game';
 import { ClientID } from '../../../core/Schemas';
 import { EventBus } from '../../../core/EventBus';
 import { TransformHandler } from '../TransformHandler';
@@ -55,7 +55,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
             this.player = owner;
             this.setVisible(true);
         } else if (!tile.isLand()) {
-            const units = this.game.units()
+            const units = this.game.units(UnitType.Destroyer, UnitType.Battleship)
                 .filter(u => euclideanDist(worldCoord, u.tile().cell()) < 50)
                 .sort(distSortUnit(tile));
 
@@ -71,9 +71,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     }
 
     tick() {
-        if (this.game.ticks() % 10 == 0) {
-            this.requestUpdate()
-        }
+        this.requestUpdate()
         // Implementation for Layer interface
     }
 
@@ -111,13 +109,16 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     private renderUnitInfo(unit: Unit) {
         const isAlly = (unit.owner() == this.myPlayer() || this.myPlayer()?.isAlliedWith(unit.owner())) ?? false;
         return html`
-            <div class="info-content">
-                <div class="player-name ${isAlly ? 'ally' : ''}">${unit.owner().name()}</div>
-                <div class="unit-details">
-                    <div class="type-label">${unit.type()}</div>
-                </div>
+        <div class="info-content">
+            <div class="player-name ${isAlly ? 'ally' : ''}">${unit.owner().name()}</div>
+            <div class="unit-details">
+                <div class="type-label">${unit.type()}</div>
+                ${unit.hasHealth() ? html`
+                    <div class="type-label">Health: ${unit.health()}</div>
+                ` : ''}
             </div>
-            `
+        </div>
+    `
     }
 
     render() {

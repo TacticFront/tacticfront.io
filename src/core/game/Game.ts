@@ -35,6 +35,8 @@ export interface UnitInfo {
     cost: (player: Player) => Gold
     // Determines if its owner changes when its tile is conquered.
     territoryBound: boolean
+    maxHealth?: number,
+    damage?: number
 }
 
 export enum UnitType {
@@ -193,6 +195,8 @@ export interface Unit {
     owner(): Player
     isActive(): boolean
     info(): UnitInfo
+    hasHealth(): boolean
+    health(): number
 }
 
 export interface MutableUnit extends Unit {
@@ -200,6 +204,7 @@ export interface MutableUnit extends Unit {
     owner(): MutablePlayer
     setTroops(troops: number): void
     delete(displayerMessage?: boolean): void
+    modifyHealth(delta: number): void
 }
 
 export interface TerraNullius {

@@ -25,6 +25,8 @@ export class UnitLayer implements Layer {
 
     private myPlayer: Player | null = null
 
+    private oldShellTile = new Map<Unit, Tile>()
+
 
     constructor(private game: Game, private eventBus: EventBus, private clientID: ClientID) {
         this.theme = game.config().theme();
@@ -143,11 +145,18 @@ export class UnitLayer implements Layer {
 
     private handleShellEvent(event: UnitEvent) {
         const rel = this.relationship(event.unit)
+
         this.clearCell(event.oldTile.cell())
+        if (this.oldShellTile.has(event.unit)) {
+            this.clearCell(this.oldShellTile.get(event.unit).cell())
+        }
+
+        this.oldShellTile.set(event.unit, event.oldTile)
         if (!event.unit.isActive()) {
             return
         }
         this.paintCell(event.unit.tile().cell(), rel, this.theme.borderColor(event.unit.owner().info()), 255)
+        this.paintCell(event.oldTile.cell(), rel, this.theme.borderColor(event.unit.owner().info()), 255)
     }
 
 

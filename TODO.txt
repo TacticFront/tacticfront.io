@@ -245,21 +245,26 @@
 * send client logs back to server  DONE 12/18/2024
 * render more info in info overlay DONE 12/19/2024
 * create alternate view for freinds enemies DONE 12/19/2024
-* give naval units health
+* give naval units health DONE 12/20/2024
+* make shells larger DONE 12/20/2024
+* make shells more frequent & less attack DONE 12/20/2024
+* bug: NPCs don't have money
+* have game start every 15 mins
 * create more prominant discord link
-* right click brings up player info menu
-* create new view for enemies & personal units
-* send client logs back to server  DONE 12/17/2024
-* make info panel merge with X, display more info
+* make attack bonus based on current attack size
+* make fallout harder to capture, h-bombs little smaller
+* make atom bombs a bit cheaper & smaller
+* make defense post stronger & larger radius
 * right click brings up player info menu
 * seperate server config from client config
+* make event box wider
+* highlight player spawn
 * bug: player names not updating sometimes
 * make player editeable configs
 * couldn't scroll left on build menu to deploy bombs (mobile)
 * UI/test too big on mobile
 * bug: build city 25k bump doesn't match troop/worker ratio
 * bug: mobile: if you don't have enough money can't get rid of build menu
-* highlight player spawn
 * show players joined username in private lobby
 * have bots build cities & defense posts
 * allow longer names and allow them to be displayed in the Rank UI not be cut
