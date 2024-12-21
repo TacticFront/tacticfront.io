@@ -248,8 +248,8 @@
 * give naval units health DONE 12/20/2024
 * make shells larger DONE 12/20/2024
 * make shells more frequent & less attack DONE 12/20/2024
+* have game start every 10 mins DONE 12/20/2024
 * bug: NPCs don't have money
-* have game start every 15 mins
 * create more prominant discord link
 * make attack bonus based on current attack size
 * make fallout harder to capture, h-bombs little smaller
