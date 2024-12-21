@@ -256,10 +256,13 @@
 * make attack bonus based on current attack size DONE 12/20/2024
 * bug: ips are not stored DONE 12/20/2024
 * highlight player spawn DONE 12/21/2024
-* show players joined username in private lobby
-* make bots less likely to build ships
-* troop density affects attack bonus
+* make bots less likely to build ships DONE 12/21/2024
 * bugix: wait for css to load on front page
+
+-- v0.13.0 release
+
+* show players joined username in private lobby
+* troop density affects attack bonus
 * bug: NPCs don't have money
 * right click brings up player info menu
 * seperate server config from client config
