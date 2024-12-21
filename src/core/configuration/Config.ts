@@ -88,5 +88,6 @@ export interface Theme {
 	selfColor(): Colord
 	allyColor(): Colord
 	enemyColor(): Colord
+	spawnHighlightColor(): Colord
 }
 

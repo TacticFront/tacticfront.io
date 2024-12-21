@@ -1,8 +1,8 @@
 import { PriorityQueue } from "@datastructures-js/priority-queue";
-import { Cell, Game, Player, Tile, TileEvent, UnitEvent, UnitType } from "../../../core/game/Game";
+import { Cell, Game, Player, PlayerType, Tile, TileEvent, UnitEvent, UnitType } from "../../../core/game/Game";
 import { PseudoRandom } from "../../../core/PseudoRandom";
 import { colord, Colord } from "colord";
-import { bfs, dist } from "../../../core/Util";
+import { bfs, dist, euclDist, euclideanDist } from "../../../core/Util";
 import { Theme } from "../../../core/configuration/Config";
 import { Layer } from "./Layer";
 import { TransformHandler } from "../TransformHandler";
@@ -17,6 +17,11 @@ export class TerritoryLayer implements Layer {
     private random = new PseudoRandom(123)
     private theme: Theme = null
 
+    // Used for spawn highlighting
+    private highlightCanvas: HTMLCanvasElement
+    private highlightContext: CanvasRenderingContext2D
+
+
     constructor(private game: Game, eventBus: EventBus) {
         this.theme = game.config().theme()
         eventBus.on(TileEvent, e => this.tileUpdate(e))
@@ -27,6 +32,28 @@ export class TerritoryLayer implements Layer {
     }
 
     tick() {
+        if (!this.game.inSpawnPhase()) {
+            return
+        }
+        if (this.game.ticks() % 5 == 0) {
+            return
+        }
+
+        this.highlightContext.clearRect(0, 0, this.game.width(), this.game.height());
+        const humans = this.game.players()
+            .filter(p => p.type() == PlayerType.Human)
+
+        const alreadyPainted = new Set<Tile>()
+        for (const human of humans) {
+            for (const borderTile of human.borderTiles()) {
+                for (const neighbor of bfs(borderTile, euclDist(borderTile, 5))) {
+                    if (!neighbor.hasOwner() && !alreadyPainted.has(neighbor)) {
+                        this.paintHighlightCell(neighbor.cell(), this.theme.spawnHighlightColor(), 120)
+                        alreadyPainted.add(neighbor)
+                    }
+                }
+            }
+        }
     }
 
     init(game: Game) {
@@ -38,6 +65,12 @@ export class TerritoryLayer implements Layer {
         this.canvas.width = this.game.width();
         this.canvas.height = this.game.height();
         this.context.putImageData(this.imageData, 0, 0);
+
+        // Add a second canvas for highlights
+        this.highlightCanvas = document.createElement('canvas');
+        this.highlightContext = this.highlightCanvas.getContext("2d", { alpha: true });
+        this.highlightCanvas.width = this.game.width();
+        this.highlightCanvas.height = this.game.height();
     }
 
     initImageData() {
@@ -51,6 +84,7 @@ export class TerritoryLayer implements Layer {
     renderLayer(context: CanvasRenderingContext2D) {
         this.renderTerritory()
         this.context.putImageData(this.imageData, 0, 0);
+
         context.drawImage(
             this.canvas,
             -this.game.width() / 2,
@@ -58,6 +92,15 @@ export class TerritoryLayer implements Layer {
             this.game.width(),
             this.game.height()
         )
+        if (this.game.inSpawnPhase()) {
+            context.drawImage(
+                this.highlightCanvas,
+                -this.game.width() / 2,
+                -this.game.height() / 2,
+                this.game.width(),
+                this.game.height()
+            );
+        }
     }
 
     renderTerritory() {
@@ -137,9 +180,30 @@ export class TerritoryLayer implements Layer {
 
     tileUpdate(event: TileEvent) {
         this.enqueue(event.tile)
+        // if (this.game.inSpawnPhase()) {
+        //     if (event.tile.owner().isPlayer()) {
+        //         for (const border of (event.tile.owner() as Player).borderTiles()) {
+        //             for (const neighbor of border.neighbors()) {
+        //                 if (!neighbor.hasOwner()) {
+        //                     this.paintHighlightCell(neighbor.cell(), this.theme.spawnHighlightColor(), 255)
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
     }
 
     enqueue(tile: Tile) {
         this.tileToRenderQueue.push({ tile: tile, lastUpdate: this.game.ticks() + this.random.nextFloat(0, .5) })
+    }
+
+    paintHighlightCell(cell: Cell, color: Colord, alpha: number) {
+        this.clearCell(cell)
+        this.highlightContext.fillStyle = color.alpha(alpha / 255).toRgbString();
+        this.highlightContext.fillRect(cell.x, cell.y, 1, 1);
+    }
+
+    clearHighlightCell(cell: Cell) {
+        this.highlightContext.clearRect(cell.x, cell.y, 1, 1);
     }
 }

@@ -255,8 +255,11 @@
 * make event box wider DONE 12/20/2024
 * make attack bonus based on current attack size DONE 12/20/2024
 * bug: ips are not stored DONE 12/20/2024
-* highlight player spawn
+* highlight player spawn DONE 12/21/2024
+* show players joined username in private lobby
+* make bots less likely to build ships
 * troop density affects attack bonus
+* bugix: wait for css to load on front page
 * bug: NPCs don't have money
 * right click brings up player info menu
 * seperate server config from client config
@@ -266,7 +269,6 @@
 * UI/test too big on mobile
 * bug: build city 25k bump doesn't match troop/worker ratio
 * bug: mobile: if you don't have enough money can't get rid of build menu
-* show players joined username in private lobby
 * have bots build cities & defense posts
 * allow longer names and allow them to be displayed in the Rank UI not be cut
 * make boats work on lakes 
@@ -288,7 +290,6 @@
 * create perf test
 
 
-* naval combat
 * revamp alliance system
 
 

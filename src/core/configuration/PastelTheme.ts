@@ -126,6 +126,8 @@ export const pastelTheme = new class implements Theme {
     private _allyColor = colord({ r: 255, g: 255, b: 0 })
     private _enemyColor = colord({ r: 255, g: 0, b: 0 })
 
+    private _spawnHighlightColor = colord({ r: 255, g: 213, b: 79 })
+
 
     playerInfoColor(id: PlayerID): Colord {
         return colord({ r: 50, g: 50, b: 50 })
@@ -213,5 +215,9 @@ export const pastelTheme = new class implements Theme {
     }
     enemyColor(): Colord {
         return this._enemyColor
+    }
+
+    spawnHighlightColor(): Colord {
+        return this._spawnHighlightColor
     }
 }
