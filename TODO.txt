@@ -254,7 +254,7 @@
 * make defense post stronger & larger radius DONE 12/20/2024
 * make event box wider DONE 12/20/2024
 * make attack bonus based on current attack size DONE 12/20/2024
-* bug: ips are not stored
+* bug: ips are not stored DONE 12/20/2024
 * highlight player spawn
 * troop density affects attack bonus
 * bug: NPCs don't have money
