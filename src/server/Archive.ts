@@ -2,6 +2,7 @@ import { GameConfig, GameID, GameRecord, GameRecordSchema, Turn } from "../core/
 import { Storage } from '@google-cloud/storage';
 import { BigQuery } from '@google-cloud/bigquery';
 
+
 const storage = new Storage();
 const bucket = storage.bucket("openfront-games");
 const bigquery = new BigQuery();
@@ -116,41 +117,60 @@ async function archiveToGCS(gameRecord: GameRecord) {
     console.log(`${gameRecord.id}: game record successfully written to GCS`);
 }
 
+function anonymizeIPv4(ipv4: string): string | null {
+    const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
 
-
-function anonymizeIP(ip: string): string {
-    // IPv4 regex that validates octets are 0-255
-    const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-
-    // More permissive IPv6 regex that handles compressed notation
-    const ipv6Regex = /^(?:(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}|(?:[0-9a-fA-F]{1,4}:){1,7}:|(?:[0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|(?:[0-9a-fA-F]{1,4}:){1,5}(?::[0-9a-fA-F]{1,4}){1,2}|(?:[0-9a-fA-F]{1,4}:){1,4}(?::[0-9a-fA-F]{1,4}){1,3}|(?:[0-9a-fA-F]{1,4}:){1,3}(?::[0-9a-fA-F]{1,4}){1,4}|(?:[0-9a-fA-F]{1,4}:){1,2}(?::[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:(?:(?::[0-9a-fA-F]{1,4}){1,6})|:(?:(?::[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(?::[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(?:ffff(?::0{1,4}){0,1}:){0,1}(?:(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])|(?:[0-9a-fA-F]{1,4}:){1,4}:(?:(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9]))$/;
-
-    // For IPv4, keep first three octets, mask the last
-    if (ipv4Regex.test(ip)) {
-        const octets = ip.split('.');
-        return `${octets[0]}.${octets[1]}.${octets[2]}.*`;
+    if (!ipv4Regex.test(ipv4)) {
+        return null;
     }
 
-    // For IPv6, normalize the address first (expand ::)
-    if (ipv6Regex.test(ip)) {
-        // Handle compressed notation
-        const expandedIP = ip.includes('::')
-            ? expandIPv6(ip)
-            : ip;
+    const octets = ipv4.split('.');
 
-        const segments = expandedIP.split(':');
-        return `${segments.slice(0, 6).join(':')}:****:****`;
+    if (!octets.every(octet => {
+        const num = parseInt(octet);
+        return num >= 0 && num <= 255;
+    })) {
+        return null;
     }
 
-    throw new Error('Invalid IP address format');
+    octets[3] = 'xxx';
+
+    return octets.join('.');
 }
 
-// Helper function to expand IPv6 compressed notation
-function expandIPv6(ip: string): string {
-    const parts = ip.split('::');
-    const firstPart = parts[0] ? parts[0].split(':') : [];
-    const secondPart = parts[1] ? parts[1].split(':') : [];
-    const missing = 8 - (firstPart.length + secondPart.length);
-    const expanded = [...firstPart, ...Array(missing).fill('0000'), ...secondPart];
-    return expanded.map(x => x.padStart(4, '0')).join(':');
+function anonymizeIPv6(ipv6: string): string | null {
+    const ipv6Regex = /^(?:[A-F0-9]{1,4}:){7}[A-F0-9]{1,4}$/i;
+
+    const normalizedIPv6 = ipv6.toUpperCase()
+        .replace(/([^:]):([^:])/g, '$1:0$2')
+        .replace(/::/, ':0000:');
+
+    if (!ipv6Regex.test(normalizedIPv6)) {
+        return null;
+    }
+
+    const segments = normalizedIPv6.split(':');
+
+    if (!segments.every(segment => {
+        const hex = parseInt(segment, 16);
+        return hex >= 0 && hex <= 65535;
+    })) {
+        return null;
+    }
+
+    for (let i = 4; i < 8; i++) {
+        segments[i] = 'xxxx';
+    }
+
+    return segments.join(':');
 }
+
+function anonymizeIP(ip: string): string | null {
+    const ipv4Result = anonymizeIPv4(ip);
+    if (ipv4Result) {
+        return ipv4Result;
+    }
+
+    return anonymizeIPv6(ip);
+}
+
