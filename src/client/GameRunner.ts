@@ -183,7 +183,7 @@ export class GameRunner {
             const start = performance.now()
             this.gs.executeNextTick()
             const duration = performance.now() - start
-            if (duration > 100) {
+            if (duration > 200) {
                 console.warn(`tick ${this.gs.ticks() - 1} took ${duration}ms to execute`)
             }
         } catch (error) {

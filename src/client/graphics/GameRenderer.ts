@@ -143,7 +143,7 @@ export class GameRenderer {
 		requestAnimationFrame(() => this.renderGame());
 
 		const duration = performance.now() - start
-		if (duration > 10) {
+		if (duration > 50) {
 			console.warn(`tick ${this.game.ticks()} took ${duration}ms to render frame`)
 		}
 	}
