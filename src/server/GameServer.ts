@@ -76,17 +76,21 @@ export class GameServer {
         this.allClients.set(client.clientID, client)
 
         client.ws.on('message', (message: string) => {
-            const clientMsg: ClientMessage = ClientMessageSchema.parse(JSON.parse(message))
-            if (clientMsg.type == "intent") {
-                if (clientMsg.gameID == this.id) {
-                    this.addIntent(clientMsg.intent)
-                } else {
-                    console.warn(`${this.id}: client ${clientMsg.clientID} sent to wrong game`)
+            try {
+                const clientMsg: ClientMessage = ClientMessageSchema.parse(JSON.parse(message))
+                if (clientMsg.type == "intent") {
+                    if (clientMsg.gameID == this.id) {
+                        this.addIntent(clientMsg.intent)
+                    } else {
+                        console.warn(`${this.id}: client ${clientMsg.clientID} sent to wrong game`)
+                    }
                 }
-            }
-            if (clientMsg.type == "ping") {
-                this.lastPingUpdate = Date.now()
-                client.lastPing = Date.now()
+                if (clientMsg.type == "ping") {
+                    this.lastPingUpdate = Date.now()
+                    client.lastPing = Date.now()
+                }
+            } catch (error) {
+                console.log(`error handline websocket request in game server: ${error}`)
             }
         })
         client.ws.on('close', () => {
