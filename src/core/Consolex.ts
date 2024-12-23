@@ -28,7 +28,7 @@ export function initRemoteSender(eventBus: EventBus) {
 
     consolex.error = (...args: any[]): void => {
         console.error(...args);
-        eventBus.emit(new SendLogEvent(LogSeverity.Error, args.join(' ')))
+        // eventBus.emit(new SendLogEvent(LogSeverity.Error, args.join(' ')))
     }
 }
 export class SendLogEvent implements GameEvent {

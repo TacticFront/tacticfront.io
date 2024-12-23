@@ -157,7 +157,7 @@ export abstract class DefaultConfig implements Config {
         return 500
     }
     numSpawnPhaseTurns(gameType: GameType): number {
-        return gameType == GameType.Singleplayer ? 100 : 200
+        return gameType == GameType.Singleplayer ? 100 : 300
     }
     numBots(): number {
         return 400
