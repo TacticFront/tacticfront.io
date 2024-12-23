@@ -264,10 +264,13 @@
 
 -- v0.13.0 release
 
+<<<<<<< HEAD
 * make troops regenerate slower in mid-late game
 * player info show territory
 * make boats work on lakes
 * compute mini map offline
+=======
+>>>>>>> 10d70d3 (fix nuke bug, make spawn phase longer, show trade ships in overview)
 * make url allow to join game
 * show players joined username in private lobby
 * have bots build cities & defense posts & nukes
