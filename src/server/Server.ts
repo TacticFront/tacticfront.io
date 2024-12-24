@@ -98,6 +98,20 @@ app.get('/lobby/:id/exists', (req, res) => {
     });
 });
 
+app.get('/lobby/:id', (req, res) => {
+    const game = gm.game(req.params.id)
+    if (game == null) {
+        console.log(`lobby ${req.params.id} not found`)
+        return res.status(404).json({ error: 'Game not found' });
+    }
+    res.json({
+        players: game.activeClients.map(c => ({
+            username: c.username,
+            clientID: c.clientID
+        }))
+    });
+});
+
 
 app.get('/private_lobby/:id', (req, res) => {
     res.json({
