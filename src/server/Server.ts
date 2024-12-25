@@ -135,18 +135,18 @@ wss.on('connection', (ws, req) => {
                 ? forwarded[0]  // Get the first IP if it's an array
                 : forwarded || req.socket.remoteAddress;
 
-            const username = clientMsg.username;
-            const { isValid, error } = validateUsername(username);
-            if (!isValid) {
-                const errorMsg = error || "Invalid username.";
-                // Send error back to the client
-                ws.send(JSON.stringify({
-                    type: 'error',
-                    input: 'username-input',
-                    message: errorMsg,
-                }));
-                return;
-            }
+                const username = clientMsg.username;
+                const { isValid, error } = validateUsername(username);
+                if (!isValid) {
+                    const errorMsg = error || "Invalid username.";
+                    // Send error back to the client
+                    ws.send(JSON.stringify({
+                        type: 'error',
+                        input: 'username-input',
+                        message: errorMsg,
+                    }));
+                    return;
+                }
 
                 // If username is valid, add the client
                 gm.addClient(
@@ -154,7 +154,7 @@ wss.on('connection', (ws, req) => {
                             clientMsg.clientID,
                             clientMsg.persistentID,
                             ip,
-                            username,
+                            clientMsg.username,
                             ws
                         ),
                         clientMsg.gameID,
