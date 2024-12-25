@@ -73,12 +73,12 @@ export class EventsDisplay extends LitElement implements Layer {
       background-color: rgba(0, 0, 0, 0.7);
       color: white;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-      font-size: 1.2em;
+      font-size: 0.9em;
     }
 
     .events-table th,
     .events-table td {
-      padding: 15px;
+      padding: 8px 12px;
       text-align: left;
       border-bottom: 1px solid rgba(255, 255, 255, 0.0);
       z-index: 1000;
@@ -86,7 +86,7 @@ export class EventsDisplay extends LitElement implements Layer {
 
     .events-table th {
       background-color: rgba(0, 0, 0, 0.0);
-      font-size: 1.2em;
+      font-size: 1em;
       text-transform: uppercase;
     }
 
@@ -96,8 +96,8 @@ export class EventsDisplay extends LitElement implements Layer {
 
     .btn {
       display: inline-block;
-      padding: 8px 16px;
-      margin: 5px 10px 5px 0;
+      padding: 4px 12px;
+      margin: 3px 8px 3px 0;
       background-color: #4CAF50;
       color: white;
       text-decoration: none;
@@ -105,6 +105,7 @@ export class EventsDisplay extends LitElement implements Layer {
       transition: background-color 0.3s;
       border: none;
       cursor: pointer;
+      font-size: 0.9em;
     }
 
     .btn:hover {
@@ -126,7 +127,7 @@ export class EventsDisplay extends LitElement implements Layer {
 
     .button-container {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
     }
 
@@ -141,12 +142,12 @@ export class EventsDisplay extends LitElement implements Layer {
 
       .events-table th,
       .events-table td {
-        padding: 10px;
+        padding: 6px 10px;
       }
       
       .btn {
         display: block;
-        margin: 5px 0;
+        margin: 3px 0;
         width: 100%;
       }
 
@@ -352,10 +353,10 @@ export class EventsDisplay extends LitElement implements Layer {
                       <button 
                         class="${btn.className}"
                         @click=${() => {
-        btn.action();
-        this.removeEvent(index);
-        this.requestUpdate()
-      }}
+                          btn.action();
+                          this.removeEvent(index);
+                          this.requestUpdate()
+                        }}
                       >
                         ${btn.text}
                       </button>

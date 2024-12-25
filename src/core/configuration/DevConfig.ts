@@ -4,10 +4,6 @@ import { ServerConfig } from "./Config";
 import { DefaultConfig, DefaultServerConfig } from "./DefaultConfig";
 
 export class DevServerConfig extends DefaultServerConfig {
-    numSpawnPhaseTurns(gameType: GameType): number {
-        return gameType == GameType.Singleplayer ? 40 : 200
-        // return 100
-    }
     gameCreationRate(): number {
         return 10 * 1000
     }
@@ -20,6 +16,11 @@ export class DevConfig extends DefaultConfig {
 
     constructor(sc: ServerConfig, gc: GameConfig) {
         super(sc, gc);
+    }
+
+    numSpawnPhaseTurns(gameType: GameType): number {
+        return gameType == GameType.Singleplayer ? 40 : 200
+        // return 100
     }
 
     unitInfo(type: UnitType): UnitInfo {

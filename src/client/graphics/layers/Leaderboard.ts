@@ -122,7 +122,7 @@ export class Leaderboard extends LitElement implements Layer {
     border-collapse: collapse;
   }
   th, td {
-    padding: 8px;
+    padding: 5px;
     text-align: left;
     border-bottom: 1px solid rgba(51, 51, 51, 0.2);
     color: white;
@@ -133,10 +133,10 @@ export class Leaderboard extends LitElement implements Layer {
   }
   .myPlayer {
     font-weight: bold;
-    font-size: 1.5em;
+    font-size: 1.2em;
   }
   .otherPlayer {
-    font-size: 1.3em;
+    font-size: 1.0em;
   }
   tr:nth-child(even) {
     background-color: rgba(44, 44, 44, 0.5);
