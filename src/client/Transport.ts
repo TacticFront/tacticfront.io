@@ -6,6 +6,9 @@ import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, GameID, I
 import { LobbyConfig } from "./GameRunner"
 import { LocalServer } from "./LocalServer"
 
+export class PauseGameEvent implements GameEvent {
+    constructor(public readonly paused: boolean) { }
+}
 
 export class SendAllianceRequestIntentEvent implements GameEvent {
     constructor(
@@ -121,6 +124,7 @@ export class Transport {
         this.eventBus.on(BuildUnitIntentEvent, (e) => this.onBuildUnitIntent(e))
 
         this.eventBus.on(SendLogEvent, (e) => this.onSendLogEvent(e))
+        this.eventBus.on(PauseGameEvent, (e) => this.onPauseGameEvent(e))
     }
 
     private startPing() {
@@ -350,6 +354,18 @@ export class Transport {
             x: event.cell.x,
             y: event.cell.y,
         })
+    }
+
+    private onPauseGameEvent(event: PauseGameEvent) {
+        if (!this.isLocal) {
+            console.log(`cannot pause multiplayer games`)
+            return
+        }
+        if (event.paused) {
+            this.localServer.pause()
+        } else {
+            this.localServer.resume()
+        }
     }
 
     private sendIntent(intent: Intent) {

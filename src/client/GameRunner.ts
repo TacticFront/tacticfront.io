@@ -188,7 +188,7 @@ export class GameRunner {
         } catch (error) {
             const errorText = `Error: ${error.message}\nStack: ${error.stack}`;
             consolex.error(errorText)
-            alert(`Game crashed! client id: ${this.clientID}\n Please paste the following your bug report in Discord:\n` + errorText);
+            alert(`Game crashed! client id: ${this.clientID}\n Please paste the following in your bug report in Discord:\n` + errorText);
         }
         this.renderer.tick()
         this.currTurn++

@@ -1,18 +1,20 @@
-import { Config, ServerConfig } from "../core/configuration/Config";
+import { Config, GameEnv, ServerConfig } from "../core/configuration/Config";
 import { consolex } from "../core/Consolex";
+import { GameEvent } from "../core/EventBus";
 import { ClientID, ClientMessage, ClientMessageSchema, GameConfig, GameID, GameRecordSchema, Intent, PlayerRecord, ServerMessage, ServerStartGameMessageSchema, ServerTurnMessageSchema, Turn } from "../core/Schemas";
 import { CreateGameRecord, generateID } from "../core/Util";
 import { LobbyConfig } from "./GameRunner";
 import { getPersistentIDFromCookie } from "./Main";
 
+
 export class LocalServer {
-
-
     private turns: Turn[] = []
     private intents: Intent[] = []
     private startedAt: number
 
     private endTurnIntervalID
+
+    private paused = false
 
 
     constructor(
@@ -35,14 +37,33 @@ export class LocalServer {
         }))
     }
 
+    pause() {
+        this.paused = true
+    }
+
+    resume() {
+        this.paused = false
+    }
+
     onMessage(message: string) {
         const clientMsg: ClientMessage = ClientMessageSchema.parse(JSON.parse(message))
         if (clientMsg.type == "intent") {
+            if (this.paused) {
+                if (clientMsg.intent.type == "troop_ratio") {
+                    // Store troop change events because otherwise they are
+                    // not registered when game is paused.
+                    this.intents.push(clientMsg.intent)
+                }
+                return
+            }
             this.intents.push(clientMsg.intent)
         }
     }
 
     private endTurn() {
+        if (this.paused) {
+            return
+        }
         const pastTurn: Turn = {
             turnNumber: this.turns.length,
             gameID: this.lobbyConfig.gameID,

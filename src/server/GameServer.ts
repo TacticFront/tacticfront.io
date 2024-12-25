@@ -120,6 +120,9 @@ export class GameServer {
     public start() {
         this._hasStarted = true
         this._startTime = Date.now()
+        // Set last ping to start so we don't immediately stop the game
+        // if no client connects/pings.
+        this.lastPingUpdate = Date.now()
 
         this.endTurnIntervalID = setInterval(() => this.endTurn(), this.config.turnIntervalMs());
         this.activeClients.forEach(c => {

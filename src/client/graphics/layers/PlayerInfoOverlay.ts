@@ -1,13 +1,14 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { Layer } from './Layer';
-import { Game, Player, Unit, UnitType } from '../../../core/game/Game';
+import { Game, GameType, Player, Unit, UnitType } from '../../../core/game/Game';
 import { ClientID } from '../../../core/Schemas';
 import { EventBus } from '../../../core/EventBus';
 import { TransformHandler } from '../TransformHandler';
 import { MouseMoveEvent } from '../../InputHandler';
 import { euclideanDist, distSortUnit } from '../../../core/Util';
 import { renderNumber, renderTroops } from '../../Utils';
+import { PauseGameEvent } from '../../Transport';
 
 @customElement('player-info-overlay')
 export class PlayerInfoOverlay extends LitElement implements Layer {
@@ -30,11 +31,21 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     private unit: Unit | null = null;
 
     @state()
-    private _isVisible: boolean = false;
+    private showPauseButton: boolean = true
+
+    @state()
+    private _isInfoVisible: boolean = false;
+
+    @state()
+    private _isPaused: boolean = false;
+
+    private _isActive = false
 
     init(game: Game) {
         this.game = game;
         this.eventBus.on(MouseMoveEvent, (e: MouseMoveEvent) => this.onMouseEvent(e));
+        this._isActive = true
+        this.showPauseButton = this.game.config().gameConfig().gameType == GameType.Singleplayer
     }
 
     private onMouseEvent(event: MouseMoveEvent) {
@@ -44,7 +55,6 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
 
         const worldCoord = this.transform.screenToWorldCoordinates(event.x, event.y);
         if (!this.game.isOnMap(worldCoord)) {
-            return;
             return;
         }
 
@@ -70,9 +80,13 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
         window.location.reload();
     }
 
+    private onPauseButtonClick() {
+        this._isPaused = !this._isPaused;
+        this.eventBus.emit(new PauseGameEvent(this._isPaused));
+    }
+
     tick() {
-        this.requestUpdate()
-        // Implementation for Layer interface
+        this.requestUpdate();
     }
 
     renderLayer(context: CanvasRenderingContext2D) {
@@ -84,7 +98,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     }
 
     setVisible(visible: boolean) {
-        this._isVisible = visible;
+        this._isInfoVisible = visible;
         this.requestUpdate();
     }
 
@@ -109,25 +123,31 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     private renderUnitInfo(unit: Unit) {
         const isAlly = (unit.owner() == this.myPlayer() || this.myPlayer()?.isAlliedWith(unit.owner())) ?? false;
         return html`
-        <div class="info-content">
-            <div class="player-name ${isAlly ? 'ally' : ''}">${unit.owner().name()}</div>
-            <div class="unit-details">
-                <div class="type-label">${unit.type()}</div>
-                ${unit.hasHealth() ? html`
-                    <div class="type-label">Health: ${unit.health()}</div>
-                ` : ''}
+            <div class="info-content">
+                <div class="player-name ${isAlly ? 'ally' : ''}">${unit.owner().name()}</div>
+                <div class="unit-details">
+                    <div class="type-label">${unit.type()}</div>
+                    ${unit.hasHealth() ? html`
+                        <div class="type-label">Health: ${unit.health()}</div>
+                    ` : ''}
+                </div>
             </div>
-        </div>
-    `
+        `;
     }
 
     render() {
+        if (!this._isActive) {
+            return html``
+        }
         return html`
             <div class="container">
                 <div class="controls">
-                    <button class="exit-button" @click=${this.onExitButtonClick}>×</button>
+                    <button class="control-button pause-button ${!this.showPauseButton ? 'hidden' : ''}" @click=${this.onPauseButtonClick}>
+                        ${this._isPaused ? '▶' : '⏸'}
+                    </button>
+                    <button class="control-button exit-button" @click=${this.onExitButtonClick}>×</button>
                 </div>
-                <div class="player-info ${!this._isVisible ? 'hidden' : ''}">
+                <div class="player-info ${!this._isInfoVisible ? 'hidden' : ''}">
                     ${this.player != null ? this.renderPlayerInfo(this.player) : ''}
                     ${this.unit != null ? this.renderUnitInfo(this.unit) : ''}
                 </div>
@@ -153,6 +173,31 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
             align-self: flex-end;
             margin-bottom: 4px;
             z-index: 2;
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-button {
+            background: rgba(30, 30, 30, 0.7);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            opacity: 0.7;
+            transition: opacity 0.2s, background-color 0.2s;
+            backdrop-filter: blur(5px);
+        }
+
+        .control-button:hover {
+            opacity: 1;
+            background: rgba(40, 40, 40, 0.8);
+        }
+
+        .pause-button {
+            font-size: 20px;
+            padding: 4px 10px;
         }
 
         .player-info {
@@ -167,6 +212,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
             min-width: 120px;
             text-align: left;
         }
+
         .hidden {
             opacity: 0;
             visibility: hidden;
@@ -176,6 +222,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
         .info-content {
             margin-top: 8px;
         }
+
         .player-name {
             font-weight: bold;
             margin-bottom: 4px;
@@ -194,35 +241,6 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
             margin-top: 4px;
         }
 
-        .health-bar {
-            height: 4px;
-            background-color: rgba(255, 255, 255, 0.2);
-            border-radius: 2px;
-            margin-top: 4px;
-        }
-
-        .health-fill {
-            height: 100%;
-            background-color: #4CAF50;
-            border-radius: 2px;
-            transition: width 0.2s ease-out;
-        }
-
-        .exit-button {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 40px;
-            cursor: pointer;
-            padding: 4px;
-            opacity: 0.7;
-            transition: opacity 0.2s;
-        }
-
-        .exit-button:hover {
-            opacity: 1;
-        }
-
         @media (max-width: 768px) {
             .container {
                 top: 5px;
@@ -235,8 +253,14 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
                 min-width: 100px;
             }
             
-            .exit-button {
+            .control-button {
                 font-size: 16px;
+                padding: 3px 6px;
+            }
+            
+            .pause-button {
+                font-size: 14px;
+                padding: 3px 8px;
             }
             
             .type-label {
