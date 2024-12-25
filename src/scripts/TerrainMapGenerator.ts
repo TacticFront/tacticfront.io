@@ -38,10 +38,6 @@ export async function loadTerrainMap(): Promise<void> {
 
     const terrain: Terrain[][] = Array(img.width).fill(null).map(() => Array(img.height).fill(null));
 
-    let max = 0
-    let min = 1000
-
-
     // Iterate through each pixel
     for (let x = 0; x < img.width; x++) {
         for (let y = 0; y < img.height; y++) {
@@ -63,19 +59,39 @@ export async function loadTerrainMap(): Promise<void> {
             }
         }
     }
-    // console.log(`min: ${min}, max ${max}, arr ${array}`)
-    // console.log('Array contents (index, value):');
-    // array.forEach((val, index) => {
-    //     console.log(`(${index}, ${val})`);
-    // });
 
     const shorelineWaters = processShore(terrain)
     processDistToLand(shorelineWaters, terrain)
     processOcean(terrain)
-    const packed = packTerrain(terrain)
     const outputPath = path.join(__dirname, '..', '..', 'resources', 'maps', mapName + '.bin');
-    fs.writeFile(outputPath, packed);
+    fs.writeFile(outputPath, packTerrain(terrain));
+
+    const miniTerrain = await createMiniMap(terrain)
+    const miniOutputPath = path.join(__dirname, '..', '..', 'resources', 'maps', mapName + 'Mini.bin');
+    fs.writeFile(miniOutputPath, packTerrain(miniTerrain))
 }
+
+export async function createMiniMap(tm: Terrain[][]): Promise<Terrain[][]> {
+    // Create 2D array properly with correct dimensions
+    const miniMap: Terrain[][] = Array(Math.floor(tm.length / 2))
+        .fill(null)
+        .map(() => Array(Math.floor(tm[0].length / 2)).fill(null));
+
+    for (let x = 0; x < tm.length; x++) {
+        for (let y = 0; y < tm[0].length; y++) {
+            const miniX = Math.floor(x / 2);
+            const miniY = Math.floor(y / 2);
+
+            if (miniMap[miniX][miniY] == null || miniMap[miniX][miniY].type != TerrainType.Water) {
+                // We shrink 4 tiles into 1 tile. If any of the 4 large tiles
+                // has water, then the mini tile is considered water.
+                miniMap[miniX][miniY] = tm[x][y]
+            }
+        }
+    }
+    return miniMap
+}
+
 
 function processShore(map: Terrain[][]): Coord[] {
     const shorelineWaters: Coord[] = []
@@ -158,6 +174,9 @@ function packTerrain(map: Terrain[][]): Uint8Array {
         for (let y = 0; y < height; y++) {
             const terrain = map[x][y];
             let packedByte = 0;
+            if (terrain == null) {
+                throw new Error(`terrain null at ${x}:${y}`)
+            }
 
             if (terrain.type === TerrainType.Land) {
                 packedByte |= 0b10000000;

@@ -1,14 +1,13 @@
 // pathfinding.ts
 import { Cell, GameMap, TerrainMap, TerrainTile, TerrainType } from "../game/Game";
-import { createMiniMap, loadTerrainMap } from "../game/TerrainMapLoader";
+import { loadTerrainMap } from "../game/TerrainMapLoader";
 import { PriorityQueue } from "@datastructures-js/priority-queue";
-import { SerialAStar } from "../pathfinding/SerialAStar";
 import { AStar, PathFindResultType, SearchNode } from "../pathfinding/AStar";
 import { MiniAStar } from "../pathfinding/MiniAStar";
 import { consolex } from "../Consolex";
 
 let terrainMapPromise: Promise<{
-    terrainMap: TerrainMap,
+    map: TerrainMap,
     miniMap: TerrainMap
 }> | null = null;
 let searches = new PriorityQueue<Search>((a: Search, b: Search) => (a.deadline - b.deadline))
@@ -37,20 +36,13 @@ self.onmessage = (e) => {
             initializeMap(e.data);
             break;
         case 'findPath':
-            terrainMapPromise.then(tm => findPath(tm.terrainMap, tm.miniMap, e.data))
+            terrainMapPromise.then(tm => findPath(tm.map, tm.miniMap, e.data))
             break;
     }
 };
 
 function initializeMap(data: { gameMap: GameMap }) {
     terrainMapPromise = loadTerrainMap(data.gameMap)
-        .then(async terrainMap => {
-            const miniMap = await createMiniMap(terrainMap);
-            return {
-                terrainMap: terrainMap,
-                miniMap: miniMap
-            };
-        });
     self.postMessage({ type: 'initialized' });
     processingInterval = setInterval(computeSearches, .1) as unknown as number;
 }

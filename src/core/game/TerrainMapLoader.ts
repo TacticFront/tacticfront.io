@@ -1,29 +1,8 @@
-import { Cell, GameMap, TerrainMap, TerrainTile, TerrainType } from './Game';
-import { SearchNode } from "../pathfinding/AStar";
-import europeBin from "!!binary-loader!../../../resources/maps/Europe.bin";
-import europeInfo from "../../../resources/maps/Europe.json"
-
-import worldBin from "!!binary-loader!../../../resources/maps/WorldMap.bin";
-import worldInfo from "../../../resources/maps/WorldMap.json"
-
-import menaBin from "!!binary-loader!../../../resources/maps/Mena.bin"
-import menaInfo from "../../../resources/maps/Mena.json"
-
-import northAmericaBin from "!!binary-loader!../../../resources/maps/NorthAmerica.bin"
-import northAmericaInfo from "../../../resources/maps/NorthAmerica.json"
-
-import oceaniaBin from "!!binary-loader!../../../resources/maps/Oceania.bin"
-import oceaniaInfo from "../../../resources/maps/Oceania.json"
 import { consolex } from '../Consolex';
+import { Cell, GameMap, TerrainMap, TerrainTile, TerrainType } from './Game';
+import { terrainMapFileLoader } from './TerrainMapFileLoader';
 
-const maps = new Map()
-    .set(GameMap.World, { bin: worldBin, info: worldInfo })
-    .set(GameMap.Europe, { bin: europeBin, info: europeInfo })
-    .set(GameMap.Mena, { bin: menaBin, info: menaInfo })
-    .set(GameMap.NorthAmerica, { bin: northAmericaBin, info: northAmericaInfo })
-    .set(GameMap.Oceania, { bin: oceaniaBin, info: oceaniaInfo })
-
-const loadedMaps = new Map<GameMap, TerrainMapImpl>()
+const loadedMaps = new Map<GameMap, { map: TerrainMapImpl, miniMap: TerrainMapImpl }>()
 
 export interface NationMap {
     name: string;
@@ -102,17 +81,21 @@ export class TerrainMapImpl implements TerrainMap {
     }
 }
 
-export async function loadTerrainMap(map: GameMap): Promise<TerrainMapImpl> {
+export async function loadTerrainMap(map: GameMap): Promise<{ map: TerrainMapImpl, miniMap: TerrainMapImpl }> {
     if (loadedMaps.has(map)) {
         return loadedMaps.get(map)
     }
+    const mapFiles = await terrainMapFileLoader.getMapData(map)
 
-    const mapData = maps.get(map)
+    const mainMap = await loadTerrainFromFile(mapFiles.mapBin)
+    mainMap.nationMap = mapFiles.nationMap
+    const mini = await loadTerrainFromFile(mapFiles.miniMapBin)
+    loadedMaps.set(map, { map: mainMap, miniMap: mini })
+    return { map: mainMap, miniMap: mini }
+}
 
-    // Simulate an asynchronous file load
-    const fileData = await new Promise<string>((resolve) => {
-        setTimeout(() => resolve(mapData.bin), 100);
-    });
+export async function loadTerrainFromFile(fileData: string): Promise<TerrainMapImpl> {
+
 
     consolex.log(`Loaded data length: ${fileData.length} bytes`);
 
@@ -129,8 +112,6 @@ export async function loadTerrainMap(map: GameMap): Promise<TerrainMapImpl> {
 
     const terrain: TerrainTileImpl[][] = Array(width).fill(null).map(() => Array(height).fill(null));
     let numLand = 0
-
-
 
     const m = new TerrainMapImpl();
 
@@ -172,53 +153,9 @@ export async function loadTerrainMap(map: GameMap): Promise<TerrainMapImpl> {
     }
     m.tiles = terrain
     m.numLandTiles = numLand
-    m.nationMap = mapData.info
-    // const encoder = new TextEncoder();
-    // const encoded = encoder.encode(fileData);
-    // const buffer = new SharedArrayBuffer(encoded.length);
-    // const view = new Uint8Array(buffer);
-    // view.set(encoded)
-    loadedMaps.set(map, m)
     return m
 }
 
-
-export async function createMiniMap(tm: TerrainMap): Promise<TerrainMap> {
-    // Create 2D array properly with correct dimensions
-    const miniMap: TerrainTileImpl[][] = Array(Math.floor(tm.width() / 2))
-        .fill(null)
-        .map(() => Array(Math.floor(tm.height() / 2)).fill(null));
-
-    // Process rows in chunks to avoid blocking the main thread
-    const chunkSize = 10; // Process 10 rows at a time
-
-    const m = new TerrainMapImpl
-
-    for (let startX = 0; startX < tm.width(); startX += chunkSize) {
-        // Use setTimeout to yield to the main thread between chunks
-        await new Promise(resolve => setTimeout(resolve, 0));
-
-        const endX = Math.min(startX + chunkSize, tm.width());
-
-        for (let x = startX; x < endX; x++) {
-            for (let y = 0; y < tm.height(); y++) {
-                const tile = tm.terrain(new Cell(x, y)) as TerrainTileImpl;
-                const miniX = Math.floor(x / 2);
-                const miniY = Math.floor(y / 2);
-
-                if (miniMap[miniX][miniY] == null || miniMap[miniX][miniY].terrainType() != TerrainType.Ocean) {
-                    miniMap[miniX][miniY] = new TerrainTileImpl(m, tile.terrainType(), new Cell(miniX, miniY));
-                    miniMap[miniX][miniY].shoreline = tile.shoreline;
-                    miniMap[miniX][miniY].magnitude = tile.magnitude;
-                    miniMap[miniX][miniY].ocean = tile.ocean;
-                    miniMap[miniX][miniY].land = tile.land;
-                }
-            }
-        }
-    }
-    m.tiles = miniMap
-    return m
-}
 
 
 function logBinaryAsAscii(data: string, length: number = 8) {

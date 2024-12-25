@@ -2,7 +2,7 @@ import { info } from "console";
 import { Config } from "../configuration/Config";
 import { EventBus } from "../EventBus";
 import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Unit, UnitEvent as UnitEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent, BrokeAllianceEvent, MutableAlliance, Alliance, AllianceExpiredEvent, Nation, UnitType, UnitInfo, TerrainMap, DefenseBonus } from "./Game";
-import { createMiniMap, TerrainMapImpl } from "./TerrainMapLoader";
+import { TerrainMapImpl } from "./TerrainMapLoader";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
 import { TileImpl } from "./TileImpl";
