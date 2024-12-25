@@ -13,8 +13,8 @@ import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/E
 import { UnitImpl } from "./UnitImpl";
 import { consolex } from "../Consolex";
 
-export function createGame(terrainMap: TerrainMapImpl, miniMap: TerrainMap, eventBus: EventBus, config: Config, gameConfig: GameConfig): Game {
-    return new GameImpl(terrainMap, miniMap, eventBus, config, gameConfig)
+export function createGame(terrainMap: TerrainMapImpl, miniMap: TerrainMap, eventBus: EventBus, config: Config): Game {
+    return new GameImpl(terrainMap, miniMap, eventBus, config)
 }
 
 export type CellString = string
@@ -45,7 +45,6 @@ export class GameImpl implements MutableGame {
         private _miniMap: TerrainMap,
         public eventBus: EventBus,
         private _config: Config,
-        private _gameConfig: GameConfig,
     ) {
         this._terraNullius = new TerraNulliusImpl(this)
         this._width = _terrainMap.width();
@@ -65,10 +64,6 @@ export class GameImpl implements MutableGame {
                 new Cell(n.coordinates[0], n.coordinates[1]),
                 n.strength
             ))
-    }
-
-    gameConfig(): GameConfig {
-        return this._gameConfig
     }
 
     addFallout(tile: Tile) {
@@ -149,7 +144,7 @@ export class GameImpl implements MutableGame {
     }
 
     inSpawnPhase(): boolean {
-        return this._ticks <= this.config().numSpawnPhaseTurns(this._gameConfig.gameType)
+        return this._ticks <= this.config().numSpawnPhaseTurns(this.config().gameConfig().gameType)
     }
 
     ticks(): number {

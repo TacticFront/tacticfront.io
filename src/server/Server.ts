@@ -5,7 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { GameManager } from './GameManager';
 import { ClientMessage, ClientMessageSchema, GameRecord, GameRecordSchema, LogSeverity } from '../core/Schemas';
-import { getConfig } from '../core/configuration/Config';
+import { getConfig, getServerConfig } from '../core/configuration/Config';
 import { slog } from './StructuredLog';
 import { Client } from './Client';
 import { GamePhase, GameServer } from './GameServer';
@@ -23,7 +23,7 @@ const wss = new WebSocketServer({ server });
 app.use(express.static(path.join(__dirname, '../../out')));
 app.use(express.json())
 
-const gm = new GameManager(getConfig())
+const gm = new GameManager(getServerConfig())
 
 const bot = new DiscordBot();
 try {

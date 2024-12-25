@@ -1,13 +1,35 @@
 import { Difficulty, GameType, Gold, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tick, Tile, Unit, UnitInfo, UnitType } from "../game/Game";
-import { GameID } from "../Schemas";
+import { GameConfig } from "../Schemas";
 import { assertNever, distSort, manhattanDist, simpleHash, within } from "../Util";
-import { Config, Theme } from "./Config";
+import { Config, ServerConfig, Theme } from "./Config";
 import { pastelTheme } from "./PastelTheme";
 
+export abstract class DefaultServerConfig implements ServerConfig {
+    turnIntervalMs(): number {
+        return 100
+    }
+    gameCreationRate(): number {
+        return 10 * 60 * 1000
+    }
+    lobbyLifetime(): number {
+        return 10 * 120 * 1000
+    }
+}
 
 
-export abstract class DefaultConfig implements Config {
-    abstract discordBotSecret(): string
+export class DefaultConfig implements Config {
+
+    constructor(private _serverConfig: ServerConfig, private _gameConfig: GameConfig) {
+
+    }
+
+    gameConfig(): GameConfig {
+        return this._gameConfig
+    }
+
+    serverConfig(): ServerConfig {
+        return this._serverConfig
+    }
 
     difficultyModifier(difficulty: Difficulty): number {
         switch (difficulty) {
@@ -161,15 +183,6 @@ export abstract class DefaultConfig implements Config {
     }
     numBots(): number {
         return 400
-    }
-    turnIntervalMs(): number {
-        return 100
-    }
-    gameCreationRate(): number {
-        return 10 * 60 * 1000
-    }
-    lobbyLifetime(): number {
-        return 10 * 120 * 1000
     }
     theme(): Theme { return pastelTheme; }
 

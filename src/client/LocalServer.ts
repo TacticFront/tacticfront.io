@@ -1,4 +1,4 @@
-import { Config } from "../core/configuration/Config";
+import { Config, ServerConfig } from "../core/configuration/Config";
 import { consolex } from "../core/Consolex";
 import { ClientID, ClientMessage, ClientMessageSchema, GameConfig, GameID, GameRecordSchema, Intent, PlayerRecord, ServerMessage, ServerStartGameMessageSchema, ServerTurnMessageSchema, Turn } from "../core/Schemas";
 import { CreateGameRecord, generateID } from "../core/Util";
@@ -16,7 +16,7 @@ export class LocalServer {
 
 
     constructor(
-        private config: Config,
+        private serverConfig: ServerConfig,
         private gameConfig: GameConfig,
         private lobbyConfig: LobbyConfig,
         private clientConnect: () => void,
@@ -26,7 +26,7 @@ export class LocalServer {
 
     start() {
         this.startedAt = Date.now()
-        this.endTurnIntervalID = setInterval(() => this.endTurn(), this.config.turnIntervalMs());
+        this.endTurnIntervalID = setInterval(() => this.endTurn(), this.serverConfig.turnIntervalMs());
         this.clientConnect()
         this.clientMessage(ServerStartGameMessageSchema.parse({
             type: "start",

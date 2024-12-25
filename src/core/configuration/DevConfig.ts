@@ -1,20 +1,9 @@
 import { GameType, Player, PlayerInfo, UnitInfo, UnitType } from "../game/Game";
-import { DefaultConfig } from "./DefaultConfig";
+import { GameConfig } from "../Schemas";
+import { ServerConfig } from "./Config";
+import { DefaultConfig, DefaultServerConfig } from "./DefaultConfig";
 
-export const devConfig = new class extends DefaultConfig {
-    discordBotSecret(): string {
-        throw new Error("Method not implemented.");
-    }
-    unitInfo(type: UnitType): UnitInfo {
-        const info = super.unitInfo(type)
-        const oldCost = info.cost
-        info.cost = (p: Player) => oldCost(p) / 10000
-        return info
-    }
-
-    percentageTilesOwnedToWin(): number {
-        return 95
-    }
+export class DevServerConfig extends DefaultServerConfig {
     numSpawnPhaseTurns(gameType: GameType): number {
         return gameType == GameType.Singleplayer ? 40 : 200
         // return 100
@@ -24,6 +13,24 @@ export const devConfig = new class extends DefaultConfig {
     }
     lobbyLifetime(): number {
         return 10 * 1000
+    }
+}
+
+export class DevConfig extends DefaultConfig {
+
+    constructor(sc: ServerConfig, gc: GameConfig) {
+        super(sc, gc);
+    }
+
+    unitInfo(type: UnitType): UnitInfo {
+        const info = super.unitInfo(type)
+        const oldCost = info.cost
+        info.cost = (p: Player) => oldCost(p) / 10000
+        return info
+    }
+
+    percentageTilesOwnedToWin(): number {
+        return 95
     }
     // tradeShipSpawnRate(): number {
     //     return 10

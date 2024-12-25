@@ -1,4 +1,4 @@
-import { Config } from "../core/configuration/Config";
+import { Config, ServerConfig } from "../core/configuration/Config";
 import { ClientID, GameConfig, GameID } from "../core/Schemas";
 import { v4 as uuidv4 } from 'uuid';
 import { Client } from "./Client";
@@ -14,7 +14,7 @@ export class GameManager {
 
     private games: GameServer[] = []
 
-    constructor(private config: Config) { }
+    constructor(private config: ServerConfig) { }
 
     public game(id: GameID): GameServer | null {
         return this.games.find(g => g.id == id)

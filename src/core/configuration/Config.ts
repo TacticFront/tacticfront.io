@@ -1,21 +1,35 @@
 import { Difficulty, GameType, Gold, Player, PlayerID, PlayerInfo, TerraNullius, Tick, Tile, Unit, UnitInfo, UnitType } from "../game/Game";
 import { Colord, colord } from "colord";
-import { devConfig } from "./DevConfig";
-import { GameID } from "../Schemas";
 import { preprodConfig } from "./PreprodConfig";
 import { prodConfig } from "./ProdConfig";
 import { consolex } from "../Consolex";
+import { GameConfig } from "../Schemas";
+import { DefaultConfig } from "./DefaultConfig";
+import { DevConfig, DevServerConfig } from "./DevConfig";
 
 export enum GameEnv {
 	Dev,
 	Prod
 }
+export function getConfig(gameConfig: GameConfig): Config {
+	const sc = getServerConfig()
+	switch (process.env.GAME_ENV) {
+		case 'dev':
+			return new DevConfig(sc, gameConfig)
+		case 'preprod':
+		case 'prod':
+			consolex.log('using prod config')
+			return new DefaultConfig(sc, gameConfig)
+		default:
+			throw Error(`unsupported server configuration: ${process.env.GAME_ENV}`)
+	}
+}
 
-export function getConfig(): Config {
+export function getServerConfig(): ServerConfig {
 	switch (process.env.GAME_ENV) {
 		case 'dev':
 			consolex.log('using dev config')
-			return devConfig
+			return new DevServerConfig()
 		case 'preprod':
 			consolex.log('using preprod config')
 			return preprodConfig
@@ -27,17 +41,17 @@ export function getConfig(): Config {
 	}
 }
 
-export function getGameEnv(): GameEnv {
-	return GameEnv.Prod
-}
-
-export interface Config {
-	discordBotSecret(): string
-	theme(): Theme;
-	percentageTilesOwnedToWin(): number
+export interface ServerConfig {
 	turnIntervalMs(): number
 	gameCreationRate(): number
 	lobbyLifetime(): number
+}
+
+export interface Config {
+	serverConfig(): ServerConfig
+	gameConfig(): GameConfig
+	theme(): Theme;
+	percentageTilesOwnedToWin(): number
 	numBots(): number
 	spawnNPCs(): boolean
 	numSpawnPhaseTurns(gameType: GameType): number

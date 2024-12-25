@@ -126,7 +126,7 @@ export class Executor {
                     this.random.nextID()
                 ),
                 nation.cell,
-                nation.strength * this.gs.config().difficultyModifier(this.gs.gameConfig().difficulty)
+                nation.strength * this.gs.config().difficultyModifier(this.gs.config().gameConfig().difficulty)
             ))
         }
         return execs

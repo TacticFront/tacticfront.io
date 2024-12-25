@@ -314,7 +314,6 @@ export interface Game {
     addExecution(...exec: Execution[]): void
     nations(): Nation[]
     config(): Config
-    gameConfig(): GameConfig
     displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void
     units(...types: UnitType[]): Unit[]
     unitInfo(type: UnitType): UnitInfo

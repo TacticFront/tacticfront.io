@@ -2,7 +2,6 @@ import { Executor } from "../core/execution/ExecutionManager";
 import { Cell, MutableGame, PlayerEvent, PlayerID, MutablePlayer, TileEvent, Player, Game, UnitEvent, Tile, PlayerType, GameMap, Difficulty, GameType } from "../core/game/Game";
 import { createGame } from "../core/game/GameImpl";
 import { EventBus } from "../core/EventBus";
-import { Config, getConfig } from "../core/configuration/Config";
 import { createRenderer, GameRenderer } from "./graphics/GameRenderer";
 import { InputHandler, MouseUpEvent, ZoomEvent, DragEvent, MouseDownEvent } from "./InputHandler"
 import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientMessageSchema, GameConfig, GameID, Intent, ServerMessage, ServerMessageSchema, ServerSyncMessage, Turn } from "../core/Schemas";
@@ -14,6 +13,7 @@ import { createCanvas } from "./Utils";
 import { DisplayMessageEvent, MessageType } from "./graphics/layers/EventsDisplay";
 import { WorkerClient } from "../core/worker/WorkerClient";
 import { consolex, initRemoteSender } from "../core/Consolex";
+import { getConfig, getServerConfig } from "../core/configuration/Config";
 
 export interface LobbyConfig {
     playerName: () => string
@@ -32,7 +32,7 @@ export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => v
 
     consolex.log(`joinging lobby: gameID: ${lobbyConfig.gameID}, clientID: ${lobbyConfig.clientID}, persistentID: ${lobbyConfig.persistentID}`)
 
-    const config = getConfig()
+    const serverConfig = getServerConfig()
 
     let gameConfig: GameConfig = null
     if (lobbyConfig.gameType == GameType.Singleplayer) {
@@ -47,7 +47,7 @@ export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => v
         lobbyConfig,
         gameConfig,
         eventBus,
-        config,
+        serverConfig,
     )
 
     const onconnect = () => {
@@ -70,11 +70,11 @@ export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => v
 
 
 export async function createClientGame(lobbyConfig: LobbyConfig, gameConfig: GameConfig, eventBus: EventBus, transport: Transport): Promise<GameRunner> {
-    const config = getConfig()
+    const config = getConfig(gameConfig)
 
     const terrainMap = await loadTerrainMap(gameConfig.gameMap);
 
-    let game = createGame(terrainMap.map, terrainMap.miniMap, eventBus, config, gameConfig)
+    let game = createGame(terrainMap.map, terrainMap.miniMap, eventBus, config)
 
     const worker = new WorkerClient(game, gameConfig.gameMap)
     consolex.log('going to init path finder')

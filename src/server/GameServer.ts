@@ -1,5 +1,5 @@
 import { ClientID, ClientMessage, ClientMessageSchema, GameConfig, GameRecordSchema, Intent, PlayerRecord, ServerPingMessageSchema, ServerStartGameMessage, ServerStartGameMessageSchema, ServerTurnMessageSchema, Turn } from "../core/Schemas";
-import { Config } from "../core/configuration/Config";
+import { Config, ServerConfig } from "../core/configuration/Config";
 import { Client } from "./Client";
 import WebSocket from 'ws';
 import { slog } from "./StructuredLog";
@@ -35,7 +35,7 @@ export class GameServer {
         public readonly id: string,
         public readonly createdAt: number,
         public readonly isPublic: boolean,
-        private config: Config,
+        private config: ServerConfig,
         private gameConfig: GameConfig,
 
     ) { }

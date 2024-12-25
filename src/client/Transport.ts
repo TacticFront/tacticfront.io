@@ -1,4 +1,4 @@
-import { Config } from "../core/configuration/Config"
+import { Config, ServerConfig } from "../core/configuration/Config"
 import { SendLogEvent } from "../core/Consolex"
 import { EventBus, GameEvent } from "../core/EventBus"
 import { AllianceRequest, AllPlayers, Cell, GameType, Player, PlayerID, PlayerType, Tile, UnitType } from "../core/game/Game"
@@ -104,7 +104,7 @@ export class Transport {
         // gameConfig only set on private games
         private gameConfig: GameConfig | null,
         private eventBus: EventBus,
-        private config: Config,
+        private serverConfig: ServerConfig,
     ) {
         this.isLocal = lobbyConfig.gameType == GameType.Singleplayer
 
@@ -154,7 +154,7 @@ export class Transport {
     }
 
     private connectLocal(onconnect: () => void, onmessage: (message: ServerMessage) => void) {
-        this.localServer = new LocalServer(this.config, this.gameConfig, this.lobbyConfig, onconnect, onmessage)
+        this.localServer = new LocalServer(this.serverConfig, this.gameConfig, this.lobbyConfig, onconnect, onmessage)
         this.localServer.start()
     }
 

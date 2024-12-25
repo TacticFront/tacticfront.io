@@ -35,7 +35,7 @@ export class UILayer implements Layer {
         const barHeight = 15;
         const barBackgroundWidth = this.transformHandler.width();
 
-        const ratio = this.game.ticks() / this.game.config().numSpawnPhaseTurns(this.game.gameConfig().gameType)
+        const ratio = this.game.ticks() / this.game.config().numSpawnPhaseTurns(this.game.config().gameConfig().gameType)
 
         // Draw bar background
         context.fillStyle = 'rgba(0, 0, 0, 0.5)';
