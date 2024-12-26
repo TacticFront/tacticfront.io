@@ -1,5 +1,5 @@
 import { Config } from "../configuration/Config"
-import { Execution, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, Tile } from "../game/Game"
+import { Execution, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, Tile, UnitType } from "../game/Game"
 import { bfs, calculateBoundingBox, getMode, inscribed, simpleHash } from "../Util"
 import { GameImpl } from "../game/GameImpl"
 import { consolex } from "../Consolex"
@@ -48,7 +48,11 @@ export class PlayerExecution implements Execution {
         })
 
         if (!this.player.isAlive()) {
-            this.player.units().forEach(u => u.delete())
+            this.player.units().forEach(u => {
+                if (u.type() != UnitType.AtomBomb && u.type() != UnitType.HydrogenBomb) {
+                    u.delete()
+                }
+            })
             this.active = false
             return
         }

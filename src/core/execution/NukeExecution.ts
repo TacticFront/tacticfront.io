@@ -108,9 +108,6 @@ export class NukeExecution implements Execution {
                 }
             }
         }
-        // this.mg.units()
-        //     .filter(b => euclideanDist(this.cell, b.tile().cell()) < this.magnitude + 50)
-        //     .forEach(b => b.delete())
         this.active = false
         this.nuke.delete(false)
     }
