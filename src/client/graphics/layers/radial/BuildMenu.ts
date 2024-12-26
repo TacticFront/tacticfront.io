@@ -48,7 +48,7 @@ export class BuildMenu extends LitElement {
             position: fixed;
             top: 50%;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
             z-index: 9999;
             background-color: #1E1E1E;
             padding: 15px;
@@ -64,6 +64,7 @@ export class BuildMenu extends LitElement {
         .build-row {
             display: flex;
             justify-content: center;
+            flex-wrap: wrap;
             width: 100%;
         }
         .build-button {
@@ -111,6 +112,7 @@ export class BuildMenu extends LitElement {
             font-size: 14px;
             font-weight: bold;
             margin-bottom: 5px;
+            text-align: center;
         }
         .build-cost {
             font-size: 14px;
@@ -119,30 +121,62 @@ export class BuildMenu extends LitElement {
             display: none !important;
         }
             
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
+            .build-menu {
+                padding: 10px;
+                max-height: 80vh;
+            }
             .build-button {
-                width: 100px;
-                height: 100px;
-                margin: 5px;
-            }
-            .build-icon {
-                font-size: 32px;
-            }
-            .build-name {
-                font-size: 12px;
-            }
-            .build-cost {
-                font-size: 10px;
-            }
-        }
-        @media (max-width: 400px) {
-            .build-button {
-                width: 80px;
-                height: 80px;
-                margin: 3px;
+                width: 90px;
+                height: 90px;
+                margin: 4px;
+                padding: 6px;
             }
             .build-icon {
                 font-size: 28px;
+            }
+            .build-name {
+                font-size: 12px;
+                margin-bottom: 3px;
+            }
+            .build-cost {
+                font-size: 11px;
+            }
+            .build-button img {
+                width: 32px;
+                height: 32px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .build-menu {
+                padding: 8px;
+                max-height: 70vh;
+            }
+            .build-button {
+                width: 70px;
+                height: 70px;
+                margin: 3px;
+                padding: 4px;
+                border-width: 1px;
+            }
+            .build-icon {
+                font-size: 24px;
+            }
+            .build-name {
+                font-size: 10px;
+                margin-bottom: 2px;
+            }
+            .build-cost {
+                font-size: 9px;
+            }
+            .build-button img {
+                width: 24px;
+                height: 24px;
+            }
+            .build-cost img {
+                width: 10px;
+                height: 10px;
             }
         }
     `;
