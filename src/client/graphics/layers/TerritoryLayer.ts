@@ -7,6 +7,7 @@ import { Theme } from "../../../core/configuration/Config";
 import { Layer } from "./Layer";
 import { TransformHandler } from "../TransformHandler";
 import { EventBus } from "../../../core/EventBus";
+import { initRemoteSender } from "../../../core/Consolex";
 
 export class TerritoryLayer implements Layer {
     private canvas: HTMLCanvasElement
@@ -57,6 +58,11 @@ export class TerritoryLayer implements Layer {
     }
 
     init(game: Game) {
+        console.log('redrew territory layer')
+        this.redraw()
+    }
+
+    redraw() {
         this.canvas = document.createElement('canvas');
         this.context = this.canvas.getContext("2d")
 
@@ -71,6 +77,10 @@ export class TerritoryLayer implements Layer {
         this.highlightContext = this.highlightCanvas.getContext("2d", { alpha: true });
         this.highlightCanvas.width = this.game.width();
         this.highlightCanvas.height = this.game.height();
+
+        this.game.forEachTile(t => {
+            this.paintTerritory(t)
+        })
     }
 
     initImageData() {

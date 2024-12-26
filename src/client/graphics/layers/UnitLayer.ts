@@ -44,14 +44,9 @@ export class UnitLayer implements Layer {
     }
 
     init(game: Game) {
-        this.canvas = document.createElement('canvas');
-        this.context = this.canvas.getContext("2d");
-
-        this.canvas.width = this.game.width();
-        this.canvas.height = this.game.height();
-
         this.eventBus.on(UnitEvent, e => this.onUnitEvent(e));
         this.eventBus.on(AlternateViewEvent, e => this.onAlternativeViewEvent(e))
+        this.redraw()
     }
 
     renderLayer(context: CanvasRenderingContext2D) {
@@ -71,6 +66,11 @@ export class UnitLayer implements Layer {
 
 
     redraw() {
+        this.canvas = document.createElement('canvas');
+        this.context = this.canvas.getContext("2d");
+
+        this.canvas.width = this.game.width();
+        this.canvas.height = this.game.height();
         for (const unit of this.game.units()) {
             this.onUnitEvent(new UnitEvent(unit, unit.tile()))
         }

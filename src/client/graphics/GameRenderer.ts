@@ -18,6 +18,7 @@ import { UnitLayer } from "./layers/UnitLayer";
 import { StructureLayer } from "./layers/StructureLayer";
 import { PlayerInfoOverlay } from "./layers/PlayerInfoOverlay";
 import { consolex } from "../../core/Consolex";
+import { RefreshGraphicsEvent as RedrawGraphicsEvent } from "../InputHandler";
 
 
 export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: EventBus, clientID: ClientID): GameRenderer {
@@ -98,6 +99,14 @@ export class GameRenderer {
 	}
 
 	initialize() {
+		this.eventBus.on(RedrawGraphicsEvent, (e) => {
+			this.layers.forEach(l => {
+				if (l.redraw) {
+					l.redraw()
+				}
+			})
+		})
+
 		this.layers.forEach(l => l.init(this.game))
 
 		document.body.appendChild(this.canvas);

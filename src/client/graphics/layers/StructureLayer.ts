@@ -70,12 +70,17 @@ export class StructureLayer implements Layer {
     }
 
     init(game: Game) {
+        this.eventBus.on(UnitEvent, e => this.onUnitEvent(e));
+        this.redraw()
+    }
+
+    redraw() {
+        console.log('structure layer redrawing')
         this.canvas = document.createElement('canvas');
         this.context = this.canvas.getContext("2d", { alpha: true });
         this.canvas.width = this.game.width();
         this.canvas.height = this.game.height();
-
-        this.eventBus.on(UnitEvent, e => this.onUnitEvent(e));
+        this.game.units().forEach(u => this.handleUnitRendering(new UnitEvent(u, u.tile())))
     }
 
     renderLayer(context: CanvasRenderingContext2D) {

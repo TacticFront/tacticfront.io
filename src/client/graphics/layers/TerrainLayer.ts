@@ -1,8 +1,8 @@
-import {inherits} from "util"
-import {Game} from "../../../core/game/Game";
-import {throws} from "assert";
-import {Layer} from "./Layer";
-import {TransformHandler} from "../TransformHandler";
+import { inherits } from "util"
+import { Game } from "../../../core/game/Game";
+import { throws } from "assert";
+import { Layer } from "./Layer";
+import { TransformHandler } from "../TransformHandler";
 
 export class TerrainLayer implements Layer {
     private canvas: HTMLCanvasElement
@@ -18,6 +18,11 @@ export class TerrainLayer implements Layer {
     }
 
     init(game: Game) {
+        console.log('redrew terrain layer')
+        this.redraw()
+    }
+
+    redraw(): void {
         this.canvas = document.createElement('canvas');
         this.context = this.canvas.getContext("2d")
 

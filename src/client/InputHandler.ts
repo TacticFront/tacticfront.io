@@ -48,6 +48,10 @@ export class AlternateViewEvent implements GameEvent {
     constructor(public readonly alternateView: boolean) { }
 }
 
+export class RefreshGraphicsEvent implements GameEvent {
+
+}
+
 export class InputHandler {
 
     private lastPointerX: number = 0;
@@ -95,6 +99,10 @@ export class InputHandler {
                 e.preventDefault();
                 this.alternateView = false
                 this.eventBus.emit(new AlternateViewEvent(false))
+            }
+            if (e.key.toLowerCase() === 'r' && e.altKey && !e.ctrlKey) {
+                e.preventDefault();
+                this.eventBus.emit(new RefreshGraphicsEvent())
             }
         });
     }
