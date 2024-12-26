@@ -1,4 +1,5 @@
 import { EventBus, GameEvent } from "../core/EventBus";
+import { Game } from "../core/game/Game";
 
 
 export class MouseUpEvent implements GameEvent {
@@ -48,9 +49,13 @@ export class AlternateViewEvent implements GameEvent {
     constructor(public readonly alternateView: boolean) { }
 }
 
-export class RefreshGraphicsEvent implements GameEvent {
+export class RefreshGraphicsEvent implements GameEvent { }
 
+export class ShowBuildMenuEvent implements GameEvent {
+    constructor(public readonly x: number, public readonly y: number) { }
 }
+
+
 
 export class InputHandler {
 
@@ -113,6 +118,7 @@ export class InputHandler {
             return
         }
 
+
         this.pointerDown = true
         this.pointers.set(event.pointerId, event);
 
@@ -135,6 +141,11 @@ export class InputHandler {
         }
         this.pointerDown = false
         this.pointers.clear()
+
+        if (event.ctrlKey) {
+            this.eventBus.emit(new ShowBuildMenuEvent(event.clientX, event.clientY))
+            return
+        }
 
         const dist = Math.abs(event.x - this.lastPointerDownX) + Math.abs(event.y - this.lastPointerDownY);
         if (dist < 10) {

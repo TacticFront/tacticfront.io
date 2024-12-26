@@ -2,7 +2,7 @@ import { EventBus } from "../../../../core/EventBus";
 import { AllPlayers, Cell, Game, Player, UnitType } from "../../../../core/game/Game";
 import { ClientID } from "../../../../core/Schemas";
 import { and, bfs, dist, manhattanDist, manhattanDistWrapped, sourceDstOceanShore, targetTransportTile } from "../../../../core/Util";
-import { ContextMenuEvent, MouseUpEvent } from "../../../InputHandler";
+import { ContextMenuEvent, MouseUpEvent, ShowBuildMenuEvent } from "../../../InputHandler";
 import { SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendDonateIntentEvent, SendEmojiIntentEvent, SendSpawnIntentEvent, SendTargetPlayerIntentEvent } from "../../../Transport";
 import { TransformHandler } from "../../TransformHandler";
 import { Layer } from "../Layer";
@@ -64,6 +64,20 @@ export class RadialMenu implements Layer {
     init() {
         this.eventBus.on(ContextMenuEvent, e => this.onContextMenu(e))
         this.eventBus.on(MouseUpEvent, e => this.onPointerUp(e))
+        this.eventBus.on(ShowBuildMenuEvent, e => {
+            const clickedCell = this.transformHandler.screenToWorldCoordinates(e.x, e.y)
+            if (clickedCell == null) {
+                return
+            }
+            if (!this.game.isOnMap(clickedCell)) {
+                return
+            }
+            const p = this.game.playerByClientID(this.clientID)
+            if (p == null) {
+                return
+            }
+            this.buildMenu.showMenu(p, clickedCell)
+        })
         this.createMenuElement();
     }
 
