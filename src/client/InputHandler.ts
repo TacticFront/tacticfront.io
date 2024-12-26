@@ -140,6 +140,7 @@ export class InputHandler {
         if (dist < 10) {
             if (event.pointerType == "touch") {
                 event.preventDefault()
+                console.log('firing context menu event')
                 this.eventBus.emit(new ContextMenuEvent(event.clientX, event.clientY))
             } else {
                 this.eventBus.emit(new MouseUpEvent(event.x, event.y))

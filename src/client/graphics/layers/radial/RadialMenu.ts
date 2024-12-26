@@ -201,6 +201,10 @@ export class RadialMenu implements Layer {
     }
 
     private onContextMenu(event: ContextMenuEvent) {
+        if (this.buildMenu.isVisible) {
+            this.buildMenu.hideMenu()
+            return
+        }
         if (this.isVisible) {
             this.hideRadialMenu()
             return
