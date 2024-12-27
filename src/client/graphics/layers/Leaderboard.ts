@@ -5,11 +5,13 @@ import { Game, Player } from '../../../core/game/Game';
 import { ClientID } from '../../../core/Schemas';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { EventBus, GameEvent } from '../../../core/EventBus';
+import { renderNumber } from '../../Utils';
 
 interface Entry {
   name: string
   position: number
   score: string
+  gold: string
   isMyPlayer: boolean
   player: Player
 }
@@ -58,6 +60,7 @@ export class Leaderboard extends LitElement implements Layer {
         name: player.displayName(),
         position: index + 1,
         score: formatPercentage(player.numTilesOwned() / this.game.numLandTiles()),
+        gold: renderNumber(player.gold()),
         isMyPlayer: player == myPlayer,
         player: player
       }));
@@ -76,6 +79,7 @@ export class Leaderboard extends LitElement implements Layer {
         name: myPlayer.displayName(),
         position: place,
         score: formatPercentage(myPlayer.numTilesOwned() / this.game.numLandTiles()),
+        gold: renderNumber(myPlayer.gold()),
         isMyPlayer: true,
         player: myPlayer
       })
@@ -123,7 +127,7 @@ export class Leaderboard extends LitElement implements Layer {
   }
   th, td {
     padding: 5px;
-    text-align: left;
+    text-align: center;
     border-bottom: 1px solid rgba(51, 51, 51, 0.2);
     color: white;
   }
@@ -172,6 +176,7 @@ export class Leaderboard extends LitElement implements Layer {
               <th>Rank</th>
               <th>Player</th>
               <th>Owned</th>
+              <th>Gold</th>
             </tr>
           </thead>
           <tbody>
@@ -184,6 +189,7 @@ export class Leaderboard extends LitElement implements Layer {
                   <td>${player.position}</td>
                   <td>${unsafeHTML(player.name)}</td>
                   <td>${player.score}</td>
+                  <td>${player.gold}</td>
                 </tr>
               `)}
           </tbody>
