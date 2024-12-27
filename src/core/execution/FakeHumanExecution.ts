@@ -179,10 +179,10 @@ export class FakeHumanExecution implements Execution {
 
     private maybeSpawnCity() {
         const cities = this.player.units(UnitType.City)
-        if (cities.length > 5) {
+        if (cities.length > 2) {
             return
         }
-        if (this.player.gold() > this.mg.config().unitInfo(UnitType.City).cost(this.player)) {
+        if (this.player.gold() < this.mg.config().unitInfo(UnitType.City).cost(this.player)) {
             return
         }
         const tile = this.randTerritoryTile()
