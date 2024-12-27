@@ -12,6 +12,8 @@ import { BattleshipExecution } from "./BattleshipExecution";
 import { GameID } from "../Schemas";
 import { consolex } from "../Consolex";
 import { CityExecution } from "./CityExecution";
+import { NukeExecution } from "./NukeExecution";
+import { MissileSiloExecution } from "./MissileSiloExecution";
 
 export class FakeHumanExecution implements Execution {
 
@@ -145,17 +147,43 @@ export class FakeHumanExecution implements Execution {
                 .filter(e => e instanceof AttackExecution)
                 .map(e => e as AttackExecution)
                 .filter(e => e.targetID() == this.player.id())
-                .map(e => e.owner())
-                .find(enemy => enemy && enemy.type() == PlayerType.Human)
+                .map(e => e.owner())[0] ?? null
         }
 
         if (this.enemy) {
+            this.maybeSendNuke(this.enemy)
             if (this.player.sharesBorderWith(this.enemy) && !this.player.isAlliedWith(this.enemy)) {
                 this.sendAttack(this.enemy)
             }
             return
         }
 
+    }
+
+    private maybeSendNuke(other: Player) {
+        if (this.player.units(UnitType.MissileSilo).length == 0 ||
+            this.player.gold() < this.mg.config().unitInfo(UnitType.AtomBomb).cost(this.player)) {
+            return
+        }
+        outer:
+        for (let i = 0; i < 10; i++) {
+            const tile = this.randTerritoryTile(other)
+            if (tile == null) {
+                return
+            }
+            for (const t of bfs(tile, dist(tile, 15))) {
+                // Make sure we nuke at least 15 tiles in border
+                if (t.owner() != other) {
+                    continue outer
+                }
+            }
+            if (this.player.canBuild(UnitType.AtomBomb, tile)) {
+                this.mg.addExecution(
+                    new NukeExecution(UnitType.AtomBomb, this.player.id(), tile.cell())
+                )
+                return
+            }
+        }
     }
 
     private handleUnits() {
@@ -168,29 +196,33 @@ export class FakeHumanExecution implements Execution {
             }
             return
         }
-        this.maybeSpawnCity()
+        this.maybeSpawnStructure(UnitType.City, 2, t => new CityExecution(this.player.id(), t.cell()))
         if (this.maybeSpawnWarship(UnitType.Destroyer)) {
             return
         }
         if (this.maybeSpawnWarship(UnitType.Battleship)) {
             return
         }
+        this.maybeSpawnStructure(UnitType.MissileSilo, 1, t => new MissileSiloExecution(this.player.id(), t.cell()))
     }
 
-    private maybeSpawnCity() {
-        const cities = this.player.units(UnitType.City)
-        if (cities.length > 2) {
+    private maybeSpawnStructure(type: UnitType, maxNum: number, build: (tile: Tile) => Execution) {
+        const units = this.player.units(type)
+        if (units.length >= maxNum) {
             return
         }
-        if (this.player.gold() < this.mg.config().unitInfo(UnitType.City).cost(this.player)) {
+        if (this.player.gold() < this.mg.config().unitInfo(type).cost(this.player)) {
             return
         }
-        const tile = this.randTerritoryTile()
-        const canBuild = this.player.canBuild(UnitType.City, tile)
+        const tile = this.randTerritoryTile(this.player)
+        if (tile == null) {
+            return
+        }
+        const canBuild = this.player.canBuild(type, tile)
         if (canBuild == false) {
             return
         }
-        this.mg.addExecution(new CityExecution(this.player.id(), tile.cell()))
+        this.mg.addExecution(build(tile))
     }
 
     private maybeSpawnWarship(shipType: UnitType.Destroyer | UnitType.Battleship): boolean {
@@ -223,8 +255,8 @@ export class FakeHumanExecution implements Execution {
         return false
     }
 
-    private randTerritoryTile(): Tile | null {
-        const boundingBox = calculateBoundingBox(this.player.borderTiles())
+    private randTerritoryTile(p: Player): Tile | null {
+        const boundingBox = calculateBoundingBox(p.borderTiles())
         for (let i = 0; i < 100; i++) {
             const randX = this.random.nextInt(boundingBox.min.x, boundingBox.max.x)
             const randY = this.random.nextInt(boundingBox.min.y, boundingBox.max.y)
@@ -233,7 +265,7 @@ export class FakeHumanExecution implements Execution {
                 continue
             }
             const randTile = this.mg.tile(new Cell(randX, randY))
-            if (randTile.owner() == this.player) {
+            if (randTile.owner() == p) {
                 return randTile
             }
         }
