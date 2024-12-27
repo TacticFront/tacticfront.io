@@ -1,6 +1,6 @@
 import { Cell, Execution, MutableGame, MutablePlayer, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tile, UnitType } from "../game/Game"
 import { PseudoRandom } from "../PseudoRandom"
-import { and, bfs, dist, euclDist, manhattanDist, simpleHash } from "../Util";
+import { and, bfs, calculateBoundingBox, dist, euclDist, manhattanDist, simpleHash } from "../Util";
 import { AttackExecution } from "./AttackExecution";
 import { TransportShipExecution } from "./TransportShipExecution";
 import { SpawnExecution } from "./SpawnExecution";
@@ -11,6 +11,7 @@ import { DestroyerExecution } from "./DestroyerExecution";
 import { BattleshipExecution } from "./BattleshipExecution";
 import { GameID } from "../Schemas";
 import { consolex } from "../Consolex";
+import { CityExecution } from "./CityExecution";
 
 export class FakeHumanExecution implements Execution {
 
@@ -68,6 +69,11 @@ export class FakeHumanExecution implements Execution {
         }
 
         if (ticks % this.random.nextInt(40, 80) != 0) {
+            return
+        }
+
+        if (!this.player.isAlive()) {
+            this.active = false
             return
         }
 
@@ -162,12 +168,29 @@ export class FakeHumanExecution implements Execution {
             }
             return
         }
+        this.maybeSpawnCity()
         if (this.maybeSpawnWarship(UnitType.Destroyer)) {
             return
         }
         if (this.maybeSpawnWarship(UnitType.Battleship)) {
             return
         }
+    }
+
+    private maybeSpawnCity() {
+        const cities = this.player.units(UnitType.City)
+        if (cities.length > 5) {
+            return
+        }
+        if (this.player.gold() > this.mg.config().unitInfo(UnitType.City).cost(this.player)) {
+            return
+        }
+        const tile = this.randTerritoryTile()
+        const canBuild = this.player.canBuild(UnitType.City, tile)
+        if (canBuild == false) {
+            return
+        }
+        this.mg.addExecution(new CityExecution(this.player.id(), tile.cell()))
     }
 
     private maybeSpawnWarship(shipType: UnitType.Destroyer | UnitType.Battleship): boolean {
@@ -198,6 +221,23 @@ export class FakeHumanExecution implements Execution {
             return true
         }
         return false
+    }
+
+    private randTerritoryTile(): Tile | null {
+        const boundingBox = calculateBoundingBox(this.player.borderTiles())
+        for (let i = 0; i < 100; i++) {
+            const randX = this.random.nextInt(boundingBox.min.x, boundingBox.max.x)
+            const randY = this.random.nextInt(boundingBox.min.y, boundingBox.max.y)
+            if (!this.mg.isOnMap(new Cell(randX, randY))) {
+                // Sanity check should never happen
+                continue
+            }
+            const randTile = this.mg.tile(new Cell(randX, randY))
+            if (randTile.owner() == this.player) {
+                return randTile
+            }
+        }
+        return null
     }
 
     private warshipSpawnTile(portTile: Tile): Tile | null {

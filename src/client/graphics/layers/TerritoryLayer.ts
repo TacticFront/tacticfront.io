@@ -8,6 +8,7 @@ import { Layer } from "./Layer";
 import { TransformHandler } from "../TransformHandler";
 import { EventBus } from "../../../core/EventBus";
 import { initRemoteSender } from "../../../core/Consolex";
+import { AlternateViewEvent } from "../../InputHandler";
 
 export class TerritoryLayer implements Layer {
     private canvas: HTMLCanvasElement
@@ -22,10 +23,11 @@ export class TerritoryLayer implements Layer {
     private highlightCanvas: HTMLCanvasElement
     private highlightContext: CanvasRenderingContext2D
 
+    private alternativeView = false
 
-    constructor(private game: Game, eventBus: EventBus) {
+
+    constructor(private game: Game, private eventBus: EventBus) {
         this.theme = game.config().theme()
-        eventBus.on(TileEvent, e => this.tileUpdate(e))
     }
 
     shouldTransform(): boolean {
@@ -58,11 +60,14 @@ export class TerritoryLayer implements Layer {
     }
 
     init(game: Game) {
-        console.log('redrew territory layer')
+        this.eventBus.on(TileEvent, e => this.tileUpdate(e))
+        this.eventBus.on(AlternateViewEvent, e => { this.alternativeView = e.alternateView })
         this.redraw()
     }
 
+
     redraw() {
+        console.log('redrew territory layer')
         this.canvas = document.createElement('canvas');
         this.context = this.canvas.getContext("2d")
 
@@ -94,6 +99,9 @@ export class TerritoryLayer implements Layer {
     renderLayer(context: CanvasRenderingContext2D) {
         this.renderTerritory()
         this.context.putImageData(this.imageData, 0, 0);
+        if (this.alternativeView) {
+            return
+        }
 
         context.drawImage(
             this.canvas,
@@ -155,7 +163,7 @@ export class TerritoryLayer implements Layer {
             this.paintCell(
                 tile.cell(),
                 this.theme.territoryColor(owner.info()),
-                110
+                150
             )
         }
     }

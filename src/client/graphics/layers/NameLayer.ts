@@ -11,6 +11,8 @@ import allianceIcon from '../../../../resources/images/AllianceIcon.png';
 import crownIcon from '../../../../resources/images/CrownIcon.png';
 import targetIcon from '../../../../resources/images/TargetIcon.png';
 import { ClientID } from "../../../core/Schemas"
+import { EventBus } from "../../../core/EventBus"
+import { AlternateViewEvent } from "../../InputHandler"
 
 
 class RenderInfo {
@@ -42,7 +44,17 @@ export class NameLayer implements Layer {
 
     private firstPlace: Player | null = null
 
-    constructor(private game: Game, private theme: Theme, private transformHandler: TransformHandler, private clientID: ClientID) {
+    private alternateView = false
+
+    constructor(
+        private game: Game,
+        private eventBus: EventBus,
+        private theme: Theme,
+        private transformHandler: TransformHandler,
+        private clientID: ClientID
+    ) {
+        this.eventBus.on(AlternateViewEvent, e => { this.alternateView = e.alternateView })
+
         this.traitorIconImage = new Image();
         this.traitorIconImage.src = traitorIcon;
 
@@ -146,6 +158,11 @@ export class NameLayer implements Layer {
     }
 
     renderPlayerInfo(render: RenderInfo, context: CanvasRenderingContext2D, scale: number, uppperLeft: Cell, bottomRight: Cell) {
+        if (this.alternateView) {
+            return
+        }
+
+
         const nameCenterX = Math.floor(render.location.x - this.game.width() / 2)
         const nameCenterY = Math.floor(render.location.y - this.game.height() / 2)
 
