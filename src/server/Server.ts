@@ -134,7 +134,7 @@ wss.on('connection', (ws, req) => {
                 const ip = Array.isArray(forwarded)
                     ? forwarded[0]  // Get the first IP if it's an array
                     : forwarded || req.socket.remoteAddress;
-
+                console.log(`dev: ip address: ${ip}`)
                 gm.addClient(
                     new Client(
                         clientMsg.clientID,
