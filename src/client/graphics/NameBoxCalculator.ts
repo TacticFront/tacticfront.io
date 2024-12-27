@@ -1,5 +1,5 @@
-import {Game, Player, Tile, Cell} from '../../core/game/Game';
-import {calculateBoundingBox, within} from '../../core/Util';
+import { Game, Player, Tile, Cell } from '../../core/game/Game';
+import { calculateBoundingBox, within } from '../../core/Util';
 
 export interface Point {
     x: number;
@@ -38,8 +38,8 @@ export function placeName(game: Game, player: Player): [position: Cell, fontSize
     return [center, fontSize]
 }
 
-export function createGrid(game: Game, player: Player, boundingBox: {min: Point; max: Point}, scalingFactor: number): boolean[][] {
-    const scaledBoundingBox: {min: Point; max: Point} = {
+export function createGrid(game: Game, player: Player, boundingBox: { min: Point; max: Point }, scalingFactor: number): boolean[][] {
+    const scaledBoundingBox: { min: Point; max: Point } = {
         min: {
             x: Math.floor(boundingBox.min.x / scalingFactor),
             y: Math.floor(boundingBox.min.y / scalingFactor)
@@ -73,7 +73,7 @@ export function findLargestInscribedRectangle(grid: boolean[][]): Rectangle {
     const rows = grid[0].length;
     const cols = grid.length;
     const heights: number[] = new Array(cols).fill(0);
-    let largestRect: Rectangle = {x: 0, y: 0, width: 0, height: 0};
+    let largestRect: Rectangle = { x: 0, y: 0, width: 0, height: 0 };
 
     for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
@@ -102,7 +102,7 @@ export function findLargestInscribedRectangle(grid: boolean[][]): Rectangle {
 export function largestRectangleInHistogram(widths: number[]): Rectangle {
     const stack: number[] = [];
     let maxArea = 0;
-    let largestRect: Rectangle = {x: 0, y: 0, width: 0, height: 0};
+    let largestRect: Rectangle = { x: 0, y: 0, width: 0, height: 0 };
 
     for (let i = 0; i <= widths.length; i++) {
         const h = i === widths.length ? 0 : widths[i];

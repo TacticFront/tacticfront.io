@@ -102,10 +102,10 @@ export class NameLayer implements Layer {
         const currTick = this.game.ticks()
         const recalcRate = this.game.inSpawnPhase() ? 2 : 10
         for (const render of this.renders) {
-            const territoryUpdated = render.boundingBox == null || render.player.lastTileChange() > render.lastBoundingCalculatedTick
-            if (!territoryUpdated) {
-                continue
-            }
+            // const territoryUpdated = render.boundingBox == null || render.player.lastTileChange() > render.lastBoundingCalculatedTick
+            // if (!territoryUpdated) {
+            //     continue
+            // }
             if (currTick - render.lastBoundingCalculatedTick > recalcRate) {
                 render.lastBoundingCalculatedTick = currTick
                 render.boundingBox = calculateBoundingBox(render.player.borderTiles());
