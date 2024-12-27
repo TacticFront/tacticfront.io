@@ -84,13 +84,22 @@ export class BattleshipExecution implements Execution {
             return
         }
 
-        const ships = this.mg.units(UnitType.TransportShip, UnitType.Destroyer, UnitType.TradeShip, UnitType.Battleship)
+        let ships = this.mg.units(UnitType.TransportShip, UnitType.Destroyer, UnitType.TradeShip, UnitType.Battleship)
             .filter(u => manhattanDist(u.tile().cell(), this.battleship.tile().cell()) < 100)
             .filter(u => u.owner() != this.battleship.owner())
             .filter(u => u != this.battleship)
             .filter(u => !u.owner().isAlliedWith(this.battleship.owner()))
             .filter(u => !this.alreadyTargeted.has(u))
             .sort(distSortUnit(this.battleship));
+
+        const friendlyDestroyerNearby = this.battleship.owner().units(UnitType.Destroyer)
+            .filter(d => manhattanDist(d.tile().cell(), this.battleship.tile().cell()) < 120)
+            .length > 0
+
+        if (friendlyDestroyerNearby) {
+            // Don't attack trade ships to allow friendly destroyer to capture them
+            ships = ships.filter(s => s.type() != UnitType.TradeShip)
+        }
 
         if (ships.length > 0) {
             const toAttack = ships[0]
