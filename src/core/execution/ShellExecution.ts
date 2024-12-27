@@ -25,7 +25,7 @@ export class ShellExecution implements Execution {
             this.active = false
             return
         }
-        if (!this.target.isActive() || !this.ownerUnit.isActive()) {
+        if (!this.target.isActive() || !this.ownerUnit.isActive() || this.target.owner() == this.shell.owner()) {
             this.shell.delete(false)
             this.active = false
             return
