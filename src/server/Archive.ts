@@ -166,8 +166,10 @@ function anonymizeIPv6(ipv6: string): string | null {
 }
 
 function anonymizeIP(ip: string): string | null {
+    console.log(`anonymize got ip: ${ip}`)
     const ipv4Result = anonymizeIPv4(ip);
     if (ipv4Result) {
+        console.log(`got ipv4 result: ${ipv4Result}`)
         return ipv4Result;
     }
 
