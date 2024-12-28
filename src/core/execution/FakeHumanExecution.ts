@@ -1,4 +1,4 @@
-import { Cell, Execution, MutableGame, MutablePlayer, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tile, UnitType } from "../game/Game"
+import { AllianceRequest, Cell, Execution, MutableGame, MutablePlayer, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tile, UnitType } from "../game/Game"
 import { PseudoRandom } from "../PseudoRandom"
 import { and, bfs, calculateBoundingBox, dist, euclDist, manhattanDist, simpleHash } from "../Util";
 import { AttackExecution } from "./AttackExecution";
@@ -15,6 +15,7 @@ import { CityExecution } from "./CityExecution";
 import { NukeExecution } from "./NukeExecution";
 import { MissileSiloExecution } from "./MissileSiloExecution";
 import { EmojiExecution } from "./EmojiExecution";
+import { AllianceRequestReplyExecution } from "./alliance/AllianceRequestReplyExecution";
 
 export class FakeHumanExecution implements Execution {
 
@@ -26,6 +27,8 @@ export class FakeHumanExecution implements Execution {
     private player: MutablePlayer = null
 
     private enemy: Player | null = null
+
+    private lastEnemyUpdateTick: number = 0
 
 
     constructor(gameID: GameID, private worker: WorkerClient, private playerInfo: PlayerInfo, private cell: Cell, private strength: number) {
@@ -86,7 +89,6 @@ export class FakeHumanExecution implements Execution {
         this.handleEnemies()
         this.handleUnits()
 
-
         const enemyborder = Array.from(this.player.borderTiles()).flatMap(t => t.neighbors()).filter(t => t.isLand() && t.owner() != this.player)
 
         if (enemyborder.length == 0) {
@@ -137,7 +139,7 @@ export class FakeHumanExecution implements Execution {
     }
 
     handleEnemies() {
-        if (this.mg.ticks() % 100 == 0) {
+        if (this.mg.ticks() - this.lastEnemyUpdateTick > 100) {
             this.enemy = null
         }
 
@@ -149,13 +151,22 @@ export class FakeHumanExecution implements Execution {
         if (target != null) {
             this.player.updateRelation(target.ally, -2000)
             this.enemy = target.t[0]
+            this.lastEnemyUpdateTick = this.mg.ticks()
             this.mg.addExecution(new EmojiExecution(this.player.id(), target.ally.id(), "👍"))
         }
 
         if (this.enemy == null) {
             const mostHated = this.player.allRelationsSorted()[0] ?? null
-            if (mostHated != null && mostHated.relation < - 500) {
+            if (mostHated != null && mostHated.relation < - 2000) {
                 this.enemy = mostHated.player
+                this.lastEnemyUpdateTick = this.mg.ticks()
+                this.mg.addExecution(
+                    new EmojiExecution(
+                        this.player.id(),
+                        this.enemy.id(),
+                        this.random.randElement(["🤡", "😡"])
+                    )
+                )
             }
         }
 
@@ -181,7 +192,7 @@ export class FakeHumanExecution implements Execution {
             }
             for (const t of bfs(tile, dist(tile, 15))) {
                 // Make sure we nuke at least 15 tiles in border
-                if (t.owner() != other) {
+                if (t.hasOwner() && t.owner() != other) {
                     continue outer
                 }
             }
@@ -309,21 +320,26 @@ export class FakeHumanExecution implements Execution {
     handleAllianceRequests() {
         for (const req of this.player.incomingAllianceRequests()) {
             if (req.requestor().isTraitor()) {
-                req.reject()
+                this.replyToAllianceRequest(req, false)
                 continue
             }
             if (this.player.relation(req.requestor()) < 0) {
-                req.reject()
+                this.replyToAllianceRequest(req, false)
+                continue
             }
             const requestorIsMuchLarger = req.requestor().numTilesOwned() > this.player.numTilesOwned() * 3
             if (!requestorIsMuchLarger && req.requestor().alliances().length >= 3) {
-                req.reject()
+                this.replyToAllianceRequest(req, false)
                 continue
             }
-            req.accept()
-            req.requestor().updateRelation(this.player, 10000)
-            this.player.updateRelation(req.requestor(), 10000)
+            this.replyToAllianceRequest(req, true)
         }
+    }
+
+    private replyToAllianceRequest(req: AllianceRequest, accept: boolean): void {
+        this.mg.addExecution(
+            new AllianceRequestReplyExecution(req.requestor().id(), this.player.id(), accept)
+        )
     }
 
     sendBoat(tries: number = 0, oceanShore: Tile[] = null) {

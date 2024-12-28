@@ -25,6 +25,8 @@ export class AllianceRequestReplyExecution implements Execution {
             } else {
                 if (this.accept) {
                     request.accept()
+                    this.requestor.updateRelation(this.recipient, 5000)
+                    this.recipient.updateRelation(this.requestor, 5000)
                 } else {
                     request.reject()
                 }

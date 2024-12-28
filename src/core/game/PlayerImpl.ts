@@ -1,6 +1,6 @@
 import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers, Gold, UnitType, Unit, MutableUnit } from "./Game";
 import { ClientID } from "../Schemas";
-import { assertNever, bfs, closestOceanShoreFromPlayer, dist, distSortUnit, manhattanDist, manhattanDistWrapped, processName, simpleHash, sourceDstOceanShore } from "../Util";
+import { assertNever, bfs, closestOceanShoreFromPlayer, dist, distSortUnit, manhattanDist, manhattanDistWrapped, processName, simpleHash, sourceDstOceanShore, within } from "../Util";
 import { CellString, GameImpl } from "./GameImpl";
 import { UnitImpl } from "./UnitImpl";
 import { TileImpl } from "./TileImpl";
@@ -223,7 +223,8 @@ export class PlayerImpl implements MutablePlayer {
         if (this.relations.has(other)) {
             relation = this.relations.get(other)
         }
-        this.relations.set(other, relation + delta)
+        const newRelation = within(relation + delta, -10000, 10000)
+        this.relations.set(other, newRelation)
     }
 
     decayRelations() {

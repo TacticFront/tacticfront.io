@@ -1,5 +1,5 @@
 import { consolex } from "../../Consolex";
-import {AllianceRequest, Execution, MutableGame, MutablePlayer, Player, PlayerID} from "../../game/Game";
+import { AllianceRequest, Execution, MutableGame, MutablePlayer, Player, PlayerID } from "../../game/Game";
 
 export class BreakAllianceExecution implements Execution {
     private active = true
@@ -19,6 +19,7 @@ export class BreakAllianceExecution implements Execution {
             consolex.warn('cant break alliance, not allied')
         } else {
             this.requestor.breakAlliance(alliance)
+            this.recipient.updateRelation(this.requestor, -5000)
         }
         this.active = false
     }
