@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { Layer } from './Layer';
-import { Game, GameType, Player, Unit, UnitType } from '../../../core/game/Game';
+import { Game, GameType, Player, PlayerType, Unit, UnitType } from '../../../core/game/Game';
 import { ClientID } from '../../../core/Schemas';
 import { EventBus } from '../../../core/EventBus';
 import { TransformHandler } from '../TransformHandler';
@@ -110,13 +110,20 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     }
 
     private renderPlayerInfo(player: Player) {
-        const isAlly = (this.myPlayer()?.isAlliedWith(player) || player == this.myPlayer()) ?? false;
+        const myPlayer = this.myPlayer();
+        const isAlly = (myPlayer?.isAlliedWith(player) || player == this.myPlayer()) ?? false;
+        let relation = null
+        if (player.type() == PlayerType.FakeHuman && myPlayer != null) {
+            // Don't create an HTML string, let Lit handle the templating
+            relation = html`<div class="type-label">Attitude: ${player.relation(myPlayer)}</div>`;
+        }
         return html`
-            <div class="info-content">
-                <div class="player-name ${isAlly ? 'ally' : ''}">${player.name()}</div>
-                <div class="type-label">Troops: ${renderTroops(player.troops())}</div>
-                <div class="type-label">Gold: ${renderNumber(player.gold())}</div>
-            </div>
+        <div class="info-content">
+            <div class="player-name ${isAlly ? 'ally' : ''}">${player.name()}</div>
+            <div class="type-label">Troops: ${renderTroops(player.troops())}</div>
+            <div class="type-label">Gold: ${renderNumber(player.gold())}</div>
+            ${relation == null ? '' : relation}
+        </div>
         `;
     }
 

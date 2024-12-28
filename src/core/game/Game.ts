@@ -120,6 +120,8 @@ export interface AllianceRequest {
 export interface MutableAllianceRequest extends AllianceRequest {
     accept(): void
     reject(): void
+    requestor(): MutablePlayer
+    recipient(): MutablePlayer
 }
 
 export interface Alliance {
@@ -233,11 +235,16 @@ export interface Player {
     incomingAllianceRequests(): AllianceRequest[]
     outgoingAllianceRequests(): AllianceRequest[]
     alliances(): Alliance[]
+    allies(): Player[]
     isAlliedWith(other: Player): boolean
     allianceWith(other: Player): Alliance | null
     // Includes recent requests that  are in cooldown
     // TODO: why can't I have "canSendAllyRequest" function instead?
     recentOrPendingAllianceRequestWith(other: Player): boolean
+    // How this player feels about other player.
+    relation(other: Player): number
+    // Sorted from most hated to most liked
+    allRelationsSorted(): { player: Player, relation: number }[]
     isTraitor(): boolean
     canTarget(other: Player): boolean
     // Targets for this player
@@ -270,9 +277,12 @@ export interface MutablePlayer extends Player {
     incomingAllianceRequests(): MutableAllianceRequest[]
     outgoingAllianceRequests(): MutableAllianceRequest[]
     alliances(): MutableAlliance[]
+    allies(): MutablePlayer[]
     allianceWith(other: Player): MutableAlliance | null
     breakAlliance(alliance: Alliance): void
     createAllianceRequest(recipient: Player): MutableAllianceRequest
+    updateRelation(other: Player, delta: number): void
+    decayRelations(): void
     target(other: Player): void
     targets(): MutablePlayer[]
     transitiveTargets(): MutablePlayer[]

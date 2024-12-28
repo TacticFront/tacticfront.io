@@ -32,7 +32,7 @@ export class TileImpl implements Tile {
 
     defenseBonus(player: Player): number {
         if (this.owner() == player) {
-            throw Error(`cannot get defense bonus of tile already owned by player`)
+            throw Error(`cannot get defense bonus of tile already owned by player, ${player}`)
         }
         let bonusAmount = 0
         for (const bonus of this._defenseBonuses) {

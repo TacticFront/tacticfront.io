@@ -1,16 +1,16 @@
-import {MutableAllianceRequest, Player, Tick} from "./Game";
-import {GameImpl} from "./GameImpl";
+import { MutableAllianceRequest, MutablePlayer, Player, Tick } from "./Game";
+import { GameImpl } from "./GameImpl";
 
 
 export class AllianceRequestImpl implements MutableAllianceRequest {
 
-    constructor(private requestor_, private recipient_, private tickCreated: number, private game: GameImpl) { }
+    constructor(private requestor_: MutablePlayer, private recipient_: MutablePlayer, private tickCreated: number, private game: GameImpl) { }
 
-    requestor(): Player {
+    requestor(): MutablePlayer {
         return this.requestor_;
     }
 
-    recipient(): Player {
+    recipient(): MutablePlayer {
         return this.recipient_;
     }
 

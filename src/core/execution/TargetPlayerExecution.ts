@@ -1,4 +1,4 @@
-import {Execution, MutableGame, MutablePlayer, PlayerID} from "../game/Game";
+import { Execution, MutableGame, MutablePlayer, PlayerID } from "../game/Game";
 
 export class TargetPlayerExecution implements Execution {
 
@@ -18,6 +18,7 @@ export class TargetPlayerExecution implements Execution {
     tick(ticks: number): void {
         if (this.requestor.canTarget(this.target)) {
             this.requestor.target(this.target)
+            this.target.updateRelation(this.requestor, -5000)
         }
         this.active = false
     }

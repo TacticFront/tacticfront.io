@@ -98,7 +98,7 @@ export class GameImpl implements MutableGame {
         return this.nations_
     }
 
-    createAllianceRequest(requestor: MutablePlayer, recipient: Player): MutableAllianceRequest {
+    createAllianceRequest(requestor: MutablePlayer, recipient: MutablePlayer): MutableAllianceRequest {
         if (requestor.isAlliedWith(recipient)) {
             consolex.log('cannot request alliance, already allied')
             return

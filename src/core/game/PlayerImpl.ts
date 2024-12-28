@@ -43,6 +43,8 @@ export class PlayerImpl implements MutablePlayer {
 
     private sentDonations: Donation[] = []
 
+    private relations = new Map<Player, number>()
+
     constructor(private gs: GameImpl, private readonly playerInfo: PlayerInfo, startPopulation: number) {
         this._name = playerInfo.name;
         this._targetTroopRatio = 1
@@ -144,6 +146,10 @@ export class PlayerImpl implements MutablePlayer {
         return this.gs.alliances_.filter(a => a.requestor() == this || a.recipient() == this)
     }
 
+    allies(): MutablePlayer[] {
+        return this.alliances().map(a => a.other(this))
+    }
+
     isAlliedWith(other: Player): boolean {
         if (other == this) {
             return false
@@ -191,7 +197,47 @@ export class PlayerImpl implements MutablePlayer {
         if (this.isAlliedWith(recipient)) {
             throw new Error(`cannot create alliance request, already allies`)
         }
-        return this.gs.createAllianceRequest(this, recipient)
+        return this.gs.createAllianceRequest(this, recipient as MutablePlayer)
+    }
+
+    relation(other: Player): number {
+        if (other == this) {
+            throw new Error(`cannot get relation with self: ${this}`)
+        }
+        if (this.relations.has(other)) {
+            return this.relations.get(other)
+        }
+        return 0
+    }
+
+    allRelationsSorted(): { player: Player, relation: number }[] {
+        return Array.from(this.relations, ([k, v]) => ({ player: k, relation: v }))
+            .sort((a, b) => a.relation - b.relation)
+    }
+
+    updateRelation(other: Player, delta: number): void {
+        if (other == this) {
+            throw new Error(`cannot update relation with self: ${this}`)
+        }
+        let relation = 0
+        if (this.relations.has(other)) {
+            relation = this.relations.get(other)
+        }
+        this.relations.set(other, relation + delta)
+    }
+
+    decayRelations() {
+        this.relations.forEach((r: number, p: Player) => {
+            // Have relationships decay over time
+            if (r > 1) {
+                r -= 1
+            } else if (r < -1) {
+                r += 1
+            } else {
+                r = 0
+            }
+            this.relations.set(p, r)
+        })
     }
 
     canTarget(other: Player): boolean {

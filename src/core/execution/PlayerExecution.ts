@@ -29,6 +29,7 @@ export class PlayerExecution implements Execution {
     }
 
     tick(ticks: number) {
+        this.player.decayRelations()
         this.player.units().forEach(u => {
             if (u.health() <= 0) {
                 u.delete()
@@ -86,6 +87,7 @@ export class PlayerExecution implements Execution {
             }
         }
     }
+
 
     private removeClusters() {
         const clusters = this.calculateClusters()

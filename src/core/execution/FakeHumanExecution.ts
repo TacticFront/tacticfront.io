@@ -14,6 +14,7 @@ import { consolex } from "../Consolex";
 import { CityExecution } from "./CityExecution";
 import { NukeExecution } from "./NukeExecution";
 import { MissileSiloExecution } from "./MissileSiloExecution";
+import { EmojiExecution } from "./EmojiExecution";
 
 export class FakeHumanExecution implements Execution {
 
@@ -26,9 +27,6 @@ export class FakeHumanExecution implements Execution {
 
     private enemy: Player | null = null
 
-    private rejected: Set<Player> = new Set<Player>
-
-    private relations = new Map<Player, number>()
 
     constructor(gameID: GameID, private worker: WorkerClient, private playerInfo: PlayerInfo, private cell: Cell, private strength: number) {
         this.random = new PseudoRandom(simpleHash(playerInfo.id) + simpleHash(gameID))
@@ -69,15 +67,16 @@ export class FakeHumanExecution implements Execution {
             this.sendAttack(this.mg.terraNullius())
             return
         }
+        if (!this.player.isAlive()) {
+            this.active = false
+            return
+        }
+
 
         if (ticks % this.random.nextInt(40, 80) != 0) {
             return
         }
 
-        if (!this.player.isAlive()) {
-            this.active = false
-            return
-        }
 
         if (this.player.troops() > 100_000 && this.player.targetTroopRatio() > .7) {
             this.player.setTargetTroopRatio(.7)
@@ -142,12 +141,22 @@ export class FakeHumanExecution implements Execution {
             this.enemy = null
         }
 
+        const target = this.player.allies()
+            .filter(ally => this.player.relation(ally) > 0)
+            .filter(ally => ally.targets().length > 0)
+            .map(ally => ({ ally: ally, t: ally.targets() }))[0] ?? null
+
+        if (target != null) {
+            this.player.updateRelation(target.ally, -2000)
+            this.enemy = target.t[0]
+            this.mg.addExecution(new EmojiExecution(this.player.id(), target.ally.id(), "👍"))
+        }
+
         if (this.enemy == null) {
-            this.enemy = this.mg.executions()
-                .filter(e => e instanceof AttackExecution)
-                .map(e => e as AttackExecution)
-                .filter(e => e.targetID() == this.player.id())
-                .map(e => e.owner())[0] ?? null
+            const mostHated = this.player.allRelationsSorted()[0] ?? null
+            if (mostHated != null && mostHated.relation < - 500) {
+                this.enemy = mostHated.player
+            }
         }
 
         if (this.enemy) {
@@ -157,7 +166,6 @@ export class FakeHumanExecution implements Execution {
             }
             return
         }
-
     }
 
     private maybeSendNuke(other: Player) {
@@ -300,11 +308,21 @@ export class FakeHumanExecution implements Execution {
 
     handleAllianceRequests() {
         for (const req of this.player.incomingAllianceRequests()) {
-            if (req.requestor().isTraitor() || req.requestor().alliances().length >= 3) {
+            if (req.requestor().isTraitor()) {
                 req.reject()
-            } else {
-                req.accept()
+                continue
             }
+            if (this.player.relation(req.requestor()) < 0) {
+                req.reject()
+            }
+            const requestorIsMuchLarger = req.requestor().numTilesOwned() > this.player.numTilesOwned() * 3
+            if (!requestorIsMuchLarger && req.requestor().alliances().length >= 3) {
+                req.reject()
+                continue
+            }
+            req.accept()
+            req.requestor().updateRelation(this.player, 10000)
+            this.player.updateRelation(req.requestor(), 10000)
         }
     }
 

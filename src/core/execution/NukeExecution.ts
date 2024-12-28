@@ -1,5 +1,5 @@
 import { nextTick } from "process";
-import { Cell, Execution, MutableGame, MutablePlayer, PlayerID, Tile, MutableUnit, UnitType } from "../game/Game";
+import { Cell, Execution, MutableGame, MutablePlayer, PlayerID, Tile, MutableUnit, UnitType, Player, TerraNullius } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { PseudoRandom } from "../PseudoRandom";
@@ -30,6 +30,10 @@ export class NukeExecution implements Execution {
         this.pathFinder = PathFinder.Mini(mg, 10_000, () => true)
         this.player = mg.player(this.senderID)
         this.dst = this.mg.tile(this.cell)
+    }
+
+    public target(): Player | TerraNullius {
+        return this.dst.owner()
     }
 
     tick(ticks: number): void {
@@ -98,6 +102,9 @@ export class NukeExecution implements Execution {
                 if (alliance != null) {
                     this.player.breakAlliance(alliance)
                 }
+                if (other != this.player) {
+                    other.updateRelation(this.player, -10000)
+                }
             }
         }
 
@@ -113,7 +120,7 @@ export class NukeExecution implements Execution {
     }
 
     owner(): MutablePlayer {
-        return null
+        return this.player
     }
 
     isActive(): boolean {
