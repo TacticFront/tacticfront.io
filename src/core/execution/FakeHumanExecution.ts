@@ -160,13 +160,13 @@ export class FakeHumanExecution implements Execution {
         }
 
         const target = this.player.allies()
-            .filter(ally => this.player.relation(ally) >= Relation.Neutral)
+            .filter(ally => this.player.relation(ally) == Relation.Friendly)
             .filter(ally => ally.targets().length > 0)
-            .map(ally => ({ ally: ally, t: ally.targets() }))[0] ?? null
+            .map(ally => ({ ally: ally, t: ally.targets()[0] }))[0] ?? null
 
-        if (target != null) {
+        if (target != null && !this.player.isAlliedWith(target.t)) {
             this.player.updateRelation(target.ally, -20)
-            this.enemy = target.t[0]
+            this.enemy = target.t
             this.lastEnemyUpdateTick = this.mg.ticks()
             this.mg.addExecution(new EmojiExecution(this.player.id(), target.ally.id(), "👍"))
         }
