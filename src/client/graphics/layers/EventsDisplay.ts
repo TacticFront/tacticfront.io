@@ -320,6 +320,7 @@ export class EventsDisplay extends LitElement implements Layer {
     if (event.message.recipient === myPlayer) {
       this.addEvent({
         description: `${event.message.sender.displayName()}:${event.message.emoji}`,
+        unsafeDescription: true,
         type: MessageType.INFO,
         highlight: true,
         createdAt: this.game.ticks(),
@@ -353,10 +354,10 @@ export class EventsDisplay extends LitElement implements Layer {
                       <button 
                         class="${btn.className}"
                         @click=${() => {
-                          btn.action();
-                          this.removeEvent(index);
-                          this.requestUpdate()
-                        }}
+        btn.action();
+        this.removeEvent(index);
+        this.requestUpdate()
+      }}
                       >
                         ${btn.text}
                       </button>
