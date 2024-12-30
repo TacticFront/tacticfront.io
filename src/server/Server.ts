@@ -122,19 +122,19 @@ app.get('/private_lobby/:id', (req, res) => {
 
 wss.on('connection', (ws, req) => {
     ws.on('message', (message: string) => {
-        const clientMsg: ClientMessage = ClientMessageSchema.parse(JSON.parse(message))
-        slog({
-            logKey: 'websocket_msg',
-            msg: 'server received websocket message',
-            data: clientMsg,
-            severity: LogSeverity.Debug
-        })
-        if (clientMsg.type == "join") {
-            const forwarded = req.headers['x-forwarded-for']
-            const ip = Array.isArray(forwarded)
-                ? forwarded[0]  // Get the first IP if it's an array
-                : forwarded || req.socket.remoteAddress;
-
+        try {
+            const clientMsg: ClientMessage = ClientMessageSchema.parse(JSON.parse(message))
+            slog({
+                logKey: 'websocket_msg',
+                msg: 'server received websocket message',
+                data: clientMsg,
+                severity: LogSeverity.Debug
+            })
+            if (clientMsg.type == "join") {
+                const forwarded = req.headers['x-forwarded-for']
+                const ip = Array.isArray(forwarded)
+                    ? forwarded[0]  // Get the first IP if it's an array
+                    : forwarded || req.socket.remoteAddress;
                 const username = clientMsg.username;
                 const { isValid, error } = validateUsername(username);
                 if (!isValid) {
@@ -147,8 +147,9 @@ wss.on('connection', (ws, req) => {
                     }));
                     return;
                 }
-
-                // If username is valid, add the client
+                if (Array.isArray(ip)) {
+                    ip = ip[0]
+                }
                 gm.addClient(
                         new Client(
                             clientMsg.clientID,
