@@ -101,7 +101,7 @@ export class AttackExecution implements Execution {
                 // No updates should happen in init.
                 this.breakAlliance = true
             }
-            this.target.updateRelation(this._owner, -500)
+            this.target.updateRelation(this._owner, -80)
         }
 
     }

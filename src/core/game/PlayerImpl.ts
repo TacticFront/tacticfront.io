@@ -1,4 +1,4 @@
-import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers, Gold, UnitType, Unit, MutableUnit } from "./Game";
+import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers, Gold, UnitType, Unit, MutableUnit, Relation } from "./Game";
 import { ClientID } from "../Schemas";
 import { assertNever, bfs, closestOceanShoreFromPlayer, dist, distSortUnit, manhattanDist, manhattanDistWrapped, processName, simpleHash, sourceDstOceanShore, within } from "../Util";
 import { CellString, GameImpl } from "./GameImpl";
@@ -200,19 +200,33 @@ export class PlayerImpl implements MutablePlayer {
         return this.gs.createAllianceRequest(this, recipient as MutablePlayer)
     }
 
-    relation(other: Player): number {
+    relation(other: Player): Relation {
         if (other == this) {
             throw new Error(`cannot get relation with self: ${this}`)
         }
         if (this.relations.has(other)) {
-            return this.relations.get(other)
+            return this.relationFromValue(this.relations.get(other))
         }
-        return 0
+        return Relation.Neutral
     }
 
-    allRelationsSorted(): { player: Player, relation: number }[] {
+    private relationFromValue(relationValue: number): Relation {
+        if (relationValue < -50) {
+            return Relation.Hostile
+        }
+        if (relationValue < 0) {
+            return Relation.Distrustful
+        }
+        if (relationValue < 50) {
+            return Relation.Neutral
+        }
+        return Relation.Friendly
+    }
+
+    allRelationsSorted(): { player: Player, relation: Relation }[] {
         return Array.from(this.relations, ([k, v]) => ({ player: k, relation: v }))
             .sort((a, b) => a.relation - b.relation)
+            .map(r => ({ player: r.player, relation: this.relationFromValue(r.relation) }))
     }
 
     updateRelation(other: Player, delta: number): void {
@@ -223,18 +237,16 @@ export class PlayerImpl implements MutablePlayer {
         if (this.relations.has(other)) {
             relation = this.relations.get(other)
         }
-        const newRelation = within(relation + delta, -10000, 10000)
+        const newRelation = within(relation + delta, -100, 100)
         this.relations.set(other, newRelation)
     }
 
     decayRelations() {
         this.relations.forEach((r: number, p: Player) => {
-            // Have relationships decay over time
-            if (r > 1) {
-                r -= 1
-            } else if (r < -1) {
-                r += 1
-            } else {
+            const sign = -1 * Math.sign(r)
+            const delta = .05
+            r += sign * delta
+            if (Math.abs(r) < delta * 2) {
                 r = 0
             }
             this.relations.set(p, r)

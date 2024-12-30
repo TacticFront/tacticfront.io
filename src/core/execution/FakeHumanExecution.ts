@@ -1,4 +1,4 @@
-import { AllianceRequest, Cell, Execution, MutableGame, MutablePlayer, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tile, UnitType } from "../game/Game"
+import { AllianceRequest, Cell, Execution, MutableGame, MutablePlayer, Player, PlayerInfo, PlayerType, Relation, TerrainType, TerraNullius, Tile, UnitType } from "../game/Game"
 import { PseudoRandom } from "../PseudoRandom"
 import { and, bfs, calculateBoundingBox, dist, euclDist, manhattanDist, simpleHash } from "../Util";
 import { AttackExecution } from "./AttackExecution";
@@ -144,12 +144,12 @@ export class FakeHumanExecution implements Execution {
         }
 
         const target = this.player.allies()
-            .filter(ally => this.player.relation(ally) > 0)
+            .filter(ally => this.player.relation(ally) >= Relation.Neutral)
             .filter(ally => ally.targets().length > 0)
             .map(ally => ({ ally: ally, t: ally.targets() }))[0] ?? null
 
         if (target != null) {
-            this.player.updateRelation(target.ally, -2000)
+            this.player.updateRelation(target.ally, -20)
             this.enemy = target.t[0]
             this.lastEnemyUpdateTick = this.mg.ticks()
             this.mg.addExecution(new EmojiExecution(this.player.id(), target.ally.id(), "👍"))
@@ -157,7 +157,7 @@ export class FakeHumanExecution implements Execution {
 
         if (this.enemy == null) {
             const mostHated = this.player.allRelationsSorted()[0] ?? null
-            if (mostHated != null && mostHated.relation < - 2000) {
+            if (mostHated != null && mostHated.relation == Relation.Hostile) {
                 this.enemy = mostHated.player
                 this.lastEnemyUpdateTick = this.mg.ticks()
                 this.mg.addExecution(
@@ -323,7 +323,7 @@ export class FakeHumanExecution implements Execution {
                 this.replyToAllianceRequest(req, false)
                 continue
             }
-            if (this.player.relation(req.requestor()) < 0) {
+            if (this.player.relation(req.requestor()) < Relation.Neutral) {
                 this.replyToAllianceRequest(req, false)
                 continue
             }

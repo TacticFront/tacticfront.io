@@ -24,7 +24,7 @@ export class EmojiExecution implements Execution {
         if (this.requestor.canSendEmoji(this.recipient)) {
             this.requestor.sendEmoji(this.recipient, this.emoji)
             if (this.emoji == "🖕" && this.recipient != AllPlayers && this.recipient.type() == PlayerType.FakeHuman) {
-                this.recipient.updateRelation(this.requestor, -10000)
+                this.recipient.updateRelation(this.requestor, -100)
             }
         } else {
             consolex.warn(`cannot send emoji from ${this.requestor} to ${this.recipient}`)

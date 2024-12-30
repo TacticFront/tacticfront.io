@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { Layer } from './Layer';
-import { Game, GameType, Player, PlayerType, Unit, UnitType } from '../../../core/game/Game';
+import { Game, GameType, Player, PlayerType, Relation, Unit, UnitType } from '../../../core/game/Game';
 import { ClientID } from '../../../core/Schemas';
 import { EventBus } from '../../../core/EventBus';
 import { TransformHandler } from '../TransformHandler';
@@ -114,8 +114,28 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
         const isAlly = (myPlayer?.isAlliedWith(player) || player == this.myPlayer()) ?? false;
         let relation = null
         if (player.type() == PlayerType.FakeHuman && myPlayer != null) {
-            // Don't create an HTML string, let Lit handle the templating
-            relation = html`<div class="type-label">Attitude: ${player.relation(myPlayer)}</div>`;
+            let classType = ''
+            let relationName = ''
+            switch (player.relation(myPlayer)) {
+                case Relation.Hostile:
+                    classType = 'hostile'
+                    relationName = 'Hostile'
+                    break
+                case Relation.Distrustful:
+                    classType = 'distrustful'
+                    relationName = 'Distrustful'
+                    break
+                case Relation.Neutral:
+                    classType = 'neutral'
+                    relationName = 'Neutral'
+                    break
+                case Relation.Friendly:
+                    classType = 'friendly'
+                    relationName = 'Friendly'
+                    break
+            }
+
+            relation = html`<div class="type-label">Attitude: <span class="${classType}">${relationName}</span></div>`;
         }
         return html`
         <div class="info-content">
@@ -273,6 +293,19 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
             .type-label {
                 font-size: 12px;
             }
+                  
+        }
+        .hostile {
+            color: #ff4444;
+        }
+        .distrustful {
+            color: #ff8888;
+        }
+        .neutral {
+            color: #ffffff;
+        }
+        .friendly {
+            color: #4CAF50;
         }
     `;
 }

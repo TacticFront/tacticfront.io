@@ -103,7 +103,7 @@ export class NukeExecution implements Execution {
                     this.player.breakAlliance(alliance)
                 }
                 if (other != this.player) {
-                    other.updateRelation(this.player, -5000)
+                    other.updateRelation(this.player, -100)
                 }
             }
         }

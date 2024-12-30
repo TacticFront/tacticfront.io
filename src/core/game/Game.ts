@@ -53,6 +53,13 @@ export enum UnitType {
     City = "City"
 }
 
+export enum Relation {
+    Hostile = 0,
+    Distrustful = 1,
+    Neutral = 2,
+    Friendly = 3
+}
+
 export class Nation {
     constructor(
         public readonly name: string,
@@ -242,9 +249,9 @@ export interface Player {
     // TODO: why can't I have "canSendAllyRequest" function instead?
     recentOrPendingAllianceRequestWith(other: Player): boolean
     // How this player feels about other player.
-    relation(other: Player): number
+    relation(other: Player): Relation
     // Sorted from most hated to most liked
-    allRelationsSorted(): { player: Player, relation: number }[]
+    allRelationsSorted(): { player: Player, relation: Relation }[]
     isTraitor(): boolean
     canTarget(other: Player): boolean
     // Targets for this player

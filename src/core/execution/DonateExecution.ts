@@ -1,5 +1,5 @@
 import { consolex } from "../Consolex";
-import {AllPlayers, Execution, MutableGame, MutablePlayer, PlayerID} from "../game/Game";
+import { Execution, MutableGame, MutablePlayer, PlayerID } from "../game/Game";
 
 export class DonateExecution implements Execution {
 
@@ -26,6 +26,7 @@ export class DonateExecution implements Execution {
     tick(ticks: number): void {
         if (this.sender.canDonate(this.recipient)) {
             this.sender.donate(this.recipient, this.troops)
+            this.recipient.updateRelation(this.sender, 50)
         } else {
             consolex.warn(`cannot send tropps from ${this.sender} to ${this.recipient}`)
         }
