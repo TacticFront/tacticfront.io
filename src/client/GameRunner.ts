@@ -186,9 +186,8 @@ export class GameRunner {
                 console.warn(`tick ${this.gs.ticks() - 1} took ${duration}ms to execute`)
             }
         } catch (error) {
-            const errorText = `Error: ${error.message}\nStack: ${error.stack}`;
-            consolex.error(errorText)
-            alert(`Game crashed! client id: ${this.clientID}\n Please paste the following in your bug report in Discord:\n` + errorText);
+            showErrorModal(error, this.clientID)
+            this.stop()
         }
         this.renderer.tick()
         this.currTurn++
@@ -251,4 +250,32 @@ export class GameRunner {
             }
         }
     }
+}
+
+function showErrorModal(error: Error, clientID: ClientID) {
+    const errorText = `Error: ${error.message}\nStack: ${error.stack}`;
+    consolex.error(errorText);
+
+    const modal = document.createElement('div');
+    const content = `Game crashed! client id: ${clientID}\nPlease paste the following in your bug report in Discord:\n${errorText}`;
+
+    // Create elements
+    const pre = document.createElement('pre');
+    pre.textContent = content;
+
+    const button = document.createElement('button');
+    button.textContent = 'Copy to clipboard';
+    button.style.cssText = 'padding: 8px 16px; margin-top: 10px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;';
+    button.addEventListener('click', () => {
+        navigator.clipboard.writeText(content)
+            .then(() => button.textContent = 'Copied!')
+            .catch(() => button.textContent = 'Failed to copy');
+    });
+
+    // Add to modal
+    modal.style.cssText = 'position:fixed; padding:20px; background:white; border:1px solid black; top:50%; left:50%; transform:translate(-50%,-50%); z-index:9999;';
+    modal.appendChild(pre);
+    modal.appendChild(button);
+
+    document.body.appendChild(modal);
 }
