@@ -1,4 +1,4 @@
-import { AllianceRequest, Cell, Execution, MutableGame, MutablePlayer, Player, PlayerInfo, PlayerType, Relation, TerrainType, TerraNullius, Tile, UnitType } from "../game/Game"
+import { AllianceRequest, Cell, Difficulty, Execution, MutableGame, MutablePlayer, Player, PlayerInfo, PlayerType, Relation, TerrainType, TerraNullius, Tile, UnitType } from "../game/Game"
 import { PseudoRandom } from "../PseudoRandom"
 import { and, bfs, calculateBoundingBox, dist, euclDist, manhattanDist, simpleHash } from "../Util";
 import { AttackExecution } from "./AttackExecution";
@@ -118,24 +118,40 @@ export class FakeHumanExecution implements Execution {
             }
         }
 
-        if (this.random.chance(2)) {
-            const weakest = enemies[0]
-            if (!this.player.isAlliedWith(weakest)) {
-                if (weakest.info().playerType != PlayerType.Human || weakest.isTraitor()) {
-                    this.sendAttack(weakest)
-                }
-            }
-        } else {
-            const toAttack = this.random.randElement(enemies)
-            if (!this.player.isAlliedWith(toAttack)) {
-                if (toAttack.info().playerType != PlayerType.Human || toAttack.isTraitor()) {
-                    this.sendAttack(toAttack)
-                } else if (this.random.chance(4)) {
-                    // Less likely to attack players who are not traitors.
-                    this.sendAttack(toAttack)
-                }
-            }
+        // 50-50 attack weakest player vs random player
+        const toAttack = this.random.chance(2) ? enemies[0] : this.random.randElement(enemies)
+        if (this.shouldAttack(toAttack)) {
+            this.sendAttack(toAttack)
         }
+    }
+
+    private shouldAttack(other: Player): boolean {
+        if (this.player.isAlliedWith(other)) {
+            if (this.shouldDiscourageAttack(other)) {
+                return this.random.chance(100)
+            }
+            return this.random.chance(20)
+        } else {
+            if (this.shouldDiscourageAttack(other)) {
+                return this.random.chance(4)
+            }
+            return true
+        }
+    }
+
+    shouldDiscourageAttack(other: Player) {
+        if (other.isTraitor) {
+            return false
+        }
+        const difficulty = this.mg.config().gameConfig().difficulty
+        if (difficulty == Difficulty.Hard || difficulty == Difficulty.Impossible) {
+            return false
+        }
+        if (other.type() != PlayerType.Human) {
+            return false
+        }
+        // Only discourage attacks on Humans who are not traitors on easy or medium difficulty.
+        return true
     }
 
     handleEnemies() {

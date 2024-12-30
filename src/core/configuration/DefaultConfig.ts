@@ -288,6 +288,19 @@ export class DefaultConfig implements Config {
         if (player.type() == PlayerType.Bot) {
             toAdd *= .7
         }
+        let difficultyMultiplier = 1
+        switch (this._gameConfig.difficulty) {
+            case Difficulty.Easy:
+            case Difficulty.Medium:
+                difficultyMultiplier = 1
+            case Difficulty.Hard:
+                difficultyMultiplier = 1.2
+            case Difficulty.Impossible:
+                difficultyMultiplier = 1.5
+        }
+        if (player.type() == PlayerType.FakeHuman) {
+            toAdd *= difficultyMultiplier
+        }
 
         return Math.min(player.population() + toAdd, max) - player.population()
     }
