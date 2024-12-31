@@ -141,7 +141,7 @@ export class FakeHumanExecution implements Execution {
     }
 
     shouldDiscourageAttack(other: Player) {
-        if (other.isTraitor) {
+        if (other.isTraitor()) {
             return false
         }
         const difficulty = this.mg.config().gameConfig().difficulty
