@@ -11,7 +11,7 @@ import { Client } from './Client';
 import { GamePhase, GameServer } from './GameServer';
 import { archive } from './Archive';
 import { DiscordBot } from './DiscordBot';
-import {validateUsername} from "../core/validations/username";
+import { validateUsername } from "../core/validations/username";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -132,9 +132,12 @@ wss.on('connection', (ws, req) => {
             })
             if (clientMsg.type == "join") {
                 const forwarded = req.headers['x-forwarded-for']
-                const ip = Array.isArray(forwarded)
+                let ip = Array.isArray(forwarded)
                     ? forwarded[0]  // Get the first IP if it's an array
                     : forwarded || req.socket.remoteAddress;
+                if (Array.isArray(ip)) {
+                    ip = ip[0]
+                }
                 const username = clientMsg.username;
                 const { isValid, error } = validateUsername(username);
                 if (!isValid) {
@@ -147,33 +150,27 @@ wss.on('connection', (ws, req) => {
                     }));
                     return;
                 }
-                if (Array.isArray(ip)) {
-                    ip = ip[0]
-                }
                 gm.addClient(
-                        new Client(
-                            clientMsg.clientID,
-                            clientMsg.persistentID,
-                            ip,
-                            clientMsg.username,
-                            ws
-                        ),
-                        clientMsg.gameID,
-                        clientMsg.lastTurn
-                    )
-                }
-                if (clientMsg.type == "log") {
-                    slog({
-                        logKey: "client_console_log",
-                        msg: clientMsg.log,
-                        severity: clientMsg.severity,
-                        clientID: clientMsg.clientID,
-                        gameID: clientMsg.gameID,
-                        persistentID: clientMsg.persistentID,
-                    })
+                    new Client(
+                        clientMsg.clientID,
+                        clientMsg.persistentID,
+                        ip,
+                        clientMsg.username,
+                        ws
+                    ),
+                    clientMsg.gameID,
+                    clientMsg.lastTurn
+                )
             }
-        } catch (error) {
-            console.log(`errror handling websocket message: ${error}`)
+            if (clientMsg.type == "log") {
+                slog({
+                    logKey: "client_console_log",
+                    msg: clientMsg.log,
+                    severity: clientMsg.severity,
+                    clientID: clientMsg.clientID,
+                    gameID: clientMsg.gameID,
+                    persistentID: clientMsg.persistentID,
+                })
             }
         } catch (error) {
             console.log(`errror handling websocket message: ${error}`)

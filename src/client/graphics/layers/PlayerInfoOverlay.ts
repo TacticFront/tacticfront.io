@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { Layer } from './Layer';
-import { Game, GameType, GameType, Player, PlayerType, Relation, Unit, UnitType } from '../../../core/game/Game';
+import { Game, GameType, Player, PlayerType, Relation, Unit, UnitType } from '../../../core/game/Game';
 import { ClientID } from '../../../core/Schemas';
 import { EventBus } from '../../../core/EventBus';
 import { TransformHandler } from '../TransformHandler';
