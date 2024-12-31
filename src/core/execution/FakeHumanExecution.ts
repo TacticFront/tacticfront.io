@@ -16,6 +16,7 @@ import { NukeExecution } from "./NukeExecution";
 import { MissileSiloExecution } from "./MissileSiloExecution";
 import { EmojiExecution } from "./EmojiExecution";
 import { AllianceRequestReplyExecution } from "./alliance/AllianceRequestReplyExecution";
+import { closestTwoTiles } from "./Util";
 
 export class FakeHumanExecution implements Execution {
 
@@ -186,10 +187,17 @@ export class FakeHumanExecution implements Execution {
             }
         }
 
+        if (this.player.isAlliedWith(this.enemy)) {
+            this.enemy = null
+            return
+        }
+
         if (this.enemy) {
             this.maybeSendNuke(this.enemy)
-            if (this.player.sharesBorderWith(this.enemy) && !this.player.isAlliedWith(this.enemy)) {
+            if (this.player.sharesBorderWith(this.enemy)) {
                 this.sendAttack(this.enemy)
+            } else {
+                this.maybeSendBoatAttack(this.enemy)
             }
             return
         }
@@ -218,6 +226,24 @@ export class FakeHumanExecution implements Execution {
                 )
                 return
             }
+        }
+    }
+
+    private maybeSendBoatAttack(other: Player) {
+        const closest = closestTwoTiles(
+            Array.from(this.player.borderTiles()).filter(t => t.isOceanShore()),
+            Array.from(other.borderTiles()).filter(t => t.isOceanShore())
+        )
+        if (closest == null) {
+            return
+        }
+        if (manhattanDist(closest.x.cell(), closest.y.cell()) < this.mg.config().boatMaxDistance()) {
+            this.mg.addExecution(new TransportShipExecution(
+                this.player.id(),
+                other.id(),
+                closest.y.cell(),
+                this.player.troops() / 5
+            ))
         }
     }
 
