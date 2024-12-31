@@ -409,7 +409,9 @@ export class RadialMenu implements Layer {
         } else {
             if (clicked.owner().clientID() != this.clientID) {
                 const myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
-                this.eventBus.emit(new SendAttackIntentEvent(clicked.owner().id(), this.uiState.attackRatio * myPlayer.troops()))
+                if (myPlayer != null) {
+                    this.eventBus.emit(new SendAttackIntentEvent(clicked.owner().id(), this.uiState.attackRatio * myPlayer.troops()))
+                }
             }
         }
         this.hideRadialMenu();

@@ -221,7 +221,7 @@ export class DefaultConfig implements Config {
 
         if (defender.isPlayer()) {
             return {
-                attackerTroopLoss: within(defender.troops() / (5 * attackTroops), .1, 10) * mag,
+                attackerTroopLoss: within(defender.troops() / (3 * attackTroops), .1, 10) * mag,
                 defenderTroopLoss: defender.troops() / defender.numTilesOwned(),
                 tilesPerTickUsed: within(defender.troops() / (5 * attackTroops), .2, 1.5) * speed
             }
