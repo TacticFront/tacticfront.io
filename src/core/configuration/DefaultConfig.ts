@@ -229,7 +229,7 @@ export class DefaultConfig implements Config {
             return {
                 attackerTroopLoss: attacker.type() == PlayerType.Bot ? mag / 10 : mag / 5,
                 defenderTroopLoss: 0,
-                tilesPerTickUsed: within(this.startManpower(attacker.info()) / (attackTroops * 5), .2, 3) * Math.max(10, speed / 1.5)
+                tilesPerTickUsed: within(2000 * Math.max(10, speed) / attackTroops, 5, 100)
             }
         }
     }
@@ -259,7 +259,16 @@ export class DefaultConfig implements Config {
             return 10000
         }
         if (playerInfo.playerType == PlayerType.FakeHuman) {
-            return 2000 // start troops * strength * difficulty
+            // start troops * strength * difficulty
+            switch (this._gameConfig.difficulty) {
+                case Difficulty.Easy:
+                    return 1000
+                case Difficulty.Medium:
+                    return 1500
+                case Difficulty.Hard:
+                case Difficulty.Impossible:
+                    return 2000
+            }
         }
         return 25000
     }
@@ -291,12 +300,17 @@ export class DefaultConfig implements Config {
         let difficultyMultiplier = 1
         switch (this._gameConfig.difficulty) {
             case Difficulty.Easy:
-            case Difficulty.Medium:
                 difficultyMultiplier = 1
-            case Difficulty.Hard:
+                break
+            case Difficulty.Medium:
                 difficultyMultiplier = 1.2
-            case Difficulty.Impossible:
+                break
+            case Difficulty.Hard:
                 difficultyMultiplier = 1.5
+                break
+            case Difficulty.Impossible:
+                difficultyMultiplier = 1.7
+                break
         }
         if (player.type() == PlayerType.FakeHuman) {
             toAdd *= difficultyMultiplier
