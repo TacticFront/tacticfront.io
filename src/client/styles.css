@@ -46,7 +46,6 @@ body {
 .content {
     max-width: 100%;
     margin: 0 auto;
-    padding: 20px;
     position: relative;
 }
 
@@ -72,7 +71,6 @@ h3 {
     text-align: center;
     color: #000000;
     font-size: 1.2em;
-    margin-bottom: 1em;
 }
 
 #username-container {
@@ -135,7 +133,6 @@ h3 {
 
     h3 {
         font-size: 2em;
-        margin: 1em;
     }
 
     #username {

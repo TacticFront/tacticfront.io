@@ -22,7 +22,7 @@ export class PublicLobby extends LitElement {
       width: 100%;
       max-width: 20rem;
       margin: 0 auto;
-      padding: 1.5rem 2rem;
+      padding: .5rem 1rem;
       background-color: #2563eb;
       color: white;
       font-weight: bold;
@@ -42,8 +42,8 @@ export class PublicLobby extends LitElement {
       background-color: #15803d;
     }
 
-    .lobby-name { font-size: 1.5rem; }
-    .lobby-timer { font-size: 1.25rem; }
+    .lobby-name { font-size: 1.2rem; }
+    .lobby-timer { font-size: 1rem; }
     .player-count { font-size: 1rem; }
   `;
 
