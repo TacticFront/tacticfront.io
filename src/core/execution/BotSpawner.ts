@@ -34,7 +34,7 @@ export class BotSpawner {
 
     spawnBot(botName: string): SpawnIntent | null {
         const tile = this.randTile()
-        if (!tile.isLand()) {
+        if (!tile.terrain().isLand()) {
             return null
         }
         for (const spawn of this.bots) {

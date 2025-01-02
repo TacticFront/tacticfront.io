@@ -41,7 +41,7 @@ export class PortExecution implements Execution {
                 return
             }
             const spawns = Array.from(bfs(tile, dist(tile, 20)))
-                .filter(t => t.isOceanShore() && t.owner() == player)
+                .filter(t => t.terrain().isOceanShore() && t.owner() == player)
                 .sort((a, b) => manhattanDist(a.cell(), tile.cell()) - manhattanDist(b.cell(), tile.cell()))
 
             if (spawns.length == 0) {
@@ -89,7 +89,7 @@ export class PortExecution implements Execution {
                 this.mg.terrainMap(),
                 this.mg.terrainMiniMap(),
                 this.port.tile(), port.tile(),
-                sn => sn.terrainType() == TerrainType.Ocean,
+                sn => sn.type() == TerrainType.Ocean,
                 10_000,
                 25
             )
@@ -109,7 +109,7 @@ export class PortExecution implements Execution {
             const port = this.random.randElement(portConnections)
             const path = this.portPaths.get(port)
             if (path != null) {
-                const pf = PathFinder.Mini(this.mg, 10, (sn) => sn.terrainType() == TerrainType.Ocean)
+                const pf = PathFinder.Mini(this.mg, 10, (sn) => sn.type() == TerrainType.Ocean)
                 this.mg.addExecution(new TradeShipExecution(this.player().id(), this.port, port, pf, path))
             }
         }

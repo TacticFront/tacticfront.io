@@ -189,7 +189,7 @@ export class DefaultConfig implements Config {
     attackLogic(attackTroops: number, attacker: Player, defender: Player | TerraNullius, tileToConquer: Tile): { attackerTroopLoss: number; defenderTroopLoss: number; tilesPerTickUsed: number } {
         let mag = 0
         let speed = 0
-        switch (tileToConquer.terrain()) {
+        switch (tileToConquer.terrain().type()) {
             case TerrainType.Plains:
                 mag = 80
                 speed = 15

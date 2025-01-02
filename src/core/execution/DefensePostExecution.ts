@@ -30,7 +30,7 @@ export class DefensePostExecution implements Execution {
             }
             this.post = this.player.buildUnit(UnitType.DefensePost, 0, spawnTile)
             bfs(spawnTile, dist(spawnTile, this.mg.config().defensePostRange())).forEach(t => {
-                if (t.isLand()) {
+                if (t.terrain().isLand()) {
                     this.defenseBonuses.push(this.mg.addTileDefenseBonus(t, this.post, this.mg.config().defensePostDefenseBonus()))
                 }
             })

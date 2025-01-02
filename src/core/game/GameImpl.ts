@@ -342,7 +342,7 @@ export class GameImpl implements MutableGame {
         if (!tile.hasOwner()) {
             throw new Error(`Cannot relinquish tile because it is unowned: cell ${tile.cell().toString()}`)
         }
-        if (tile.isWater()) {
+        if (tile.terrain().isWater()) {
             throw new Error("Cannot relinquish water")
         }
 

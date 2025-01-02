@@ -26,7 +26,7 @@ export interface SearchNode {
     cost(): number
     cell(): Cell
     neighbors(): SearchNode[]
-    terrainType(): TerrainType
+    type(): TerrainType
 }
 export interface Point {
     x: number;

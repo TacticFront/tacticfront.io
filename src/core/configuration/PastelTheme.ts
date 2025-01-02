@@ -155,18 +155,18 @@ export const pastelTheme = new class implements Theme {
     }
 
     terrainColor(tile: Tile): Colord {
-        let mag = tile.magnitude()
-        if (tile.isShore()) {
+        let mag = tile.terrain().magnitude()
+        if (tile.terrain().isShore()) {
             return this.shore
         }
-        switch (tile.terrain()) {
+        switch (tile.terrain().type()) {
             case TerrainType.Ocean:
             case TerrainType.Lake:
                 const w = this.water.rgba
-                if (tile.isShorelineWater()) {
+                if (tile.terrain().isShorelineWater()) {
                     return this.shorelineWater
                 }
-                if (tile.magnitude() < 7) {
+                if (tile.terrain().magnitude() < 7) {
                     return colord({
                         r: Math.max(w.r - 7 + mag, 0),
                         g: Math.max(w.g - 7 + mag, 0),

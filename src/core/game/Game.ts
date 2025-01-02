@@ -162,7 +162,15 @@ export interface TerrainMap {
 }
 
 export interface TerrainTile extends SearchNode {
-    terrainType(): TerrainType
+    isLand(): boolean
+    isShore(): boolean
+    isOceanShore(): boolean
+    isWater(): boolean
+    isShorelineWater(): boolean
+    isOcean(): boolean
+    isLake(): boolean
+    type(): TerrainType
+    magnitude(): number
 }
 
 export interface DefenseBonus {
@@ -173,15 +181,6 @@ export interface DefenseBonus {
 }
 
 export interface Tile extends SearchNode {
-    isLand(): boolean
-    isShore(): boolean
-    isOceanShore(): boolean
-    isWater(): boolean
-    isShorelineWater(): boolean
-    isOcean(): boolean
-    isLake(): boolean
-    terrain(): TerrainType
-    magnitude(): number
     owner(): Player | TerraNullius
     hasOwner(): boolean
     isBorder(): boolean
@@ -190,12 +189,11 @@ export interface Tile extends SearchNode {
     cell(): Cell
     neighbors(): Tile[]
     neighborsWrapped(): Tile[]
-    onShore(): boolean
-
     defenseBonuses(): DefenseBonus[]
     // defense bonus against this player
     defenseBonus(player: Player): number
     hasFallout(): boolean
+    terrain(): TerrainTile
 }
 
 export interface Unit {

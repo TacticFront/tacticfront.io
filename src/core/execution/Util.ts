@@ -12,7 +12,7 @@ export function getSpawnCells(gs: Game, cell: Cell): Cell[] {
             if (Math.abs(dx) === 2 && Math.abs(dy) === 2) {
                 continue;
             }
-            if (gs.tile(c).isWater()) {
+            if (gs.tile(c).terrain().isWater()) {
                 continue;
             }
             if (gs.tile(c).hasOwner()) {

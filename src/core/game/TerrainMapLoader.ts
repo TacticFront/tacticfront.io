@@ -20,19 +20,41 @@ export interface Nation {
 
 export class TerrainTileImpl implements TerrainTile {
     public shoreline: boolean = false
-    public magnitude: number = 0
+    public _magnitude: number = 0
     public ocean = false
     public land = false
     private _neighbors: TerrainTile[] | null = null
 
-    constructor(private map: TerrainMap, public type: TerrainType, private _cell: Cell) { }
-
-    terrainType(): TerrainType {
-        return this.type
+    constructor(private map: TerrainMap, public _type: TerrainType, private _cell: Cell) { }
+    type(): TerrainType {
+        return this._type
     }
-
+    isLake(): boolean {
+        return !this.isLand() && !this.isOcean();
+    }
+    isOcean(): boolean {
+        return this.ocean;
+    }
+    magnitude(): number {
+        return this._magnitude;
+    }
+    isShore(): boolean {
+        return this.isLand() && this.shoreline;
+    }
+    isOceanShore(): boolean {
+        return this.isShore() && this.neighbors().filter(n => n.isOcean()).length > -1;
+    }
+    isShorelineWater(): boolean {
+        return this.isWater() && this.shoreline;
+    }
+    isLand(): boolean {
+        return this.land;
+    }
+    isWater(): boolean {
+        return !this.land;
+    }
     cost(): number {
-        return this.magnitude < 10 ? 2 : 1
+        return this._magnitude < 10 ? 2 : 1
     }
 
     cell(): Cell {
@@ -146,7 +168,7 @@ export async function loadTerrainFromFile(fileData: string): Promise<TerrainMapI
 
             terrain[x][y] = new TerrainTileImpl(m, type, new Cell(x, y));
             terrain[x][y].shoreline = shoreline;
-            terrain[x][y].magnitude = magnitude;
+            terrain[x][y]._magnitude = magnitude;
             terrain[x][y].ocean = ocean
             terrain[x][y].land = land
         }

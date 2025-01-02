@@ -173,12 +173,12 @@ export class AttackExecution implements Execution {
 
     private addNeighbors(tile: Tile) {
         for (const neighbor of tile.neighbors()) {
-            if (neighbor.isWater() || neighbor.owner() != this.target) {
+            if (neighbor.terrain().isWater() || neighbor.owner() != this.target) {
                 continue
             }
             this.border.add(neighbor)
             let numOwnedByMe = neighbor.neighbors()
-                .filter(t => t.isLand())
+                .filter(t => t.terrain().isLand())
                 .filter(t => t.owner() == this._owner)
                 .length
             let dist = 0
@@ -189,7 +189,7 @@ export class AttackExecution implements Execution {
                 numOwnedByMe = 10
             }
             let mag = 0
-            switch (tile.terrain()) {
+            switch (tile.terrain().type()) {
                 case TerrainType.Plains:
                     mag = 1
                     break

@@ -112,7 +112,7 @@ export class PlayerExecution implements Execution {
     private surroundedBySamePlayer(cluster: Set<Tile>): false | Player {
         const enemies = new Set<Player>()
         for (const tile of cluster) {
-            if (tile.isOceanShore() || tile.neighbors().find(n => !n.hasOwner())) {
+            if (tile.terrain().isOceanShore() || tile.neighbors().find(n => !n.hasOwner())) {
                 return false
             }
             tile.neighbors()
@@ -131,7 +131,7 @@ export class PlayerExecution implements Execution {
     private isSurrounded(cluster: Set<Tile>): boolean {
         let enemyTiles = new Set<Tile>()
         for (const tile of cluster) {
-            if (tile.isOceanShore()) {
+            if (tile.terrain().isOceanShore()) {
                 return false
             }
             tile.neighbors()

@@ -117,7 +117,7 @@ export class ParallelAStar implements AStar {
                 this.game.terrainMap(),
                 this.game.terrainMiniMap(),
                 this.src, this.dst,
-                (t: TerrainTile) => t.terrainType() == TerrainType.Ocean,
+                (t: TerrainTile) => t.type() == TerrainType.Ocean,
                 100_000_000,
                 20
             )

@@ -110,7 +110,7 @@ export class PlayerImpl implements MutablePlayer {
         const ns: Set<(MutablePlayer | TerraNullius)> = new Set();
         for (const border of this.borderTiles()) {
             for (const neighbor of border.neighbors()) {
-                if (neighbor.isLand() && neighbor.owner() != this) {
+                if (neighbor.terrain().isLand() && neighbor.owner() != this) {
                     ns.add((neighbor as TileImpl)._owner);
                 }
             }
@@ -450,7 +450,7 @@ export class PlayerImpl implements MutablePlayer {
 
     portSpawn(tile: Tile): Tile | false {
         const spawns = Array.from(bfs(tile, dist(tile, 20)))
-            .filter(t => t.owner() == this && t.isOceanShore())
+            .filter(t => t.owner() == this && t.terrain().isOceanShore())
             .sort((a, b) => manhattanDist(a.cell(), tile.cell()) - manhattanDist(b.cell(), tile.cell()))
         if (spawns.length == 0) {
             return false
@@ -459,7 +459,7 @@ export class PlayerImpl implements MutablePlayer {
     }
 
     warshipSpawn(tile: Tile): Tile | false {
-        if (!tile.isOcean()) {
+        if (!tile.terrain().isOcean()) {
             return false
         }
         const spawns = this.units(UnitType.Port)
@@ -479,7 +479,7 @@ export class PlayerImpl implements MutablePlayer {
     }
 
     transportShipSpawn(targetTile: Tile): Tile | false {
-        if (!targetTile.isOceanShore()) {
+        if (!targetTile.terrain().isOceanShore()) {
             return false
         }
         const spawn = closestOceanShoreFromPlayer(this, targetTile, this.gs.width())

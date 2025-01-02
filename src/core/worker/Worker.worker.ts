@@ -53,7 +53,7 @@ function findPath(terrainMap: TerrainMap, miniTerrainMap: TerrainMap, req: Searc
         miniTerrainMap,
         terrainMap.terrain(req.start),
         terrainMap.terrain(req.end),
-        (sn: SearchNode) => (sn as TerrainTile).terrainType() == TerrainType.Ocean,
+        (sn: SearchNode) => (sn as TerrainTile).type() == TerrainType.Ocean,
         10_000,
         req.duration,
     );

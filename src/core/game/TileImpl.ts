@@ -26,8 +26,8 @@ export class TileImpl implements Tile {
         return this._hasFallout
     }
 
-    terrainType(): TerrainType {
-        return this._terrain.type
+    type(): TerrainType {
+        return this._terrain._type
     }
 
     defenseBonus(player: Player): number {
@@ -77,32 +77,8 @@ export class TileImpl implements Tile {
         }
         return ns;
     }
-    isLake(): boolean {
-        return !this.isLand() && !this.isOcean();
-    }
-    isOcean(): boolean {
-        return this._terrain.ocean;
-    }
-    magnitude(): number {
-        return this._terrain.magnitude;
-    }
-    isShore(): boolean {
-        return this.isLand() && this._terrain.shoreline;
-    }
-    isOceanShore(): boolean {
-        return this.isShore() && this.neighbors().filter(n => n.isOcean()).length > 0;
-    }
-    isShorelineWater(): boolean {
-        return this.isWater() && this._terrain.shoreline;
-    }
-    isLand(): boolean {
-        return this._terrain.land;
-    }
-    isWater(): boolean {
-        return !this._terrain.land;
-    }
-    terrain(): TerrainType {
-        return this._terrain.type;
+    terrain(): TerrainTile {
+        return this._terrain
     }
 
     borders(other: Player | TerraNullius): boolean {
@@ -112,12 +88,6 @@ export class TileImpl implements Tile {
             }
         }
         return false;
-    }
-
-    onShore(): boolean {
-        return this.neighbors()
-            .filter(t => t.isWater())
-            .length > 0;
     }
 
     hasOwner(): boolean { return this._owner != this.gs._terraNullius; }
@@ -140,6 +110,6 @@ export class TileImpl implements Tile {
     }
 
     cost(): number {
-        return this.magnitude() < 10 ? 2 : 1
+        return this.terrain().magnitude() < 10 ? 2 : 1
     };
 }

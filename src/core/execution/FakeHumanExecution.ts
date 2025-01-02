@@ -91,7 +91,7 @@ export class FakeHumanExecution implements Execution {
         this.handleEnemies()
         this.handleUnits()
 
-        const enemyborder = Array.from(this.player.borderTiles()).flatMap(t => t.neighbors()).filter(t => t.isLand() && t.owner() != this.player)
+        const enemyborder = Array.from(this.player.borderTiles()).flatMap(t => t.neighbors()).filter(t => t.terrain().isLand() && t.owner() != this.player)
 
         if (enemyborder.length == 0) {
             if (this.random.chance(5)) {
@@ -243,8 +243,8 @@ export class FakeHumanExecution implements Execution {
 
     private maybeSendBoatAttack(other: Player) {
         const closest = closestTwoTiles(
-            Array.from(this.player.borderTiles()).filter(t => t.isOceanShore()),
-            Array.from(other.borderTiles()).filter(t => t.isOceanShore())
+            Array.from(this.player.borderTiles()).filter(t => t.terrain().isOceanShore()),
+            Array.from(other.borderTiles()).filter(t => t.terrain().isOceanShore())
         )
         if (closest == null) {
             return
@@ -262,7 +262,7 @@ export class FakeHumanExecution implements Execution {
     private handleUnits() {
         const ports = this.player.units(UnitType.Port)
         if (ports.length == 0 && this.player.gold() > this.cost(UnitType.Port)) {
-            const oceanTiles = Array.from(this.player.borderTiles()).filter(t => t.isOceanShore())
+            const oceanTiles = Array.from(this.player.borderTiles()).filter(t => t.terrain().isOceanShore())
             if (oceanTiles.length > 0) {
                 const buildTile = this.random.randElement(oceanTiles)
                 this.mg.addExecution(new PortExecution(this.player.id(), buildTile.cell()))
@@ -359,7 +359,7 @@ export class FakeHumanExecution implements Execution {
                 continue
             }
             const tile = this.mg.tile(cell)
-            if (!tile.isOcean()) {
+            if (!tile.terrain().isOcean()) {
                 continue
             }
             return tile
@@ -402,7 +402,7 @@ export class FakeHumanExecution implements Execution {
         }
 
         if (oceanShore == null) {
-            oceanShore = Array.from(this.player.borderTiles()).filter(t => t.isOceanShore())
+            oceanShore = Array.from(this.player.borderTiles()).filter(t => t.terrain().isOceanShore())
         }
         if (oceanShore.length == 0) {
             return
@@ -412,9 +412,9 @@ export class FakeHumanExecution implements Execution {
         const otherShore = Array.from(
             bfs(
                 src,
-                and((t) => t.isOcean() || t.isOceanShore(), dist(src, 200))
+                and((t) => t.terrain().isOcean() || t.terrain().isOceanShore(), dist(src, 200))
             )
-        ).filter(t => t.isOceanShore() && t.owner() != this.player)
+        ).filter(t => t.terrain().isOceanShore() && t.owner() != this.player)
 
         if (otherShore.length == 0) {
             return
@@ -453,8 +453,8 @@ export class FakeHumanExecution implements Execution {
                 continue
             }
             const tile = this.mg.tile(cell)
-            if (tile.isLand() && !tile.hasOwner()) {
-                if (tile.terrain() == TerrainType.Mountain && this.random.chance(2)) {
+            if (tile.terrain().isLand() && !tile.hasOwner()) {
+                if (tile.terrain().type() == TerrainType.Mountain && this.random.chance(2)) {
                     continue
                 }
                 return tile
@@ -474,7 +474,7 @@ export class FakeHumanExecution implements Execution {
     }
 
     isSmallIsland(tile: Tile): boolean {
-        return bfs(tile, and((t) => t.isLand(), dist(tile, 10))).size < 50
+        return bfs(tile, and((t) => t.terrain().isLand(), dist(tile, 10))).size < 50
     }
 
     owner(): MutablePlayer {

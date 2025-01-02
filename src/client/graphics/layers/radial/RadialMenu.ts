@@ -239,7 +239,7 @@ export class RadialMenu implements Layer {
         const other = tile.owner()
 
         if (this.game.inSpawnPhase()) {
-            if (tile.isLand() && !tile.hasOwner()) {
+            if (tile.terrain().isLand() && !tile.hasOwner()) {
                 this.enableCenterButton(true)
             }
             return
@@ -268,13 +268,13 @@ export class RadialMenu implements Layer {
             }
         }
 
-        if (tile.owner() != myPlayer && tile.isLand() && myPlayer.sharesBorderWith(other)) {
+        if (tile.owner() != myPlayer && tile.terrain().isLand() && myPlayer.sharesBorderWith(other)) {
             if (other.isPlayer()) {
                 if (!myPlayer.isAlliedWith(other)) {
                     this.enableCenterButton(true)
                 }
             } else {
-                outer_loop: for (const t of bfs(tile, and(t => !t.hasOwner() && t.isLand(), dist(tile, 200)))) {
+                outer_loop: for (const t of bfs(tile, and(t => !t.hasOwner() && t.terrain().isLand(), dist(tile, 200)))) {
                     for (const n of t.neighbors()) {
                         if (n.owner() == myPlayer) {
                             this.enableCenterButton(true)
@@ -321,7 +321,7 @@ export class RadialMenu implements Layer {
             }
         }
 
-        if (!tile.isLand()) {
+        if (!tile.terrain().isLand()) {
             return
         }
         if (myPlayer.units(UnitType.TransportShip).length >= this.game.config().boatMaxNumber()) {
@@ -330,7 +330,7 @@ export class RadialMenu implements Layer {
 
         let myPlayerBordersOcean = false
         for (const bt of myPlayer.borderTiles()) {
-            if (bt.isOceanShore()) {
+            if (bt.terrain().isOceanShore()) {
                 myPlayerBordersOcean = true
                 break
             }
@@ -340,7 +340,7 @@ export class RadialMenu implements Layer {
             otherPlayerBordersOcean = true
         } else {
             for (const bt of (other as Player).borderTiles()) {
-                if (bt.isOceanShore()) {
+                if (bt.terrain().isOceanShore()) {
                     otherPlayerBordersOcean = true
                     break
                 }
@@ -352,8 +352,8 @@ export class RadialMenu implements Layer {
         }
 
         let nearOcean = false
-        for (const t of bfs(tile, and(t => t.owner() == tile.owner() && t.isLand(), dist(tile, 25)))) {
-            if (t.isOceanShore()) {
+        for (const t of bfs(tile, and(t => t.owner() == tile.owner() && t.terrain().isLand(), dist(tile, 25)))) {
+            if (t.terrain().isOceanShore()) {
                 nearOcean = true
                 break
             }

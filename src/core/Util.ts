@@ -86,7 +86,7 @@ export function targetTransportTile(game: Game, tile: Tile): Tile | null {
 }
 
 export function closestOceanShoreFromPlayer(player: Player, target: Tile, width: number): Tile | null {
-    const shoreTiles = Array.from(player.borderTiles()).filter(t => t.isOceanShore())
+    const shoreTiles = Array.from(player.borderTiles()).filter(t => t.terrain().isOceanShore())
     if (shoreTiles.length == 0) {
         return null
     }
@@ -100,7 +100,7 @@ export function closestOceanShoreFromPlayer(player: Player, target: Tile, width:
 
 function closestOceanShoreTN(tile: Tile, searchDist: number): Tile {
     const tn = Array.from(bfs(tile, and(t => !t.hasOwner(), dist(tile, searchDist))))
-        .filter(t => t.isOceanShore())
+        .filter(t => t.terrain().isOceanShore())
         .sort((a, b) => manhattanDist(tile.cell(), a.cell()) - manhattanDist(tile.cell(), b.cell()))
     if (tn.length == 0) {
         return null

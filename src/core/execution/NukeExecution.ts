@@ -92,7 +92,7 @@ export class NukeExecution implements Execution {
                 const prev = attacked.get(mp)
                 attacked.set(mp, prev + 1)
             }
-            if (tile.isLand()) {
+            if (tile.terrain().isLand()) {
                 this.mg.addFallout(tile)
             }
         }
