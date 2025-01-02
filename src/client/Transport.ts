@@ -3,7 +3,7 @@ import { SendLogEvent } from "../core/Consolex"
 import { EventBus, GameEvent } from "../core/EventBus"
 import { AllianceRequest, AllPlayers, Cell, GameType, Player, PlayerID, PlayerType, Tile, UnitType } from "../core/game/Game"
 import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ClientPingMessageSchema, GameConfig, ClientLogMessageSchema } from "../core/Schemas"
-import { LobbyConfig } from "./GameRunner"
+import { LobbyConfig } from "./ClientGameRunner"
 import { LocalServer } from "./LocalServer"
 import { UsernameInput } from "./UsernameInput";
 import { HostLobbyModal as HostPrivateLobbyModal } from "./HostLobbyModal";

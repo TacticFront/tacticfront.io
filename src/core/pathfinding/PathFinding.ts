@@ -52,18 +52,6 @@ export class PathFinder {
         )
     }
 
-    public static Parallel(game: Game, worker: WorkerClient, numTicks: number, ...types: TerrainType[]): PathFinder {
-        if (types.length == 0) {
-            types = [TerrainType.Ocean]
-        }
-        return new PathFinder(
-            game,
-            (curr: Tile, dst: Tile) => {
-                return worker.createParallelAStar(curr, dst, numTicks, types)
-            }
-        )
-    }
-
     nextTile(curr: Tile, dst: Tile, dist: number = 1): TileResult {
         if (curr == null) {
             consolex.error('curr is null')

@@ -32,7 +32,7 @@ export class Executor {
     // private random = new PseudoRandom(999)
     private random: PseudoRandom = null
 
-    constructor(private gs: Game, private gameID: GameID, private workerClient: WorkerClient) {
+    constructor(private gs: Game, private gameID: GameID) {
         // Add one to avoid id collisions with bots.
         this.random = new PseudoRandom(simpleHash(gameID) + 1)
     }
@@ -94,7 +94,7 @@ export class Executor {
                     case UnitType.Battleship:
                         return new BattleshipExecution(intent.player, new Cell(intent.x, intent.y))
                     case UnitType.Port:
-                        return new PortExecution(intent.player, new Cell(intent.x, intent.y), this.workerClient)
+                        return new PortExecution(intent.player, new Cell(intent.x, intent.y))
                     case UnitType.MissileSilo:
                         return new MissileSiloExecution(intent.player, new Cell(intent.x, intent.y))
                     case UnitType.DefensePost:
@@ -118,7 +118,6 @@ export class Executor {
         for (const nation of this.gs.nations()) {
             execs.push(new FakeHumanExecution(
                 this.gameID,
-                this.workerClient,
                 new PlayerInfo(
                     nation.name,
                     PlayerType.FakeHuman,

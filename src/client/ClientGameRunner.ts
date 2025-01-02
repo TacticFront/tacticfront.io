@@ -69,16 +69,14 @@ export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => v
 }
 
 
-export async function createClientGame(lobbyConfig: LobbyConfig, gameConfig: GameConfig, eventBus: EventBus, transport: Transport): Promise<GameRunner> {
+export async function createClientGame(lobbyConfig: LobbyConfig, gameConfig: GameConfig, eventBus: EventBus, transport: Transport): Promise<ClientGameRunner> {
     const config = getConfig(gameConfig)
 
     const terrainMap = await loadTerrainMap(gameConfig.gameMap);
 
     let game = createGame(terrainMap.map, terrainMap.miniMap, eventBus, config)
 
-    const worker = new WorkerClient(game, gameConfig.gameMap)
     consolex.log('going to init path finder')
-    await worker.initialize()
     consolex.log('inited path finder')
     const canvas = createCanvas()
     let gameRenderer = createRenderer(canvas, game, eventBus, lobbyConfig.clientID)
@@ -86,18 +84,18 @@ export async function createClientGame(lobbyConfig: LobbyConfig, gameConfig: Gam
 
     consolex.log(`creating private game got difficulty: ${gameConfig.difficulty}`)
 
-    return new GameRunner(
+    return new ClientGameRunner(
         lobbyConfig.clientID,
         eventBus,
         game,
         gameRenderer,
         new InputHandler(canvas, eventBus),
-        new Executor(game, lobbyConfig.gameID, worker),
+        new Executor(game, lobbyConfig.gameID),
         transport,
     )
 }
 
-export class GameRunner {
+export class ClientGameRunner {
     private myPlayer: Player
     private turns: Turn[] = []
     private isActive = false

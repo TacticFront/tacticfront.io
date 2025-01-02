@@ -1,4 +1,4 @@
-import { GameRunner, joinLobby } from "./GameRunner";
+import { ClientGameRunner, joinLobby } from "./ClientGameRunner";
 import backgroundImage from '../../resources/images/TerrainMapFrontPage.png';
 import favicon from '../../resources/images/Favicon.svg';
 

@@ -7,6 +7,7 @@ import { bfs, dist, manhattanDist } from "../Util";
 import { TradeShipExecution } from "./TradeShipExecution";
 import { ParallelAStar, WorkerClient } from "../worker/WorkerClient";
 import { consolex } from "../Consolex";
+import { MiniAStar } from "../pathfinding/MiniAStar";
 
 export class PortExecution implements Execution {
 
@@ -15,12 +16,11 @@ export class PortExecution implements Execution {
     private port: MutableUnit
     private random: PseudoRandom
     private portPaths = new Map<MutableUnit, Tile[]>()
-    private computingPaths = new Map<MutableUnit, ParallelAStar>()
+    private computingPaths = new Map<MutableUnit, MiniAStar>()
 
     constructor(
         private _owner: PlayerID,
         private cell: Cell,
-        private worker: WorkerClient
     ) { }
 
 
@@ -84,9 +84,16 @@ export class PortExecution implements Execution {
                 }
                 continue
             }
-            const asyncPF = this.worker.createParallelAStar(this.port.tile(), port.tile(), 25, [TerrainType.Ocean])
-            // consolex.log(`adding new port path from ${this.player().name()}:${this.port.tile().cell()} to ${port.owner().name()}:${port.tile().cell()}`)
-            this.computingPaths.set(port, asyncPF)
+
+            const pf = new MiniAStar(
+                this.mg.terrainMap(),
+                this.mg.terrainMiniMap(),
+                this.port.tile(), port.tile(),
+                sn => sn.terrainType() == TerrainType.Ocean,
+                10_000,
+                25
+            )
+            this.computingPaths.set(port, pf)
         }
 
         for (const port of this.portPaths.keys()) {
@@ -102,7 +109,7 @@ export class PortExecution implements Execution {
             const port = this.random.randElement(portConnections)
             const path = this.portPaths.get(port)
             if (path != null) {
-                const pf = PathFinder.Parallel(this.mg, this.worker, 10)
+                const pf = PathFinder.Mini(this.mg, 10, (sn) => sn.terrainType() == TerrainType.Ocean)
                 this.mg.addExecution(new TradeShipExecution(this.player().id(), this.port, port, pf, path))
             }
         }

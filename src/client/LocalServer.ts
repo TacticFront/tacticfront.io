@@ -3,7 +3,7 @@ import { consolex } from "../core/Consolex";
 import { GameEvent } from "../core/EventBus";
 import { ClientID, ClientMessage, ClientMessageSchema, GameConfig, GameID, GameRecordSchema, Intent, PlayerRecord, ServerMessage, ServerStartGameMessageSchema, ServerTurnMessageSchema, Turn } from "../core/Schemas";
 import { CreateGameRecord, generateID } from "../core/Util";
-import { LobbyConfig } from "./GameRunner";
+import { LobbyConfig } from "./ClientGameRunner";
 import { getPersistentIDFromCookie } from "./Main";
 
 

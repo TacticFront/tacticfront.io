@@ -33,7 +33,7 @@ export class FakeHumanExecution implements Execution {
     private lastEmojiSent = new Map<Player, Tick>()
 
 
-    constructor(gameID: GameID, private worker: WorkerClient, private playerInfo: PlayerInfo, private cell: Cell, private strength: number) {
+    constructor(gameID: GameID, private playerInfo: PlayerInfo, private cell: Cell, private strength: number) {
         this.random = new PseudoRandom(simpleHash(playerInfo.id) + simpleHash(gameID))
     }
 
@@ -265,7 +265,7 @@ export class FakeHumanExecution implements Execution {
             const oceanTiles = Array.from(this.player.borderTiles()).filter(t => t.isOceanShore())
             if (oceanTiles.length > 0) {
                 const buildTile = this.random.randElement(oceanTiles)
-                this.mg.addExecution(new PortExecution(this.player.id(), buildTile.cell(), this.worker))
+                this.mg.addExecution(new PortExecution(this.player.id(), buildTile.cell()))
             }
             return
         }
