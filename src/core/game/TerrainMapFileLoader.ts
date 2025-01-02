@@ -28,7 +28,8 @@ const MAP_FILE_NAMES: Record<GameMap, string> = {
     [GameMap.Europe]: 'Europe',
     [GameMap.Mena]: 'Mena',
     [GameMap.NorthAmerica]: 'NorthAmerica',
-    [GameMap.Oceania]: 'Oceania'
+    [GameMap.Oceania]: 'Oceania',
+    [GameMap.BlackSea]: 'BlackSea',
 };
 
 class GameMapLoader {

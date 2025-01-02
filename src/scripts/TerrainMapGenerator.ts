@@ -8,7 +8,7 @@ import { TerrainTile } from '../core/game/Game';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const mapName = "WorldMap"
+const mapName = "BlackSea"
 
 interface Coord {
     x: number;
@@ -204,8 +204,10 @@ function processOcean(map: Terrain[][]) {
     const queue: Coord[] = [];
     if (map[0][0].type == TerrainType.Water) {
         queue.push({ x: 0, y: 0 })
-    } else {
+    } else if (map[map.length - 1][map[0].length - 1].type == TerrainType.Water) {
         queue.push({ x: map.length - 1, y: map[0].length - 1 })
+    } else {
+        queue.push({ x: 0, y: map[0].length - 1 })
     }
     const visited = new Set<string>();
 
