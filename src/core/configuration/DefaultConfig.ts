@@ -262,9 +262,8 @@ export class DefaultConfig implements Config {
             // start troops * strength * difficulty
             switch (this._gameConfig.difficulty) {
                 case Difficulty.Easy:
-                    return 1000
                 case Difficulty.Medium:
-                    return 1500
+                    return 1000
                 case Difficulty.Hard:
                 case Difficulty.Impossible:
                     return 2000
