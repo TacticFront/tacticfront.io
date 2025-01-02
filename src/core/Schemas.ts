@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Difficulty, GameMap, GameType, PlayerType, UnitType } from './game/Game';
+import { AllPlayers, Difficulty, GameMap, GameType, PlayerType, UnitType } from './game/Game';
 
 export type GameID = string
 export type ClientID = string
@@ -32,12 +32,11 @@ export type Turn = z.infer<typeof TurnSchema>
 export type GameConfig = z.infer<typeof GameConfigSchema>
 
 export type ClientMessage = ClientPingMessage | ClientIntentMessage | ClientJoinMessage | ClientLogMessage
-export type ServerMessage = ServerSyncMessage | ServerStartGameMessage | ServerPingMessage | ServerValidationErrorMessageSchema
+export type ServerMessage = ServerSyncMessage | ServerStartGameMessage | ServerPingMessage
 
 export type ServerSyncMessage = z.infer<typeof ServerTurnMessageSchema>
 export type ServerStartGameMessage = z.infer<typeof ServerStartGameMessageSchema>
 export type ServerPingMessage = z.infer<typeof ServerPingMessageSchema>
-export type ServerValidationErrorMessageSchema = z.infer<typeof ServerValidationErrorMessageSchema>
 
 export type ClientPingMessage = z.infer<typeof ClientPingMessageSchema>
 export type ClientIntentMessage = z.infer<typeof ClientIntentMessageSchema>
@@ -71,6 +70,12 @@ const GameConfigSchema = z.object({
     gameType: z.nativeEnum(GameType)
 })
 
+const SafeString = z.string()
+    // Remove common dangerous characters and patterns
+    .regex(/^[a-zA-Z0-9\s.,!?@#$%&*()-_+=[\]{}|;:"'\/]+$/)
+    // Reasonable max length to prevent DOS
+    .max(1000)
+
 const EmojiSchema = z.string().refine(
     (val) => {
         return /\p{Emoji}/u.test(val);
@@ -79,18 +84,21 @@ const EmojiSchema = z.string().refine(
         message: "Must contain at least one emoji character"
     }
 );
+const ID = z.string()
+    .regex(/^[a-zA-Z0-9]+$/)
+    .length(8);
 
 
 // Zod schemas
 const BaseIntentSchema = z.object({
     type: z.enum(['attack', 'spawn', 'boat', 'name', 'targetPlayer', 'emoji', 'troop_ratio', 'build_unit']),
-    clientID: z.string(),
+    clientID: ID,
 });
 
 export const AttackIntentSchema = BaseIntentSchema.extend({
     type: z.literal('attack'),
-    attackerID: z.string(),
-    targetID: z.string().nullable(),
+    attackerID: ID,
+    targetID: ID.nullable(),
     troops: z.number().nullable(),
     sourceX: z.number().nullable(),
     sourceY: z.number().nullable(),
@@ -100,8 +108,8 @@ export const AttackIntentSchema = BaseIntentSchema.extend({
 
 export const SpawnIntentSchema = BaseIntentSchema.extend({
     type: z.literal('spawn'),
-    playerID: z.string(),
-    name: z.string(),
+    playerID: ID,
+    name: SafeString,
     playerType: PlayerTypeSchema,
     x: z.number(),
     y: z.number(),
@@ -109,8 +117,8 @@ export const SpawnIntentSchema = BaseIntentSchema.extend({
 
 export const BoatAttackIntentSchema = BaseIntentSchema.extend({
     type: z.literal('boat'),
-    attackerID: z.string(),
-    targetID: z.string().nullable(),
+    attackerID: ID,
+    targetID: ID.nullable(),
     troops: z.number().nullable(),
     x: z.number(),
     y: z.number(),
@@ -118,52 +126,52 @@ export const BoatAttackIntentSchema = BaseIntentSchema.extend({
 
 export const AllianceRequestIntentSchema = BaseIntentSchema.extend({
     type: z.literal('allianceRequest'),
-    requestor: z.string(),
-    recipient: z.string(),
+    requestor: ID,
+    recipient: ID,
 })
 
 export const AllianceRequestReplyIntentSchema = BaseIntentSchema.extend({
     type: z.literal('allianceRequestReply'),
-    requestor: z.string(), // The one who made the original alliance request
-    recipient: z.string(),
+    requestor: ID, // The one who made the original alliance request
+    recipient: ID,
     accept: z.boolean(),
 })
 
 export const BreakAllianceIntentSchema = BaseIntentSchema.extend({
     type: z.literal('breakAlliance'),
-    requestor: z.string(), // The one who made the original alliance request
-    recipient: z.string(),
+    requestor: ID, // The one who made the original alliance request
+    recipient: ID,
 })
 
 export const TargetPlayerIntentSchema = BaseIntentSchema.extend({
     type: z.literal('targetPlayer'),
-    requestor: z.string(),
-    target: z.string(),
+    requestor: ID,
+    target: ID,
 })
 
 export const EmojiIntentSchema = BaseIntentSchema.extend({
     type: z.literal('emoji'),
-    sender: z.string(),
-    recipient: z.string(),
+    sender: ID,
+    recipient: z.union([ID, z.literal(AllPlayers)]),
     emoji: EmojiSchema,
 })
 
 export const DonateIntentSchema = BaseIntentSchema.extend({
     type: z.literal('donate'),
-    sender: z.string(),
-    recipient: z.string(),
+    sender: ID,
+    recipient: ID,
     troops: z.number().nullable(),
 })
 
 export const TargetTroopRatioIntentSchema = BaseIntentSchema.extend({
     type: z.literal('troop_ratio'),
-    player: z.string(),
+    player: ID,
     ratio: z.number().min(0).max(1),
 })
 
 export const BuildUnitIntentSchema = BaseIntentSchema.extend({
     type: z.literal('build_unit'),
-    player: z.string(),
+    player: ID,
     unit: z.nativeEnum(UnitType),
     x: z.number(),
     y: z.number(),
@@ -185,14 +193,14 @@ const IntentSchema = z.union([
 
 export const TurnSchema = z.object({
     turnNumber: z.number(),
-    gameID: z.string(),
+    gameID: ID,
     intents: z.array(IntentSchema)
 })
 
 // Server
 
 const ServerBaseMessageSchema = z.object({
-    type: z.string()
+    type: SafeString
 })
 
 export const ServerTurnMessageSchema = ServerBaseMessageSchema.extend({
@@ -211,32 +219,25 @@ export const ServerStartGameMessageSchema = ServerBaseMessageSchema.extend({
     config: GameConfigSchema
 })
 
-export const ServerValidationErrorMessageSchema = ServerBaseMessageSchema.extend({
-    type: z.literal('validationError'),
-    input: z.string(),
-    message: z.string()
-});
-
 export const ServerMessageSchema = z.union([
     ServerTurnMessageSchema,
     ServerStartGameMessageSchema,
     ServerPingMessageSchema,
-    ServerValidationErrorMessageSchema,
 ]);
 
 // Client
 
 const ClientBaseMessageSchema = z.object({
     type: z.enum(['join', 'intent', 'ping', 'log']),
-    clientID: z.string(),
-    gameID: z.string(),
+    clientID: ID,
+    gameID: ID,
 })
 
 export const ClientLogMessageSchema = ClientBaseMessageSchema.extend({
     type: z.literal('log'),
     severity: z.nativeEnum(LogSeverity),
-    log: z.string(),
-    persistentID: z.string(),
+    log: ID,
+    persistentID: SafeString,
 })
 
 export const ClientPingMessageSchema = ClientBaseMessageSchema.extend({
@@ -251,9 +252,9 @@ export const ClientIntentMessageSchema = ClientBaseMessageSchema.extend({
 // WARNING: never send this message to clients.
 export const ClientJoinMessageSchema = ClientBaseMessageSchema.extend({
     type: z.literal('join'),
-    persistentID: z.string(), // WARNING: persistent id is private.
+    persistentID: SafeString, // WARNING: persistent id is private.
     lastTurn: z.number(), // The last turn the client saw.
-    username: z.string(),
+    username: SafeString,
 })
 
 export const ClientMessageSchema = z.union([
@@ -264,20 +265,20 @@ export const ClientMessageSchema = z.union([
 ]);
 
 export const PlayerRecordSchema = z.object({
-    clientID: z.string(),
-    username: z.string(),
-    ip: z.string().nullable(), // WARNING: PII
-    persistentID: z.string(), // WARNING: PII
+    clientID: ID,
+    username: SafeString,
+    ip: SafeString.nullable(), // WARNING: PII
+    persistentID: SafeString, // WARNING: PII
 })
 
 export const GameRecordSchema = z.object({
-    id: z.string(),
+    id: ID,
     gameConfig: GameConfigSchema,
     players: z.array(PlayerRecordSchema),
     startTimestampMS: z.number(),
     endTimestampMS: z.number(),
     durationSeconds: z.number(),
-    date: z.string(),
+    date: SafeString,
     num_turns: z.number(),
     turns: z.array(TurnSchema)
 })

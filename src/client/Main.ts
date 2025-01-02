@@ -12,8 +12,6 @@ import { JoinPrivateLobbyModal } from "./JoinPrivateLobbyModal";
 import { generateID } from "../core/Util";
 import { generateCryptoRandomUUID } from "./Utils";
 import { consolex } from "../core/Consolex";
-import {validateUsername} from "../core/validations/username";
-import {PublicLobby} from "./PublicLobby";
 
 class Client {
     private gameStop: () => void
@@ -26,7 +24,6 @@ class Client {
 
     initialize(): void {
         this.usernameInput = document.querySelector('username-input') as UsernameInput;
-        const usernameValidation = document.getElementById('username-error');
         if (!this.usernameInput) {
             consolex.warn('Username input element not found');
         }
@@ -42,104 +39,38 @@ class Client {
         document.addEventListener('leave-lobby', this.handleLeaveLobby.bind(this));
         document.addEventListener('single-player', this.handleSinglePlayer.bind(this));
 
+
         const spModal = document.querySelector('single-player-modal') as SinglePlayerModal;
         spModal instanceof SinglePlayerModal
-        document.getElementById('single-player').addEventListener('click', async () => {
-            const username = this.usernameInput?.getCurrentUsername();
-
-            if (!username) {
-                usernameValidation.textContent = 'Username is required';
-                return;
-            }
-
-            const isValid = await this.validateUsername(username);
-            if (isValid) {
+        document.getElementById('single-player').addEventListener('click', () => {
+            if (this.usernameInput.isValid()) {
                 spModal.open();
-            } else {
-                return;
             }
-        });
+        })
 
         const hostModal = document.querySelector('host-lobby-modal') as HostPrivateLobbyModal;
         hostModal instanceof HostPrivateLobbyModal
-        document.getElementById('host-lobby-button').addEventListener('click', async () => {
-            const username = this.usernameInput?.getCurrentUsername();
-
-            if (!username) {
-                usernameValidation.textContent = 'Username is required';
-                return;
-            }
-
-            const isValid = await this.validateUsername(username);
-
-            if (isValid) {
+        document.getElementById('host-lobby-button').addEventListener('click', () => {
+            if (this.usernameInput.isValid()) {
                 hostModal.open();
-            } else {
-                return;
             }
-        });
+        })
 
         this.joinModal = document.querySelector('join-private-lobby-modal') as JoinPrivateLobbyModal;
         this.joinModal instanceof JoinPrivateLobbyModal
-
-        document.getElementById('join-private-lobby-button').addEventListener('click', async () => {
-            const username = this.usernameInput?.getCurrentUsername();
-
-            if (!username) {
-                usernameValidation.textContent = 'Username is required';
-                return;
-            }
-
-            const isValid = await this.validateUsername(username);
-
-            if (isValid) {
+        document.getElementById('join-private-lobby-button').addEventListener('click', () => {
+            if (this.usernameInput.isValid()) {
                 this.joinModal.open();
-            }else {
-                return;
             }
-        });
+        })
     }
-
-    private async validateUsername(username: string): Promise<boolean> {
-        this.usernameInput.validationError = '';
-
-        try {
-            const { isValid, error } = validateUsername(username);
-
-            if (!isValid) {
-                this.usernameInput.validationError = error || 'Failed to validate username.';
-                return false;
-            }
-
-            return true;
-        } catch (error) {
-            consolex.error('Error validating username:', error);
-            this.usernameInput.validationError = 'An error occurred while validating the username. Please try again.';
-            return false;
-        }
-    }
-
 
     private async handleJoinLobby(event: CustomEvent) {
-        const lobby = event.detail.lobby;
-        consolex.log(`Attempting to join lobby ${lobby.id}`);
-
-        // Validate the username
-        const username = this.usernameInput?.getCurrentUsername();
-        if (!username) {
-            this.usernameInput.validationError = 'Username is required';
-            return;
-        }
-
-        const isValid = await this.validateUsername(username);
-        if (!isValid) {
-            return;
-        }
-
-        // Stop existing game
+        const lobby = event.detail.lobby
+        consolex.log(`joining lobby ${lobby.id}`)
         if (this.gameStop != null) {
-            consolex.log('Stopping existing game before joining a new lobby');
-            this.gameStop();
+            consolex.log('joining lobby, stopping existing game')
+            this.gameStop()
         }
         this.gameStop = joinLobby(
             {
@@ -154,14 +85,9 @@ class Client {
             },
             () => this.joinModal.close()
         );
-        const publicLobbyElement = document.querySelector('public-lobby') as PublicLobby;
-        publicLobbyElement.highlightLobby();
     }
 
-
     private async handleLeaveLobby(event: CustomEvent) {
-        const publicLobbyElement = document.querySelector('public-lobby') as PublicLobby;
-        publicLobbyElement.highlightLobby();
         if (this.gameStop == null) {
             return
         }

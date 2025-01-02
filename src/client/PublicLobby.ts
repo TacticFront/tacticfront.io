@@ -104,13 +104,9 @@ export class PublicLobby extends LitElement {
       </button>
     `;
     }
-    highlightLobby() {
-        this.isLobbyHighlighted = !this.isLobbyHighlighted;
-        this.requestUpdate();
-    }
-
 
     private lobbyClicked(lobby: Lobby) {
+        this.isLobbyHighlighted = !this.isLobbyHighlighted;
         if (this.currLobby == null) {
             this.currLobby = lobby
             this.dispatchEvent(new CustomEvent('join-lobby', {

@@ -6,7 +6,7 @@ import { BotSpawner } from "./BotSpawner";
 import { TransportShipExecution } from "./TransportShipExecution";
 import { PseudoRandom } from "../PseudoRandom";
 import { FakeHumanExecution } from "./FakeHumanExecution";
-import { processName, sanitize, simpleHash } from "../Util";
+import { generateID, processName, sanitize, simpleHash } from "../Util";
 import { AllianceRequestExecution } from "./alliance/AllianceRequestExecution";
 import { AllianceRequestReplyExecution } from "./alliance/AllianceRequestReplyExecution";
 import { BreakAllianceExecution } from "./alliance/BreakAllianceExecution";

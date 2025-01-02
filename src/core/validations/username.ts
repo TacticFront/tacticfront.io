@@ -1,7 +1,9 @@
-import { MAX_USERNAME_LENGTH, MIN_USERNAME_LENGTH } from "../Util";
+export const MIN_USERNAME_LENGTH = 3;
+export const MAX_USERNAME_LENGTH = 15;
+
+const validPattern = /^[a-zA-Z0-9_]+$/; // Alphanumeric and underscores
 
 export function validateUsername(username: string): { isValid: boolean; error?: string } {
-    const validPattern = /^[a-zA-Z0-9_]+$/; // Alphanumeric and underscores
 
     if (typeof username !== 'string') {
         return { isValid: false, error: "Username must be a string." };
@@ -31,3 +33,8 @@ export function validateUsername(username: string): { isValid: boolean; error?: 
     // All checks passed
     return { isValid: true };
 }
+
+export function sanitizeUsername(str: string): string {
+    const sanitized = str.replace(/[^a-zA-Z0-9]/g, '').slice(0, MAX_USERNAME_LENGTH);
+    return sanitized.padEnd(MIN_USERNAME_LENGTH, 'x')
+};

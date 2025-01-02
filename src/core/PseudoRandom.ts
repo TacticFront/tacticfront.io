@@ -32,7 +32,9 @@ export class PseudoRandom {
     }
 
     nextID(): string {
-        return this.nextInt(0, 1000000).toString(36).padStart(5, '0');
+        return this.nextInt(0, Math.pow(36, 8))  // 36^8 possibilities
+            .toString(36)  // Convert to base36 (0-9 and a-z)
+            .padStart(8, '0'); // Ensure 8 chars by padding with zeros
     }
 
     randElement<T>(arr: T[]): T {

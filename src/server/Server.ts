@@ -11,7 +11,7 @@ import { Client } from './Client';
 import { GamePhase, GameServer } from './GameServer';
 import { archive } from './Archive';
 import { DiscordBot } from './DiscordBot';
-import { validateUsername } from "../core/validations/username";
+import { sanitizeUsername, validateUsername } from "../core/validations/username";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -138,18 +138,12 @@ wss.on('connection', (ws, req) => {
                 if (Array.isArray(ip)) {
                     ip = ip[0]
                 }
-                const username = clientMsg.username;
-                const { isValid, error } = validateUsername(username);
+                const { isValid, error } = validateUsername(clientMsg.username);
                 if (!isValid) {
-                    const errorMsg = error || "Invalid username.";
-                    // Send error back to the client
-                    ws.send(JSON.stringify({
-                        type: 'error',
-                        input: 'username-input',
-                        message: errorMsg,
-                    }));
+                    console.log(`game ${clientMsg.gameID}, client ${clientMsg.clientID} received invalid username, ${error}`)
                     return;
                 }
+                clientMsg.username = sanitizeUsername(clientMsg.username)
                 gm.addClient(
                     new Client(
                         clientMsg.clientID,
