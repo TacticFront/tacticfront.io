@@ -227,6 +227,7 @@ export interface TerraNullius {
 }
 
 export interface Player {
+    smallID(): number
     info(): PlayerInfo
     name(): string
     displayName(): string
@@ -347,6 +348,7 @@ export interface MutableGame extends Game {
     player(id: PlayerID): MutablePlayer
     playerByClientID(id: ClientID): MutablePlayer | null
     players(): MutablePlayer[]
+    allPlayers(): MutablePlayer[]
     addPlayer(playerInfo: PlayerInfo, manpower: number): MutablePlayer
     executions(): Execution[]
     units(...types: UnitType[]): MutableUnit[]
@@ -356,7 +358,7 @@ export interface MutableGame extends Game {
 }
 
 export class TileEvent implements GameEvent {
-    constructor(public readonly tile: Tile) { }
+    constructor(public readonly tile: Tile, public readonly borderOnlyChange: boolean = false) { }
 }
 
 export class PlayerEvent implements GameEvent {

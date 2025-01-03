@@ -5,7 +5,7 @@ import { WinCheckExecution } from "./execution/WinCheckExecution";
 import { Game, MutableGame, MutableTile, PlayerID, Tile, TileEvent } from "./game/Game";
 import { createGame } from "./game/GameImpl";
 import { loadTerrainMap } from "./game/TerrainMapLoader";
-import { GameUpdateViewData, PlayerViewData } from "./GameView";
+import { GameUpdateViewData, packTileData, PlayerViewData } from "./GameView";
 import { GameConfig, Turn } from "./Schemas";
 
 export async function createGameRunner(gameID: string, gameConfig: GameConfig, callBack: (gu: GameUpdateViewData) => void): Promise<GameRunner> {
@@ -19,7 +19,8 @@ export async function createGameRunner(gameID: string, gameConfig: GameConfig, c
 }
 
 export class GameRunner {
-    private updatedTiles: MutableTile[]
+    private updatedTiles: Set<MutableTile> = new Set()
+    private borderOnlyUpdated: Set<MutableTile> = new Set()
     private tickInterval = null
     private turns: Turn[] = []
     private currTurn = 0
@@ -34,7 +35,14 @@ export class GameRunner {
     }
 
     init() {
-        this.eventBus.on(TileEvent, (e) => { this.updatedTiles.push(e.tile as MutableTile) })
+        this.eventBus.on(TileEvent, (e) => {
+            this.updatedTiles.add(e.tile as MutableTile)
+            if (e.borderOnlyChange) {
+                this.borderOnlyUpdated.add(e.tile as MutableTile)
+            } else {
+                this.updatedTiles.add(e.tile as MutableTile)
+            }
+        })
         this.game.addExecution(...this.execManager.spawnBots(this.game.config().numBots()))
         if (this.game.config().spawnNPCs()) {
             this.game.addExecution(...this.execManager.fakeHumanExecutions())
@@ -55,19 +63,34 @@ export class GameRunner {
             return
         }
         this.isExecuting = true
-        this.updatedTiles = []
+        this.updatedTiles.clear()
+        this.borderOnlyUpdated.clear()
 
 
         this.game.addExecution(...this.execManager.createExecs(this.turns[this.currTurn]))
         this.currTurn++
         this.game.executeNextTick()
 
+
+
+
+        this.updatedTiles.forEach(t => this.borderOnlyUpdated.delete(t))
+        const updatedData = Array.from(this.updatedTiles).map(t => t.toViewData())
+        updatedData.forEach(t => t.borderOnlyChange = false)
+
+        const borderOnlyData = Array.from(this.borderOnlyUpdated).map(t => t.toViewData())
+        borderOnlyData.forEach(t => t.borderOnlyChange = true)
+
+        updatedData.concat(borderOnlyData)
+
+
+
         this.callBack({
             tick: this.game.ticks(),
             units: this.game.units().map(u => u.toViewData()),
-            tileUpdates: this.updatedTiles.map(t => t.toViewData()),
+            packedTileUpdates: updatedData.map(d => packTileData(d)),
             players: Object.fromEntries(
-                this.game.players().map(p => [p.id(), p.toViewData()])
+                this.game.allPlayers().map(p => [p.id(), p.toViewData()])
             ) as Record<PlayerID, PlayerViewData>
         })
 

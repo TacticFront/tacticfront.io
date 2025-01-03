@@ -15,15 +15,16 @@ export interface ViewData<T> {
 export interface TileViewData extends ViewData<TileViewData> {
     x: number
     y: number
-    owner: PlayerID,
+    smallID: number,
     hasFallout: boolean
     hasDefenseBonus: boolean
     isBorder: boolean
+    borderOnlyChange: boolean
 }
 
 export class TileView {
 
-    constructor(private game: GameView, private data: TileViewData, private _terrain: TerrainTile) { }
+    constructor(private game: GameView, public data: TileViewData, private _terrain: TerrainTile) { }
 
     type(): TerrainType {
         return this._terrain.type()
@@ -32,10 +33,10 @@ export class TileView {
         if (!this.hasOwner()) {
             return new TerraNulliusImpl()
         }
-        return this.game.player(this.data?.owner)
+        return this.game.playerBySmallID(this.data?.smallID)
     }
     hasOwner(): boolean {
-        return this.data?.owner != undefined
+        return this.data?.smallID !== undefined && this.data.smallID !== 0;
     }
     isBorder(): boolean {
         return this.data?.isBorder
@@ -50,16 +51,15 @@ export class TileView {
         return this._terrain
     }
 
-    neighbors(): TileView[] {
-        throw new Error("Method not implemented.");
+    neighbors(): Tile[] {
+        return this._terrain.neighbors().map(t => this.game.tile(t.cell()))
     }
-
 
     hasDefenseBonus(): boolean {
-        throw new Error("Method not implemented.");
+        return this.data?.hasDefenseBonus ?? false
     }
     cost(): number {
-        throw new Error("Method not implemented.");
+        return this._terrain.cost()
     }
 }
 
@@ -104,6 +104,7 @@ export interface PlayerViewData extends ViewData<PlayerViewData> {
     name: string,
     displayName: string,
     id: PlayerID,
+    smallID: number,
     type: PlayerType,
     isAlive: boolean,
     tilesOwned: number,
@@ -117,6 +118,9 @@ export interface PlayerViewData extends ViewData<PlayerViewData> {
 
 export class PlayerView implements Player {
     constructor(private game: GameView, private data: PlayerViewData) { }
+    smallID(): number {
+        return this.data.smallID
+    }
     lastTileChange(): Tick {
         return 0
     }
@@ -221,7 +225,7 @@ export class PlayerView implements Player {
         return false
     }
     info(): PlayerInfo {
-        return null
+        return new PlayerInfo(this.name(), this.type(), this.clientID(), this.id())
     }
 }
 
@@ -229,32 +233,47 @@ export interface GameUpdateViewData extends ViewData<GameUpdateViewData> {
     tick: number
     units: UnitViewData[]
     players: Record<PlayerID, PlayerViewData>
-    tileUpdates: TileViewData[]
+    tileUpdates?: TileViewData[]
+    packedTileUpdates: Uint16Array[]
 }
 
 export class GameView {
     private data: GameUpdateViewData
-    private tiles: TileViewData[][] = []
+    private tiles: TileView[][] = []
+    private smallIDToID = new Map<number, PlayerID>()
 
     constructor(private _config: Config, private _terrainMap: TerrainMap) {
+        // Initialize the 2D array
         this.tiles = Array(_terrainMap.width()).fill(null).map(() => Array(_terrainMap.height()).fill(null));
+
+        // Fill the array with new TileView objects
+        for (let x = 0; x < _terrainMap.width(); x++) {
+            for (let y = 0; y < _terrainMap.height(); y++) {
+                this.tiles[x][y] = new TileView(this, null, _terrainMap.terrain(new Cell(x, y)));
+            }
+        }
         this.data = {
             tick: 0,
             units: [],
             tileUpdates: [],
+            packedTileUpdates: [],
             players: {}
         }
     }
 
     public update(gu: GameUpdateViewData) {
         this.data = gu
+        this.data.tileUpdates = this.data.packedTileUpdates.map(tu => unpackTileData(tu))
+        Object.entries(gu.players).forEach(([key, value]) => {
+            this.smallIDToID.set(value.smallID, key);
+        });
         gu.tileUpdates.forEach(tu => {
-            this.tiles[tu.x][tu.y] = tu
+            this.tiles[tu.x][tu.y].data = tu
         })
     }
 
     recentlyUpdatedTiles(): TileView[] {
-        return this.data.tileUpdates.map(tu => new TileView(this, tu, this._terrainMap.terrain(new Cell(tu.x, tu.y))))
+        return this.data.tileUpdates.filter(d => true).map(tu => new TileView(this, tu, this._terrainMap.terrain(new Cell(tu.x, tu.y))))
     }
 
     player(id: PlayerID): Player {
@@ -263,6 +282,14 @@ export class GameView {
         }
         throw Error(`player id ${id} not found`)
     }
+
+    playerBySmallID(id: number): Player {
+        if (!this.smallIDToID.has(id)) {
+            throw new Error(`small id ${id} not found`)
+        }
+        return this.player(this.smallIDToID.get(id))
+    }
+
     playerByClientID(id: ClientID): Player | null {
         return null
     }
@@ -273,7 +300,7 @@ export class GameView {
         return []
     }
     tile(cell: Cell): Tile {
-        return new TileView(this, this.tiles[cell.x][cell.y], this._terrainMap.terrain(cell))
+        return this.tiles[cell.x][cell.y]
     }
     isOnMap(cell: Cell): boolean {
         return this._terrainMap.isOnMap(cell)
@@ -312,4 +339,31 @@ export class GameView {
     terrainMap(): TerrainMap {
         return this._terrainMap
     }
+}
+
+export function packTileData(tile: TileViewData): Uint16Array {
+    const packed = new Uint16Array(4);
+    packed[0] = tile.x;
+    packed[1] = tile.y;
+    packed[2] = tile.smallID;
+
+    // Pack booleans into bits
+    packed[3] = (tile.hasFallout ? 1 : 0) |
+        (tile.hasDefenseBonus ? 2 : 0) |
+        (tile.isBorder ? 4 : 0) |
+        (tile.borderOnlyChange ? 8 : 0)
+
+    return packed;
+}
+
+export function unpackTileData(packed: Uint16Array): TileViewData {
+    return {
+        x: packed[0],
+        y: packed[1],
+        smallID: packed[2],
+        hasFallout: !!(packed[3] & 1),
+        hasDefenseBonus: !!(packed[3] & 2),
+        isBorder: !!(packed[3] & 4),
+        borderOnlyChange: !!(packed[4] & 8)
+    };
 }

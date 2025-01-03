@@ -36,6 +36,10 @@ export class TerritoryLayer implements Layer {
     }
 
     tick() {
+        this.game.recentlyUpdatedTiles()
+            .forEach(t => this.enqueue(t))
+
+
         if (!this.game.inSpawnPhase()) {
             return
         }

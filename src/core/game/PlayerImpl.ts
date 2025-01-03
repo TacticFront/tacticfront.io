@@ -46,7 +46,8 @@ export class PlayerImpl implements MutablePlayer {
 
     private relations = new Map<Player, number>()
 
-    constructor(private gs: GameImpl, private readonly playerInfo: PlayerInfo, startPopulation: number) {
+
+    constructor(private gs: GameImpl, private _smallID: number, private readonly playerInfo: PlayerInfo, startPopulation: number) {
         this._name = playerInfo.name;
         this._targetTroopRatio = 1
         this._troops = startPopulation * this._targetTroopRatio;
@@ -61,6 +62,7 @@ export class PlayerImpl implements MutablePlayer {
             name: this.name(),
             displayName: this.displayName(),
             id: this.id(),
+            smallID: this.smallID(),
             type: this.type(),
             isAlive: this.isAlive(),
             tilesOwned: this.numTilesOwned(),
@@ -71,6 +73,10 @@ export class PlayerImpl implements MutablePlayer {
             troops: this.troops(),
             targetTroopRatio: this.targetTroopRatio()
         }
+    }
+
+    smallID(): number {
+        return this._smallID
     }
 
     name(): string {

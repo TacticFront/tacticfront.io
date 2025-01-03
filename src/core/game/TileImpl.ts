@@ -27,10 +27,11 @@ export class TileImpl implements MutableTile {
         return {
             x: this._cell.x,
             y: this._cell.y,
-            owner: this._owner?.id(),
+            smallID: this._owner.isPlayer() ? this._owner.smallID() : 0,
             hasFallout: this._hasFallout,
             hasDefenseBonus: this.hasDefenseBonus(),
-            isBorder: this.isBorder()
+            isBorder: this.isBorder(),
+            borderOnlyChange: false,
         }
     }
 

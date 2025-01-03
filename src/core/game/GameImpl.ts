@@ -40,6 +40,8 @@ export class GameImpl implements MutableGame {
     allianceRequests: AllianceRequestImpl[] = []
     alliances_: AllianceImpl[] = []
 
+    private nextID = 1
+
 
     constructor(
         private _terrainMap: TerrainMapImpl,
@@ -211,6 +213,10 @@ export class GameImpl implements MutableGame {
         return Array.from(this._players.values()).filter(p => p.isAlive())
     }
 
+    allPlayers(): MutablePlayer[] {
+        return Array.from(this._players.values())
+    }
+
     executions(): Execution[] {
         return [...this.execs, ...this.unInitExecs]
     }
@@ -245,7 +251,8 @@ export class GameImpl implements MutableGame {
     }
 
     addPlayer(playerInfo: PlayerInfo, manpower: number): MutablePlayer {
-        let player = new PlayerImpl(this, playerInfo, manpower)
+        let player = new PlayerImpl(this, this.nextID, playerInfo, manpower)
+        this.nextID++
         this._players.set(playerInfo.id, player)
         this.eventBus.emit(new PlayerEvent(player))
         return player
@@ -365,6 +372,7 @@ export class GameImpl implements MutableGame {
         tile.neighbors().forEach(t => tiles.push(t as TileImpl))
 
         for (const t of tiles) {
+            this.eventBus.emit(new TileEvent(t, true))
             if (!t.hasOwner()) {
                 t._isBorder = false
                 continue

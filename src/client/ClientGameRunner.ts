@@ -124,6 +124,8 @@ export class ClientGameRunner {
         this.renderer.initialize()
         this.input.initialize()
         this.worker.start((gu: GameUpdateViewData) => {
+            const size = gu.packedTileUpdates.length * 4 / 1000
+            console.log(`game update size: ${size}kb`)
             this.gameView.update(gu)
             this.renderer.tick()
         })
