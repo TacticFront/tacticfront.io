@@ -178,8 +178,8 @@ export class DefaultConfig implements Config {
     boatMaxDistance(): number {
         return 500
     }
-    numSpawnPhaseTurns(gameType: GameType): number {
-        return gameType == GameType.Singleplayer ? 100 : 300
+    numSpawnPhaseTurns(): number {
+        return this._gameConfig.gameType == GameType.Singleplayer ? 100 : 300
     }
     numBots(): number {
         return 400

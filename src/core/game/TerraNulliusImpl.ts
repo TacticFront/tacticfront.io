@@ -1,13 +1,13 @@
-import {ClientID} from "../Schemas";
-import {TerraNullius, Cell, Tile, PlayerID} from "./Game";
-import {GameImpl} from "./GameImpl";
+import { ClientID } from "../Schemas";
+import { TerraNullius, Cell, Tile, PlayerID } from "./Game";
+import { GameImpl } from "./GameImpl";
 
 
 export class TerraNulliusImpl implements TerraNullius {
     public tiles: Map<Cell, Tile> = new Map<Cell, Tile>();
 
 
-    constructor(private gs: GameImpl) {
+    constructor() {
     }
     clientID(): ClientID {
         return "TERRA_NULLIUS_CLIENT_ID"
@@ -20,5 +20,5 @@ export class TerraNulliusImpl implements TerraNullius {
     ownsTile(cell: Cell): boolean {
         return this.tiles.has(cell);
     }
-    isPlayer(): false {return false as const;}
+    isPlayer(): false { return false as const; }
 }

@@ -2,10 +2,10 @@ import { getConfig } from "./configuration/Config";
 import { EventBus } from "./EventBus";
 import { Executor } from "./execution/ExecutionManager";
 import { WinCheckExecution } from "./execution/WinCheckExecution";
-import { Game, MutableGame, MutableTile, Tile, TileEvent } from "./game/Game";
+import { Game, MutableGame, MutableTile, PlayerID, Tile, TileEvent } from "./game/Game";
 import { createGame } from "./game/GameImpl";
 import { loadTerrainMap } from "./game/TerrainMapLoader";
-import { GameUpdateViewData } from "./GameView";
+import { GameUpdateViewData, PlayerViewData } from "./GameView";
 import { GameConfig, Turn } from "./Schemas";
 
 export async function createGameRunner(gameID: string, gameConfig: GameConfig, callBack: (gu: GameUpdateViewData) => void): Promise<GameRunner> {
@@ -63,9 +63,12 @@ export class GameRunner {
         this.game.executeNextTick()
 
         this.callBack({
+            tick: this.game.ticks(),
             units: this.game.units().map(u => u.toViewData()),
             tileUpdates: this.updatedTiles.map(t => t.toViewData()),
-            players: this.game.players().map(p => p.toViewData())
+            players: Object.fromEntries(
+                this.game.players().map(p => [p.id(), p.toViewData()])
+            ) as Record<PlayerID, PlayerViewData>
         })
 
         this.isExecuting = false

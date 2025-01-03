@@ -2,6 +2,7 @@ import { MessageType, Player, Tile, Unit } from './game/Game';
 import { Config } from "./configuration/Config";
 import { Alliance, AllianceRequest, AllPlayers, Cell, DefenseBonus, EmojiMessage, Execution, ExecutionView, Game, Gold, MutableTile, Nation, PlayerID, PlayerInfo, PlayerType, Relation, TerrainMap, TerrainTile, TerrainType, TerraNullius, Tick, UnitInfo, UnitType } from "./game/Game";
 import { ClientID } from "./Schemas";
+import { TerraNulliusImpl } from './game/TerraNulliusImpl';
 
 export interface ViewSerializable<T> {
     toViewData(): T;
@@ -21,24 +22,29 @@ export interface TileViewData extends ViewData<TileViewData> {
 }
 
 export class TileView {
+
     constructor(private game: GameView, private data: TileViewData, private _terrain: TerrainTile) { }
+
     type(): TerrainType {
         return this._terrain.type()
     }
     owner(): Player | TerraNullius {
-        return this.game.player(this.data.owner)
+        if (!this.hasOwner()) {
+            return new TerraNulliusImpl()
+        }
+        return this.game.player(this.data?.owner)
     }
     hasOwner(): boolean {
-        return this.data.owner != null
+        return this.data?.owner != undefined
     }
     isBorder(): boolean {
-        return this.data.isBorder
+        return this.data?.isBorder
     }
     cell(): Cell {
-        return new Cell(this.data.x, this.data.y)
+        return this._terrain.cell()
     }
     hasFallout(): boolean {
-        return this.data.hasFallout
+        return this.data?.hasFallout
     }
     terrain(): TerrainTile {
         return this._terrain
@@ -109,8 +115,11 @@ export interface PlayerViewData extends ViewData<PlayerViewData> {
     targetTroopRatio: number
 }
 
-export class PlayerView {
-    constructor(private game: Game, private data: PlayerViewData) { }
+export class PlayerView implements Player {
+    constructor(private game: GameView, private data: PlayerViewData) { }
+    lastTileChange(): Tick {
+        return 0
+    }
     name(): string {
         return this.data.name
     }
@@ -129,7 +138,7 @@ export class PlayerView {
     isAlive(): boolean {
         return this.data.isAlive
     }
-    isPlayer(): this is PlayerView {
+    isPlayer(): this is Player {
         return true
     }
     numTilesOwned(): number {
@@ -217,95 +226,90 @@ export class PlayerView {
 }
 
 export interface GameUpdateViewData extends ViewData<GameUpdateViewData> {
+    tick: number
     units: UnitViewData[]
-    players: PlayerViewData[]
+    players: Record<PlayerID, PlayerViewData>
     tileUpdates: TileViewData[]
 }
 
 export class GameView {
-    private lastGameUpdate: GameUpdateViewData
+    private data: GameUpdateViewData
     private tiles: TileViewData[][] = []
 
-    constructor(private _terrainMap: TerrainMap) { }
-    executions(): ExecutionView[] {
-        throw new Error("Method not implemented.");
-    }
-    executeNextTick(): void {
-        throw new Error("Method not implemented.");
+    constructor(private _config: Config, private _terrainMap: TerrainMap) {
+        this.tiles = Array(_terrainMap.width()).fill(null).map(() => Array(_terrainMap.height()).fill(null));
+        this.data = {
+            tick: 0,
+            units: [],
+            tileUpdates: [],
+            players: {}
+        }
     }
 
     public update(gu: GameUpdateViewData) {
-        this.lastGameUpdate = gu
+        this.data = gu
         gu.tileUpdates.forEach(tu => {
             this.tiles[tu.x][tu.y] = tu
         })
     }
 
     recentlyUpdatedTiles(): TileView[] {
-        return this.lastGameUpdate.tileUpdates.map(tu => new TileView(this, tu, this._terrainMap.terrain(new Cell(tu.x, tu.y))))
+        return this.data.tileUpdates.map(tu => new TileView(this, tu, this._terrainMap.terrain(new Cell(tu.x, tu.y))))
     }
 
     player(id: PlayerID): Player {
-        throw new Error("Method not implemented.");
+        if (id in this.data.players) {
+            return new PlayerView(this, this.data.players[id])
+        }
+        throw Error(`player id ${id} not found`)
     }
     playerByClientID(id: ClientID): Player | null {
-        throw new Error("Method not implemented.");
+        return null
     }
     hasPlayer(id: PlayerID): boolean {
-        throw new Error("Method not implemented.");
+        return false
     }
     players(): Player[] {
-        throw new Error("Method not implemented.");
+        return []
     }
     tile(cell: Cell): Tile {
-        throw new Error("Method not implemented.");
+        return new TileView(this, this.tiles[cell.x][cell.y], this._terrainMap.terrain(cell))
     }
     isOnMap(cell: Cell): boolean {
-        throw new Error("Method not implemented.");
+        return this._terrainMap.isOnMap(cell)
     }
     width(): number {
-        throw new Error("Method not implemented.");
+        return this._terrainMap.width()
     }
     height(): number {
-        throw new Error("Method not implemented.");
+        return this._terrainMap.height()
     }
     numLandTiles(): number {
         throw new Error("Method not implemented.");
     }
     forEachTile(fn: (tile: Tile) => void): void {
-        throw new Error("Method not implemented.");
-    }
-    terraNullius(): TerraNullius {
-        throw new Error("Method not implemented.");
+        for (let x = 0; x < this._terrainMap.width(); x++) {
+            for (let y = 0; y < this._terrainMap.height(); y++) {
+                fn(this.tile(new Cell(x, y)))
+            }
+        }
     }
     ticks(): Tick {
-        throw new Error("Method not implemented.");
+        return this.data.tick
     }
     inSpawnPhase(): boolean {
-        throw new Error("Method not implemented.");
-    }
-    addExecution(...exec: Execution[]): void {
-        throw new Error("Method not implemented.");
-    }
-    nations(): Nation[] {
-        throw new Error("Method not implemented.");
+        return this.data.tick <= this._config.numSpawnPhaseTurns()
     }
     config(): Config {
-        throw new Error("Method not implemented.");
-    }
-    displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void {
-        throw new Error("Method not implemented.");
+        return this._config
     }
     units(...types: UnitType[]): Unit[] {
-        throw new Error("Method not implemented.");
+        return []
     }
     unitInfo(type: UnitType): UnitInfo {
-        throw new Error("Method not implemented.");
+        return this._config.unitInfo(type)
     }
     terrainMap(): TerrainMap {
-        throw new Error("Method not implemented.");
-    }
-    terrainMiniMap(): TerrainMap {
-        throw new Error("Method not implemented.");
+        return this._terrainMap
     }
 }

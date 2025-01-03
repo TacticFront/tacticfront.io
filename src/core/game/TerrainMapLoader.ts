@@ -85,6 +85,9 @@ export class TerrainMapImpl implements TerrainMap {
     public nationMap: NationMap
     constructor(
     ) { }
+    isOnMap(cell: Cell): boolean {
+        return cell.x >= 0 && cell.x < this.tiles.length && cell.y >= 0 && cell.y < this.tiles[0].length
+    }
 
     neighbors(terrainTile: TerrainTile): TerrainTile[] {
         return (terrainTile as TerrainTileImpl).neighbors();

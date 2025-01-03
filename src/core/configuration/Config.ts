@@ -54,7 +54,7 @@ export interface Config {
 	percentageTilesOwnedToWin(): number
 	numBots(): number
 	spawnNPCs(): boolean
-	numSpawnPhaseTurns(gameType: GameType): number
+	numSpawnPhaseTurns(): number
 
 	startManpower(playerInfo: PlayerInfo): number
 	populationIncreaseRate(player: Player): number

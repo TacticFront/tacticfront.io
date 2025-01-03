@@ -74,7 +74,7 @@ export async function createClientGame(lobbyConfig: LobbyConfig, gameConfig: Gam
     const config = getConfig(gameConfig)
 
     const terrainMap = await loadTerrainMap(gameConfig.gameMap);
-    const gameView = new GameView(terrainMap.map)
+    const gameView = new GameView(config, terrainMap.map)
 
     const worker = new WorkerClient(lobbyConfig.gameID, gameConfig)
     await worker.initialize()

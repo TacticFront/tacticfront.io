@@ -47,7 +47,7 @@ export class GameImpl implements MutableGame {
         public eventBus: EventBus,
         private _config: Config,
     ) {
-        this._terraNullius = new TerraNulliusImpl(this)
+        this._terraNullius = new TerraNulliusImpl()
         this._width = _terrainMap.width();
         this._height = _terrainMap.height();
         this._numLandTiles = _terrainMap.numLandTiles
@@ -145,7 +145,7 @@ export class GameImpl implements MutableGame {
     }
 
     inSpawnPhase(): boolean {
-        return this._ticks <= this.config().numSpawnPhaseTurns(this.config().gameConfig().gameType)
+        return this._ticks <= this.config().numSpawnPhaseTurns()
     }
 
     ticks(): number {

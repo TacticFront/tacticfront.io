@@ -159,6 +159,7 @@ export interface TerrainMap {
     neighbors(terrainTile: TerrainTile): TerrainTile[]
     width(): number
     height(): number
+    isOnMap(cell: Cell): boolean
 }
 
 export interface TerrainTile extends SearchNode {
