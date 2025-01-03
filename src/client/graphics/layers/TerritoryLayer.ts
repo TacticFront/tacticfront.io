@@ -8,7 +8,7 @@ import { Layer } from "./Layer";
 import { TransformHandler } from "../TransformHandler";
 import { EventBus } from "../../../core/EventBus";
 import { initRemoteSender } from "../../../core/Consolex";
-import { AlternateViewEvent } from "../../InputHandler";
+import { AlternateViewEvent, DragEvent, MouseDownEvent } from "../../InputHandler";
 import { GameView } from "../../../core/GameView";
 
 export class TerritoryLayer implements Layer {
@@ -25,6 +25,8 @@ export class TerritoryLayer implements Layer {
     private highlightContext: CanvasRenderingContext2D
 
     private alternativeView = false
+    private lastDragTime = 0
+    private nodrawDragDuration = 200
 
 
     constructor(private game: GameView, private eventBus: EventBus) {
@@ -67,6 +69,7 @@ export class TerritoryLayer implements Layer {
     init() {
         this.eventBus.on(TileEvent, e => this.tileUpdate(e))
         this.eventBus.on(AlternateViewEvent, e => { this.alternativeView = e.alternateView })
+        this.eventBus.on(DragEvent, e => { this.lastDragTime = Date.now() })
         this.redraw()
     }
 
@@ -102,8 +105,10 @@ export class TerritoryLayer implements Layer {
     }
 
     renderLayer(context: CanvasRenderingContext2D) {
-        this.renderTerritory()
-        this.context.putImageData(this.imageData, 0, 0);
+        if (Date.now() > this.lastDragTime + this.nodrawDragDuration) {
+            this.renderTerritory()
+            this.context.putImageData(this.imageData, 0, 0);
+        }
         if (this.alternativeView) {
             return
         }
@@ -136,7 +141,6 @@ export class TerritoryLayer implements Layer {
             numToRender--
             const tile = this.tileToRenderQueue.pop().tile
             this.paintTerritory(tile)
-            tile.neighbors().forEach(t => this.paintTerritory(t))
         }
     }
 
