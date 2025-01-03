@@ -9,6 +9,7 @@ import anchorIcon from '../../../../resources/images/AnchorIcon.png';
 import missileSiloIcon from '../../../../resources/images/MissileSiloUnit.png';
 import shieldIcon from '../../../../resources/images/ShieldIcon.png';
 import cityIcon from '../../../../resources/images/CityIcon.png';
+import { GameView } from "../../../core/GameView";
 
 interface UnitRenderConfig {
     icon: string;
@@ -47,7 +48,7 @@ export class StructureLayer implements Layer {
         }
     };
 
-    constructor(private game: Game, private eventBus: EventBus) {
+    constructor(private game: GameView, private eventBus: EventBus) {
         this.theme = game.config().theme();
         this.loadUnitImages();
     }
@@ -69,7 +70,7 @@ export class StructureLayer implements Layer {
     tick() {
     }
 
-    init(game: Game) {
+    init() {
         this.eventBus.on(UnitEvent, e => this.onUnitEvent(e));
         this.redraw()
     }

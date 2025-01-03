@@ -5,6 +5,7 @@ import { calculateBoundingBox, calculateBoundingBoxCenter, manhattanDist } from 
 import { ZoomEvent, DragEvent } from "../InputHandler";
 import { GoToPlayerEvent } from "./layers/Leaderboard";
 import { placeName } from "./NameBoxCalculator";
+import { GameView } from "../../core/GameView";
 
 export class TransformHandler {
     public scale: number = 1.8
@@ -14,7 +15,7 @@ export class TransformHandler {
     private target: Cell
     private intervalID = null
 
-    constructor(private game: Game, private eventBus: EventBus, private canvas: HTMLCanvasElement) {
+    constructor(private game: GameView, private eventBus: EventBus, private canvas: HTMLCanvasElement) {
         this.eventBus.on(ZoomEvent, (e) => this.onZoom(e))
         this.eventBus.on(DragEvent, (e) => this.onMove(e))
         this.eventBus.on(GoToPlayerEvent, (e) => this.onGoToPlayer(e))

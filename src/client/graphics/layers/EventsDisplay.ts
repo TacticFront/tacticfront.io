@@ -17,6 +17,7 @@ import { Layer } from "./Layer";
 import { SendAllianceReplyIntentEvent } from "../../Transport";
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { onlyImages, sanitize } from '../../../core/Util';
+import { GameView } from '../../../core/GameView';
 
 interface Event {
   description: string;
@@ -35,7 +36,7 @@ interface Event {
 @customElement('events-display')
 export class EventsDisplay extends LitElement implements Layer {
   public eventBus: EventBus;
-  public game: Game;
+  public game: GameView;
   public clientID: ClientID;
 
   private events: Event[] = [];

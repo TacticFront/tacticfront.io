@@ -20,6 +20,7 @@ import { EmojiTable } from "./EmojiTable";
 import { UIState } from "../../UIState";
 import { BuildMenu } from "./BuildMenu";
 import { consolex } from "../../../../core/Consolex";
+import { GameView } from "../../../../core/GameView";
 
 
 enum Slot {
@@ -53,7 +54,7 @@ export class RadialMenu implements Layer {
 
     constructor(
         private eventBus: EventBus,
-        private game: Game,
+        private game: GameView,
         private transformHandler: TransformHandler,
         private clientID: ClientID,
         private emojiTable: EmojiTable,
@@ -363,7 +364,7 @@ export class RadialMenu implements Layer {
         }
 
         if (myPlayerBordersOcean && otherPlayerBordersOcean) {
-            const dst = targetTransportTile(this.game, tile)
+            const dst = targetTransportTile(this.game.width(), tile)
             if (dst != null) {
                 if (myPlayer.canBuild(UnitType.TransportShip, dst)) {
                     this.activateMenuElement(Slot.Boat, "#3f6ab1", boatIcon, () => {

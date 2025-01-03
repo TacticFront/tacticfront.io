@@ -9,11 +9,12 @@ import { MouseMoveEvent } from '../../InputHandler';
 import { euclideanDist, distSortUnit } from '../../../core/Util';
 import { renderNumber, renderTroops } from '../../Utils';
 import { PauseGameEvent } from '../../Transport';
+import { GameView } from '../../../core/GameView';
 
 @customElement('player-info-overlay')
 export class PlayerInfoOverlay extends LitElement implements Layer {
     @property({ type: Object })
-    public game!: Game;
+    public game!: GameView;
 
     @property({ type: String })
     public clientID!: ClientID;
@@ -41,8 +42,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
 
     private _isActive = false
 
-    init(game: Game) {
-        this.game = game;
+    init() {
         this.eventBus.on(MouseMoveEvent, (e: MouseMoveEvent) => this.onMouseEvent(e));
         this._isActive = true
         this.showPauseButton = this.game.config().gameConfig().gameType == GameType.Singleplayer

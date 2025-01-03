@@ -7,6 +7,7 @@ import { Cell, Game, Player, TerraNullius, Tile, Unit } from "./game/Game";
 import { number } from 'zod';
 import { GameConfig, GameID, GameRecord, PlayerRecord, Turn } from './Schemas';
 import { customAlphabet, nanoid } from 'nanoid';
+import { GameView } from './GameView';
 
 
 
@@ -62,7 +63,7 @@ export function and(x: (tile: Tile) => boolean, y: (tile: Tile) => boolean): (ti
 }
 
 // TODO: refactor to new file
-export function sourceDstOceanShore(game: Game, src: Player, tile: Tile): [Tile | null, Tile | null] {
+export function sourceDstOceanShore(game: GameView, src: Player, tile: Tile): [Tile | null, Tile | null] {
     const dst = tile.owner()
     let srcTile = closestOceanShoreFromPlayer(src, tile, game.width())
     let dstTile: Tile | null = null
@@ -74,11 +75,11 @@ export function sourceDstOceanShore(game: Game, src: Player, tile: Tile): [Tile 
     return [srcTile, dstTile]
 }
 
-export function targetTransportTile(game: Game, tile: Tile): Tile | null {
+export function targetTransportTile(gameWidth: number, tile: Tile): Tile | null {
     const dst = tile.owner()
     let dstTile: Tile | null = null
     if (dst.isPlayer()) {
-        dstTile = closestOceanShoreFromPlayer(dst as Player, tile, game.width())
+        dstTile = closestOceanShoreFromPlayer(dst as Player, tile, gameWidth)
     } else {
         dstTile = closestOceanShoreTN(tile, 300)
     }

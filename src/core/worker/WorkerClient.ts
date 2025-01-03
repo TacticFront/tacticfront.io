@@ -17,7 +17,7 @@ export class WorkerClient {
         this.worker = new Worker(new URL('./Worker.worker.ts', import.meta.url));
     }
 
-    initialize(gameUpdate: (gu: GameUpdateViewData) => void): Promise<void> {
+    initialize(): Promise<void> {
         return new Promise((resolve, reject) => {
             this.worker.postMessage({
                 type: 'init',
@@ -28,19 +28,26 @@ export class WorkerClient {
             const handler = (e: MessageEvent) => {
                 if (e.data.type === 'initialized') {
                     this.isInitialized = true;
+                    this.worker.removeEventListener('message', handler)
                     resolve();
                     return
-                }
-                if (!this.isInitialized) {
-                    reject('Failed to initialize pathfinder');
-                }
-                if (e.data.type == "game_update") {
-                    gameUpdate(e.data.gameUpdate)
                 }
             };
 
             this.worker.addEventListener('message', handler);
         });
+    }
+
+    start(gameUpdate: (gu: GameUpdateViewData) => void) {
+        if (!this.isInitialized) {
+            throw new Error('Failed to initialize pathfinder');
+        }
+        const handler = (e: MessageEvent) => {
+            if (e.data.type == "game_update") {
+                gameUpdate(e.data.gameUpdate)
+            }
+        }
+        this.worker.addEventListener('message', handler);
     }
 
     sendTurn(turn: Turn) {

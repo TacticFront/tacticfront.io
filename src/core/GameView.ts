@@ -1,6 +1,6 @@
-import { MessageType } from './game/Game';
+import { MessageType, Player, Tile, Unit } from './game/Game';
 import { Config } from "./configuration/Config";
-import { Alliance, AllianceRequest, AllPlayers, Cell, DefenseBonus, EmojiMessage, Execution, ExecutionView, Game, Gold, MutableTile, Nation, Player, PlayerID, PlayerInfo, PlayerType, Relation, TerrainMap, TerrainTile, TerrainType, TerraNullius, Tick, Tile, Unit, UnitInfo, UnitType } from "./game/Game";
+import { Alliance, AllianceRequest, AllPlayers, Cell, DefenseBonus, EmojiMessage, Execution, ExecutionView, Game, Gold, MutableTile, Nation, PlayerID, PlayerInfo, PlayerType, Relation, TerrainMap, TerrainTile, TerrainType, TerraNullius, Tick, UnitInfo, UnitType } from "./game/Game";
 import { ClientID } from "./Schemas";
 
 export interface ViewSerializable<T> {
@@ -20,8 +20,8 @@ export interface TileViewData extends ViewData<TileViewData> {
     isBorder: boolean
 }
 
-export class TileView implements Tile {
-    constructor(private game: Game, private data: TileViewData, private _terrain: TerrainTile) { }
+export class TileView {
+    constructor(private game: GameView, private data: TileViewData, private _terrain: TerrainTile) { }
     type(): TerrainType {
         return this._terrain.type()
     }
@@ -44,7 +44,7 @@ export class TileView implements Tile {
         return this._terrain
     }
 
-    neighbors(): Tile[] {
+    neighbors(): TileView[] {
         throw new Error("Method not implemented.");
     }
 
@@ -67,7 +67,7 @@ export interface UnitViewData extends ViewData<UnitView> {
     health?: number
 }
 
-export class UnitView implements Unit {
+export class UnitView {
     constructor(private data: UnitViewData) { }
 
     type(): UnitType {
@@ -76,10 +76,10 @@ export class UnitView implements Unit {
     troops(): number {
         throw new Error("Method not implemented.");
     }
-    tile(): Tile {
+    tile(): TileView {
         throw new Error("Method not implemented.");
     }
-    owner(): Player {
+    owner(): PlayerView {
         throw new Error("Method not implemented.");
     }
     isActive(): boolean {
@@ -109,7 +109,7 @@ export interface PlayerViewData extends ViewData<PlayerViewData> {
     targetTroopRatio: number
 }
 
-export class PlayerView implements Player {
+export class PlayerView {
     constructor(private game: Game, private data: PlayerViewData) { }
     name(): string {
         return this.data.name
@@ -129,7 +129,7 @@ export class PlayerView implements Player {
     isAlive(): boolean {
         return this.data.isAlive
     }
-    isPlayer(): this is Player {
+    isPlayer(): this is PlayerView {
         return true
     }
     numTilesOwned(): number {
@@ -211,9 +211,6 @@ export class PlayerView implements Player {
     canBuild(type: UnitType, targetTile: Tile): Tile | false {
         return false
     }
-    lastTileChange(): Tick {
-        return 0
-    }
     info(): PlayerInfo {
         return null
     }
@@ -225,7 +222,7 @@ export interface GameUpdateViewData extends ViewData<GameUpdateViewData> {
     tileUpdates: TileViewData[]
 }
 
-export class GameView implements Game {
+export class GameView {
     private lastGameUpdate: GameUpdateViewData
     private tiles: TileViewData[][] = []
 
@@ -264,9 +261,6 @@ export class GameView implements Game {
         throw new Error("Method not implemented.");
     }
     isOnMap(cell: Cell): boolean {
-        throw new Error("Method not implemented.");
-    }
-    neighbors(cell: Cell | Tile): Tile[] {
         throw new Error("Method not implemented.");
     }
     width(): number {

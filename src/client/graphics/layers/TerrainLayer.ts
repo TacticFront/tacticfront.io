@@ -3,6 +3,7 @@ import { Game } from "../../../core/game/Game";
 import { throws } from "assert";
 import { Layer } from "./Layer";
 import { TransformHandler } from "../TransformHandler";
+import { GameView } from "../../../core/GameView";
 
 export class TerrainLayer implements Layer {
     private canvas: HTMLCanvasElement
@@ -10,14 +11,14 @@ export class TerrainLayer implements Layer {
     private imageData: ImageData
 
 
-    constructor(private game: Game) { }
+    constructor(private game: GameView) { }
     shouldTransform(): boolean {
         return true
     }
     tick() {
     }
 
-    init(game: Game) {
+    init() {
         console.log('redrew terrain layer')
         this.redraw()
     }

@@ -7,7 +7,6 @@ import { InputHandler, MouseUpEvent, ZoomEvent, DragEvent, MouseDownEvent } from
 import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientMessageSchema, GameConfig, GameID, Intent, ServerMessage, ServerMessageSchema, ServerSyncMessage, Turn } from "../core/Schemas";
 import { loadTerrainFromFile, loadTerrainMap, TerrainMapImpl } from "../core/game/TerrainMapLoader";
 import { and, bfs, dist, generateID, manhattanDist } from "../core/Util";
-import { WinCheckExecution } from "../core/execution/WinCheckExecution";
 import { SendAttackIntentEvent, SendSpawnIntentEvent, Transport } from "./Transport";
 import { createCanvas } from "./Utils";
 import { MessageType } from '../core/game/Game';
@@ -15,7 +14,7 @@ import { DisplayMessageEvent } from '../core/game/Game';
 import { WorkerClient } from "../core/worker/WorkerClient";
 import { consolex, initRemoteSender } from "../core/Consolex";
 import { getConfig, getServerConfig } from "../core/configuration/Config";
-import { GameUpdateViewData } from "../core/GameView";
+import { GameUpdateViewData, GameView } from "../core/GameView";
 
 export interface LobbyConfig {
     playerName: () => string
@@ -75,17 +74,15 @@ export async function createClientGame(lobbyConfig: LobbyConfig, gameConfig: Gam
     const config = getConfig(gameConfig)
 
     const terrainMap = await loadTerrainMap(gameConfig.gameMap);
+    const gameView = new GameView(terrainMap.map)
 
-    let game = createGame(terrainMap.map, terrainMap.miniMap, eventBus, config)
     const worker = new WorkerClient(lobbyConfig.gameID, gameConfig)
-    await worker.initialize((gu: GameUpdateViewData) => {
-        console.log('got update!')
-    })
+    await worker.initialize()
 
     consolex.log('going to init path finder')
     consolex.log('inited path finder')
     const canvas = createCanvas()
-    let gameRenderer = createRenderer(canvas, game, eventBus, lobbyConfig.clientID)
+    let gameRenderer = createRenderer(canvas, gameView, eventBus, lobbyConfig.clientID)
 
 
     consolex.log(`creating private game got difficulty: ${gameConfig.difficulty}`)
@@ -93,36 +90,29 @@ export async function createClientGame(lobbyConfig: LobbyConfig, gameConfig: Gam
     return new ClientGameRunner(
         lobbyConfig.clientID,
         eventBus,
-        game,
         gameRenderer,
         new InputHandler(canvas, eventBus),
-        new Executor(game, lobbyConfig.gameID),
         transport,
         worker,
+        gameView
     )
 }
 
 export class ClientGameRunner {
     private myPlayer: Player
-    private turns: Turn[] = []
     private isActive = false
 
-    private currTurn = 0
-
-    private intervalID: NodeJS.Timeout
-
-    private isProcessingTurn = false
+    private turnsSeen = 0
     private hasJoined = false
 
     constructor(
         private clientID: ClientID,
         private eventBus: EventBus,
-        private gs: Game,
         private renderer: GameRenderer,
         private input: InputHandler,
-        private executor: Executor,
         private transport: Transport,
-        private worker: WorkerClient
+        private worker: WorkerClient,
+        private gameView: GameView
     ) { }
 
     public start() {
@@ -133,27 +123,25 @@ export class ClientGameRunner {
 
         this.renderer.initialize()
         this.input.initialize()
-        this.gs.addExecution(...this.executor.spawnBots(this.gs.config().numBots()))
-        if (this.gs.config().spawnNPCs()) {
-            this.gs.addExecution(...this.executor.fakeHumanExecutions())
-        }
-        this.gs.addExecution(new WinCheckExecution(this.eventBus))
-
-        this.intervalID = setInterval(() => this.tick(), 10);
+        this.worker.start((gu: GameUpdateViewData) => {
+            this.gameView.update(gu)
+            this.renderer.tick()
+        })
 
         const onconnect = () => {
             consolex.log('Connected to game server!');
-            this.transport.joinGame(this.turns.length)
+            this.transport.joinGame(this.turnsSeen)
         };
         const onmessage = (message: ServerMessage) => {
             if (message.type == "start") {
                 this.hasJoined = true
                 consolex.log("starting game!")
                 for (const turn of message.turns) {
-                    if (turn.turnNumber < this.turns.length) {
+                    if (turn.turnNumber < this.turnsSeen) {
                         continue
                     }
-                    this.turns.push(turn)
+                    this.worker.sendTurn(turn)
+                    this.turnsSeen++
                 }
             }
             if (message.type == "turn") {
@@ -161,46 +149,21 @@ export class ClientGameRunner {
                     this.transport.joinGame(0)
                     return
                 }
-                if (this.turns.length != message.turn.turnNumber) {
-                    consolex.error(`got wrong turn have turns ${this.turns.length}, received turn ${message.turn.turnNumber}`)
+                if (this.turnsSeen != message.turn.turnNumber) {
+                    consolex.error(`got wrong turn have turns ${this.turnsSeen}, received turn ${message.turn.turnNumber}`)
                 } else {
-                    this.turns.push(message.turn)
+                    this.worker.sendTurn(message.turn)
+                    this.turnsSeen++
                 }
             }
         };
         this.transport.connect(onconnect, onmessage)
-
     }
 
     public stop() {
-        clearInterval(this.intervalID)
+        this.worker.cleanup()
         this.isActive = false
         this.transport.leaveGame()
-    }
-
-    public tick() {
-        if (this.currTurn >= this.turns.length || this.isProcessingTurn) {
-            return
-        }
-        this.isProcessingTurn = true
-        this.worker.sendTurn(this.turns[this.currTurn])
-        this.gs.addExecution(...this.executor.createExecs(this.turns[this.currTurn]))
-        try {
-            const start = performance.now()
-            this.gs.executeNextTick()
-            const duration = performance.now() - start
-            if (duration > 200) {
-                console.warn(`tick ${this.gs.ticks() - 1} took ${duration}ms to execute`)
-            }
-        } catch (error) {
-            showErrorModal(error, this.clientID)
-            this.stop()
-            const errorText = `Error: ${error.message}\nStack: ${error.stack}`;
-            consolex.error(errorText)
-        }
-        this.renderer.tick()
-        this.currTurn++
-        this.isProcessingTurn = false
     }
 
     private playerEvent(event: PlayerEvent) {
@@ -215,16 +178,16 @@ export class ClientGameRunner {
             return
         }
         const cell = this.renderer.transformHandler.screenToWorldCoordinates(event.x, event.y)
-        if (!this.gs.isOnMap(cell)) {
+        if (!this.gameView.isOnMap(cell)) {
             return
         }
         consolex.log(`clicked cell ${cell}`)
-        const tile = this.gs.tile(cell)
-        if (tile.terrain().isLand() && !tile.hasOwner() && this.gs.inSpawnPhase()) {
+        const tile = this.gameView.tile(cell)
+        if (tile.terrain().isLand() && !tile.hasOwner() && this.gameView.inSpawnPhase()) {
             this.eventBus.emit(new SendSpawnIntentEvent(cell))
             return
         }
-        if (this.gs.inSpawnPhase()) {
+        if (this.gameView.inSpawnPhase()) {
             return
         }
         if (this.myPlayer == null) {

@@ -6,6 +6,7 @@ import { Layer } from "./Layer";
 import { EventBus } from "../../../core/EventBus";
 import { AlternateViewEvent } from "../../InputHandler";
 import { ClientID } from "../../../core/Schemas";
+import { GameView } from "../../../core/GameView";
 
 enum Relationship {
     Self,
@@ -28,7 +29,7 @@ export class UnitLayer implements Layer {
     private oldShellTile = new Map<Unit, Tile>()
 
 
-    constructor(private game: Game, private eventBus: EventBus, private clientID: ClientID) {
+    constructor(private game: GameView, private eventBus: EventBus, private clientID: ClientID) {
         this.theme = game.config().theme();
     }
 
@@ -43,7 +44,7 @@ export class UnitLayer implements Layer {
         }
     }
 
-    init(game: Game) {
+    init() {
         this.eventBus.on(UnitEvent, e => this.onUnitEvent(e));
         this.eventBus.on(AlternateViewEvent, e => this.onAlternativeViewEvent(e))
         this.redraw()

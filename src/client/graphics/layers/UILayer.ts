@@ -5,6 +5,7 @@ import { ClientID } from "../../../core/Schemas";
 import { Layer } from "./Layer";
 import { TransformHandler } from "../TransformHandler";
 import { consolex } from "../../../core/Consolex";
+import { GameView } from "../../../core/GameView";
 
 interface MenuOption {
     label: string;
@@ -20,7 +21,7 @@ export class UILayer implements Layer {
 
     constructor(
         private eventBus: EventBus,
-        private game: Game,
+        private game: GameView,
         private clientID: ClientID,
         private transformHandler: TransformHandler
     ) {
@@ -52,7 +53,7 @@ export class UILayer implements Layer {
     tick() {
     }
 
-    init(game: Game) {
+    init() {
         this.createWinModal()
         this.initRightClickMenu()
         this.eventBus.on(WinEvent, (e) => this.onWinEvent(e))

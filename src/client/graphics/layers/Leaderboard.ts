@@ -6,6 +6,7 @@ import { ClientID } from '../../../core/Schemas';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { EventBus, GameEvent } from '../../../core/EventBus';
 import { renderNumber } from '../../Utils';
+import { GameView } from '../../../core/GameView';
 
 interface Entry {
   name: string
@@ -23,12 +24,11 @@ export class GoToPlayerEvent implements GameEvent {
 @customElement('leader-board')
 export class Leaderboard extends LitElement implements Layer {
 
-  private game: Game
+  public game: GameView
   public clientID: ClientID
   public eventBus: EventBus
 
-  init(game: Game) {
-    this.game = game
+  init() {
   }
 
   tick() {

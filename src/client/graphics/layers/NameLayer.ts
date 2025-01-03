@@ -13,6 +13,7 @@ import targetIcon from '../../../../resources/images/TargetIcon.png';
 import { ClientID } from "../../../core/Schemas"
 import { EventBus } from "../../../core/EventBus"
 import { AlternateViewEvent } from "../../InputHandler"
+import { GameView } from "../../../core/GameView"
 
 
 class RenderInfo {
@@ -47,7 +48,7 @@ export class NameLayer implements Layer {
     private alternateView = false
 
     constructor(
-        private game: Game,
+        private game: GameView,
         private eventBus: EventBus,
         private theme: Theme,
         private transformHandler: TransformHandler,
@@ -72,7 +73,7 @@ export class NameLayer implements Layer {
         return true
     }
 
-    public init(game: Game) {
+    public init() {
 
     }
 

@@ -14,6 +14,7 @@ import shieldIcon from '../../../../../resources/images/ShieldIconWhite.svg';
 import cityIcon from '../../../../../resources/images/CityIconWhite.svg';
 import { renderNumber } from '../../../Utils';
 import { ContextMenuEvent } from '../../../InputHandler';
+import { GameView } from '../../../../core/GameView';
 
 interface BuildItemDisplay {
     unitType: UnitType
@@ -35,7 +36,7 @@ const buildTable: BuildItemDisplay[][] = [
 
 @customElement('build-menu')
 export class BuildMenu extends LitElement {
-    public game: Game;
+    public game: GameView;
     public eventBus: EventBus;
     private myPlayer: Player;
     private clickedCell: Cell;

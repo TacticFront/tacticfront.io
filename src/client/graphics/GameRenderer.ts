@@ -19,9 +19,10 @@ import { StructureLayer } from "./layers/StructureLayer";
 import { PlayerInfoOverlay } from "./layers/PlayerInfoOverlay";
 import { consolex } from "../../core/Consolex";
 import { RefreshGraphicsEvent as RedrawGraphicsEvent } from "../InputHandler";
+import { GameView } from "../../core/GameView";
 
 
-export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: EventBus, clientID: ClientID): GameRenderer {
+export function createRenderer(canvas: HTMLCanvasElement, game: GameView, eventBus: EventBus, clientID: ClientID): GameRenderer {
 	const transformHandler = new TransformHandler(game, eventBus, canvas)
 
 	const uiState = { attackRatio: 20 }
@@ -44,6 +45,7 @@ export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: 
 	}
 	leaderboard.clientID = clientID
 	leaderboard.eventBus = eventBus
+	leaderboard.game = game
 
 
 	const controlPanel = document.querySelector('control-panel') as ControlPanel;
@@ -53,6 +55,7 @@ export function createRenderer(canvas: HTMLCanvasElement, game: Game, eventBus: 
 	controlPanel.clientID = clientID
 	controlPanel.eventBus = eventBus
 	controlPanel.uiState = uiState
+	controlPanel.game = game
 
 	const eventsDisplay = document.querySelector('events-display') as EventsDisplay;
 	if (!(eventsDisplay instanceof EventsDisplay)) {
@@ -94,7 +97,7 @@ export class GameRenderer {
 
 	private context: CanvasRenderingContext2D
 
-	constructor(private game: Game, private eventBus: EventBus, private canvas: HTMLCanvasElement, public transformHandler: TransformHandler, public uiState: UIState, private layers: Layer[]) {
+	constructor(private game: GameView, private eventBus: EventBus, private canvas: HTMLCanvasElement, public transformHandler: TransformHandler, public uiState: UIState, private layers: Layer[]) {
 		this.context = canvas.getContext("2d")
 	}
 
@@ -107,7 +110,7 @@ export class GameRenderer {
 			})
 		})
 
-		this.layers.forEach(l => l.init(this.game))
+		this.layers.forEach(l => l.init())
 
 		document.body.appendChild(this.canvas);
 		window.addEventListener('resize', () => this.resizeCanvas());

@@ -9,6 +9,7 @@ import { TransformHandler } from "../TransformHandler";
 import { EventBus } from "../../../core/EventBus";
 import { initRemoteSender } from "../../../core/Consolex";
 import { AlternateViewEvent } from "../../InputHandler";
+import { GameView } from "../../../core/GameView";
 
 export class TerritoryLayer implements Layer {
     private canvas: HTMLCanvasElement
@@ -26,7 +27,7 @@ export class TerritoryLayer implements Layer {
     private alternativeView = false
 
 
-    constructor(private game: Game, private eventBus: EventBus) {
+    constructor(private game: GameView, private eventBus: EventBus) {
         this.theme = game.config().theme()
     }
 
@@ -59,7 +60,7 @@ export class TerritoryLayer implements Layer {
         }
     }
 
-    init(game: Game) {
+    init() {
         this.eventBus.on(TileEvent, e => this.tileUpdate(e))
         this.eventBus.on(AlternateViewEvent, e => { this.alternativeView = e.alternateView })
         this.redraw()

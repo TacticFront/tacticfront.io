@@ -1,7 +1,7 @@
 import { Game } from "../../../core/game/Game"
 
 export interface Layer {
-    init(game: Game)
+    init()
     tick()
     renderLayer(context: CanvasRenderingContext2D)
     shouldTransform(): boolean

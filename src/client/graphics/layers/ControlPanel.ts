@@ -7,10 +7,11 @@ import { renderNumber, renderTroops } from '../../Utils';
 import { EventBus } from '../../../core/EventBus';
 import { UIState } from '../UIState';
 import { SendSetTargetTroopRatioEvent } from '../../Transport';
+import { GameView } from '../../../core/GameView';
 
 @customElement('control-panel')
 export class ControlPanel extends LitElement implements Layer {
-    private game: Game;
+    public game: GameView;
     public clientID: ClientID;
     public eventBus: EventBus;
     public uiState: UIState;
@@ -51,8 +52,7 @@ export class ControlPanel extends LitElement implements Layer {
     @state()
     private _goldPerSecond: number;
 
-    init(game: Game) {
-        this.game = game;
+    init() {
         this.attackRatio = .20;
         this.uiState.attackRatio = this.attackRatio;
         this.currentTroopRatio = this.targetTroopRatio;
