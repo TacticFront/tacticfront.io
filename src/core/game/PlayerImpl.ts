@@ -1,4 +1,4 @@
-import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers, Gold, UnitType, Unit, MutableUnit, Relation } from "./Game";
+import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers, Gold, UnitType, Unit, MutableUnit, Relation, MutableTile } from "./Game";
 import { ClientID } from "../Schemas";
 import { assertNever, bfs, closestOceanShoreFromPlayer, dist, distSortUnit, manhattanDist, manhattanDistWrapped, processName, simpleHash, sourceDstOceanShore, within } from "../Util";
 import { CellString, GameImpl } from "./GameImpl";
@@ -6,6 +6,7 @@ import { UnitImpl } from "./UnitImpl";
 import { TileImpl } from "./TileImpl";
 import { MessageType } from "../../client/graphics/layers/EventsDisplay";
 import { renderTroops } from "../../client/Utils";
+import { PlayerViewData, ViewData, ViewSerializable } from "../GameView";
 
 interface Target {
     tick: Tick
@@ -16,7 +17,7 @@ class Donation {
     constructor(public readonly recipient: Player, public readonly tick: Tick) { }
 }
 
-export class PlayerImpl implements MutablePlayer {
+export class PlayerImpl implements MutablePlayer, ViewSerializable<PlayerViewData> {
 
     public _lastTileChange: number = 0
 
@@ -27,10 +28,10 @@ export class PlayerImpl implements MutablePlayer {
 
     isTraitor_ = false
 
-    public _borderTiles: Set<Tile> = new Set();
+    public _borderTiles: Set<TileImpl> = new Set();
 
     public _units: UnitImpl[] = [];
-    public _tiles: Map<CellString, Tile> = new Map<CellString, Tile>();
+    public _tiles: Map<CellString, Tile> = new Map<CellString, TileImpl>();
 
     private _name: string;
     private _displayName: string;
@@ -53,6 +54,23 @@ export class PlayerImpl implements MutablePlayer {
         this._gold = 0
         this._displayName = processName(this._name)
 
+    }
+    toViewData(): ViewData<PlayerViewData> {
+        return {
+            clientID: this.clientID(),
+            name: this.name(),
+            displayName: this.displayName(),
+            id: this.id(),
+            type: this.type(),
+            isAlive: this.isAlive(),
+            tilesOwned: this.numTilesOwned(),
+            allies: this.allies().map(p => p.id()),
+            gold: this._gold,
+            population: this.population(),
+            workers: this.workers(),
+            troops: this.troops(),
+            targetTroopRatio: this.targetTroopRatio()
+        }
     }
 
     name(): string {
@@ -98,11 +116,11 @@ export class PlayerImpl implements MutablePlayer {
         return this._tiles.size;
     }
 
-    tiles(): ReadonlySet<Tile> {
-        return new Set(this._tiles.values());
+    tiles(): ReadonlySet<MutableTile> {
+        return new Set(this._tiles.values()) as Set<MutableTile>;
     }
 
-    borderTiles(): ReadonlySet<Tile> {
+    borderTiles(): ReadonlySet<MutableTile> {
         return this._borderTiles;
     }
 
@@ -279,7 +297,7 @@ export class PlayerImpl implements MutablePlayer {
     transitiveTargets(): MutablePlayer[] {
         const ts = this.alliances().map(a => a.other(this)).flatMap(ally => ally.targets())
         ts.push(...this.targets())
-        return [...new Set(ts)]
+        return [...new Set(ts)] as MutablePlayer[]
     }
 
     sendEmoji(recipient: Player | typeof AllPlayers, emoji: string): void {

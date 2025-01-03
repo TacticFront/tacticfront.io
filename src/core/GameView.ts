@@ -1,80 +1,70 @@
 import { MessageType } from "../client/graphics/layers/EventsDisplay";
 import { Config } from "./configuration/Config";
-import { Alliance, AllianceRequest, AllPlayers, Cell, DefenseBonus, EmojiMessage, Execution, ExecutionView, Game, Gold, Nation, Player, PlayerID, PlayerInfo, PlayerType, Relation, TerrainMap, TerrainTile, TerrainType, TerraNullius, Tick, Tile, Unit, UnitInfo, UnitType } from "./game/Game";
-import { GameUpdateViewData, PlayerViewData, TileViewData, UnitViewData } from "./GameViewData";
+import { Alliance, AllianceRequest, AllPlayers, Cell, DefenseBonus, EmojiMessage, Execution, ExecutionView, Game, Gold, MutableTile, Nation, Player, PlayerID, PlayerInfo, PlayerType, Relation, TerrainMap, TerrainTile, TerrainType, TerraNullius, Tick, Tile, Unit, UnitInfo, UnitType } from "./game/Game";
 import { ClientID } from "./Schemas";
 
+export interface ViewSerializable<T> {
+    toViewData(): ViewData<T>;
+}
+
+export interface ViewData<T> {
+    // Base view data properties if any
+}
+
+export interface TileViewData extends ViewData<TileViewData> {
+    x: number
+    y: number
+    owner: PlayerID,
+    hasFallout: boolean
+    hasDefenseBonus: boolean
+    isBorder: boolean
+}
+
 export class TileView implements Tile {
-    constructor(private data: TileViewData, terrain: TerrainTile) { }
-    isLand(): boolean {
-        throw new Error("Method not implemented.");
-    }
-    isShore(): boolean {
-        throw new Error("Method not implemented.");
-    }
-    isOceanShore(): boolean {
-        throw new Error("Method not implemented.");
-    }
-    isWater(): boolean {
-        throw new Error("Method not implemented.");
-    }
-    isShorelineWater(): boolean {
-        throw new Error("Method not implemented.");
-    }
-    isOcean(): boolean {
-        throw new Error("Method not implemented.");
-    }
-    isLake(): boolean {
-        throw new Error("Method not implemented.");
-    }
-    terrain(): TerrainTile {
-        throw new Error("Method not implemented.");
-    }
-    magnitude(): number {
-        throw new Error("Method not implemented.");
+    constructor(private game: Game, private data: TileViewData, private _terrain: TerrainTile) { }
+    type(): TerrainType {
+        return this._terrain.type()
     }
     owner(): Player | TerraNullius {
-        throw new Error("Method not implemented.");
+        return this.game.player(this.data.owner)
     }
     hasOwner(): boolean {
-        throw new Error("Method not implemented.");
+        return this.data.owner != null
     }
     isBorder(): boolean {
-        throw new Error("Method not implemented.");
-    }
-    borders(other: Player | TerraNullius): boolean {
-        throw new Error("Method not implemented.");
-    }
-    isInterior(): boolean {
-        throw new Error("Method not implemented.");
+        return this.data.isBorder
     }
     cell(): Cell {
-        throw new Error("Method not implemented.");
+        return new Cell(this.data.x, this.data.y)
     }
+    hasFallout(): boolean {
+        return this.data.hasFallout
+    }
+    terrain(): TerrainTile {
+        return this._terrain
+    }
+
     neighbors(): Tile[] {
         throw new Error("Method not implemented.");
     }
-    neighborsWrapped(): Tile[] {
-        throw new Error("Method not implemented.");
-    }
-    onShore(): boolean {
-        throw new Error("Method not implemented.");
-    }
-    defenseBonuses(): DefenseBonus[] {
-        throw new Error("Method not implemented.");
-    }
-    defenseBonus(player: Player): number {
-        throw new Error("Method not implemented.");
-    }
-    hasFallout(): boolean {
+
+
+    hasDefenseBonus(): boolean {
         throw new Error("Method not implemented.");
     }
     cost(): number {
         throw new Error("Method not implemented.");
     }
-    type(): TerrainType {
-        throw new Error("Method not implemented.");
-    }
+}
+
+export interface UnitViewData extends ViewData<UnitView> {
+    type: UnitType,
+    troops: number,
+    x: number,
+    y: number,
+    owner: string,
+    isActive: boolean,
+    health?: number
 }
 
 export class UnitView implements Unit {
@@ -95,136 +85,144 @@ export class UnitView implements Unit {
     isActive(): boolean {
         throw new Error("Method not implemented.");
     }
-    info(): UnitInfo {
-        throw new Error("Method not implemented.");
-    }
     hasHealth(): boolean {
-        throw new Error("Method not implemented.");
+        return this.data.health != undefined
     }
     health(): number {
-        throw new Error("Method not implemented.");
+        return this.data.health ?? 0
     }
 }
 
+export interface PlayerViewData extends ViewData<PlayerViewData> {
+    clientID: ClientID,
+    name: string,
+    displayName: string,
+    id: PlayerID,
+    type: PlayerType,
+    isAlive: boolean,
+    tilesOwned: number,
+    allies: PlayerID[],
+    gold: number,
+    population: number,
+    workers: number,
+    troops: number,
+    targetTroopRatio: number
+}
+
 export class PlayerView implements Player {
-    constructor(private data: PlayerViewData) { }
-    info(): PlayerInfo {
-        throw new Error("Method not implemented.");
-    }
+    constructor(private game: Game, private data: PlayerViewData) { }
     name(): string {
-        throw new Error("Method not implemented.");
+        return this.data.name
     }
     displayName(): string {
-        throw new Error("Method not implemented.");
+        return this.data.displayName
     }
     clientID(): ClientID {
-        throw new Error("Method not implemented.");
+        return this.data.clientID
     }
     id(): PlayerID {
-        throw new Error("Method not implemented.");
+        return this.data.id
     }
     type(): PlayerType {
-        throw new Error("Method not implemented.");
-    }
-    units(...types: UnitType[]): Unit[] {
-        throw new Error("Method not implemented.");
-    }
-    ownsTile(cell: Cell): boolean {
-        throw new Error("Method not implemented.");
+        return this.data.type
     }
     isAlive(): boolean {
-        throw new Error("Method not implemented.");
-    }
-    borderTiles(): ReadonlySet<Tile> {
-        throw new Error("Method not implemented.");
+        return this.data.isAlive
     }
     isPlayer(): this is Player {
-        throw new Error("Method not implemented.");
-    }
-    neighbors(): (Player | TerraNullius)[] {
-        throw new Error("Method not implemented.");
+        return true
     }
     numTilesOwned(): number {
-        throw new Error("Method not implemented.");
-    }
-    tiles(): ReadonlySet<Tile> {
-        throw new Error("Method not implemented.");
-    }
-    sharesBorderWith(other: Player | TerraNullius): boolean {
-        throw new Error("Method not implemented.");
-    }
-    incomingAllianceRequests(): AllianceRequest[] {
-        throw new Error("Method not implemented.");
-    }
-    outgoingAllianceRequests(): AllianceRequest[] {
-        throw new Error("Method not implemented.");
-    }
-    alliances(): Alliance[] {
-        throw new Error("Method not implemented.");
+        return this.data.tilesOwned
     }
     allies(): Player[] {
-        throw new Error("Method not implemented.");
-    }
-    isAlliedWith(other: Player): boolean {
-        throw new Error("Method not implemented.");
-    }
-    allianceWith(other: Player): Alliance | null {
-        throw new Error("Method not implemented.");
-    }
-    recentOrPendingAllianceRequestWith(other: Player): boolean {
-        throw new Error("Method not implemented.");
-    }
-    relation(other: Player): Relation {
-        throw new Error("Method not implemented.");
-    }
-    allRelationsSorted(): { player: Player; relation: Relation; }[] {
-        throw new Error("Method not implemented.");
-    }
-    isTraitor(): boolean {
-        throw new Error("Method not implemented.");
-    }
-    canTarget(other: Player): boolean {
-        throw new Error("Method not implemented.");
-    }
-    targets(): Player[] {
-        throw new Error("Method not implemented.");
-    }
-    transitiveTargets(): Player[] {
-        throw new Error("Method not implemented.");
-    }
-    toString(): string {
-        throw new Error("Method not implemented.");
-    }
-    canSendEmoji(recipient: Player | typeof AllPlayers): boolean {
-        throw new Error("Method not implemented.");
-    }
-    outgoingEmojis(): EmojiMessage[] {
-        throw new Error("Method not implemented.");
-    }
-    canDonate(recipient: Player): boolean {
-        throw new Error("Method not implemented.");
+        return this.data.allies.map(a => this.game.player(a))
     }
     gold(): Gold {
-        throw new Error("Method not implemented.");
+        return this.data.gold
     }
     population(): number {
-        throw new Error("Method not implemented.");
+        return this.data.workers
     }
     workers(): number {
-        throw new Error("Method not implemented.");
+        return this.data.workers
     }
     targetTroopRatio(): number {
-        throw new Error("Method not implemented.");
+        return this.data.targetTroopRatio
     }
     troops(): number {
-        throw new Error("Method not implemented.");
+        return
+    }
+
+    isAlliedWith(other: Player): boolean {
+        return false
+    }
+    allianceWith(other: Player): Alliance | null {
+        return null
+    }
+    borderTiles(): ReadonlySet<Tile> {
+        return new Set()
+    }
+    units(...types: UnitType[]): Unit[] {
+        return []
+    }
+    sharesBorderWith(other: Player | TerraNullius): boolean {
+        return false
+    }
+    incomingAllianceRequests(): AllianceRequest[] {
+        return []
+    }
+    outgoingAllianceRequests(): AllianceRequest[] {
+        return []
+    }
+    alliances(): Alliance[] {
+        return []
+    }
+    recentOrPendingAllianceRequestWith(other: Player): boolean {
+        return false
+    }
+    relation(other: Player): Relation {
+        return Relation.Neutral
+    }
+    allRelationsSorted(): { player: Player; relation: Relation; }[] {
+        return []
+    }
+    transitiveTargets(): Player[] {
+        return []
+    }
+    isTraitor(): boolean {
+        return false
+    }
+    canTarget(other: Player): boolean {
+        return false
+    }
+    toString(): string {
+        return ''
+    }
+    canSendEmoji(recipient: Player | typeof AllPlayers): boolean {
+        return false
+    }
+    outgoingEmojis(): EmojiMessage[] {
+        return []
+    }
+    canDonate(recipient: Player): boolean {
+        return false
     }
     canBuild(type: UnitType, targetTile: Tile): Tile | false {
-        throw new Error("Method not implemented.");
+        return false
     }
     lastTileChange(): Tick {
-        throw new Error("Method not implemented.");
+        return 0
     }
+    info(): PlayerInfo {
+        return null
+    }
+}
+
+export interface GameUpdateViewData extends ViewData<GameUpdateViewData> {
+    units: UnitViewData[]
+    players: PlayerViewData[]
+    tileUpdates: TileViewData[]
 }
 
 export class GameView implements Game {
@@ -247,7 +245,7 @@ export class GameView implements Game {
     }
 
     recentlyUpdatedTiles(): TileView[] {
-        return this.lastGameUpdate.tileUpdates.map(tu => new TileView(tu, this._terrainMap.terrain(new Cell(tu.x, tu.y))))
+        return this.lastGameUpdate.tileUpdates.map(tu => new TileView(this, tu, this._terrainMap.terrain(new Cell(tu.x, tu.y))))
     }
 
     player(id: PlayerID): Player {

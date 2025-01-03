@@ -1,7 +1,7 @@
 import { info } from "console";
 import { Config } from "../configuration/Config";
 import { EventBus } from "../EventBus";
-import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Unit, UnitEvent as UnitEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent, BrokeAllianceEvent, MutableAlliance, Alliance, AllianceExpiredEvent, Nation, UnitType, UnitInfo, TerrainMap, DefenseBonus } from "./Game";
+import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Unit, UnitEvent as UnitEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent, BrokeAllianceEvent, MutableAlliance, Alliance, AllianceExpiredEvent, Nation, UnitType, UnitInfo, TerrainMap, DefenseBonus, MutableTile } from "./Game";
 import { TerrainMapImpl } from "./TerrainMapLoader";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
@@ -267,9 +267,9 @@ export class GameImpl implements MutableGame {
     }
 
 
-    tile(cell: Cell): Tile {
+    tile(cell: Cell): MutableTile {
         this.assertIsOnMap(cell)
-        return this.map[cell.x][cell.y]
+        return this.map[cell.x][cell.y] as MutableTile
     }
 
     isOnMap(cell: Cell): boolean {
@@ -327,7 +327,7 @@ export class GameImpl implements MutableGame {
         if (previousOwner.isPlayer()) {
             previousOwner._lastTileChange = this._ticks
             previousOwner._tiles.delete(tile.cell().toString())
-            previousOwner._borderTiles.delete(tile)
+            previousOwner._borderTiles.delete(tileImpl)
             tileImpl._isBorder = false
         }
         tileImpl._owner = owner
@@ -350,7 +350,7 @@ export class GameImpl implements MutableGame {
         let previousOwner = tileImpl._owner as PlayerImpl
         previousOwner._lastTileChange = this._ticks
         previousOwner._tiles.delete(tile.cell().toString())
-        previousOwner._borderTiles.delete(tile)
+        previousOwner._borderTiles.delete(tileImpl)
         tileImpl._isBorder = false
 
         tileImpl._owner = this._terraNullius
@@ -382,7 +382,7 @@ export class GameImpl implements MutableGame {
         if (!tile.hasOwner()) {
             return false
         }
-        for (const neighbor of tile.neighbors()) {
+        for (const neighbor of (tile as MutableTile).neighbors()) {
             let bordersEnemy = tile.owner() != neighbor.owner()
             if (bordersEnemy) {
                 return true

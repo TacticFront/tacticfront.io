@@ -184,16 +184,19 @@ export interface Tile extends SearchNode {
     owner(): Player | TerraNullius
     hasOwner(): boolean
     isBorder(): boolean
-    borders(other: Player | TerraNullius): boolean
-    isInterior(): boolean
     cell(): Cell
-    neighbors(): Tile[]
-    neighborsWrapped(): Tile[]
-    defenseBonuses(): DefenseBonus[]
-    // defense bonus against this player
-    defenseBonus(player: Player): number
     hasFallout(): boolean
     terrain(): TerrainTile
+    neighbors(): Tile[]
+    hasDefenseBonus(): boolean
+}
+
+export interface MutableTile extends Tile {
+    // defense bonus against this player
+    defenseBonus(player: Player): number
+    borders(other: Player | TerraNullius): boolean
+    neighborsWrapped(): Tile[]
+    defenseBonuses(): DefenseBonus[]
 }
 
 export interface Unit {
@@ -202,7 +205,6 @@ export interface Unit {
     tile(): Tile
     owner(): Player
     isActive(): boolean
-    info(): UnitInfo
     hasHealth(): boolean
     health(): number
 }
@@ -211,6 +213,7 @@ export interface MutableUnit extends Unit {
     move(tile: Tile): void
     owner(): MutablePlayer
     setTroops(troops: number): void
+    info(): UnitInfo
     delete(displayerMessage?: boolean): void
     modifyHealth(delta: number): void
 }
@@ -230,13 +233,10 @@ export interface Player {
     id(): PlayerID
     type(): PlayerType
     units(...types: UnitType[]): Unit[]
-    ownsTile(cell: Cell): boolean
     isAlive(): boolean
     borderTiles(): ReadonlySet<Tile>
     isPlayer(): this is Player
-    neighbors(): (Player | TerraNullius)[]
     numTilesOwned(): number
-    tiles(): ReadonlySet<Tile>
     sharesBorderWith(other: Player | TerraNullius): boolean
     incomingAllianceRequests(): AllianceRequest[]
     outgoingAllianceRequests(): AllianceRequest[]
@@ -251,12 +251,9 @@ export interface Player {
     relation(other: Player): Relation
     // Sorted from most hated to most liked
     allRelationsSorted(): { player: Player, relation: Relation }[]
+    transitiveTargets(): Player[]
     isTraitor(): boolean
     canTarget(other: Player): boolean
-    // Targets for this player
-    targets(): Player[]
-    // Targets of player and all allies.
-    transitiveTargets(): Player[]
     toString(): string
     canSendEmoji(recipient: Player | typeof AllPlayers): boolean
     outgoingEmojis(): EmojiMessage[]
@@ -275,6 +272,13 @@ export interface Player {
 }
 
 export interface MutablePlayer extends Player {
+    // Targets for this player
+    targets(): Player[]
+    // Targets of player and all allies.
+    neighbors(): (Player | TerraNullius)[]
+    tiles(): ReadonlySet<MutableTile>
+    ownsTile(cell: Cell): boolean
+    tiles(): ReadonlySet<MutableTile>
     conquer(tile: Tile): void
     relinquish(tile: Tile): void
     executions(): Execution[]
@@ -338,6 +342,7 @@ export interface Game {
 }
 
 export interface MutableGame extends Game {
+    tile(cell: Cell): MutableTile
     player(id: PlayerID): MutablePlayer
     playerByClientID(id: ClientID): MutablePlayer | null
     players(): MutablePlayer[]

@@ -1,4 +1,4 @@
-import { Difficulty, GameType, Gold, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tick, Tile, Unit, UnitInfo, UnitType } from "../game/Game";
+import { Difficulty, GameType, Gold, MutableTile, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tick, Tile, Unit, UnitInfo, UnitType } from "../game/Game";
 import { GameConfig } from "../Schemas";
 import { assertNever, distSort, manhattanDist, simpleHash, within } from "../Util";
 import { Config, ServerConfig, Theme } from "./Config";
@@ -186,7 +186,7 @@ export class DefaultConfig implements Config {
     }
     theme(): Theme { return pastelTheme; }
 
-    attackLogic(attackTroops: number, attacker: Player, defender: Player | TerraNullius, tileToConquer: Tile): { attackerTroopLoss: number; defenderTroopLoss: number; tilesPerTickUsed: number } {
+    attackLogic(attackTroops: number, attacker: Player, defender: Player | TerraNullius, tileToConquer: MutableTile): { attackerTroopLoss: number; defenderTroopLoss: number; tilesPerTickUsed: number } {
         let mag = 0
         let speed = 0
         switch (tileToConquer.terrain().type()) {

@@ -1,12 +1,13 @@
-import { Tile, Cell, TerrainType, Player, TerraNullius, MutablePlayer, TerrainTile, DefenseBonus } from "./Game";
+import { Tile, Cell, TerrainType, Player, TerraNullius, MutablePlayer, TerrainTile, DefenseBonus, MutableTile } from "./Game";
 import { SearchNode } from "../pathfinding/AStar";
 import { TerrainTileImpl } from "./TerrainMapLoader";
 import { GameImpl } from "./GameImpl";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
+import { TileView, TileViewData, ViewData, ViewSerializable } from "../GameView";
 
 
-export class TileImpl implements Tile {
+export class TileImpl implements MutableTile, ViewSerializable<TileViewData> {
 
     public _isBorder = false;
     private _neighbors: Tile[] = null;
@@ -22,12 +23,27 @@ export class TileImpl implements Tile {
         private readonly _terrain: TerrainTileImpl
     ) { }
 
+    toViewData(): ViewData<TileViewData> {
+        return {
+            x: this._cell.x,
+            y: this._cell.y,
+            owner: this._owner?.id(),
+            hasFallout: this._hasFallout,
+            hasDefenseBonus: this.hasDefenseBonus(),
+            isBorder: this.isBorder()
+        }
+    }
+
     hasFallout(): boolean {
         return this._hasFallout
     }
 
     type(): TerrainType {
         return this._terrain._type
+    }
+
+    hasDefenseBonus(): boolean {
+        return this.defenseBonuses.length > 0
     }
 
     defenseBonus(player: Player): number {
@@ -93,7 +109,6 @@ export class TileImpl implements Tile {
     hasOwner(): boolean { return this._owner != this.gs._terraNullius; }
     owner(): MutablePlayer | TerraNullius { return this._owner; }
     isBorder(): boolean { return this._isBorder; }
-    isInterior(): boolean { return this.hasOwner() && !this.isBorder(); }
     cell(): Cell { return this._cell; }
     x(): number {
         return this._cell.x

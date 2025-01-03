@@ -146,7 +146,7 @@ export class TerritoryLayer implements Layer {
         }
         const owner = tile.owner() as Player
         if (tile.isBorder()) {
-            if (tile.defenseBonuses().filter(db => db.unit.owner() == owner).length > 0) {
+            if (tile.hasDefenseBonus()) {
                 this.paintCell(
                     tile.cell(),
                     this.theme.defendedBorderColor(owner.info()),

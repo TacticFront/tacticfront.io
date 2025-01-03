@@ -4,7 +4,7 @@ import { Executor } from "./execution/ExecutionManager";
 import { Game, Tile, TileEvent } from "./game/Game";
 import { createGame } from "./game/GameImpl";
 import { loadTerrainMap } from "./game/TerrainMapLoader";
-import { GameUpdateViewData } from "./GameViewData";
+import { GameUpdateViewData } from "./GameView";
 import { GameConfig, Turn } from "./Schemas";
 
 export async function createGameRunner(gameID: string, gameConfig: GameConfig): Promise<GameRunner> {
