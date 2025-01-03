@@ -1,8 +1,8 @@
 import { Config } from "../configuration/Config"
 import { GameEvent } from "../EventBus"
 import { ClientID, GameConfig, GameID } from "../Schemas"
-import { MessageType } from "../../client/graphics/layers/EventsDisplay"
 import { SearchNode } from "../pathfinding/AStar"
+import { PlayerViewData, TileViewData, UnitViewData, ViewSerializable } from "../GameView"
 
 export type PlayerID = string
 export type Tick = number
@@ -191,7 +191,7 @@ export interface Tile extends SearchNode {
     hasDefenseBonus(): boolean
 }
 
-export interface MutableTile extends Tile {
+export interface MutableTile extends Tile, ViewSerializable<TileViewData> {
     // defense bonus against this player
     defenseBonus(player: Player): number
     borders(other: Player | TerraNullius): boolean
@@ -209,7 +209,7 @@ export interface Unit {
     health(): number
 }
 
-export interface MutableUnit extends Unit {
+export interface MutableUnit extends Unit, ViewSerializable<UnitViewData> {
     move(tile: Tile): void
     owner(): MutablePlayer
     setTroops(troops: number): void
@@ -271,7 +271,7 @@ export interface Player {
     lastTileChange(): Tick
 }
 
-export interface MutablePlayer extends Player {
+export interface MutablePlayer extends Player, ViewSerializable<PlayerViewData> {
     // Targets for this player
     targets(): Player[]
     // Targets of player and all allies.
@@ -388,5 +388,20 @@ export class TargetPlayerEvent implements GameEvent {
 
 export class EmojiMessageEvent implements GameEvent {
     constructor(public readonly message: EmojiMessage) { }
+}
+
+export class DisplayMessageEvent implements GameEvent {
+    constructor(
+        public readonly message: string,
+        public readonly type: MessageType,
+        public readonly playerID: PlayerID | null = null
+    ) { }
+}
+
+export enum MessageType {
+    SUCCESS,
+    INFO,
+    WARN,
+    ERROR
 }
 

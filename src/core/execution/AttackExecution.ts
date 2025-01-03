@@ -2,7 +2,7 @@ import { PriorityQueue } from "@datastructures-js/priority-queue";
 import { Cell, Execution, MutableGame, MutablePlayer, Player, PlayerID, PlayerType, TerrainType, TerraNullius, Tile } from "../game/Game";
 import { PseudoRandom } from "../PseudoRandom";
 import { manhattanDist } from "../Util";
-import { MessageType } from "../../client/graphics/layers/EventsDisplay";
+import { MessageType } from '../game/Game';
 import { renderNumber } from "../../client/Utils";
 
 export class AttackExecution implements Execution {

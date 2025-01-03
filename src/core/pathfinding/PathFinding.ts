@@ -1,7 +1,6 @@
 import { Cell, Game, TerrainTile, TerrainType, Tile } from "../game/Game";
 import { manhattanDist } from "../Util";
 import { AStar, PathFindResultType, SearchNode, TileResult } from "./AStar";
-import { ParallelAStar, WorkerClient } from "../worker/WorkerClient";
 import { SerialAStar } from "./SerialAStar";
 import { MiniAStar } from "./MiniAStar";
 import { consolex } from "../Consolex";

@@ -1,17 +1,15 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { EventBus, GameEvent } from "../../../core/EventBus";
+import { EventBus } from "../../../core/EventBus";
 import {
   AllianceExpiredEvent,
   AllianceRequestEvent,
   AllianceRequestReplyEvent,
   AllPlayers,
-  BrokeAllianceEvent,
-  EmojiMessageEvent,
+  BrokeAllianceEvent, DisplayMessageEvent, EmojiMessageEvent,
   Game,
-  Player,
-  PlayerID,
-  TargetPlayerEvent,
+  MessageType,
+  Player, TargetPlayerEvent,
   UnitEvent
 } from "../../../core/game/Game";
 import { ClientID } from "../../../core/Schemas";
@@ -19,21 +17,6 @@ import { Layer } from "./Layer";
 import { SendAllianceReplyIntentEvent } from "../../Transport";
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { onlyImages, sanitize } from '../../../core/Util';
-
-export enum MessageType {
-  SUCCESS,
-  INFO,
-  WARN,
-  ERROR,
-}
-
-export class DisplayMessageEvent implements GameEvent {
-  constructor(
-    public readonly message: string,
-    public readonly type: MessageType,
-    public readonly playerID: PlayerID | null = null
-  ) { }
-}
 
 interface Event {
   description: string;

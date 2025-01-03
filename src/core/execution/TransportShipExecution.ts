@@ -1,7 +1,8 @@
 import { Unit, Cell, Execution, MutableUnit, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, Tile, TileEvent, UnitType, TerrainType } from "../game/Game";
 import { and, bfs, manhattanDistWrapped, sourceDstOceanShore, targetTransportTile } from "../Util";
 import { AttackExecution } from "./AttackExecution";
-import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/EventsDisplay";
+import { MessageType } from '../game/Game';
+import { DisplayMessageEvent } from '../game/Game';
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { SerialAStar } from "../pathfinding/SerialAStar";

@@ -7,7 +7,7 @@ import { TerraNulliusImpl } from "./TerraNulliusImpl";
 import { TileView, TileViewData, ViewData, ViewSerializable } from "../GameView";
 
 
-export class TileImpl implements MutableTile, ViewSerializable<TileViewData> {
+export class TileImpl implements MutableTile {
 
     public _isBorder = false;
     private _neighbors: Tile[] = null;
@@ -23,7 +23,7 @@ export class TileImpl implements MutableTile, ViewSerializable<TileViewData> {
         private readonly _terrain: TerrainTileImpl
     ) { }
 
-    toViewData(): ViewData<TileViewData> {
+    toViewData(): TileViewData {
         return {
             x: this._cell.x,
             y: this._cell.y,

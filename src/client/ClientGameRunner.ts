@@ -10,10 +10,12 @@ import { and, bfs, dist, generateID, manhattanDist } from "../core/Util";
 import { WinCheckExecution } from "../core/execution/WinCheckExecution";
 import { SendAttackIntentEvent, SendSpawnIntentEvent, Transport } from "./Transport";
 import { createCanvas } from "./Utils";
-import { DisplayMessageEvent, MessageType } from "./graphics/layers/EventsDisplay";
+import { MessageType } from '../core/game/Game';
+import { DisplayMessageEvent } from '../core/game/Game';
 import { WorkerClient } from "../core/worker/WorkerClient";
 import { consolex, initRemoteSender } from "../core/Consolex";
 import { getConfig, getServerConfig } from "../core/configuration/Config";
+import { GameUpdateViewData } from "../core/GameView";
 
 export interface LobbyConfig {
     playerName: () => string
@@ -75,6 +77,10 @@ export async function createClientGame(lobbyConfig: LobbyConfig, gameConfig: Gam
     const terrainMap = await loadTerrainMap(gameConfig.gameMap);
 
     let game = createGame(terrainMap.map, terrainMap.miniMap, eventBus, config)
+    const worker = new WorkerClient(lobbyConfig.gameID, gameConfig)
+    await worker.initialize((gu: GameUpdateViewData) => {
+        console.log('got update!')
+    })
 
     consolex.log('going to init path finder')
     consolex.log('inited path finder')
@@ -92,6 +98,7 @@ export async function createClientGame(lobbyConfig: LobbyConfig, gameConfig: Gam
         new InputHandler(canvas, eventBus),
         new Executor(game, lobbyConfig.gameID),
         transport,
+        worker,
     )
 }
 
@@ -115,6 +122,7 @@ export class ClientGameRunner {
         private input: InputHandler,
         private executor: Executor,
         private transport: Transport,
+        private worker: WorkerClient
     ) { }
 
     public start() {
@@ -175,6 +183,7 @@ export class ClientGameRunner {
             return
         }
         this.isProcessingTurn = true
+        this.worker.sendTurn(this.turns[this.currTurn])
         this.gs.addExecution(...this.executor.createExecs(this.turns[this.currTurn]))
         try {
             const start = performance.now()

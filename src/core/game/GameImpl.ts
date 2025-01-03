@@ -9,7 +9,8 @@ import { TileImpl } from "./TileImpl";
 import { AllianceRequestImpl } from "./AllianceRequestImpl";
 import { AllianceImpl } from "./AllianceImpl";
 import { ClientID, GameConfig } from "../Schemas";
-import { DisplayMessageEvent, MessageType } from "../../client/graphics/layers/EventsDisplay";
+import { MessageType } from './Game';
+import { DisplayMessageEvent } from './Game';
 import { UnitImpl } from "./UnitImpl";
 import { consolex } from "../Consolex";
 

@@ -5,7 +5,6 @@ import { SerialAStar } from "../pathfinding/SerialAStar";
 import { PseudoRandom } from "../PseudoRandom";
 import { bfs, dist, manhattanDist } from "../Util";
 import { TradeShipExecution } from "./TradeShipExecution";
-import { ParallelAStar, WorkerClient } from "../worker/WorkerClient";
 import { consolex } from "../Consolex";
 import { MiniAStar } from "../pathfinding/MiniAStar";
 

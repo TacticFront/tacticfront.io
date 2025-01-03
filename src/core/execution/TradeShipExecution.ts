@@ -1,4 +1,4 @@
-import { MessageType } from "../../client/graphics/layers/EventsDisplay";
+import { MessageType } from '../game/Game';
 import { renderNumber } from "../../client/Utils";
 import { AllPlayers, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, Tile, Unit, UnitType } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";

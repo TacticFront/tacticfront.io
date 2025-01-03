@@ -4,7 +4,7 @@ import { assertNever, bfs, closestOceanShoreFromPlayer, dist, distSortUnit, manh
 import { CellString, GameImpl } from "./GameImpl";
 import { UnitImpl } from "./UnitImpl";
 import { TileImpl } from "./TileImpl";
-import { MessageType } from "../../client/graphics/layers/EventsDisplay";
+import { MessageType } from './Game';
 import { renderTroops } from "../../client/Utils";
 import { PlayerViewData, ViewData, ViewSerializable } from "../GameView";
 
@@ -17,7 +17,7 @@ class Donation {
     constructor(public readonly recipient: Player, public readonly tick: Tick) { }
 }
 
-export class PlayerImpl implements MutablePlayer, ViewSerializable<PlayerViewData> {
+export class PlayerImpl implements MutablePlayer {
 
     public _lastTileChange: number = 0
 
@@ -52,10 +52,10 @@ export class PlayerImpl implements MutablePlayer, ViewSerializable<PlayerViewDat
         this._troops = startPopulation * this._targetTroopRatio;
         this._workers = startPopulation * (1 - this._targetTroopRatio)
         this._gold = 0
-        this._displayName = processName(this._name)
+        this._displayName = this._name // processName(this._name)
 
     }
-    toViewData(): ViewData<PlayerViewData> {
+    toViewData(): PlayerViewData {
         return {
             clientID: this.clientID(),
             name: this.name(),

@@ -5,8 +5,6 @@ import { AttackExecution } from "./AttackExecution";
 import { TransportShipExecution } from "./TransportShipExecution";
 import { SpawnExecution } from "./SpawnExecution";
 import { PortExecution } from "./PortExecution";
-import { ParallelAStar, WorkerClient } from "../worker/WorkerClient";
-import { PathFinder } from "../pathfinding/PathFinding";
 import { DestroyerExecution } from "./DestroyerExecution";
 import { BattleshipExecution } from "./BattleshipExecution";
 import { GameID } from "../Schemas";

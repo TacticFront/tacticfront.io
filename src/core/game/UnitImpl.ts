@@ -1,4 +1,4 @@
-import { MessageType } from "../../client/graphics/layers/EventsDisplay";
+import { MessageType } from './Game';
 import { UnitViewData, ViewData, ViewSerializable } from "../GameView";
 import { simpleHash, within } from "../Util";
 import { MutableUnit, Tile, TerraNullius, UnitType, Player, UnitInfo } from "./Game";
@@ -7,7 +7,7 @@ import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
 
 
-export class UnitImpl implements MutableUnit, ViewSerializable<UnitViewData> {
+export class UnitImpl implements MutableUnit {
     private _active = true;
     private _health: number
 
@@ -22,7 +22,7 @@ export class UnitImpl implements MutableUnit, ViewSerializable<UnitViewData> {
         this._health = (this.g.unitInfo(_type).maxHealth ?? 2) / 2
     }
 
-    toViewData(): ViewData<UnitViewData> {
+    toViewData(): UnitViewData {
         return {
             type: this._type,
             troops: this._troops,

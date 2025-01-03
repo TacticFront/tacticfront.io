@@ -1,10 +1,10 @@
-import { MessageType } from "../client/graphics/layers/EventsDisplay";
+import { MessageType } from './game/Game';
 import { Config } from "./configuration/Config";
 import { Alliance, AllianceRequest, AllPlayers, Cell, DefenseBonus, EmojiMessage, Execution, ExecutionView, Game, Gold, MutableTile, Nation, Player, PlayerID, PlayerInfo, PlayerType, Relation, TerrainMap, TerrainTile, TerrainType, TerraNullius, Tick, Tile, Unit, UnitInfo, UnitType } from "./game/Game";
 import { ClientID } from "./Schemas";
 
 export interface ViewSerializable<T> {
-    toViewData(): ViewData<T>;
+    toViewData(): T;
 }
 
 export interface ViewData<T> {
