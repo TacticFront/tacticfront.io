@@ -28,6 +28,9 @@ export class TerritoryLayer implements Layer {
     private lastDragTime = 0
     private nodrawDragDuration = 200
 
+    private refreshRate = 50    
+    private lastRefresh = 0
+
 
     constructor(private game: GameView, private eventBus: EventBus) {
         this.theme = game.config().theme()
@@ -105,7 +108,8 @@ export class TerritoryLayer implements Layer {
     }
 
     renderLayer(context: CanvasRenderingContext2D) {
-        if (Date.now() > this.lastDragTime + this.nodrawDragDuration) {
+        if (Date.now() > this.lastDragTime + this.nodrawDragDuration && Date.now() > this.lastRefresh + this.refreshRate) {
+            this.lastRefresh = Date.now()
             this.renderTerritory()
             this.context.putImageData(this.imageData, 0, 0);
         }
