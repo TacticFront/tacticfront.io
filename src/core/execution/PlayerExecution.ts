@@ -148,6 +148,11 @@ export class PlayerExecution implements Execution {
 
     private removeCluster(cluster: Set<Tile>) {
         const arr = Array.from(cluster)
+        if (arr.some(t => t.owner() != this.player)) {
+            // Other removeCluster operations could change tile owners,
+            // so double check.
+            return
+        }
         const mode = getMode(arr.flatMap(t => t.neighbors()).filter(t => t.hasOwner() && t.owner() != this.player).map(t => t.owner().id()))
         if (!this.mg.hasPlayer(mode)) {
             consolex.warn('mode is not found')
