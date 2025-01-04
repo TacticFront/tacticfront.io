@@ -99,9 +99,9 @@ export class UnitView {
 }
 
 export interface NameViewData {
-    nameX: number,
-    nameY: number,
-    nameSize: number,
+    x: number,
+    y: number,
+    size: number,
 }
 
 export interface PlayerViewData extends ViewData<PlayerViewData> {
@@ -125,6 +125,11 @@ export interface PlayerViewData extends ViewData<PlayerViewData> {
 
 export class PlayerView implements Player {
     constructor(private game: GameView, private data: PlayerViewData) { }
+
+    nameLocation(): NameViewData {
+        return this.data.nameViewData
+    }
+
     smallID(): number {
         return this.data.smallID
     }
@@ -303,6 +308,10 @@ export class GameView {
     hasPlayer(id: PlayerID): boolean {
         return false
     }
+    playerViews(): PlayerView[] {
+        return Object.values(this.data.players).map(data => new PlayerView(this, data))
+    }
+
     players(): Player[] {
         return []
     }
