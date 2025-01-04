@@ -20,7 +20,6 @@ export async function createGameRunner(gameID: string, gameConfig: GameConfig, c
 
 export class GameRunner {
     private updatedTiles: Set<MutableTile> = new Set()
-    private borderOnlyUpdated: Set<MutableTile> = new Set()
     private tickInterval = null
     private turns: Turn[] = []
     private currTurn = 0
@@ -37,11 +36,6 @@ export class GameRunner {
     init() {
         this.eventBus.on(TileEvent, (e) => {
             this.updatedTiles.add(e.tile as MutableTile)
-            if (e.borderOnlyChange) {
-                this.borderOnlyUpdated.add(e.tile as MutableTile)
-            } else {
-                this.updatedTiles.add(e.tile as MutableTile)
-            }
         })
         this.game.addExecution(...this.execManager.spawnBots(this.game.config().numBots()))
         if (this.game.config().spawnNPCs()) {
@@ -64,7 +58,6 @@ export class GameRunner {
         }
         this.isExecuting = true
         this.updatedTiles.clear()
-        this.borderOnlyUpdated.clear()
 
 
         this.game.addExecution(...this.execManager.createExecs(this.turns[this.currTurn]))
@@ -72,23 +65,10 @@ export class GameRunner {
         this.game.executeNextTick()
 
 
-
-
-        this.updatedTiles.forEach(t => this.borderOnlyUpdated.delete(t))
-        const updatedData = Array.from(this.updatedTiles).map(t => t.toViewData())
-        updatedData.forEach(t => t.borderOnlyChange = false)
-
-        const borderOnlyData = Array.from(this.borderOnlyUpdated).map(t => t.toViewData())
-        borderOnlyData.forEach(t => t.borderOnlyChange = true)
-
-        updatedData.concat(borderOnlyData)
-
-
-
         this.callBack({
             tick: this.game.ticks(),
             units: this.game.units().map(u => u.toViewData()),
-            packedTileUpdates: updatedData.map(d => packTileData(d)),
+            packedTileUpdates: Array.from(this.updatedTiles).map(t => packTileData(t.toViewData())),
             players: Object.fromEntries(
                 this.game.allPlayers().map(p => [p.id(), p.toViewData()])
             ) as Record<PlayerID, PlayerViewData>

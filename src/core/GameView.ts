@@ -19,7 +19,6 @@ export interface TileViewData extends ViewData<TileViewData> {
     hasFallout: boolean
     hasDefenseBonus: boolean
     isBorder: boolean
-    borderOnlyChange: boolean
 }
 
 export class TileView {
@@ -350,8 +349,7 @@ export function packTileData(tile: TileViewData): Uint16Array {
     // Pack booleans into bits
     packed[3] = (tile.hasFallout ? 1 : 0) |
         (tile.hasDefenseBonus ? 2 : 0) |
-        (tile.isBorder ? 4 : 0) |
-        (tile.borderOnlyChange ? 8 : 0)
+        (tile.isBorder ? 4 : 0)
 
     return packed;
 }
@@ -364,6 +362,5 @@ export function unpackTileData(packed: Uint16Array): TileViewData {
         hasFallout: !!(packed[3] & 1),
         hasDefenseBonus: !!(packed[3] & 2),
         isBorder: !!(packed[3] & 4),
-        borderOnlyChange: !!(packed[4] & 8)
     };
 }

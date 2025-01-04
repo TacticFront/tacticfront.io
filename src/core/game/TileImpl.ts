@@ -31,7 +31,6 @@ export class TileImpl implements MutableTile {
             hasFallout: this._hasFallout,
             hasDefenseBonus: this.hasDefenseBonus(),
             isBorder: this.isBorder(),
-            borderOnlyChange: false,
         }
     }
 
