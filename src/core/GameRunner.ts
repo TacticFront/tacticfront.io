@@ -1,3 +1,4 @@
+import { placeName } from "../client/graphics/NameBoxCalculator";
 import { getConfig } from "./configuration/Config";
 import { EventBus } from "./EventBus";
 import { Executor } from "./execution/ExecutionManager";
@@ -5,7 +6,7 @@ import { WinCheckExecution } from "./execution/WinCheckExecution";
 import { Game, MutableGame, MutableTile, PlayerID, Tile, TileEvent } from "./game/Game";
 import { createGame } from "./game/GameImpl";
 import { loadTerrainMap } from "./game/TerrainMapLoader";
-import { GameUpdateViewData, packTileData, PlayerViewData } from "./GameView";
+import { GameUpdateViewData, NameViewData, packTileData, PlayerViewData } from "./GameView";
 import { GameConfig, Turn } from "./Schemas";
 
 export async function createGameRunner(gameID: string, gameConfig: GameConfig, callBack: (gu: GameUpdateViewData) => void): Promise<GameRunner> {
@@ -24,6 +25,8 @@ export class GameRunner {
     private turns: Turn[] = []
     private currTurn = 0
     private isExecuting = false
+
+    private playerToName = new Map<PlayerID, NameViewData>()
 
     constructor(
         private game: MutableGame,
@@ -64,15 +67,25 @@ export class GameRunner {
         this.currTurn++
         this.game.executeNextTick()
 
+        if (this.game.ticks() % 10 == 0) {
+            this.game.players()
+                .forEach(p => this.playerToName.set(p.id(), placeName(this.game, p)))
+        }
+
+        const playerViewData = {}
+        for (const player of this.game.allPlayers()) {
+            const viewData = player.toViewData()
+            viewData.nameViewData = this.playerToName.get(player.id())
+            playerViewData[player.id()] = viewData
+        }
 
         this.callBack({
             tick: this.game.ticks(),
             units: this.game.units().map(u => u.toViewData()),
             packedTileUpdates: Array.from(this.updatedTiles).map(t => packTileData(t.toViewData())),
-            players: Object.fromEntries(
-                this.game.allPlayers().map(p => [p.id(), p.toViewData()])
-            ) as Record<PlayerID, PlayerViewData>
+            players: playerViewData
         })
+
 
         this.isExecuting = false
     }

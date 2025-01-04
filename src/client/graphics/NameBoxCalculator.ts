@@ -1,5 +1,5 @@
 import { Game, Player, Tile, Cell } from '../../core/game/Game';
-import { GameView } from '../../core/GameView';
+import { GameView, NameViewData } from '../../core/GameView';
 import { calculateBoundingBox, within } from '../../core/Util';
 
 export interface Point {
@@ -15,7 +15,7 @@ export interface Rectangle {
 }
 
 
-export function placeName(game: GameView, player: Player): [position: Cell, fontSize: number] {
+export function placeName(game: Game, player: Player): NameViewData {
     const boundingBox = calculateBoundingBox(player.borderTiles());
 
     const rawScalingFactor = (boundingBox.max.x - boundingBox.min.x) / 50
@@ -36,10 +36,14 @@ export function placeName(game: GameView, player: Player): [position: Cell, font
     const fontSize = calculateFontSize(largestRectangle, player.name());
     center = new Cell(center.x, center.y - fontSize / 3)
 
-    return [center, fontSize]
+    return {
+        nameX: center.x,
+        nameY: center.y,
+        nameSize: fontSize,
+    }
 }
 
-export function createGrid(game: GameView, player: Player, boundingBox: { min: Point; max: Point }, scalingFactor: number): boolean[][] {
+export function createGrid(game: Game, player: Player, boundingBox: { min: Point; max: Point }, scalingFactor: number): boolean[][] {
     const scaledBoundingBox: { min: Point; max: Point } = {
         min: {
             x: Math.floor(boundingBox.min.x / scalingFactor),

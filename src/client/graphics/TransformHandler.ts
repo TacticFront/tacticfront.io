@@ -89,7 +89,7 @@ export class TransformHandler {
     onGoToPlayer(event: GoToPlayerEvent) {
         let unused = null;
         this.clearTarget();
-        [this.target, unused] = placeName(this.game, event.player);
+        // [this.target, unused] = placeName(this.game, event.player);
         this.intervalID = setInterval(() => this.goTo(), 1)
     }
 

@@ -98,7 +98,15 @@ export class UnitView {
     }
 }
 
+export interface NameViewData {
+    nameX: number,
+    nameY: number,
+    nameSize: number,
+}
+
 export interface PlayerViewData extends ViewData<PlayerViewData> {
+    nameViewData?: NameViewData,
+
     clientID: ClientID,
     name: string,
     displayName: string,

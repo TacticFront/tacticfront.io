@@ -153,9 +153,9 @@ export class NameLayer implements Layer {
             render.fontSize = 0
             return
         }
-        const [cell, size] = placeName(this.game, render.player)
-        render.location = cell
-        render.fontSize = Math.max(1, Math.floor(size))
+        // const [cell, size] = placeName(this.game, render.player)
+        // render.location = cell
+        // render.fontSize = Math.max(1, Math.floor(size))
     }
 
     renderPlayerInfo(render: RenderInfo, context: CanvasRenderingContext2D, scale: number, uppperLeft: Cell, bottomRight: Cell) {
