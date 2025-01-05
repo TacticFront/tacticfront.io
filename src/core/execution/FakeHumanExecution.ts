@@ -169,7 +169,9 @@ export class FakeHumanExecution implements Execution {
             this.player.updateRelation(target.ally, -20)
             this.enemy = target.t
             this.lastEnemyUpdateTick = this.mg.ticks()
-            this.mg.addExecution(new EmojiExecution(this.player.id(), target.ally.id(), "👍"))
+            if (target.ally.type() == PlayerType.Human) {
+                this.mg.addExecution(new EmojiExecution(this.player.id(), target.ally.id(), "👍"))
+            }
         }
 
         if (this.enemy == null) {
@@ -177,13 +179,15 @@ export class FakeHumanExecution implements Execution {
             if (mostHated != null && mostHated.relation == Relation.Hostile) {
                 this.enemy = mostHated.player
                 this.lastEnemyUpdateTick = this.mg.ticks()
-                this.mg.addExecution(
-                    new EmojiExecution(
-                        this.player.id(),
-                        this.enemy.id(),
-                        this.random.randElement(["🤡", "😡"])
+                if (this.enemy.type() == PlayerType.Human) {
+                    this.mg.addExecution(
+                        new EmojiExecution(
+                            this.player.id(),
+                            this.enemy.id(),
+                            this.random.randElement(["🤡", "😡"])
+                        )
                     )
-                )
+                }
             }
         }
 
