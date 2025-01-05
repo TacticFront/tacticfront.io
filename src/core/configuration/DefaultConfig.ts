@@ -9,10 +9,10 @@ export abstract class DefaultServerConfig implements ServerConfig {
         return 100
     }
     gameCreationRate(): number {
-        return 10 * 60 * 1000
+        return 1 * 60 * 1000
     }
     lobbyLifetime(): number {
-        return 10 * 120 * 1000
+        return 2 * 60 * 1000
     }
 }
 
