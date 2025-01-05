@@ -60,6 +60,7 @@ export async function loadTerrainMap(): Promise<void> {
         }
     }
 
+    removeSmallLakes(terrain)
     const shorelineWaters = processShore(terrain)
     processDistToLand(shorelineWaters, terrain)
     processOcean(terrain)
@@ -230,6 +231,28 @@ function processOcean(map: Terrain[][]) {
                 if (newX >= 0 && newX < map.length && newY >= 0 && newY < map[0].length) {
                     queue.push({ x: newX, y: newY });
                 }
+            }
+        }
+    }
+}
+
+function removeSmallLakes(map: Terrain[][]) {
+    console.log(`removing lakes ${map.length}, ${map[0].length}`)
+
+    for (let x = 0; x < map.length; x++) {
+        for (let y = 0; y < map[0].length; y++) {
+            if (map[x][y].type != TerrainType.Water) {
+                continue
+            }
+            let allLand = true
+            for (const neighbor of neighbors(x, y, map)) {
+                if (neighbor.type != TerrainType.Land) {
+                    allLand = false
+                }
+            }
+            if (allLand) {
+                map[x][y].type = TerrainType.Land
+                map[x][y].magnitude = 0
             }
         }
     }
