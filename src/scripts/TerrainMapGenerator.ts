@@ -8,7 +8,7 @@ import { TerrainTile } from '../core/game/Game';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const mapName = "BlackSea"
+const mapName = "Europe"
 
 interface Coord {
     x: number;
