@@ -1,7 +1,7 @@
 import { info } from "console";
 import { Config } from "../configuration/Config";
 import { EventBus } from "../EventBus";
-import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerEvent, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Unit, UnitEvent as UnitEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent, BrokeAllianceEvent, MutableAlliance, Alliance, AllianceExpiredEvent, Nation, UnitType, UnitInfo, TerrainMap, DefenseBonus, MutableTile } from "./Game";
+import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Unit, UnitEvent as UnitEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent, BrokeAllianceEvent, MutableAlliance, Alliance, AllianceExpiredEvent, Nation, UnitType, UnitInfo, TerrainMap, DefenseBonus, MutableTile } from "./Game";
 import { TerrainMapImpl } from "./TerrainMapLoader";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
@@ -250,7 +250,6 @@ export class GameImpl implements MutableGame {
         let player = new PlayerImpl(this, this.nextID, playerInfo, manpower)
         this.nextID++
         this._players.set(playerInfo.id, player)
-        this.eventBus.emit(new PlayerEvent(player))
         return player
     }
 

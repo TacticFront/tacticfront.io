@@ -361,10 +361,6 @@ export class TileEvent implements GameEvent {
     constructor(public readonly tile: Tile, public readonly borderOnlyChange: boolean = false) { }
 }
 
-export class PlayerEvent implements GameEvent {
-    constructor(public readonly player: Player) { }
-}
-
 export class UnitEvent implements GameEvent {
     constructor(public readonly unit: Unit, public oldTile: Tile) { }
 }

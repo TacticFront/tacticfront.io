@@ -1,5 +1,5 @@
 import { Executor } from "../core/execution/ExecutionManager";
-import { Cell, MutableGame, PlayerEvent, PlayerID, MutablePlayer, TileEvent, Player, Game, UnitEvent, Tile, PlayerType, GameMap, Difficulty, GameType } from "../core/game/Game";
+import { Cell, MutableGame, PlayerID, MutablePlayer, TileEvent, Player, Game, UnitEvent, Tile, PlayerType, GameMap, Difficulty, GameType } from "../core/game/Game";
 import { createGame } from "../core/game/GameImpl";
 import { EventBus } from "../core/EventBus";
 import { createRenderer, GameRenderer } from "./graphics/GameRenderer";
@@ -74,10 +74,10 @@ export async function createClientGame(lobbyConfig: LobbyConfig, gameConfig: Gam
     const config = getConfig(gameConfig)
 
     const terrainMap = await loadTerrainMap(gameConfig.gameMap);
-    const gameView = new GameView(config, terrainMap.map)
-
     const worker = new WorkerClient(lobbyConfig.gameID, gameConfig)
     await worker.initialize()
+    const gameView = new GameView(worker, config, terrainMap.map)
+
 
     consolex.log('going to init path finder')
     consolex.log('inited path finder')
@@ -118,7 +118,6 @@ export class ClientGameRunner {
     public start() {
         consolex.log('starting client game')
         this.isActive = true
-        this.eventBus.on(PlayerEvent, (e) => this.playerEvent(e))
         this.eventBus.on(MouseUpEvent, (e) => this.inputEvent(e))
 
         this.renderer.initialize()
@@ -168,13 +167,6 @@ export class ClientGameRunner {
         this.transport.leaveGame()
     }
 
-    private playerEvent(event: PlayerEvent) {
-        if (event.player.clientID() == this.clientID) {
-            consolex.log('setting name')
-            this.myPlayer = event.player
-        }
-    }
-
     private inputEvent(event: MouseUpEvent) {
         if (!this.isActive) {
             return
@@ -193,7 +185,10 @@ export class ClientGameRunner {
             return
         }
         if (this.myPlayer == null) {
-            return
+            this.myPlayer = this.gameView.playerByClientID(this.clientID)
+            if (this.myPlayer == null) {
+                return
+            }
         }
 
         const owner = tile.owner()

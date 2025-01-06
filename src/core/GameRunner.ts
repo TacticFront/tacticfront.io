@@ -29,7 +29,7 @@ export class GameRunner {
     private playerToName = new Map<PlayerID, NameViewData>()
 
     constructor(
-        private game: MutableGame,
+        public game: MutableGame,
         private eventBus: EventBus,
         private execManager: Executor,
         private callBack: (gu: GameUpdateViewData) => void

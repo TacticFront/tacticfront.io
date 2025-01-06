@@ -3,6 +3,7 @@ import { Config } from "./configuration/Config";
 import { Alliance, AllianceRequest, AllPlayers, Cell, DefenseBonus, EmojiMessage, Execution, ExecutionView, Game, Gold, MutableTile, Nation, PlayerID, PlayerInfo, PlayerType, Relation, TerrainMap, TerrainTile, TerrainType, TerraNullius, Tick, UnitInfo, UnitType } from "./game/Game";
 import { ClientID } from "./Schemas";
 import { TerraNulliusImpl } from './game/TerraNulliusImpl';
+import { WorkerClient } from './worker/WorkerClient';
 
 export interface ViewSerializable<T> {
     toViewData(): T;
@@ -254,7 +255,7 @@ export class GameView {
     private tiles: TileView[][] = []
     private smallIDToID = new Map<number, PlayerID>()
 
-    constructor(private _config: Config, private _terrainMap: TerrainMap) {
+    constructor(private worker: WorkerClient, private _config: Config, private _terrainMap: TerrainMap) {
         // Initialize the 2D array
         this.tiles = Array(_terrainMap.width()).fill(null).map(() => Array(_terrainMap.height()).fill(null));
 
