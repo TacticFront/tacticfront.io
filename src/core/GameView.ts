@@ -176,7 +176,7 @@ export class PlayerView implements Player {
         return this.data.targetTroopRatio
     }
     troops(): number {
-        return
+        return this.data.troops
     }
 
     isAlliedWith(other: Player): boolean {
@@ -327,9 +327,7 @@ export class GameView {
     height(): number {
         return this._terrainMap.height()
     }
-    numLandTiles(): number {
-        throw new Error("Method not implemented.");
-    }
+
     forEachTile(fn: (tile: Tile) => void): void {
         for (let x = 0; x < this._terrainMap.width(); x++) {
             for (let y = 0; y < this._terrainMap.height(); y++) {

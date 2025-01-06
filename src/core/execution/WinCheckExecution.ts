@@ -1,5 +1,5 @@
-import {EventBus, GameEvent} from "../EventBus"
-import {Execution, MutableGame, MutablePlayer, Player, PlayerID} from "../game/Game"
+import { EventBus, GameEvent } from "../EventBus"
+import { Execution, MutableGame, MutablePlayer, Player, PlayerID } from "../game/Game"
 
 export class WinEvent implements GameEvent {
     constructor(public readonly winner: Player) { }
@@ -27,7 +27,7 @@ export class WinCheckExecution implements Execution {
             return
         }
         const max = sorted[0]
-        if (max.numTilesOwned() / this.mg.numLandTiles() * 100 > this.mg.config().percentageTilesOwnedToWin()) {
+        if (max.numTilesOwned() / this.mg.terrainMap().numLandTiles() * 100 > this.mg.config().percentageTilesOwnedToWin()) {
             this.eventBus.emit(new WinEvent(max))
             this.active = false
         }

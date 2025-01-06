@@ -81,10 +81,13 @@ export class TerrainTileImpl implements TerrainTile {
 
 export class TerrainMapImpl implements TerrainMap {
     public tiles: TerrainTileImpl[][]
-    public numLandTiles: number
+    public _numLandTiles: number
     public nationMap: NationMap
     constructor(
     ) { }
+    numLandTiles(): number {
+        return this._numLandTiles
+    }
     isOnMap(cell: Cell): boolean {
         return cell.x >= 0 && cell.x < this.tiles.length && cell.y >= 0 && cell.y < this.tiles[0].length
     }
@@ -177,7 +180,7 @@ export async function loadTerrainFromFile(fileData: string): Promise<TerrainMapI
         }
     }
     m.tiles = terrain
-    m.numLandTiles = numLand
+    m._numLandTiles = numLand
     return m
 }
 

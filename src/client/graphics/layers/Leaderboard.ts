@@ -49,9 +49,9 @@ export class Leaderboard extends LitElement implements Layer {
     if (this.clientID == null) {
       return
     }
-    const myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
+    const myPlayer = this.game.playerViews().find(p => p.clientID() == this.clientID)
 
-    const sorted = this.game.players()
+    const sorted = this.game.playerViews()
       .sort((a, b) => b.numTilesOwned() - a.numTilesOwned())
 
     this.players = sorted
@@ -59,7 +59,7 @@ export class Leaderboard extends LitElement implements Layer {
       .map((player, index) => ({
         name: player.displayName(),
         position: index + 1,
-        score: formatPercentage(player.numTilesOwned() / this.game.numLandTiles()),
+        score: formatPercentage(player.numTilesOwned() / this.game.terrainMap().numLandTiles()),
         gold: renderNumber(player.gold()),
         isMyPlayer: player == myPlayer,
         player: player
@@ -78,7 +78,7 @@ export class Leaderboard extends LitElement implements Layer {
       this.players.push({
         name: myPlayer.displayName(),
         position: place,
-        score: formatPercentage(myPlayer.numTilesOwned() / this.game.numLandTiles()),
+        score: formatPercentage(myPlayer.numTilesOwned() / this.game.terrainMap().numLandTiles()),
         gold: renderNumber(myPlayer.gold()),
         isMyPlayer: true,
         player: myPlayer

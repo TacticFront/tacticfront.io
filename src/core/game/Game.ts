@@ -160,6 +160,7 @@ export interface TerrainMap {
     width(): number
     height(): number
     isOnMap(cell: Cell): boolean
+    numLandTiles(): number
 }
 
 export interface TerrainTile extends SearchNode {
@@ -326,7 +327,6 @@ export interface Game {
     neighbors(cell: Cell | Tile): Tile[]
     width(): number
     height(): number
-    numLandTiles(): number
     forEachTile(fn: (tile: Tile) => void): void
     executions(): ExecutionView[]
     terraNullius(): TerraNullius

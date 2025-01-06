@@ -52,7 +52,6 @@ export class GameImpl implements MutableGame {
         this._terraNullius = new TerraNulliusImpl()
         this._width = _terrainMap.width();
         this._height = _terrainMap.height();
-        this._numLandTiles = _terrainMap.numLandTiles
         this.map = new Array(this._width);
         for (let x = 0; x < this._width; x++) {
             this.map[x] = new Array(this._height);
@@ -136,9 +135,6 @@ export class GameImpl implements MutableGame {
         this.eventBus.emit(new AllianceRequestReplyEvent(request, false))
     }
 
-    numLandTiles(): number {
-        return this._numLandTiles
-    }
     hasPlayer(id: PlayerID): boolean {
         return this._players.has(id)
     }
