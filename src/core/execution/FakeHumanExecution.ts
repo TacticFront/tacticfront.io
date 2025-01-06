@@ -1,4 +1,4 @@
-import { AllianceRequest, Cell, Difficulty, Execution, MutableGame, MutablePlayer, Player, PlayerInfo, PlayerType, Relation, TerrainType, TerraNullius, Tile, UnitType } from "../game/Game"
+import { AllianceRequest, Cell, Difficulty, Execution, MutableGame, MutablePlayer, Player, PlayerInfo, PlayerType, Relation, TerrainType, TerraNullius, Tick, Tile, UnitType } from "../game/Game"
 import { PseudoRandom } from "../PseudoRandom"
 import { and, bfs, calculateBoundingBox, dist, euclDist, manhattanDist, simpleHash } from "../Util";
 import { AttackExecution } from "./AttackExecution";
@@ -30,6 +30,7 @@ export class FakeHumanExecution implements Execution {
     private enemy: Player | null = null
 
     private lastEnemyUpdateTick: number = 0
+    private lastEmojiSent = new Map<Player, Tick>()
 
 
     constructor(gameID: GameID, private worker: WorkerClient, private playerInfo: PlayerInfo, private cell: Cell, private strength: number) {
@@ -180,13 +181,20 @@ export class FakeHumanExecution implements Execution {
                 this.enemy = mostHated.player
                 this.lastEnemyUpdateTick = this.mg.ticks()
                 if (this.enemy.type() == PlayerType.Human) {
-                    this.mg.addExecution(
-                        new EmojiExecution(
-                            this.player.id(),
-                            this.enemy.id(),
-                            this.random.randElement(["🤡", "😡"])
+                    let lastSent = -300
+                    if (this.lastEmojiSent.has(this.enemy)) {
+                        lastSent = this.lastEmojiSent.get(this.enemy)
+                        this.lastEmojiSent.set(this.enemy, this.mg.ticks())
+                    }
+                    if (this.mg.ticks() - lastSent > 300) {
+                        this.mg.addExecution(
+                            new EmojiExecution(
+                                this.player.id(),
+                                this.enemy.id(),
+                                this.random.randElement(["🤡", "😡"])
+                            )
                         )
-                    )
+                    }
                 }
             }
         }
