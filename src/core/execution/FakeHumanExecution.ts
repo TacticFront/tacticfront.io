@@ -165,7 +165,7 @@ export class FakeHumanExecution implements Execution {
             .filter(ally => ally.targets().length > 0)
             .map(ally => ({ ally: ally, t: ally.targets()[0] }))[0] ?? null
 
-        if (target != null && !this.player.isAlliedWith(target.t)) {
+        if (target != null && target.t != this.player && !this.player.isAlliedWith(target.t)) {
             this.player.updateRelation(target.ally, -20)
             this.enemy = target.t
             this.lastEnemyUpdateTick = this.mg.ticks()

@@ -55,6 +55,10 @@ export class AttackExecution implements Execution {
         this._owner = mg.player(this._ownerID)
         this.target = this._targetID == this.mg.terraNullius().id() ? mg.terraNullius() : mg.player(this._targetID)
 
+        if (this._owner == this.target) {
+            throw new Error(`Player ${this._owner} cannot attack itself`)
+        }
+
         if (this.troops == null) {
             this.troops = this.mg.config().attackAmount(this._owner, this.target)
         }
