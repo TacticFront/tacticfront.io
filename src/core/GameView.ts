@@ -167,7 +167,7 @@ export class PlayerView implements Player {
         return this.data.gold
     }
     population(): number {
-        return this.data.workers
+        return this.data.population
     }
     workers(): number {
         return this.data.workers
@@ -303,7 +303,11 @@ export class GameView {
     }
 
     playerByClientID(id: ClientID): Player | null {
-        return null
+        const pd = Object.values(this.data.players).filter(p => p.clientID == id)[0] ?? null
+        if (pd == null) {
+            return null
+        }
+        return new PlayerView(this, pd)
     }
     hasPlayer(id: PlayerID): boolean {
         return false
