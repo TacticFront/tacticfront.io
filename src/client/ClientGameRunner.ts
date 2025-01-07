@@ -218,6 +218,9 @@ export class ClientGameRunner {
             } else {
                 outer_loop: for (const t of bfs(tile, and(t => !t.hasOwner() && t.terrain().isLand(), dist(tile, 200)))) {
                     for (const n of t.neighbors()) {
+                        if (n.owner().isPlayer()) {
+                            console.log(`owner: ${(n.owner() as PlayerView).name()}`)
+                        }
                         if (n.owner() == this.myPlayer) {
                             this.eventBus.emit(new SendAttackIntentEvent(targetID, this.myPlayer.troops() * this.renderer.uiState.attackRatio))
                             break outer_loop

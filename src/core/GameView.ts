@@ -125,7 +125,7 @@ export interface PlayerViewData extends ViewData<PlayerViewData> {
 }
 
 export class PlayerView implements Player {
-    constructor(private game: GameView, private data: PlayerViewData) { }
+    constructor(private game: GameView, public data: PlayerViewData) { }
 
     nameLocation(): NameViewData {
         return this.data.nameViewData
@@ -256,9 +256,10 @@ export interface GameUpdateViewData extends ViewData<GameUpdateViewData> {
 }
 
 export class GameView {
-    private data: GameUpdateViewData
+    private lastUpdate: GameUpdateViewData
     private tiles: TileView[][] = []
     private smallIDToID = new Map<number, PlayerID>()
+    private _players = new Map<PlayerID, PlayerView>()
 
     constructor(public worker: WorkerClient, private _config: Config, private _terrainMap: TerrainMap) {
         // Initialize the 2D array
@@ -270,7 +271,7 @@ export class GameView {
                 this.tiles[x][y] = new TileView(this, null, _terrainMap.terrain(new Cell(x, y)));
             }
         }
-        this.data = {
+        this.lastUpdate = {
             tick: 0,
             units: [],
             tileUpdates: [],
@@ -280,23 +281,28 @@ export class GameView {
     }
 
     public update(gu: GameUpdateViewData) {
-        this.data = gu
-        this.data.tileUpdates = this.data.packedTileUpdates.map(tu => unpackTileData(tu))
-        Object.entries(gu.players).forEach(([key, value]) => {
-            this.smallIDToID.set(value.smallID, key);
-        });
-        gu.tileUpdates.forEach(tu => {
+        this.lastUpdate = gu
+        this.lastUpdate.tileUpdates = this.lastUpdate.packedTileUpdates.map(tu => unpackTileData(tu))
+        this.lastUpdate.tileUpdates.forEach(tu => {
             this.tiles[tu.x][tu.y].data = tu
         })
+        Object.entries(gu.players).forEach(([key, value]) => {
+            this.smallIDToID.set(value.smallID, key);
+            if (this._players.has(key)) {
+                this._players.get(key).data = value
+            } else {
+                this._players.set(key, new PlayerView(this, value))
+            }
+        });
     }
 
     recentlyUpdatedTiles(): TileView[] {
-        return this.data.tileUpdates.filter(d => true).map(tu => new TileView(this, tu, this._terrainMap.terrain(new Cell(tu.x, tu.y))))
+        return this.lastUpdate.tileUpdates.filter(d => true).map(tu => new TileView(this, tu, this._terrainMap.terrain(new Cell(tu.x, tu.y))))
     }
 
     player(id: PlayerID): PlayerView {
-        if (id in this.data.players) {
-            return new PlayerView(this, this.data.players[id])
+        if (this._players.has(id)) {
+            return this._players.get(id)
         }
         throw Error(`player id ${id} not found`)
     }
@@ -309,17 +315,17 @@ export class GameView {
     }
 
     playerByClientID(id: ClientID): PlayerView | null {
-        const pd = Object.values(this.data.players).filter(p => p.clientID == id)[0] ?? null
-        if (pd == null) {
+        const player = Array.from(this._players.values()).filter(p => p.clientID() == id)[0] ?? null
+        if (player == null) {
             return null
         }
-        return new PlayerView(this, pd)
+        return player
     }
     hasPlayer(id: PlayerID): boolean {
         return false
     }
     playerViews(): PlayerView[] {
-        return Object.values(this.data.players).map(data => new PlayerView(this, data))
+        return Object.values(this.lastUpdate.players).map(data => new PlayerView(this, data))
     }
 
     players(): Player[] {
@@ -346,10 +352,10 @@ export class GameView {
         }
     }
     ticks(): Tick {
-        return this.data.tick
+        return this.lastUpdate.tick
     }
     inSpawnPhase(): boolean {
-        return this.data.tick <= this._config.numSpawnPhaseTurns()
+        return this.lastUpdate.tick <= this._config.numSpawnPhaseTurns()
     }
     config(): Config {
         return this._config

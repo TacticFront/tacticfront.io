@@ -18,8 +18,8 @@ export interface Rectangle {
 export function placeName(game: Game, player: Player): NameViewData {
     const boundingBox = calculateBoundingBox(player.borderTiles());
 
-    const rawScalingFactor = (boundingBox.max.x - boundingBox.min.x) / 50
-    const scalingFactor = within(Math.floor(rawScalingFactor), 1, 100)
+    const rawScalingFactor = (boundingBox.max.x - boundingBox.min.x) / 100
+    const scalingFactor = within(Math.floor(rawScalingFactor), 1, 1000)
 
     const grid = createGrid(game, player, boundingBox, scalingFactor);
     const largestRectangle = findLargestInscribedRectangle(grid);
