@@ -14,7 +14,7 @@ import { DisplayMessageEvent } from '../core/game/Game';
 import { WorkerClient } from "../core/worker/WorkerClient";
 import { consolex, initRemoteSender } from "../core/Consolex";
 import { getConfig, getServerConfig } from "../core/configuration/Config";
-import { GameUpdateViewData, GameView } from "../core/GameView";
+import { GameUpdateViewData, GameView, PlayerView } from "../core/GameView";
 
 export interface LobbyConfig {
     playerName: () => string
@@ -99,7 +99,7 @@ export async function createClientGame(lobbyConfig: LobbyConfig, gameConfig: Gam
 }
 
 export class ClientGameRunner {
-    private myPlayer: Player
+    private myPlayer: PlayerView
     private isActive = false
 
     private turnsSeen = 0
@@ -124,7 +124,7 @@ export class ClientGameRunner {
         this.input.initialize()
         this.worker.start((gu: GameUpdateViewData) => {
             const size = gu.packedTileUpdates.length * 4 / 1000
-            console.log(`game update size: ${size}kb`)
+            // console.log(`game update size: ${size}kb`)
             this.gameView.update(gu)
             this.renderer.tick()
         })
@@ -204,9 +204,17 @@ export class ClientGameRunner {
 
         if (tile.terrain().isLand()) {
             if (tile.hasOwner()) {
-                if (this.myPlayer.sharesBorderWith(tile.owner())) {
-                    this.eventBus.emit(new SendAttackIntentEvent(targetID, this.myPlayer.troops() * this.renderer.uiState.attackRatio))
-                }
+                this.myPlayer.sharesBorderWithAsync(tile.owner()).then(sharesBorder => {
+                    if (sharesBorder) {
+                        this.eventBus.emit(
+
+                            new SendAttackIntentEvent(
+                                targetID,
+                                this.myPlayer.troops() * this.renderer.uiState.attackRatio
+                            )
+                        )
+                    }
+                })
             } else {
                 outer_loop: for (const t of bfs(tile, and(t => !t.hasOwner() && t.terrain().isLand(), dist(tile, 200)))) {
                     for (const n of t.neighbors()) {

@@ -29,7 +29,7 @@ export class TileView {
     type(): TerrainType {
         return this._terrain.type()
     }
-    owner(): Player | TerraNullius {
+    owner(): PlayerView | TerraNullius {
         if (!this.hasOwner()) {
             return new TerraNulliusImpl()
         }
@@ -195,6 +195,11 @@ export class PlayerView implements Player {
     sharesBorderWith(other: Player | TerraNullius): boolean {
         return false
     }
+
+    async sharesBorderWithAsync(other: Player | TerraNullius): Promise<boolean> {
+        return this.game.worker.sharesBorderWith(this.id(), other.id())
+    }
+
     incomingAllianceRequests(): AllianceRequest[] {
         return []
     }
@@ -255,7 +260,7 @@ export class GameView {
     private tiles: TileView[][] = []
     private smallIDToID = new Map<number, PlayerID>()
 
-    constructor(private worker: WorkerClient, private _config: Config, private _terrainMap: TerrainMap) {
+    constructor(public worker: WorkerClient, private _config: Config, private _terrainMap: TerrainMap) {
         // Initialize the 2D array
         this.tiles = Array(_terrainMap.width()).fill(null).map(() => Array(_terrainMap.height()).fill(null));
 
@@ -289,21 +294,21 @@ export class GameView {
         return this.data.tileUpdates.filter(d => true).map(tu => new TileView(this, tu, this._terrainMap.terrain(new Cell(tu.x, tu.y))))
     }
 
-    player(id: PlayerID): Player {
+    player(id: PlayerID): PlayerView {
         if (id in this.data.players) {
             return new PlayerView(this, this.data.players[id])
         }
         throw Error(`player id ${id} not found`)
     }
 
-    playerBySmallID(id: number): Player {
+    playerBySmallID(id: number): PlayerView {
         if (!this.smallIDToID.has(id)) {
             throw new Error(`small id ${id} not found`)
         }
         return this.player(this.smallIDToID.get(id))
     }
 
-    playerByClientID(id: ClientID): Player | null {
+    playerByClientID(id: ClientID): PlayerView | null {
         const pd = Object.values(this.data.players).filter(p => p.clientID == id)[0] ?? null
         if (pd == null) {
             return null
