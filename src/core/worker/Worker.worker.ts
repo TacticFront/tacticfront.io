@@ -4,7 +4,7 @@ import {
     MainThreadMessage,
     WorkerMessage,
     InitializedMessage,
-    SharesBorderResultMessage
+    PlayerActionsResultMessage,
 } from './WorkerMessages';
 
 const ctx: Worker = self as any;
@@ -58,21 +58,18 @@ ctx.addEventListener('message', async (e: MessageEvent<MainThreadMessage>) => {
             }
             break;
 
-        case 'shares_border':
+        case 'player_actions':
             if (!gameRunner) {
                 throw new Error('Game runner not initialized');
             }
 
             try {
-                const game = (await gameRunner).game
-                const result = game.player(message.player1)
-                    .sharesBorderWith(game.player(message.player2))
-
+                const actions = (await gameRunner).playerActions(message.playerID, message.x, message.y)
                 sendMessage({
-                    type: 'shares_border_result',
+                    type: 'player_actions_result',
                     id: message.id,
-                    result
-                } as SharesBorderResultMessage);
+                    result: actions
+                } as PlayerActionsResultMessage);
             } catch (error) {
                 console.error('Failed to check borders:', error);
                 throw error;

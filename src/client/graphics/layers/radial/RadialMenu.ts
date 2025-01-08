@@ -1,5 +1,5 @@
 import { EventBus } from "../../../../core/EventBus";
-import { AllPlayers, Cell, Game, Player, UnitType } from "../../../../core/game/Game";
+import { AllPlayers, Cell, Game, Player, Tile, UnitType } from "../../../../core/game/Game";
 import { ClientID } from "../../../../core/Schemas";
 import { and, bfs, dist, manhattanDist, manhattanDistWrapped, sourceDstOceanShore, targetTransportTile } from "../../../../core/Util";
 import { ContextMenuEvent, MouseUpEvent, ShowBuildMenuEvent } from "../../../InputHandler";
@@ -20,7 +20,7 @@ import { EmojiTable } from "./EmojiTable";
 import { UIState } from "../../UIState";
 import { BuildMenu } from "./BuildMenu";
 import { consolex } from "../../../../core/Consolex";
-import { GameView } from "../../../../core/GameView";
+import { GameView, PlayerActions, PlayerView } from "../../../../core/GameView";
 
 
 enum Slot {
@@ -237,7 +237,6 @@ export class RadialMenu implements Layer {
             return
         }
         const tile = this.game.tile(this.clickedCell)
-        const other = tile.owner()
 
         if (this.game.inSpawnPhase()) {
             if (tile.terrain().isLand() && !tile.hasOwner()) {
@@ -246,134 +245,82 @@ export class RadialMenu implements Layer {
             return
         }
 
-        const myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
+        const myPlayer = this.game.playerViews().find(p => p.clientID() == this.clientID)
         if (!myPlayer) {
             consolex.warn('my player not found')
             return
         }
+        myPlayer.actions(tile).then(actions => {
+            this.handlePlayerActions(myPlayer, actions, tile)
+        })
+    }
 
+    private handlePlayerActions(myPlayer: PlayerView, actions: PlayerActions, tile: Tile) {
         this.activateMenuElement(Slot.Build, "#ebe250", buildIcon, () => {
             this.buildMenu.showMenu(myPlayer, this.clickedCell)
         })
-
-        if (tile.hasOwner()) {
-            const target = tile.owner() == myPlayer ? AllPlayers : (tile.owner() as Player)
-            if (myPlayer.canSendEmoji(target)) {
-                this.activateMenuElement(Slot.Emoji, "#00a6a4", emojiIcon, () => {
-                    this.emojiTable.onEmojiClicked = (emoji: string) => {
-                        this.emojiTable.hideTable()
-                        this.eventBus.emit(new SendEmojiIntentEvent(target, emoji))
-                    }
-                    this.emojiTable.showTable()
-                })
-            }
-        }
-
-        if (tile.owner() != myPlayer && tile.terrain().isLand() && myPlayer.sharesBorderWith(other)) {
-            if (other.isPlayer()) {
-                if (!myPlayer.isAlliedWith(other)) {
-                    this.enableCenterButton(true)
+        if (actions.interaction?.canSendEmoji) {
+            this.activateMenuElement(Slot.Emoji, "#00a6a4", emojiIcon, () => {
+                const target = tile.owner() == myPlayer ? AllPlayers : (tile.owner() as Player)
+                this.emojiTable.onEmojiClicked = (emoji: string) => {
+                    this.emojiTable.hideTable()
+                    this.eventBus.emit(new SendEmojiIntentEvent(target, emoji))
                 }
-            } else {
-                outer_loop: for (const t of bfs(tile, and(t => !t.hasOwner() && t.terrain().isLand(), dist(tile, 200)))) {
-                    for (const n of t.neighbors()) {
-                        if (n.owner() == myPlayer) {
-                            this.enableCenterButton(true)
-                            break outer_loop
-                        }
-                    }
-                }
-            }
+                this.emojiTable.showTable()
+            })
         }
 
-        if (tile.hasOwner()) {
-            const other = tile.owner() as Player
-            if (other.clientID() == this.clientID) {
-                return
-            }
-
-            if (myPlayer.canDonate(other)) {
-                this.activateMenuElement(Slot.Target, "#53ac75", donateIcon, () => {
-                    this.eventBus.emit(
-                        new SendDonateIntentEvent(myPlayer, other, null)
+        if (actions.canBoat) {
+            this.activateMenuElement(Slot.Boat, "#3f6ab1", boatIcon, () => {
+                this.eventBus.emit(
+                    new SendBoatAttackIntentEvent(
+                        myPlayer.id(),
+                        this.clickedCell,
+                        this.uiState.attackRatio * myPlayer.troops()
                     )
-                })
-            }
-
-            if (myPlayer.isAlliedWith(other)) {
-                this.activateMenuElement(Slot.Alliance, "#c74848", traitorIcon, () => {
-                    this.eventBus.emit(
-                        new SendBreakAllianceIntentEvent(myPlayer, other)
-                    )
-                })
-            } else if (!myPlayer.recentOrPendingAllianceRequestWith(other)) {
-                this.activateMenuElement(Slot.Alliance, "#53ac75", allianceIcon, () => {
-                    this.eventBus.emit(
-                        new SendAllianceRequestIntentEvent(myPlayer, other)
-                    )
-                })
-            }
-            if (myPlayer.canTarget(other)) {
-                this.activateMenuElement(Slot.Target, "#c74848", targetIcon, () => {
-                    this.eventBus.emit(
-                        new SendTargetPlayerIntentEvent(other.id())
-                    )
-                })
-            }
+                )
+            })
+        }
+        if (actions.canAttack) {
+            this.enableCenterButton(true)
         }
 
-        if (!tile.terrain().isLand()) {
-            return
-        }
-        if (myPlayer.units(UnitType.TransportShip).length >= this.game.config().boatMaxNumber()) {
-            return
-        }
-
-        let myPlayerBordersOcean = false
-        for (const bt of myPlayer.borderTiles()) {
-            if (bt.terrain().isOceanShore()) {
-                myPlayerBordersOcean = true
-                break
-            }
-        }
-        let otherPlayerBordersOcean = false
         if (!tile.hasOwner()) {
-            otherPlayerBordersOcean = true
-        } else {
-            for (const bt of (other as Player).borderTiles()) {
-                if (bt.terrain().isOceanShore()) {
-                    otherPlayerBordersOcean = true
-                    break
-                }
-            }
-        }
-
-        if (other.isPlayer() && myPlayer.allianceWith(other)) {
             return
         }
+        const other = tile.owner() as Player
 
-        let nearOcean = false
-        for (const t of bfs(tile, and(t => t.owner() == tile.owner() && t.terrain().isLand(), dist(tile, 25)))) {
-            if (t.terrain().isOceanShore()) {
-                nearOcean = true
-                break
-            }
-        }
-        if (!nearOcean) {
-            return
+
+        if (actions?.interaction.canDonate) {
+            this.activateMenuElement(Slot.Target, "#53ac75", donateIcon, () => {
+                this.eventBus.emit(
+                    new SendDonateIntentEvent(myPlayer, other, null)
+                )
+            })
         }
 
-        if (myPlayerBordersOcean && otherPlayerBordersOcean) {
-            const dst = targetTransportTile(this.game.width(), tile)
-            if (dst != null) {
-                if (myPlayer.canBuild(UnitType.TransportShip, dst)) {
-                    this.activateMenuElement(Slot.Boat, "#3f6ab1", boatIcon, () => {
-                        this.eventBus.emit(
-                            new SendBoatAttackIntentEvent(other.id(), this.clickedCell, this.uiState.attackRatio * myPlayer.troops())
-                        )
-                    })
-                }
-            }
+        if (actions?.interaction.canTarget) {
+            this.activateMenuElement(Slot.Target, "#c74848", targetIcon, () => {
+                this.eventBus.emit(
+                    new SendTargetPlayerIntentEvent(other.id())
+                )
+            })
+        }
+
+        if (actions?.interaction.canSendAllianceRequest) {
+            this.activateMenuElement(Slot.Alliance, "#53ac75", allianceIcon, () => {
+                this.eventBus.emit(
+                    new SendAllianceRequestIntentEvent(myPlayer, other)
+                )
+            })
+        }
+
+        if (actions?.interaction.canBreakAlliance) {
+            this.activateMenuElement(Slot.Alliance, "#c74848", traitorIcon, () => {
+                this.eventBus.emit(
+                    new SendBreakAllianceIntentEvent(myPlayer, other)
+                )
+            })
         }
     }
 
@@ -408,11 +355,9 @@ export class RadialMenu implements Layer {
         if (this.game.inSpawnPhase()) {
             this.eventBus.emit(new SendSpawnIntentEvent(this.clickedCell))
         } else {
-            if (clicked.owner().clientID() != this.clientID) {
-                const myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
-                if (myPlayer != null) {
-                    this.eventBus.emit(new SendAttackIntentEvent(clicked.owner().id(), this.uiState.attackRatio * myPlayer.troops()))
-                }
+            const myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
+            if (myPlayer != null && clicked.owner() != myPlayer) {
+                this.eventBus.emit(new SendAttackIntentEvent(clicked.owner().id(), this.uiState.attackRatio * myPlayer.troops()))
             }
         }
         this.hideRadialMenu();

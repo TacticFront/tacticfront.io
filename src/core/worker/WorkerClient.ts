@@ -1,5 +1,5 @@
-import { PlayerID } from "../game/Game";
-import { GameUpdateViewData } from "../GameView";
+import { PlayerID, Tile } from "../game/Game";
+import { GameUpdateViewData, PlayerActions, PlayerInteraction } from "../GameView";
 import { GameConfig, GameID, Turn } from "../Schemas";
 import { generateID } from "../Util";
 import { WorkerMessage } from "./WorkerMessages";
@@ -29,7 +29,7 @@ export class WorkerClient {
                 break;
 
             case 'initialized':
-            case 'shares_border_result':
+            case 'player_actions_result':
                 if (message.id && this.messageHandlers.has(message.id)) {
                     const handler = this.messageHandlers.get(message.id)!;
                     handler(message);
@@ -85,7 +85,7 @@ export class WorkerClient {
         });
     }
 
-    sharesBorderWith(p1: PlayerID, p2: PlayerID): Promise<boolean> {
+    playerInteraction(playerID: PlayerID, tile: Tile): Promise<PlayerActions> {
         return new Promise((resolve, reject) => {
             if (!this.isInitialized) {
                 reject(new Error('Worker not initialized'));
@@ -95,19 +95,21 @@ export class WorkerClient {
             const messageId = generateID()
 
             this.messageHandlers.set(messageId, (message) => {
-                if (message.type === 'shares_border_result' && message.result !== undefined) {
+                if (message.type === 'player_actions_result' && message.result !== undefined) {
                     resolve(message.result);
                 }
             });
 
             this.worker.postMessage({
-                type: 'shares_border',
+                type: 'player_actions',
                 id: messageId,
-                player1: p1,
-                player2: p2
+                playerID: playerID,
+                x: tile.cell().x,
+                y: tile.cell().y
             });
         });
     }
+
 
 
     cleanup() {

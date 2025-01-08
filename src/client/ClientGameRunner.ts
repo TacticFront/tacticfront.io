@@ -190,45 +190,17 @@ export class ClientGameRunner {
                 return
             }
         }
-
-        const owner = tile.owner()
-        const targetID = owner.isPlayer() ? owner.id() : null;
-
-        if (tile.owner() == this.myPlayer) {
-            return
-        }
-        if (tile.owner().isPlayer() && this.myPlayer.isAlliedWith(tile.owner() as Player)) {
-            this.eventBus.emit(new DisplayMessageEvent("Cannot attack ally", MessageType.WARN))
-            return
-        }
-
-        if (tile.terrain().isLand()) {
-            if (tile.hasOwner()) {
-                this.myPlayer.sharesBorderWithAsync(tile.owner()).then(sharesBorder => {
-                    if (sharesBorder) {
-                        this.eventBus.emit(
-
-                            new SendAttackIntentEvent(
-                                targetID,
-                                this.myPlayer.troops() * this.renderer.uiState.attackRatio
-                            )
-                        )
-                    }
-                })
-            } else {
-                outer_loop: for (const t of bfs(tile, and(t => !t.hasOwner() && t.terrain().isLand(), dist(tile, 200)))) {
-                    for (const n of t.neighbors()) {
-                        if (n.owner().isPlayer()) {
-                            console.log(`owner: ${(n.owner() as PlayerView).name()}`)
-                        }
-                        if (n.owner() == this.myPlayer) {
-                            this.eventBus.emit(new SendAttackIntentEvent(targetID, this.myPlayer.troops() * this.renderer.uiState.attackRatio))
-                            break outer_loop
-                        }
-                    }
-                }
+        this.myPlayer.actions(tile).then(actions => {
+            console.log(`got actions: ${JSON.stringify(actions)}`)
+            if (actions.canAttack) {
+                this.eventBus.emit(
+                    new SendAttackIntentEvent(
+                        tile.owner().id(),
+                        this.myPlayer.troops() * this.renderer.uiState.attackRatio
+                    )
+                )
             }
-        }
+        })
     }
 }
 

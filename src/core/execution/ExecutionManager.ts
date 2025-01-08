@@ -19,8 +19,6 @@ import { DestroyerExecution } from "./DestroyerExecution";
 import { PortExecution } from "./PortExecution";
 import { MissileSiloExecution } from "./MissileSiloExecution";
 import { BattleshipExecution } from "./BattleshipExecution";
-import { PathFinder } from "../pathfinding/PathFinding";
-import { WorkerClient } from "../worker/WorkerClient";
 import { DefensePostExecution } from "./DefensePostExecution";
 import { CityExecution } from "./CityExecution";
 

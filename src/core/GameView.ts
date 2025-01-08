@@ -124,8 +124,28 @@ export interface PlayerViewData extends ViewData<PlayerViewData> {
     targetTroopRatio: number
 }
 
+export interface PlayerActions {
+    canBoat: boolean
+    canAttack: boolean
+    buildableUnits: UnitType[]
+    interaction?: PlayerInteraction
+}
+
+export interface PlayerInteraction {
+    sharedBorder: boolean
+    canSendEmoji: boolean
+    canSendAllianceRequest: boolean
+    canBreakAlliance: boolean
+    canTarget: boolean
+    canDonate: boolean
+}
+
 export class PlayerView implements Player {
     constructor(private game: GameView, public data: PlayerViewData) { }
+
+    async actions(tile: Tile): Promise<PlayerActions> {
+        return this.game.worker.playerInteraction(this.id(), tile)
+    }
 
     nameLocation(): NameViewData {
         return this.data.nameViewData
@@ -194,10 +214,6 @@ export class PlayerView implements Player {
     }
     sharesBorderWith(other: Player | TerraNullius): boolean {
         return false
-    }
-
-    async sharesBorderWithAsync(other: Player | TerraNullius): Promise<boolean> {
-        return this.game.worker.sharesBorderWith(this.id(), other.id())
     }
 
     incomingAllianceRequests(): AllianceRequest[] {
@@ -325,7 +341,7 @@ export class GameView {
         return false
     }
     playerViews(): PlayerView[] {
-        return Object.values(this.lastUpdate.players).map(data => new PlayerView(this, data))
+        return Array.from(this._players.values())
     }
 
     players(): Player[] {

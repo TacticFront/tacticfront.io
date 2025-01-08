@@ -1,4 +1,4 @@
-import { GameUpdateViewData } from "../GameView";
+import { GameUpdateViewData, PlayerActions, PlayerInteraction } from "../GameView";
 import { GameConfig, GameID, Turn } from "../Schemas";
 import { PlayerID } from "../game/Game";
 
@@ -7,8 +7,8 @@ export type WorkerMessageType =
     | 'initialized'
     | 'turn'
     | 'game_update'
-    | 'shares_border'
-    | 'shares_border_result';
+    | 'player_actions'
+    | 'player_actions_result';
 
 // Base interface for all messages
 interface BaseWorkerMessage {
@@ -28,12 +28,6 @@ export interface TurnMessage extends BaseWorkerMessage {
     turn: Turn;
 }
 
-export interface SharesBorderMessage extends BaseWorkerMessage {
-    type: 'shares_border';
-    player1: PlayerID;
-    player2: PlayerID;
-}
-
 // Messages from worker to main thread
 export interface InitializedMessage extends BaseWorkerMessage {
     type: 'initialized';
@@ -44,11 +38,20 @@ export interface GameUpdateMessage extends BaseWorkerMessage {
     gameUpdate: GameUpdateViewData;
 }
 
-export interface SharesBorderResultMessage extends BaseWorkerMessage {
-    type: 'shares_border_result';
-    result: boolean;
+export interface PlayerActionsMessage extends BaseWorkerMessage {
+    type: 'player_actions'
+    playerID: PlayerID
+    x: number,
+    y: number
+}
+
+export interface PlayerActionsResultMessage extends BaseWorkerMessage {
+    type: 'player_actions_result';
+    result: PlayerActions;
 }
 
 // Union types for type safety
-export type MainThreadMessage = InitMessage | TurnMessage | SharesBorderMessage;
-export type WorkerMessage = InitializedMessage | GameUpdateMessage | SharesBorderResultMessage;
+export type MainThreadMessage = InitMessage | TurnMessage | PlayerActionsMessage
+
+// Message send from worker
+export type WorkerMessage = InitializedMessage | GameUpdateMessage | PlayerActionsResultMessage;
