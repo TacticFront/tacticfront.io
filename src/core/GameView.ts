@@ -64,6 +64,7 @@ export class TileView {
 }
 
 export interface UnitViewData extends ViewData<UnitView> {
+    id: number,
     type: UnitType,
     troops: number,
     x: number,
@@ -73,23 +74,31 @@ export interface UnitViewData extends ViewData<UnitView> {
     health?: number
 }
 
-export class UnitView {
-    constructor(private data: UnitViewData) { }
+export class UnitView implements Unit {
+    constructor(private gameView: GameView, private data: UnitViewData) { }
+
+    update(data: UnitViewData) {
+        this.data = data
+    }
+
+    id(): number {
+        return this.data.id
+    }
 
     type(): UnitType {
-        throw new Error("Method not implemented.");
+        return this.data.type
     }
     troops(): number {
-        throw new Error("Method not implemented.");
+        return this.data.troops
     }
-    tile(): TileView {
-        throw new Error("Method not implemented.");
+    tile(): Tile {
+        return this.gameView.tile(new Cell(this.data.x, this.data.y))
     }
     owner(): PlayerView {
-        throw new Error("Method not implemented.");
+        return this.gameView.player(this.data.owner)
     }
     isActive(): boolean {
-        throw new Error("Method not implemented.");
+        return this.data.isActive
     }
     hasHealth(): boolean {
         return this.data.health != undefined
@@ -276,6 +285,7 @@ export class GameView {
     private tiles: TileView[][] = []
     private smallIDToID = new Map<number, PlayerID>()
     private _players = new Map<PlayerID, PlayerView>()
+    private _units = new Map<number, UnitView>()
 
     constructor(public worker: WorkerClient, private _config: Config, private _terrainMap: TerrainMap) {
         // Initialize the 2D array
@@ -310,6 +320,13 @@ export class GameView {
                 this._players.set(key, new PlayerView(this, value))
             }
         });
+        gu.units.forEach(unit => {
+            if (this._units.has(unit.id)) {
+                this._units.get(unit.id).update(unit)
+            } else {
+                this._units.set(unit.id, new UnitView(this, unit))
+            }
+        })
     }
 
     recentlyUpdatedTiles(): TileView[] {
@@ -377,7 +394,7 @@ export class GameView {
         return this._config
     }
     units(...types: UnitType[]): Unit[] {
-        return []
+        return Array.from(this._units.values())
     }
     unitInfo(type: UnitType): UnitInfo {
         return this._config.unitInfo(type)

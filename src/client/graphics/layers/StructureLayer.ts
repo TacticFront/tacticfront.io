@@ -24,6 +24,8 @@ export class StructureLayer implements Layer {
     private unitImages: Map<string, HTMLImageElement> = new Map();
     private theme: Theme = null;
 
+    private seenUnits = new Set<Unit>()
+
     // Configuration for supported unit types only
     private readonly unitConfigs: Partial<Record<UnitType, UnitRenderConfig>> = {
         [UnitType.Port]: {
@@ -68,10 +70,10 @@ export class StructureLayer implements Layer {
     }
 
     tick() {
+        this.game.units().forEach(u => this.handleUnitRendering(new UnitEvent(u, u.tile())))
     }
 
     init() {
-        this.eventBus.on(UnitEvent, e => this.onUnitEvent(e));
         this.redraw()
     }
 
@@ -102,6 +104,15 @@ export class StructureLayer implements Layer {
         const unitType = event.unit.type();
         if (!this.isUnitTypeSupported(unitType)) return;
 
+        if (event.unit.isActive() && this.seenUnits.has(event.unit)) {
+            // Already rendered, so don't do anything.
+            return
+        }
+        if (!event.unit.isActive() && !this.seenUnits.has(event.unit)) {
+            // Has been deleted and render is cleared so don't do anything.
+            return
+        }
+
         const config = this.unitConfigs[unitType];
         const unitImage = this.unitImages.get(unitType);
 
@@ -112,8 +123,10 @@ export class StructureLayer implements Layer {
             .forEach(t => this.clearCell(t.cell()));
 
         if (!event.unit.isActive()) {
+            this.seenUnits.delete(event.unit)
             return;
         }
+        this.seenUnits.add(event.unit)
 
         // Create temporary canvas for icon processing
         const tempCanvas = document.createElement('canvas');
@@ -167,23 +180,6 @@ export class StructureLayer implements Layer {
                     }
                 }
             }
-        }
-    }
-
-    onUnitEvent(event: UnitEvent) {
-        this.handleUnitRendering(event);
-        if (event.unit.type() == UnitType.DefensePost) {
-            if (!event.unit.isActive()) {
-                return
-            }
-            // Array.from(
-            //     bfs(
-            //         event.unit.tile(),
-            //         dist(event.unit.tile(), this.game.config().defensePostRange())
-            //     )
-            // ).filter(t => t.isBorder() && t.owner() == event.unit.owner()).forEach(t => {
-            //     this.paintCell(t.cell(), colord({ r: 255, g: 255, b: 255 }), 255)
-            // })
         }
     }
 

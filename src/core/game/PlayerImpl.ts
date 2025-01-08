@@ -424,7 +424,7 @@ export class PlayerImpl implements MutablePlayer {
 
     buildUnit(type: UnitType, troops: number, spawnTile: Tile): UnitImpl {
         const cost = this.gs.unitInfo(type).cost(this)
-        const b = new UnitImpl(type, this.gs, spawnTile, troops, this);
+        const b = new UnitImpl(type, this.gs, spawnTile, troops, this.gs.nextUnitID(), this);
         this._units.push(b);
         this.removeGold(cost)
         this.removeTroops(troops)

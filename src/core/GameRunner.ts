@@ -86,8 +86,6 @@ export class GameRunner {
             packedTileUpdates: Array.from(this.updatedTiles).map(t => packTileData(t.toViewData())),
             players: playerViewData
         })
-
-
         this.isExecuting = false
     }
 

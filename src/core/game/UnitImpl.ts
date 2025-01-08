@@ -4,7 +4,6 @@ import { simpleHash, within } from "../Util";
 import { MutableUnit, Tile, TerraNullius, UnitType, Player, UnitInfo } from "./Game";
 import { GameImpl } from "./GameImpl";
 import { PlayerImpl } from "./PlayerImpl";
-import { TerraNulliusImpl } from "./TerraNulliusImpl";
 
 
 export class UnitImpl implements MutableUnit {
@@ -16,6 +15,7 @@ export class UnitImpl implements MutableUnit {
         private g: GameImpl,
         private _tile: Tile,
         private _troops: number,
+        private _id: number,
         public _owner: PlayerImpl,
     ) {
         // default to half health (or 1 is no health specified)
@@ -24,6 +24,7 @@ export class UnitImpl implements MutableUnit {
 
     toViewData(): UnitViewData {
         return {
+            id: this._id,
             type: this._type,
             troops: this._troops,
             x: this.tile().cell().x,

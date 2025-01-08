@@ -40,7 +40,8 @@ export class GameImpl implements MutableGame {
     allianceRequests: AllianceRequestImpl[] = []
     alliances_: AllianceImpl[] = []
 
-    private nextID = 1
+    private nextPlayerID = 1
+    private _nextUnitID = 1
 
 
     constructor(
@@ -66,6 +67,12 @@ export class GameImpl implements MutableGame {
                 new Cell(n.coordinates[0], n.coordinates[1]),
                 n.strength
             ))
+    }
+
+    nextUnitID(): number {
+        const old = this._nextUnitID
+        this._nextUnitID++
+        return old
     }
 
     addFallout(tile: Tile) {
@@ -247,8 +254,8 @@ export class GameImpl implements MutableGame {
     }
 
     addPlayer(playerInfo: PlayerInfo, manpower: number): MutablePlayer {
-        let player = new PlayerImpl(this, this.nextID, playerInfo, manpower)
-        this.nextID++
+        let player = new PlayerImpl(this, this.nextPlayerID, playerInfo, manpower)
+        this.nextPlayerID++
         this._players.set(playerInfo.id, player)
         return player
     }

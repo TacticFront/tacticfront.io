@@ -42,6 +42,9 @@ export class UnitLayer implements Layer {
         if (this.myPlayer == null) {
             this.myPlayer = this.game.playerByClientID(this.clientID)
         }
+        for (const unit of this.game.units()) {
+            this.onUnitEvent(new UnitEvent(unit, unit.tile()))
+        }
     }
 
     init() {

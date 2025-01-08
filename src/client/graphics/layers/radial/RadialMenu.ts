@@ -274,7 +274,7 @@ export class RadialMenu implements Layer {
             this.activateMenuElement(Slot.Boat, "#3f6ab1", boatIcon, () => {
                 this.eventBus.emit(
                     new SendBoatAttackIntentEvent(
-                        myPlayer.id(),
+                        tile.owner().id(),
                         this.clickedCell,
                         this.uiState.attackRatio * myPlayer.troops()
                     )
