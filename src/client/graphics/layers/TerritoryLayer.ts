@@ -5,11 +5,9 @@ import { colord, Colord } from "colord";
 import { bfs, dist, euclDist, euclideanDist } from "../../../core/Util";
 import { Theme } from "../../../core/configuration/Config";
 import { Layer } from "./Layer";
-import { TransformHandler } from "../TransformHandler";
 import { EventBus } from "../../../core/EventBus";
-import { initRemoteSender } from "../../../core/Consolex";
 import { AlternateViewEvent, DragEvent, MouseDownEvent } from "../../InputHandler";
-import { GameView } from "../../../core/GameView";
+import { GameView, PlayerView } from "../../../core/GameView";
 
 export class TerritoryLayer implements Layer {
     private canvas: HTMLCanvasElement
@@ -42,7 +40,7 @@ export class TerritoryLayer implements Layer {
 
     tick() {
         this.game.recentlyUpdatedTiles()
-            .forEach(t => this.enqueue(t))
+            .forEach(t => this.enqueueTile(t))
 
 
         if (!this.game.inSpawnPhase()) {
@@ -53,24 +51,27 @@ export class TerritoryLayer implements Layer {
         }
 
         this.highlightContext.clearRect(0, 0, this.game.width(), this.game.height());
-        const humans = this.game.players()
+        const humans = this.game.playerViews()
             .filter(p => p.type() == PlayerType.Human)
 
-        const alreadyPainted = new Set<Tile>()
         for (const human of humans) {
-            for (const borderTile of human.borderTiles()) {
-                for (const neighbor of bfs(borderTile, euclDist(borderTile, 5))) {
-                    if (!neighbor.hasOwner() && !alreadyPainted.has(neighbor)) {
-                        this.paintHighlightCell(neighbor.cell(), this.theme.spawnHighlightColor(), 120)
-                        alreadyPainted.add(neighbor)
-                    }
+            const center = human.nameLocation()
+            if (!center) {
+                continue
+            }
+            const centerTile = this.game.tile(new Cell(center.x, center.y))
+            if (!centerTile) {
+                continue
+            }
+            for (const tile of bfs(centerTile, euclDist(centerTile, 9))) {
+                if (!tile.hasOwner()) {
+                    this.paintHighlightCell(tile.cell(), this.theme.spawnHighlightColor(), 255)
                 }
             }
         }
     }
 
     init() {
-        this.eventBus.on(TileEvent, e => this.tileUpdate(e))
         this.eventBus.on(AlternateViewEvent, e => { this.alternativeView = e.alternateView })
         this.eventBus.on(DragEvent, e => { this.lastDragTime = Date.now() })
         this.redraw()
@@ -203,28 +204,13 @@ export class TerritoryLayer implements Layer {
                 dist(event.unit.tile(), this.game.config().defensePostRange())
             ).forEach(t => {
                 if (t.isBorder()) {
-                    this.enqueue(t)
+                    this.enqueueTile(t)
                 }
             })
         }
     }
 
-    tileUpdate(event: TileEvent) {
-        this.enqueue(event.tile)
-        // if (this.game.inSpawnPhase()) {
-        //     if (event.tile.owner().isPlayer()) {
-        //         for (const border of (event.tile.owner() as Player).borderTiles()) {
-        //             for (const neighbor of border.neighbors()) {
-        //                 if (!neighbor.hasOwner()) {
-        //                     this.paintHighlightCell(neighbor.cell(), this.theme.spawnHighlightColor(), 255)
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-    }
-
-    enqueue(tile: Tile) {
+    enqueueTile(tile: Tile) {
         this.tileToRenderQueue.push({ tile: tile, lastUpdate: this.game.ticks() + this.random.nextFloat(0, .5) })
     }
 

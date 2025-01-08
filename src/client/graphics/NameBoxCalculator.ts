@@ -37,8 +37,8 @@ export function placeName(game: Game, player: Player): NameViewData {
     center = new Cell(center.x, center.y - fontSize / 3)
 
     return {
-        x: center.x,
-        y: center.y,
+        x: Math.ceil(center.x),
+        y: Math.ceil(center.y),
         size: fontSize,
     }
 }

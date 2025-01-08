@@ -19,7 +19,7 @@ export class DevConfig extends DefaultConfig {
     }
 
     numSpawnPhaseTurns(): number {
-        return this.gameConfig().gameType == GameType.Singleplayer ? 40 : 200
+        return this.gameConfig().gameType == GameType.Singleplayer ? 400 : 200
         // return 100
     }
 

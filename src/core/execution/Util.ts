@@ -1,27 +1,10 @@
 import { Game, Cell, Tile } from "../game/Game";
+import { and, bfs, euclDist } from "../Util";
 
 
-export function getSpawnCells(gs: Game, cell: Cell): Cell[] {
-    let result: Cell[] = [];
-    for (let dx = -2; dx <= 2; dx++) {
-        for (let dy = -2; dy <= 2; dy++) {
-            let c = new Cell(cell.x + dx, cell.y + dy);
-            if (!gs.isOnMap(c)) {
-                continue;
-            }
-            if (Math.abs(dx) === 2 && Math.abs(dy) === 2) {
-                continue;
-            }
-            if (gs.tile(c).terrain().isWater()) {
-                continue;
-            }
-            if (gs.tile(c).hasOwner()) {
-                continue;
-            }
-            result.push(c);
-        }
-    }
-    return result;
+export function getSpawnTiles(tile: Tile): Tile[] {
+    return Array.from(bfs(tile, euclDist(tile, 4)))
+        .filter(t => !t.hasOwner() && t.terrain().isLand())
 }
 
 export function closestTwoTiles(x: Iterable<Tile>, y: Iterable<Tile>): { x: Tile, y: Tile } {

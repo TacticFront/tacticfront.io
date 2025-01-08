@@ -1,7 +1,7 @@
 import { Cell, Execution, MutableGame, MutablePlayer, PlayerInfo, PlayerType } from "../game/Game"
 import { BotExecution } from "./BotExecution"
 import { PlayerExecution } from "./PlayerExecution"
-import { getSpawnCells } from "./Util"
+import { getSpawnTiles } from "./Util"
 
 export class SpawnExecution implements Execution {
 
@@ -25,17 +25,18 @@ export class SpawnExecution implements Execution {
         }
 
         const existing = this.mg.players().find(p => p.id() == this.playerInfo.id)
+        const tile = this.mg.tile(this.cell)
         if (existing) {
             existing.tiles().forEach(t => existing.relinquish(t))
-            getSpawnCells(this.mg, this.cell).forEach(c => {
-                existing.conquer(this.mg.tile(c))
+            getSpawnTiles(tile).forEach(t => {
+                existing.conquer(t)
             })
             return
         }
 
         const player = this.mg.addPlayer(this.playerInfo, this.mg.config().startManpower(this.playerInfo))
-        getSpawnCells(this.mg, this.cell).forEach(c => {
-            player.conquer(this.mg.tile(c))
+        getSpawnTiles(tile).forEach(t => {
+            player.conquer(t)
         })
         this.mg.addExecution(new PlayerExecution(player.id()))
         if (player.type() == PlayerType.Bot) {

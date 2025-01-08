@@ -332,6 +332,9 @@ export class GameImpl implements MutableGame {
     }
 
     conquer(owner: PlayerImpl, tile: Tile): void {
+        if (!tile.terrain().isLand()) {
+            throw Error(`cannot conquer water`)
+        }
         const tileImpl = tile as TileImpl
         let previousOwner = tileImpl._owner
         if (previousOwner.isPlayer()) {
