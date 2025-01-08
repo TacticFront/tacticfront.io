@@ -14,7 +14,7 @@ import shieldIcon from '../../../../../resources/images/ShieldIconWhite.svg';
 import cityIcon from '../../../../../resources/images/CityIconWhite.svg';
 import { renderNumber } from '../../../Utils';
 import { ContextMenuEvent } from '../../../InputHandler';
-import { GameView } from '../../../../core/GameView';
+import { GameView, PlayerActions, PlayerView } from '../../../../core/GameView';
 
 interface BuildItemDisplay {
     unitType: UnitType
@@ -40,6 +40,7 @@ export class BuildMenu extends LitElement {
     public eventBus: EventBus;
     private myPlayer: Player;
     private clickedCell: Cell;
+    private playerActions: PlayerActions | null
 
     static styles = css`
         :host {
@@ -186,10 +187,10 @@ export class BuildMenu extends LitElement {
     private _hidden = true;
 
     private canBuild(item: BuildItemDisplay): boolean {
-        if (this.myPlayer == null) {
+        if (this.myPlayer == null || this.playerActions == null) {
             return false
         }
-        return this.myPlayer.canBuild(item.unitType, this.game.tile(this.clickedCell)) != false
+        return this.playerActions.buildableUnits.some(u => u == item.unitType)
     }
 
     public onBuildSelected = (item: BuildItemDisplay) => {
@@ -228,11 +229,15 @@ export class BuildMenu extends LitElement {
         this.requestUpdate();
     }
 
-    showMenu(player: Player, clickedCell: Cell) {
-        this.myPlayer = player;
-        this.clickedCell = clickedCell;
-        this._hidden = false;
-        this.requestUpdate();
+    showMenu(player: PlayerView, clickedCell: Cell) {
+        player.actions(this.game.tile(clickedCell)).then(actions => {
+            console.log(`got actions: ${JSON.stringify(actions)}`)
+            this.playerActions = actions
+            this.myPlayer = player;
+            this.clickedCell = clickedCell;
+            this._hidden = false;
+            this.requestUpdate();
+        })
     }
 
     get isVisible() {
