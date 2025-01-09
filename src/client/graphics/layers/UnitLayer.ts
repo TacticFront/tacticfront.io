@@ -1,6 +1,6 @@
 import { Colord } from "colord";
 import { Theme } from "../../../core/configuration/Config";
-import { Unit, UnitEvent, Cell, Game, Tile, UnitType, Player } from "../../../core/game/Game";
+import { Unit, Cell, Game, Tile, UnitType, Player } from "../../../core/game/Game";
 import { bfs, dist, euclDist } from "../../../core/Util";
 import { Layer } from "./Layer";
 import { EventBus } from "../../../core/EventBus";
@@ -76,7 +76,7 @@ export class UnitLayer implements Layer {
         this.canvas.width = this.game.width();
         this.canvas.height = this.game.height();
         for (const unit of this.game.units()) {
-            this.onUnitEvent(new UnitEvent(unit, unit.tile()))
+            // this.onUnitEvent(new UnitEvent(unit, unit.tile()))
         }
     }
 
@@ -176,22 +176,22 @@ export class UnitLayer implements Layer {
 
     }
 
-    private handleTradeShipEvent(event: UnitEvent) {
-        const rel = this.relationship(event.unit)
-        bfs(event.oldTile, euclDist(event.oldTile, 3)).forEach(t => {
+    private handleTradeShipEvent(unit: Unit) {
+        const rel = this.relationship(unit)
+        bfs(unit.oldTile, euclDist(unit.oldTile, 3)).forEach(t => {
             this.clearCell(t.cell());
         });
-        if (event.unit.isActive()) {
-            bfs(event.unit.tile(), dist(event.unit.tile(), 2))
-                .forEach(t => this.paintCell(t.cell(), rel, this.theme.territoryColor(event.unit.owner().info()), 255));
+        if (unit.isActive()) {
+            bfs(unit.tile(), dist(unit.tile(), 2))
+                .forEach(t => this.paintCell(t.cell(), rel, this.theme.territoryColor(unit.owner().info()), 255));
         }
-        if (event.unit.isActive()) {
-            bfs(event.unit.tile(), dist(event.unit.tile(), 1))
-                .forEach(t => this.paintCell(t.cell(), rel, this.theme.borderColor(event.unit.owner().info()), 255));
+        if (unit.isActive()) {
+            bfs(unit.tile(), dist(unit.tile(), 1))
+                .forEach(t => this.paintCell(t.cell(), rel, this.theme.borderColor(unit.owner().info()), 255));
         }
     }
 
-    private handleBoatEvent(event: UnitEvent) {
+    private handleBoatEvent(event: Unit) {
         const rel = this.relationship(event.unit)
         if (!this.boatToTrail.has(event.unit)) {
             this.boatToTrail.set(event.unit, new Set<Tile>());

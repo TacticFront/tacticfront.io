@@ -10,6 +10,11 @@ export type Gold = number
 
 export const AllPlayers = "AllPlayers" as const;
 
+export interface MapPos {
+    x: number
+    y: number
+}
+
 export enum Difficulty {
     Easy = "Easy",
     Medium = "Medium",
@@ -89,6 +94,13 @@ export class Cell {
         this.strRepr = `Cell[${this.x},${this.y}]`
     }
 
+    pos(): MapPos {
+        return {
+            x: this.x,
+            y: this.y
+        }
+    }
+
     toString(): string { return this.strRepr }
 }
 
@@ -150,6 +162,7 @@ export class PlayerInfo {
         public readonly playerType: PlayerType,
         // null if bot.
         public readonly clientID: ClientID | null,
+        // TODO: make player id the small id
         public readonly id: PlayerID
     ) { }
 }
@@ -199,6 +212,7 @@ export interface MutableTile extends Tile, ViewSerializable<TileViewData> {
     borders(other: Player | TerraNullius): boolean
     neighborsWrapped(): Tile[]
     defenseBonuses(): DefenseBonus[]
+    toUpdate(isBorderOnly: boolean): TileUpdate
 }
 
 export interface Unit {
@@ -354,47 +368,105 @@ export interface MutableGame extends Game {
     units(...types: UnitType[]): MutableUnit[]
     addTileDefenseBonus(tile: Tile, unit: Unit, amount: number): DefenseBonus
     removeTileDefenseBonus(bonus: DefenseBonus): void
-    addFallout(tile: Tile)
+    addFallout(tile: Tile): void
+    setWinner(winner: Player): void
 }
 
-export class TileEvent implements GameEvent {
-    constructor(public readonly tile: Tile, public readonly borderOnlyChange: boolean = false) { }
+export enum GameUpdateType {
+    Tile,
+    Unit,
+    DisplayEvent,
+    AllianceRequest,
+    AllianceRequestReply,
+    BrokeAlliance,
+    AllianceExpired,
+    TargetPlayer,
+    EmojiUpdate,
+    WinUpdate
 }
 
-export class UnitEvent implements GameEvent {
-    constructor(public readonly unit: Unit, public oldTile: Tile) { }
+export type GameUpdate = TileUpdate
+    | UnitUpdate
+    | AllianceRequestUpdate
+    | AllianceRequestReplyUpdate
+    | BrokeAllianceUpdate
+    | AllianceExpiredUpdate
+    | DisplayMessageEvent
+    | TargetPlayerUpdate
+    | EmojiUpdate
+    | WinUpdate
+
+export interface TileUpdate {
+    type: GameUpdateType.Tile
+    owner: number
+    pos: MapPos
+    isBorder: boolean
+    borderOnlyChange: boolean
+    hasFallout: boolean
+    hasDefenseBonus: boolean
 }
 
-export class AllianceRequestEvent implements GameEvent {
-    constructor(public readonly allianceRequest: AllianceRequest) { }
+export interface UnitUpdate {
+    type: GameUpdateType.Unit
+    unitType: UnitType
+    troops: number
+    id: number
+    ownerID: number
+    pos: MapPos
+    oldPos: MapPos
+    isActive: boolean
+    health?: boolean
 }
 
-export class AllianceRequestReplyEvent implements GameEvent {
-    constructor(public readonly allianceRequest: AllianceRequest, public readonly accepted: boolean) { }
+export interface AllianceRequestUpdate {
+    type: GameUpdateType.AllianceRequest
+    requestorID: number,
+    recipientID: number,
+    createdAt: Tick,
 }
 
-export class BrokeAllianceEvent implements GameEvent {
-    constructor(public readonly traitor: Player, public readonly betrayed: Player) { }
+export interface AllianceRequestReplyUpdate {
+    type: GameUpdateType.AllianceRequestReply
+    request: AllianceRequestUpdate
+    accepted: boolean
 }
 
-export class AllianceExpiredEvent implements GameEvent {
-    constructor(public readonly player1: Player, public readonly player2: Player) { }
+export interface BrokeAllianceUpdate {
+    type: GameUpdateType.BrokeAlliance
+    traitorID: number
+    betrayedID: number
 }
 
-export class TargetPlayerEvent implements GameEvent {
-    constructor(public readonly player: Player, public readonly target: Player) { }
+export interface AllianceExpiredUpdate {
+    type: GameUpdateType.AllianceExpired
+    player1: number
+    player2: number
 }
 
-export class EmojiMessageEvent implements GameEvent {
-    constructor(public readonly message: EmojiMessage) { }
+export interface TargetPlayerUpdate {
+    type: GameUpdateType.TargetPlayer
+    playerID: number
+    targetID: number
 }
 
-export class DisplayMessageEvent implements GameEvent {
-    constructor(
-        public readonly message: string,
-        public readonly type: MessageType,
-        public readonly playerID: PlayerID | null = null
-    ) { }
+export interface EmojiUpdate {
+    type: GameUpdateType.EmojiUpdate
+    message: string
+    senderID: number
+    recipientID: number | typeof AllPlayers
+    createdAt: Tick
+}
+
+export interface DisplayMessageEvent {
+    type: GameUpdateType.DisplayEvent
+    message: string
+    messageType: MessageType
+    playerID: number | null
+}
+
+export interface WinUpdate {
+    type: GameUpdateType.WinUpdate
+    winnerID: number,
 }
 
 export enum MessageType {

@@ -1,5 +1,5 @@
 import { consolex } from "../Consolex";
-import {Cell, Game, PlayerType, Tile, TileEvent} from "../game/Game";
+import {Cell, Game, PlayerType, Tile} from "../game/Game";
 import {PseudoRandom} from "../PseudoRandom";
 import {GameID, SpawnIntent} from "../Schemas";
 import {bfs, dist as dist, manhattanDist, simpleHash} from "../Util";

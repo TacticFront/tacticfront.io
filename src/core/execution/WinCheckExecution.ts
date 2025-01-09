@@ -11,7 +11,7 @@ export class WinCheckExecution implements Execution {
 
     private mg: MutableGame
 
-    constructor(private eventBus: EventBus) {
+    constructor() {
     }
 
     init(mg: MutableGame, ticks: number) {
@@ -28,7 +28,7 @@ export class WinCheckExecution implements Execution {
         }
         const max = sorted[0]
         if (max.numTilesOwned() / this.mg.terrainMap().numLandTiles() * 100 > this.mg.config().percentageTilesOwnedToWin()) {
-            this.eventBus.emit(new WinEvent(max))
+            this.mg.setWinner(max)
             this.active = false
         }
     }

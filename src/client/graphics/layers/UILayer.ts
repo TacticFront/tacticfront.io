@@ -1,6 +1,6 @@
 import { EventBus } from "../../../core/EventBus";
 import { WinEvent } from "../../../core/execution/WinCheckExecution";
-import { AllianceRequest, AllianceRequestReplyEvent, Game, Player } from "../../../core/game/Game";
+import { Player } from "../../../core/game/Game";
 import { ClientID } from "../../../core/Schemas";
 import { Layer } from "./Layer";
 import { TransformHandler } from "../TransformHandler";

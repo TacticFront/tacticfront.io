@@ -1,4 +1,4 @@
-import { MessageType } from './Game';
+import { GameUpdateType, MessageType, UnitUpdate } from './Game';
 import { UnitViewData, ViewData, ViewSerializable } from "../GameView";
 import { simpleHash, within } from "../Util";
 import { MutableUnit, Tile, TerraNullius, UnitType, Player, UnitInfo } from "./Game";
@@ -20,6 +20,19 @@ export class UnitImpl implements MutableUnit {
     ) {
         // default to half health (or 1 is no health specified)
         this._health = (this.g.unitInfo(_type).maxHealth ?? 2) / 2
+    }
+
+    toUpdate(oldTile: Tile): UnitUpdate {
+        return {
+            type: GameUpdateType.Unit,
+            unitType: this._type,
+            id: this._id,
+            troops: this._troops,
+            ownerID: this._owner.smallID(),
+            isActive: this._active,
+            pos: this._tile.cell().pos(),
+            oldPos: oldTile.cell().pos()
+        }
     }
 
     toViewData(): UnitViewData {

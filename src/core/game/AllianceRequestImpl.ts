@@ -1,4 +1,4 @@
-import { MutableAllianceRequest, MutablePlayer, Player, Tick } from "./Game";
+import { AllianceRequestUpdate, GameUpdateType, MutableAllianceRequest, MutablePlayer, Player, Tick } from "./Game";
 import { GameImpl } from "./GameImpl";
 
 
@@ -23,6 +23,15 @@ export class AllianceRequestImpl implements MutableAllianceRequest {
     }
     reject(): void {
         this.game.rejectAllianceRequest(this)
+    }
+
+    toUpdate(): AllianceRequestUpdate {
+        return {
+            type: GameUpdateType.AllianceRequest,
+            requestorID: this.requestor_.smallID(),
+            recipientID: this.recipient_.smallID(),
+            createdAt: this.tickCreated,
+        }
     }
 
 }

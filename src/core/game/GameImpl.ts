@@ -1,7 +1,5 @@
-import { info } from "console";
 import { Config } from "../configuration/Config";
-import { EventBus } from "../EventBus";
-import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerID, PlayerInfo, Player, TerraNullius, Tile, TileEvent, Unit, UnitEvent as UnitEvent, PlayerType, MutableAllianceRequest, AllianceRequestReplyEvent, AllianceRequestEvent, BrokeAllianceEvent, MutableAlliance, Alliance, AllianceExpiredEvent, Nation, UnitType, UnitInfo, TerrainMap, DefenseBonus, MutableTile } from "./Game";
+import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerID, PlayerInfo, Player, TerraNullius, Tile, Unit, MutableAllianceRequest, Alliance, Nation, UnitType, UnitInfo, TerrainMap, DefenseBonus, MutableTile, GameUpdate, GameUpdateType, AllPlayers } from "./Game";
 import { TerrainMapImpl } from "./TerrainMapLoader";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
@@ -10,12 +8,12 @@ import { AllianceRequestImpl } from "./AllianceRequestImpl";
 import { AllianceImpl } from "./AllianceImpl";
 import { ClientID, GameConfig } from "../Schemas";
 import { MessageType } from './Game';
-import { DisplayMessageEvent } from './Game';
 import { UnitImpl } from "./UnitImpl";
 import { consolex } from "../Consolex";
+import { string } from "zod";
 
-export function createGame(terrainMap: TerrainMapImpl, miniMap: TerrainMap, eventBus: EventBus, config: Config): Game {
-    return new GameImpl(terrainMap, miniMap, eventBus, config)
+export function createGame(terrainMap: TerrainMapImpl, miniMap: TerrainMap, config: Config): Game {
+    return new GameImpl(terrainMap, miniMap, config)
 }
 
 export type CellString = string
@@ -43,11 +41,11 @@ export class GameImpl implements MutableGame {
     private nextPlayerID = 1
     private _nextUnitID = 1
 
+    private updates: GameUpdate[] = []
 
     constructor(
         private _terrainMap: TerrainMapImpl,
         private _miniMap: TerrainMap,
-        public eventBus: EventBus,
         private _config: Config,
     ) {
         this._terraNullius = new TerraNulliusImpl()
@@ -81,20 +79,20 @@ export class GameImpl implements MutableGame {
             throw Error(`cannot set fallout, tile ${tile} has owner`)
         }
         ti._hasFallout = true
-        this.eventBus.emit(new TileEvent(tile))
+        this.updates.push(ti.toUpdate(false))
     }
 
     addTileDefenseBonus(tile: Tile, unit: Unit, amount: number): DefenseBonus {
         const df = { unit: unit, tile: tile, amount: amount };
         (tile as TileImpl)._defenseBonuses.push(df)
-        this.eventBus.emit(new TileEvent(tile))
+        this.updates.push((tile as TileImpl).toUpdate())
         return df
     }
 
     removeTileDefenseBonus(bonus: DefenseBonus): void {
         const t = bonus.tile as TileImpl
         t._defenseBonuses = t._defenseBonuses.filter(db => db != bonus)
-        this.eventBus.emit(new TileEvent(bonus.tile))
+        this.updates.push(t.toUpdate())
     }
 
     units(...types: UnitType[]): UnitImpl[] {
@@ -124,7 +122,7 @@ export class GameImpl implements MutableGame {
         }
         const ar = new AllianceRequestImpl(requestor, recipient, this._ticks, this)
         this.allianceRequests.push(ar)
-        this.eventBus.emit(new AllianceRequestEvent(ar))
+        this.updates.push(ar.toUpdate())
         return ar
     }
 
@@ -133,13 +131,22 @@ export class GameImpl implements MutableGame {
         const alliance = new AllianceImpl(this, request.requestor() as PlayerImpl, request.recipient() as PlayerImpl, this._ticks)
         this.alliances_.push(alliance);
         (request.requestor() as PlayerImpl).pastOutgoingAllianceRequests.push(request)
-        this.eventBus.emit(new AllianceRequestReplyEvent(request, true))
+        this.updates.push({
+            type: GameUpdateType.AllianceRequestReply,
+            request: request.toUpdate(),
+            accepted: true,
+
+        })
     }
 
     rejectAllianceRequest(request: AllianceRequestImpl) {
         this.allianceRequests = this.allianceRequests.filter(ar => ar != request);
         (request.requestor() as PlayerImpl).pastOutgoingAllianceRequests.push(request)
-        this.eventBus.emit(new AllianceRequestReplyEvent(request, false))
+        this.updates.push({
+            type: GameUpdateType.AllianceRequestReply,
+            request: request.toUpdate(),
+            accepted: true
+        })
     }
 
     hasPlayer(id: PlayerID): boolean {
@@ -348,7 +355,7 @@ export class GameImpl implements MutableGame {
         owner._lastTileChange = this._ticks
         this.updateBorders(tile)
         tileImpl._hasFallout = false
-        this.eventBus.emit(new TileEvent(tile))
+        this.updates.push((tile as TileImpl).toUpdate())
     }
 
     relinquish(tile: Tile) {
@@ -368,7 +375,9 @@ export class GameImpl implements MutableGame {
 
         tileImpl._owner = this._terraNullius
         this.updateBorders(tile)
-        this.eventBus.emit(new TileEvent(tile))
+        this.updates.push(
+            (tile as TileImpl).toUpdate()
+        )
     }
 
     private updateBorders(tile: Tile) {
@@ -377,7 +386,7 @@ export class GameImpl implements MutableGame {
         tile.neighbors().forEach(t => tiles.push(t as TileImpl))
 
         for (const t of tiles) {
-            this.eventBus.emit(new TileEvent(t, true))
+            this.updates.push(t.toUpdate(true))
             if (!t.hasOwner()) {
                 t._isBorder = false
                 continue
@@ -405,8 +414,16 @@ export class GameImpl implements MutableGame {
         return false
     }
 
-    public fireUnitUpdateEvent(boat: Unit, oldTile: Tile) {
-        this.eventBus.emit(new UnitEvent(boat, oldTile))
+    public fireUnitUpdateEvent(unit: Unit, oldTile: Tile) {
+        this.updates.push((unit as UnitImpl).toUpdate(oldTile))
+    }
+
+    target(targeter: Player, target: Player) {
+        this.updates.push({
+            type: GameUpdateType.TargetPlayer,
+            playerID: targeter.smallID(),
+            targetID: target.smallID(),
+        })
     }
 
     public breakAlliance(breaker: Player, alliance: Alliance) {
@@ -429,7 +446,12 @@ export class GameImpl implements MutableGame {
             throw new Error(`must have exactly one alliance, have ${alliances.length}`)
         }
         this.alliances_ = this.alliances_.filter(a => a != alliances[0])
-        this.eventBus.emit(new BrokeAllianceEvent(breaker, other))
+        this.updates.push({
+            type: GameUpdateType.BrokeAlliance,
+            traitorID: breaker.smallID(),
+            betrayedID: other.smallID()
+
+        })
     }
 
     public expireAlliance(alliance: Alliance) {
@@ -439,7 +461,30 @@ export class GameImpl implements MutableGame {
             throw new Error(`cannot expire alliance: must have exactly one alliance, have ${alliances.length}`)
         }
         this.alliances_ = this.alliances_.filter(a => a != alliances[0])
-        this.eventBus.emit(new AllianceExpiredEvent(alliance.requestor(), alliance.recipient()))
+        this.updates.push({
+            type: GameUpdateType.AllianceExpired,
+            player1: alliance.requestor().smallID(),
+            player2: alliance.recipient().smallID()
+        })
+    }
+
+    sendEmojiUpdate(sender: Player, recipient: Player | typeof AllPlayers, emoji: string): void {
+        const recipientID = recipient === AllPlayers ? recipient : recipient.smallID();
+
+        this.updates.push({
+            type: GameUpdateType.EmojiUpdate,
+            message: emoji,
+            senderID: sender.smallID(),
+            recipientID: recipientID,
+            createdAt: this._ticks
+        })
+    }
+
+    setWinner(winner: Player): void {
+        this.updates.push({
+            type: GameUpdateType.WinUpdate,
+            winnerID: winner.smallID()
+        })
     }
 
     public terrainMap(): TerrainMapImpl {
@@ -451,7 +496,15 @@ export class GameImpl implements MutableGame {
     }
 
     displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void {
-        this.eventBus.emit(new DisplayMessageEvent(message, type, playerID))
+        let id = null
+        if (playerID != null) {
+            id = this.player(playerID).smallID()
+        }
+        this.updates.push({
+            type: GameUpdateType.DisplayEvent,
+            messageType: type,
+            message: message,
+            playerID: id
+        })
     }
-
 }

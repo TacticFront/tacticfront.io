@@ -1,4 +1,4 @@
-import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, TargetPlayerEvent, EmojiMessage, EmojiMessageEvent, AllPlayers, Gold, UnitType, Unit, MutableUnit, Relation, MutableTile } from "./Game";
+import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, EmojiMessage, AllPlayers, Gold, UnitType, Unit, MutableUnit, Relation, MutableTile } from "./Game";
 import { ClientID } from "../Schemas";
 import { assertNever, bfs, closestOceanShoreFromPlayer, dist, distSortUnit, manhattanDist, manhattanDistWrapped, processName, simpleHash, sourceDstOceanShore, within } from "../Util";
 import { CellString, GameImpl } from "./GameImpl";
@@ -6,7 +6,7 @@ import { UnitImpl } from "./UnitImpl";
 import { TileImpl } from "./TileImpl";
 import { MessageType } from './Game';
 import { renderTroops } from "../../client/Utils";
-import { PlayerViewData, ViewData, ViewSerializable } from "../GameView";
+import { PlayerViewData } from "../GameView";
 
 interface Target {
     tick: Tick
@@ -291,7 +291,7 @@ export class PlayerImpl implements MutablePlayer {
 
     target(other: Player): void {
         this.targets_.push({ tick: this.gs.ticks(), target: other })
-        this.gs.eventBus.emit(new TargetPlayerEvent(this, other))
+        this.gs.target(this, other)
     }
 
     targets(): PlayerImpl[] {
@@ -312,7 +312,7 @@ export class PlayerImpl implements MutablePlayer {
         }
         const msg = new EmojiMessage(this, recipient, emoji, this.gs.ticks())
         this.outgoingEmojis_.push(msg)
-        this.gs.eventBus.emit(new EmojiMessageEvent(msg))
+        this.gs.sendEmojiUpdate(this, recipient, emoji)
     }
 
     outgoingEmojis(): EmojiMessage[] {

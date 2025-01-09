@@ -1,4 +1,4 @@
-import { Tile, Cell, TerrainType, Player, TerraNullius, MutablePlayer, TerrainTile, DefenseBonus, MutableTile } from "./Game";
+import { Tile, Cell, TerrainType, Player, TerraNullius, MutablePlayer, TerrainTile, DefenseBonus, MutableTile, TileUpdate, GameUpdateType } from "./Game";
 import { SearchNode } from "../pathfinding/AStar";
 import { TerrainTileImpl } from "./TerrainMapLoader";
 import { GameImpl } from "./GameImpl";
@@ -24,13 +24,21 @@ export class TileImpl implements MutableTile {
     ) { }
 
     toViewData(): TileViewData {
+        throw new Error("Method not implemented.");
+    }
+
+    toUpdate(borderOnlyChange: boolean = false): TileUpdate {
         return {
-            x: this._cell.x,
-            y: this._cell.y,
-            smallID: this._owner.isPlayer() ? this._owner.smallID() : 0,
+            type: GameUpdateType.Tile,
+            pos: {
+                x: this._cell.x,
+                y: this._cell.y
+            },
+            owner: this._owner.isPlayer() ? this._owner.smallID() : 0,
             hasFallout: this._hasFallout,
             hasDefenseBonus: this.hasDefenseBonus(),
             isBorder: this.isBorder(),
+            borderOnlyChange: borderOnlyChange
         }
     }
 

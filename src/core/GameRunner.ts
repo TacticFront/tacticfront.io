@@ -3,7 +3,7 @@ import { getConfig } from "./configuration/Config";
 import { EventBus } from "./EventBus";
 import { Executor } from "./execution/ExecutionManager";
 import { WinCheckExecution } from "./execution/WinCheckExecution";
-import { Cell, DisplayMessageEvent, Game, MessageType, MutableGame, MutableTile, Player, PlayerID, Tile, TileEvent, UnitType } from "./game/Game";
+import { Cell, DisplayMessageEvent, Game, MessageType, MutableGame, MutableTile, Player, PlayerID, Tile, UnitType } from "./game/Game";
 import { createGame } from "./game/GameImpl";
 import { loadTerrainMap } from "./game/TerrainMapLoader";
 import { GameUpdateViewData, NameViewData, packTileData, PlayerActions, PlayerViewData } from "./GameView";
@@ -13,9 +13,8 @@ import { and, bfs, dist, targetTransportTile } from "./Util";
 export async function createGameRunner(gameID: string, gameConfig: GameConfig, callBack: (gu: GameUpdateViewData) => void): Promise<GameRunner> {
     const config = getConfig(gameConfig)
     const terrainMap = await loadTerrainMap(gameConfig.gameMap);
-    const eventBus = new EventBus()
-    const game = createGame(terrainMap.map, terrainMap.miniMap, eventBus, config)
-    const gr = new GameRunner(game as MutableGame, eventBus, new Executor(game, gameID), callBack)
+    const game = createGame(terrainMap.map, terrainMap.miniMap, config)
+    const gr = new GameRunner(game as MutableGame, new Executor(game, gameID), callBack)
     gr.init()
     return gr
 }
@@ -31,21 +30,17 @@ export class GameRunner {
 
     constructor(
         public game: MutableGame,
-        private eventBus: EventBus,
         private execManager: Executor,
         private callBack: (gu: GameUpdateViewData) => void
     ) {
     }
 
     init() {
-        this.eventBus.on(TileEvent, (e) => {
-            this.updatedTiles.add(e.tile as MutableTile)
-        })
         this.game.addExecution(...this.execManager.spawnBots(this.game.config().numBots()))
         if (this.game.config().spawnNPCs()) {
             this.game.addExecution(...this.execManager.fakeHumanExecutions())
         }
-        this.game.addExecution(new WinCheckExecution(this.eventBus))
+        this.game.addExecution(new WinCheckExecution())
         this.tickInterval = setInterval(() => this.executeNextTick(), 10)
     }
 
@@ -169,7 +164,7 @@ export class GameRunner {
         }
         // TODO: fix event bus
         if (tile.owner().isPlayer() && myPlayer.isAlliedWith(tile.owner() as Player)) {
-            this.eventBus.emit(new DisplayMessageEvent("Cannot attack ally", MessageType.WARN))
+            // this.eventBus.emit(new DisplayMessageEvent("Cannot attack ally", MessageType.WARN))
             return false
         }
         if (!tile.terrain().isLand()) {

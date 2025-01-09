@@ -2,15 +2,8 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { EventBus } from "../../../core/EventBus";
 import {
-  AllianceExpiredEvent,
-  AllianceRequestEvent,
-  AllianceRequestReplyEvent,
   AllPlayers,
-  BrokeAllianceEvent, DisplayMessageEvent, EmojiMessageEvent,
-  Game,
   MessageType,
-  Player, TargetPlayerEvent,
-  UnitEvent
 } from "../../../core/game/Game";
 import { ClientID } from "../../../core/Schemas";
 import { Layer } from "./Layer";
