@@ -1,26 +1,10 @@
-import { GameUpdateType, MessageType, Player, Tile, TileUpdate, Unit } from './game/Game';
+import { GameUpdateType, MapPos, MessageType, NameViewData, Player, PlayerActions, PlayerUpdate, Tile, TileUpdate, Unit, UnitUpdate } from './game/Game';
 import { Config } from "./configuration/Config";
 import { Alliance, AllianceRequest, AllPlayers, Cell, DefenseBonus, EmojiMessage, Execution, ExecutionView, Game, Gold, MutableTile, Nation, PlayerID, PlayerInfo, PlayerType, Relation, TerrainMap, TerrainTile, TerrainType, TerraNullius, Tick, UnitInfo, UnitType } from "./game/Game";
 import { ClientID } from "./Schemas";
 import { TerraNulliusImpl } from './game/TerraNulliusImpl';
 import { WorkerClient } from './worker/WorkerClient';
 
-export interface ViewSerializable<T> {
-    toViewData(): T;
-}
-
-export interface ViewData<T> {
-    // Base view data properties if any
-}
-
-export interface TileViewData extends ViewData<TileViewData> {
-    x: number
-    y: number
-    smallID: number,
-    hasFallout: boolean
-    hasDefenseBonus: boolean
-    isBorder: boolean
-}
 
 export class TileView {
 
@@ -63,21 +47,14 @@ export class TileView {
     }
 }
 
-export interface UnitViewData extends ViewData<UnitView> {
-    id: number,
-    type: UnitType,
-    troops: number,
-    x: number,
-    y: number,
-    owner: string,
-    isActive: boolean,
-    health?: number
-}
-
 export class UnitView implements Unit {
-    constructor(private gameView: GameView, private data: UnitViewData) { }
+    constructor(private gameView: GameView, private data: UnitUpdate) { }
 
-    update(data: UnitViewData) {
+    lastTile(): Tile {
+        return this.gameView.tile(new Cell(this.data.lastPos.x, this.data.lastPos.y))
+    }
+
+    update(data: UnitUpdate) {
         this.data = data
     }
 
@@ -86,16 +63,16 @@ export class UnitView implements Unit {
     }
 
     type(): UnitType {
-        return this.data.type
+        return this.data.unitType
     }
     troops(): number {
         return this.data.troops
     }
     tile(): Tile {
-        return this.gameView.tile(new Cell(this.data.x, this.data.y))
+        return this.gameView.tile(new Cell(this.data.pos.x, this.data.pos.y))
     }
     owner(): PlayerView {
-        return this.gameView.player(this.data.owner)
+        return this.gameView.playerBySmallID(this.data.ownerID)
     }
     isActive(): boolean {
         return this.data.isActive
@@ -108,49 +85,8 @@ export class UnitView implements Unit {
     }
 }
 
-export interface NameViewData {
-    x: number,
-    y: number,
-    size: number,
-}
-
-export interface PlayerViewData extends ViewData<PlayerViewData> {
-    nameViewData?: NameViewData,
-
-    clientID: ClientID,
-    name: string,
-    displayName: string,
-    id: PlayerID,
-    smallID: number,
-    type: PlayerType,
-    isAlive: boolean,
-    tilesOwned: number,
-    allies: PlayerID[],
-    gold: number,
-    population: number,
-    workers: number,
-    troops: number,
-    targetTroopRatio: number
-}
-
-export interface PlayerActions {
-    canBoat: boolean
-    canAttack: boolean
-    buildableUnits: UnitType[]
-    interaction?: PlayerInteraction
-}
-
-export interface PlayerInteraction {
-    sharedBorder: boolean
-    canSendEmoji: boolean
-    canSendAllianceRequest: boolean
-    canBreakAlliance: boolean
-    canTarget: boolean
-    canDonate: boolean
-}
-
 export class PlayerView implements Player {
-    constructor(private game: GameView, public data: PlayerViewData) { }
+    constructor(private game: GameView, public data: PlayerUpdate) { }
 
     async actions(tile: Tile): Promise<PlayerActions> {
         return this.game.worker.playerInteraction(this.id(), tile)
@@ -179,7 +115,7 @@ export class PlayerView implements Player {
         return this.data.id
     }
     type(): PlayerType {
-        return this.data.type
+        return this.data.playerType
     }
     isAlive(): boolean {
         return this.data.isAlive
@@ -272,11 +208,10 @@ export class PlayerView implements Player {
     }
 }
 
-export interface GameUpdateViewData extends ViewData<GameUpdateViewData> {
+export interface GameUpdateViewData {
     tick: number
-    units: UnitViewData[]
-    players: Record<PlayerID, PlayerViewData>
-    tileUpdates?: TileUpdate[]
+    units: UnitUpdate[]
+    players: Record<PlayerID, PlayerUpdate>
     packedTileUpdates: Uint16Array[]
 }
 
@@ -286,6 +221,7 @@ export class GameView {
     private smallIDToID = new Map<number, PlayerID>()
     private _players = new Map<PlayerID, PlayerView>()
     private _units = new Map<number, UnitView>()
+    private updatedTiles: TileView[] = []
 
     constructor(public worker: WorkerClient, private _config: Config, private _terrainMap: TerrainMap) {
         // Initialize the 2D array
@@ -300,7 +236,6 @@ export class GameView {
         this.lastUpdate = {
             tick: 0,
             units: [],
-            tileUpdates: [],
             packedTileUpdates: [],
             players: {}
         }
@@ -308,10 +243,14 @@ export class GameView {
 
     public update(gu: GameUpdateViewData) {
         this.lastUpdate = gu
-        this.lastUpdate.tileUpdates = this.lastUpdate.packedTileUpdates.map(tu => unpackTileData(tu))
-        this.lastUpdate.tileUpdates.forEach(tu => {
+
+        const updated = new Set<MapPos>()
+        this.lastUpdate.packedTileUpdates.map(tu => unpackTileData(tu)).forEach(tu => {
             this.tiles[tu.pos.x][tu.pos.y].data = tu
+            updated.add(tu.pos)
         })
+        this.updatedTiles = Array.from(updated).map(pos => this.tiles[pos.x][pos.y])
+
         Object.entries(gu.players).forEach(([key, value]) => {
             this.smallIDToID.set(value.smallID, key);
             if (this._players.has(key)) {
@@ -330,7 +269,7 @@ export class GameView {
     }
 
     recentlyUpdatedTiles(): TileView[] {
-        return this.lastUpdate.tileUpdates.map(tu => new TileView(this, tu, this._terrainMap.terrain(new Cell(tu.pos.x, tu.pos.y))))
+        return this.updatedTiles
     }
 
     player(id: PlayerID): PlayerView {

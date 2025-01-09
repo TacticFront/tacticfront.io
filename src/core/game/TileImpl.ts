@@ -4,7 +4,6 @@ import { TerrainTileImpl } from "./TerrainMapLoader";
 import { GameImpl } from "./GameImpl";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
-import { TileView, TileViewData, ViewData, ViewSerializable } from "../GameView";
 
 
 export class TileImpl implements MutableTile {
@@ -22,10 +21,6 @@ export class TileImpl implements MutableTile {
         private readonly _cell: Cell,
         private readonly _terrain: TerrainTileImpl
     ) { }
-
-    toViewData(): TileViewData {
-        throw new Error("Method not implemented.");
-    }
 
     toUpdate(): TileUpdate {
         return {

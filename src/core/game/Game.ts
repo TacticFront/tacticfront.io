@@ -2,7 +2,6 @@ import { Config } from "../configuration/Config"
 import { GameEvent } from "../EventBus"
 import { ClientID, GameConfig, GameID } from "../Schemas"
 import { SearchNode } from "../pathfinding/AStar"
-import { PlayerViewData, TileViewData, UnitViewData, ViewSerializable } from "../GameView"
 
 export type PlayerID = string
 export type Tick = number
@@ -206,7 +205,7 @@ export interface Tile extends SearchNode {
     hasDefenseBonus(): boolean
 }
 
-export interface MutableTile extends Tile, ViewSerializable<TileViewData> {
+export interface MutableTile extends Tile {
     // defense bonus against this player
     defenseBonus(player: Player): number
     borders(other: Player | TerraNullius): boolean
@@ -223,15 +222,17 @@ export interface Unit {
     isActive(): boolean
     hasHealth(): boolean
     health(): number
+    lastTile(): Tile
 }
 
-export interface MutableUnit extends Unit, ViewSerializable<UnitViewData> {
+export interface MutableUnit extends Unit {
     move(tile: Tile): void
     owner(): MutablePlayer
     setTroops(troops: number): void
     info(): UnitInfo
     delete(displayerMessage?: boolean): void
     modifyHealth(delta: number): void
+    toUpdate(): UnitUpdate
 }
 
 export interface TerraNullius {
@@ -288,7 +289,7 @@ export interface Player {
     lastTileChange(): Tick
 }
 
-export interface MutablePlayer extends Player, ViewSerializable<PlayerViewData> {
+export interface MutablePlayer extends Player {
     // Targets for this player
     targets(): Player[]
     // Targets of player and all allies.
@@ -328,6 +329,8 @@ export interface MutablePlayer extends Player, ViewSerializable<PlayerViewData> 
 
     buildUnit(type: UnitType, troops: number, tile: Tile): MutableUnit
     captureUnit(unit: MutableUnit): void
+
+    toUpdate(): PlayerUpdate
 }
 
 export interface Game {
@@ -375,6 +378,7 @@ export interface MutableGame extends Game {
 export enum GameUpdateType {
     Tile,
     Unit,
+    Player,
     DisplayEvent,
     AllianceRequest,
     AllianceRequestReply,
@@ -385,8 +389,31 @@ export enum GameUpdateType {
     WinUpdate
 }
 
+export interface NameViewData {
+    x: number,
+    y: number,
+    size: number,
+}
+
+export interface PlayerActions {
+    canBoat: boolean
+    canAttack: boolean
+    buildableUnits: UnitType[]
+    interaction?: PlayerInteraction
+}
+
+export interface PlayerInteraction {
+    sharedBorder: boolean
+    canSendEmoji: boolean
+    canSendAllianceRequest: boolean
+    canBreakAlliance: boolean
+    canTarget: boolean
+    canDonate: boolean
+}
+
 export type GameUpdate = TileUpdate
     | UnitUpdate
+    | PlayerUpdate
     | AllianceRequestUpdate
     | AllianceRequestReplyUpdate
     | BrokeAllianceUpdate
@@ -412,10 +439,30 @@ export interface UnitUpdate {
     id: number
     ownerID: number
     pos: MapPos
-    oldPos: MapPos
+    lastPos: MapPos
     isActive: boolean
-    health?: boolean
+    health?: number
 }
+
+export interface PlayerUpdate {
+    type: GameUpdateType.Player
+    nameViewData?: NameViewData,
+    clientID: ClientID,
+    name: string,
+    displayName: string,
+    id: PlayerID,
+    smallID: number,
+    playerType: PlayerType,
+    isAlive: boolean,
+    tilesOwned: number,
+    allies: PlayerID[],
+    gold: number,
+    population: number,
+    workers: number,
+    troops: number,
+    targetTroopRatio: number
+}
+
 
 export interface AllianceRequestUpdate {
     type: GameUpdateType.AllianceRequest

@@ -1,6 +1,6 @@
-import { GameUpdateViewData, PlayerActions, PlayerInteraction } from "../GameView";
+import { GameUpdateViewData } from "../GameView";
 import { GameConfig, GameID, Turn } from "../Schemas";
-import { PlayerID } from "../game/Game";
+import { PlayerActions, PlayerID } from "../game/Game";
 
 export type WorkerMessageType =
     | 'init'

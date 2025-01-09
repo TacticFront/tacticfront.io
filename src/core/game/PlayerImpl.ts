@@ -1,4 +1,4 @@
-import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, EmojiMessage, AllPlayers, Gold, UnitType, Unit, MutableUnit, Relation, MutableTile } from "./Game";
+import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, EmojiMessage, AllPlayers, Gold, UnitType, Unit, MutableUnit, Relation, MutableTile, PlayerUpdate, GameUpdateType } from "./Game";
 import { ClientID } from "../Schemas";
 import { assertNever, bfs, closestOceanShoreFromPlayer, dist, distSortUnit, manhattanDist, manhattanDistWrapped, processName, simpleHash, sourceDstOceanShore, within } from "../Util";
 import { CellString, GameImpl } from "./GameImpl";
@@ -6,7 +6,6 @@ import { UnitImpl } from "./UnitImpl";
 import { TileImpl } from "./TileImpl";
 import { MessageType } from './Game';
 import { renderTroops } from "../../client/Utils";
-import { PlayerViewData } from "../GameView";
 
 interface Target {
     tick: Tick
@@ -56,14 +55,15 @@ export class PlayerImpl implements MutablePlayer {
         this._displayName = this._name // processName(this._name)
 
     }
-    toViewData(): PlayerViewData {
+    toUpdate(): PlayerUpdate {
         return {
+            type: GameUpdateType.Player,
             clientID: this.clientID(),
             name: this.name(),
             displayName: this.displayName(),
             id: this.id(),
             smallID: this.smallID(),
-            type: this.type(),
+            playerType: this.type(),
             isAlive: this.isAlive(),
             tilesOwned: this.numTilesOwned(),
             allies: this.allies().map(p => p.id()),
@@ -417,7 +417,7 @@ export class PlayerImpl implements MutablePlayer {
         (prev as PlayerImpl)._units = (prev as PlayerImpl)._units.filter(u => u != unit);
         (unit as UnitImpl)._owner = this
         this._units.push(unit as UnitImpl)
-        this.gs.fireUnitUpdateEvent(unit, unit.tile())
+        this.gs.fireUnitUpdateEvent(unit)
         this.gs.displayMessage(`${unit.type()} captured by ${this.displayName()}`, MessageType.ERROR, prev.id())
         this.gs.displayMessage(`Captured ${unit.type()} from ${prev.displayName()}`, MessageType.SUCCESS, this.id())
     }
@@ -428,7 +428,7 @@ export class PlayerImpl implements MutablePlayer {
         this._units.push(b);
         this.removeGold(cost)
         this.removeTroops(troops)
-        this.gs.fireUnitUpdateEvent(b, b.tile());
+        this.gs.fireUnitUpdateEvent(b);
         return b;
     }
 

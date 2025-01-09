@@ -4,12 +4,12 @@ import { getConfig } from "./configuration/Config";
 import { EventBus } from "./EventBus";
 import { Executor } from "./execution/ExecutionManager";
 import { WinCheckExecution } from "./execution/WinCheckExecution";
-import { Cell, DisplayMessageUpdate, Game, GameUpdateType, MessageType, MutableGame, MutableTile, Player, PlayerID, Tile, UnitType } from "./game/Game";
+import { Cell, DisplayMessageUpdate, Game, GameUpdateType, MessageType, MutableGame, MutableTile, NameViewData, Player, PlayerActions, PlayerID, Tile, UnitType } from "./game/Game";
 import { createGame } from "./game/GameImpl";
 import { loadTerrainMap } from "./game/TerrainMapLoader";
-import { GameUpdateViewData, NameViewData, packTileData, PlayerActions, PlayerViewData } from "./GameView";
 import { GameConfig, Turn } from "./Schemas";
 import { and, bfs, dist, targetTransportTile } from "./Util";
+import { GameUpdateViewData, packTileData } from "./GameView";
 
 export async function createGameRunner(gameID: string, gameConfig: GameConfig, callBack: (gu: GameUpdateViewData) => void): Promise<GameRunner> {
     const config = getConfig(gameConfig)
@@ -69,14 +69,14 @@ export class GameRunner {
 
         const playerViewData = {}
         for (const player of this.game.allPlayers()) {
-            const viewData = player.toViewData()
+            const viewData = player.toUpdate()
             viewData.nameViewData = this.playerToName.get(player.id())
             playerViewData[player.id()] = viewData
         }
 
         this.callBack({
             tick: this.game.ticks(),
-            units: this.game.units().map(u => u.toViewData()),
+            units: this.game.units().map(u => u.toUpdate()),
             packedTileUpdates: updates.filter(u => u.type == GameUpdateType.Tile).map(u => packTileData(u)),
             players: playerViewData
         })

@@ -1,5 +1,5 @@
-import { PlayerID, Tile } from "../game/Game";
-import { GameUpdateViewData, PlayerActions, PlayerInteraction } from "../GameView";
+import { PlayerActions, PlayerID, Tile } from "../game/Game";
+import { GameUpdateViewData } from "../GameView";
 import { GameConfig, GameID, Turn } from "../Schemas";
 import { generateID } from "../Util";
 import { WorkerMessage } from "./WorkerMessages";

@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { EventBus } from '../../../../core/EventBus';
-import { Cell, Game, Player, UnitType } from '../../../../core/game/Game';
+import { Cell, Game, Player, PlayerActions, UnitType } from '../../../../core/game/Game';
 import { BuildUnitIntentEvent } from '../../../Transport';
 import atomBombIcon from '../../../../../resources/images/NukeIconWhite.svg';
 import hydrogenBombIcon from '../../../../../resources/images/MushroomCloudIconWhite.svg';
@@ -14,7 +14,7 @@ import shieldIcon from '../../../../../resources/images/ShieldIconWhite.svg';
 import cityIcon from '../../../../../resources/images/CityIconWhite.svg';
 import { renderNumber } from '../../../Utils';
 import { ContextMenuEvent } from '../../../InputHandler';
-import { GameView, PlayerActions, PlayerView } from '../../../../core/GameView';
+import { GameView, PlayerView } from '../../../../core/GameView';
 
 interface BuildItemDisplay {
     unitType: UnitType

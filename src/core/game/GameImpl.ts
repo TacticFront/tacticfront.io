@@ -416,8 +416,8 @@ export class GameImpl implements MutableGame {
         return false
     }
 
-    public fireUnitUpdateEvent(unit: Unit, oldTile: Tile) {
-        this.updates.push((unit as UnitImpl).toUpdate(oldTile))
+    public fireUnitUpdateEvent(unit: Unit) {
+        this.updates.push((unit as UnitImpl).toUpdate())
     }
 
     target(targeter: Player, target: Player) {

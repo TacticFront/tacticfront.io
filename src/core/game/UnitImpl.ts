@@ -1,5 +1,4 @@
 import { GameUpdateType, MessageType, UnitUpdate } from './Game';
-import { UnitViewData, ViewData, ViewSerializable } from "../GameView";
 import { simpleHash, within } from "../Util";
 import { MutableUnit, Tile, TerraNullius, UnitType, Player, UnitInfo } from "./Game";
 import { GameImpl } from "./GameImpl";
@@ -9,6 +8,7 @@ import { PlayerImpl } from "./PlayerImpl";
 export class UnitImpl implements MutableUnit {
     private _active = true;
     private _health: number
+    private _lastTile: Tile = null
 
     constructor(
         private _type: UnitType,
@@ -20,9 +20,11 @@ export class UnitImpl implements MutableUnit {
     ) {
         // default to half health (or 1 is no health specified)
         this._health = (this.g.unitInfo(_type).maxHealth ?? 2) / 2
+        this._lastTile = _tile
     }
 
-    toUpdate(oldTile: Tile): UnitUpdate {
+
+    toUpdate(): UnitUpdate {
         return {
             type: GameUpdateType.Unit,
             unitType: this._type,
@@ -31,20 +33,7 @@ export class UnitImpl implements MutableUnit {
             ownerID: this._owner.smallID(),
             isActive: this._active,
             pos: this._tile.cell().pos(),
-            oldPos: oldTile.cell().pos()
-        }
-    }
-
-    toViewData(): UnitViewData {
-        return {
-            id: this._id,
-            type: this._type,
-            troops: this._troops,
-            x: this.tile().cell().x,
-            y: this.tile().cell().y,
-            owner: this.owner().id(),
-            isActive: this.isActive(),
-            health: this._health,
+            lastPos: this._lastTile.cell().pos()
         }
     }
 
@@ -52,13 +41,17 @@ export class UnitImpl implements MutableUnit {
         return this._type
     }
 
+    lastTile(): Tile {
+        return this._lastTile
+    }
+
     move(tile: Tile): void {
         if (tile == null) {
             throw new Error("tile cannot be null")
         }
-        const oldTile = this._tile;
+        this._lastTile = this._tile
         this._tile = tile;
-        this.g.fireUnitUpdateEvent(this, oldTile);
+        this.g.fireUnitUpdateEvent(this);
     }
     setTroops(troops: number): void {
         this._troops = troops;
@@ -87,7 +80,7 @@ export class UnitImpl implements MutableUnit {
         const oldOwner = this._owner
         oldOwner._units = oldOwner._units.filter(u => u != this)
         this._owner = newOwner as PlayerImpl
-        this.g.fireUnitUpdateEvent(this, this.tile())
+        this.g.fireUnitUpdateEvent(this)
         this.g.displayMessage(
             `Your ${this.type()} was captured by ${newOwner.displayName()}`,
             MessageType.ERROR,
@@ -110,7 +103,7 @@ export class UnitImpl implements MutableUnit {
         }
         this._owner._units = this._owner._units.filter(b => b != this);
         this._active = false;
-        this.g.fireUnitUpdateEvent(this, this._tile);
+        this.g.fireUnitUpdateEvent(this);
         if (displayMessage) {
             this.g.displayMessage(`Your ${this.type()} was destroyed`, MessageType.ERROR, this.owner().id())
         }

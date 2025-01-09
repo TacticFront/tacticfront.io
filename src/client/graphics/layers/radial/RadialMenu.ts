@@ -1,5 +1,5 @@
 import { EventBus } from "../../../../core/EventBus";
-import { AllPlayers, Cell, Game, Player, Tile, UnitType } from "../../../../core/game/Game";
+import { AllPlayers, Cell, Game, Player, PlayerActions, Tile, UnitType } from "../../../../core/game/Game";
 import { ClientID } from "../../../../core/Schemas";
 import { and, bfs, dist, manhattanDist, manhattanDistWrapped, sourceDstOceanShore, targetTransportTile } from "../../../../core/Util";
 import { ContextMenuEvent, MouseUpEvent, ShowBuildMenuEvent } from "../../../InputHandler";
@@ -20,7 +20,7 @@ import { EmojiTable } from "./EmojiTable";
 import { UIState } from "../../UIState";
 import { BuildMenu } from "./BuildMenu";
 import { consolex } from "../../../../core/Consolex";
-import { GameView, PlayerActions, PlayerView } from "../../../../core/GameView";
+import { GameView, PlayerView } from "../../../../core/GameView";
 
 
 enum Slot {
