@@ -27,18 +27,17 @@ export class TileImpl implements MutableTile {
         throw new Error("Method not implemented.");
     }
 
-    toUpdate(borderOnlyChange: boolean = false): TileUpdate {
+    toUpdate(): TileUpdate {
         return {
             type: GameUpdateType.Tile,
             pos: {
                 x: this._cell.x,
                 y: this._cell.y
             },
-            owner: this._owner.isPlayer() ? this._owner.smallID() : 0,
+            ownerID: this._owner.isPlayer() ? this._owner.smallID() : 0,
             hasFallout: this._hasFallout,
             hasDefenseBonus: this.hasDefenseBonus(),
             isBorder: this.isBorder(),
-            borderOnlyChange: borderOnlyChange
         }
     }
 

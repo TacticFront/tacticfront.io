@@ -79,7 +79,7 @@ export class GameImpl implements MutableGame {
             throw Error(`cannot set fallout, tile ${tile} has owner`)
         }
         ti._hasFallout = true
-        this.updates.push(ti.toUpdate(false))
+        this.updates.push(ti.toUpdate())
     }
 
     addTileDefenseBonus(tile: Tile, unit: Unit, amount: number): DefenseBonus {
@@ -164,7 +164,8 @@ export class GameImpl implements MutableGame {
         return this._ticks
     }
 
-    executeNextTick() {
+    executeNextTick(): GameUpdate[] {
+        this.updates = []
         this.execs.forEach(e => {
             if (e.isActive() && (!this.inSpawnPhase() || e.activeDuringSpawnPhase())) {
                 e.tick(this._ticks)
@@ -193,6 +194,7 @@ export class GameImpl implements MutableGame {
             })
             consolex.log(`tick ${this._ticks}: hash ${hash}`)
         }
+        return this.updates
     }
 
     terraNullius(): TerraNullius {
@@ -386,7 +388,6 @@ export class GameImpl implements MutableGame {
         tile.neighbors().forEach(t => tiles.push(t as TileImpl))
 
         for (const t of tiles) {
-            this.updates.push(t.toUpdate(true))
             if (!t.hasOwner()) {
                 t._isBorder = false
                 continue
@@ -398,6 +399,7 @@ export class GameImpl implements MutableGame {
                 (t.owner() as PlayerImpl)._borderTiles.delete(t);
                 t._isBorder = false
             }
+            this.updates.push(t.toUpdate())
         }
     }
 

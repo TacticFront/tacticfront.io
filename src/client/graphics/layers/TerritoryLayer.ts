@@ -1,5 +1,5 @@
 import { PriorityQueue } from "@datastructures-js/priority-queue";
-import { Cell, Game, Player, PlayerType, Tile, TileEvent, UnitEvent, UnitType } from "../../../core/game/Game";
+import { Cell, Game, Player, PlayerType, Tile, Unit, UnitType, UnitUpdate } from "../../../core/game/Game";
 import { PseudoRandom } from "../../../core/PseudoRandom";
 import { colord, Colord } from "colord";
 import { bfs, dist, euclDist, euclideanDist } from "../../../core/Util";
@@ -195,19 +195,6 @@ export class TerritoryLayer implements Layer {
         const index = (cell.y * this.game.width()) + cell.x;
         const offset = index * 4;
         this.imageData.data[offset + 3] = 0; // Set alpha to 0 (fully transparent)
-    }
-
-    unitEvent(event: UnitEvent) {
-        if (event.unit.type() == UnitType.DefensePost) {
-            bfs(
-                event.unit.tile(),
-                dist(event.unit.tile(), this.game.config().defensePostRange())
-            ).forEach(t => {
-                if (t.isBorder()) {
-                    this.enqueueTile(t)
-                }
-            })
-        }
     }
 
     enqueueTile(tile: Tile) {

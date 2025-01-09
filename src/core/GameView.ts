@@ -1,4 +1,4 @@
-import { MessageType, Player, Tile, Unit } from './game/Game';
+import { GameUpdateType, MessageType, Player, Tile, TileUpdate, Unit } from './game/Game';
 import { Config } from "./configuration/Config";
 import { Alliance, AllianceRequest, AllPlayers, Cell, DefenseBonus, EmojiMessage, Execution, ExecutionView, Game, Gold, MutableTile, Nation, PlayerID, PlayerInfo, PlayerType, Relation, TerrainMap, TerrainTile, TerrainType, TerraNullius, Tick, UnitInfo, UnitType } from "./game/Game";
 import { ClientID } from "./Schemas";
@@ -24,7 +24,7 @@ export interface TileViewData extends ViewData<TileViewData> {
 
 export class TileView {
 
-    constructor(private game: GameView, public data: TileViewData, private _terrain: TerrainTile) { }
+    constructor(private game: GameView, public data: TileUpdate, private _terrain: TerrainTile) { }
 
     type(): TerrainType {
         return this._terrain.type()
@@ -33,10 +33,10 @@ export class TileView {
         if (!this.hasOwner()) {
             return new TerraNulliusImpl()
         }
-        return this.game.playerBySmallID(this.data?.smallID)
+        return this.game.playerBySmallID(this.data?.ownerID)
     }
     hasOwner(): boolean {
-        return this.data?.smallID !== undefined && this.data.smallID !== 0;
+        return this.data?.ownerID !== undefined && this.data.ownerID !== 0;
     }
     isBorder(): boolean {
         return this.data?.isBorder
@@ -276,7 +276,7 @@ export interface GameUpdateViewData extends ViewData<GameUpdateViewData> {
     tick: number
     units: UnitViewData[]
     players: Record<PlayerID, PlayerViewData>
-    tileUpdates?: TileViewData[]
+    tileUpdates?: TileUpdate[]
     packedTileUpdates: Uint16Array[]
 }
 
@@ -310,7 +310,7 @@ export class GameView {
         this.lastUpdate = gu
         this.lastUpdate.tileUpdates = this.lastUpdate.packedTileUpdates.map(tu => unpackTileData(tu))
         this.lastUpdate.tileUpdates.forEach(tu => {
-            this.tiles[tu.x][tu.y].data = tu
+            this.tiles[tu.pos.x][tu.pos.y].data = tu
         })
         Object.entries(gu.players).forEach(([key, value]) => {
             this.smallIDToID.set(value.smallID, key);
@@ -330,7 +330,7 @@ export class GameView {
     }
 
     recentlyUpdatedTiles(): TileView[] {
-        return this.lastUpdate.tileUpdates.filter(d => true).map(tu => new TileView(this, tu, this._terrainMap.terrain(new Cell(tu.x, tu.y))))
+        return this.lastUpdate.tileUpdates.map(tu => new TileView(this, tu, this._terrainMap.terrain(new Cell(tu.pos.x, tu.pos.y))))
     }
 
     player(id: PlayerID): PlayerView {
@@ -404,11 +404,11 @@ export class GameView {
     }
 }
 
-export function packTileData(tile: TileViewData): Uint16Array {
+export function packTileData(tile: TileUpdate): Uint16Array {
     const packed = new Uint16Array(4);
-    packed[0] = tile.x;
-    packed[1] = tile.y;
-    packed[2] = tile.smallID;
+    packed[0] = tile.pos.x;
+    packed[1] = tile.pos.y;
+    packed[2] = tile.ownerID;
 
     // Pack booleans into bits
     packed[3] = (tile.hasFallout ? 1 : 0) |
@@ -418,11 +418,14 @@ export function packTileData(tile: TileViewData): Uint16Array {
     return packed;
 }
 
-export function unpackTileData(packed: Uint16Array): TileViewData {
+export function unpackTileData(packed: Uint16Array): TileUpdate {
     return {
-        x: packed[0],
-        y: packed[1],
-        smallID: packed[2],
+        type: GameUpdateType.Tile,
+        pos: {
+            x: packed[0],
+            y: packed[1],
+        },
+        ownerID: packed[2],
         hasFallout: !!(packed[3] & 1),
         hasDefenseBonus: !!(packed[3] & 2),
         isBorder: !!(packed[3] & 4),

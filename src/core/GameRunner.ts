@@ -1,9 +1,10 @@
+import { utcDay } from "d3";
 import { placeName } from "../client/graphics/NameBoxCalculator";
 import { getConfig } from "./configuration/Config";
 import { EventBus } from "./EventBus";
 import { Executor } from "./execution/ExecutionManager";
 import { WinCheckExecution } from "./execution/WinCheckExecution";
-import { Cell, DisplayMessageEvent, Game, MessageType, MutableGame, MutableTile, Player, PlayerID, Tile, UnitType } from "./game/Game";
+import { Cell, DisplayMessageUpdate, Game, GameUpdateType, MessageType, MutableGame, MutableTile, Player, PlayerID, Tile, UnitType } from "./game/Game";
 import { createGame } from "./game/GameImpl";
 import { loadTerrainMap } from "./game/TerrainMapLoader";
 import { GameUpdateViewData, NameViewData, packTileData, PlayerActions, PlayerViewData } from "./GameView";
@@ -20,7 +21,6 @@ export async function createGameRunner(gameID: string, gameConfig: GameConfig, c
 }
 
 export class GameRunner {
-    private updatedTiles: Set<MutableTile> = new Set()
     private tickInterval = null
     private turns: Turn[] = []
     private currTurn = 0
@@ -56,12 +56,11 @@ export class GameRunner {
             return
         }
         this.isExecuting = true
-        this.updatedTiles.clear()
 
 
         this.game.addExecution(...this.execManager.createExecs(this.turns[this.currTurn]))
         this.currTurn++
-        this.game.executeNextTick()
+        const updates = this.game.executeNextTick()
 
         if (this.game.inSpawnPhase() || this.game.ticks() % 10 == 0) {
             this.game.players()
@@ -78,7 +77,7 @@ export class GameRunner {
         this.callBack({
             tick: this.game.ticks(),
             units: this.game.units().map(u => u.toViewData()),
-            packedTileUpdates: Array.from(this.updatedTiles).map(t => packTileData(t.toViewData())),
+            packedTileUpdates: updates.filter(u => u.type == GameUpdateType.Tile).map(u => packTileData(u)),
             players: playerViewData
         })
         this.isExecuting = false

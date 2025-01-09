@@ -30,7 +30,9 @@ export class SendBreakAllianceIntentEvent implements GameEvent {
 
 export class SendAllianceReplyIntentEvent implements GameEvent {
     constructor(
-        public readonly allianceRequest: AllianceRequest,
+        // The original alliance requestor
+        public readonly requestor: Player,
+        public readonly recipient: Player,
         public readonly accepted: boolean
     ) { }
 }
@@ -262,8 +264,8 @@ export class Transport {
         this.sendIntent({
             type: "allianceRequestReply",
             clientID: this.lobbyConfig.clientID,
-            requestor: event.allianceRequest.requestor().id(),
-            recipient: event.allianceRequest.recipient().id(),
+            requestor: event.requestor.id(),
+            recipient: event.recipient.id(),
             accept: event.accepted,
         })
     }

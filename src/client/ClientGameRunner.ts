@@ -10,7 +10,7 @@ import { and, bfs, dist, generateID, manhattanDist } from "../core/Util";
 import { SendAttackIntentEvent, SendSpawnIntentEvent, Transport } from "./Transport";
 import { createCanvas } from "./Utils";
 import { MessageType } from '../core/game/Game';
-import { DisplayMessageEvent } from '../core/game/Game';
+import { DisplayMessageUpdate } from '../core/game/Game';
 import { WorkerClient } from "../core/worker/WorkerClient";
 import { consolex, initRemoteSender } from "../core/Consolex";
 import { getConfig, getServerConfig } from "../core/configuration/Config";

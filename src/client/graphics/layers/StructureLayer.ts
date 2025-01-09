@@ -1,6 +1,6 @@
 import { colord, Colord } from "colord";
 import { Theme } from "../../../core/configuration/Config";
-import { Unit, UnitEvent, Cell, Game, Tile, UnitType } from "../../../core/game/Game";
+import { Unit, Cell, Game, Tile, UnitType } from "../../../core/game/Game";
 import { bfs, dist, euclDist } from "../../../core/Util";
 import { Layer } from "./Layer";
 import { EventBus } from "../../../core/EventBus";
@@ -70,7 +70,7 @@ export class StructureLayer implements Layer {
     }
 
     tick() {
-        this.game.units().forEach(u => this.handleUnitRendering(new UnitEvent(u, u.tile())))
+        this.game.units().forEach(u => this.handleUnitRendering(u))
     }
 
     init() {
@@ -83,7 +83,7 @@ export class StructureLayer implements Layer {
         this.context = this.canvas.getContext("2d", { alpha: true });
         this.canvas.width = this.game.width();
         this.canvas.height = this.game.height();
-        this.game.units().forEach(u => this.handleUnitRendering(new UnitEvent(u, u.tile())))
+        this.game.units().forEach(u => this.handleUnitRendering(u))
     }
 
     renderLayer(context: CanvasRenderingContext2D) {
@@ -100,15 +100,15 @@ export class StructureLayer implements Layer {
         return unitType in this.unitConfigs;
     }
 
-    private handleUnitRendering(event: UnitEvent) {
-        const unitType = event.unit.type();
+    private handleUnitRendering(unit: Unit) {
+        const unitType = unit.type();
         if (!this.isUnitTypeSupported(unitType)) return;
 
-        if (event.unit.isActive() && this.seenUnits.has(event.unit)) {
+        if (unit.isActive() && this.seenUnits.has(unit)) {
             // Already rendered, so don't do anything.
             return
         }
-        if (!event.unit.isActive() && !this.seenUnits.has(event.unit)) {
+        if (!unit.isActive() && !this.seenUnits.has(unit)) {
             // Has been deleted and render is cleared so don't do anything.
             return
         }
@@ -119,14 +119,14 @@ export class StructureLayer implements Layer {
         if (!config || !unitImage) return;
 
         // Clear previous rendering
-        bfs(event.unit.tile(), euclDist(event.unit.tile(), config.borderRadius))
+        bfs(unit.tile(), euclDist(unit.tile(), config.borderRadius))
             .forEach(t => this.clearCell(t.cell()));
 
-        if (!event.unit.isActive()) {
-            this.seenUnits.delete(event.unit)
+        if (!unit.isActive()) {
+            this.seenUnits.delete(unit)
             return;
         }
-        this.seenUnits.add(event.unit)
+        this.seenUnits.add(unit)
 
         // Create temporary canvas for icon processing
         const tempCanvas = document.createElement('canvas');
@@ -138,19 +138,19 @@ export class StructureLayer implements Layer {
         tempContext.drawImage(unitImage, 0, 0);
         const iconData = tempContext.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
 
-        const cell = event.unit.tile().cell();
+        const cell = unit.tile().cell();
         const startX = cell.x - Math.floor(tempCanvas.width / 2);
         const startY = cell.y - Math.floor(tempCanvas.height / 2);
 
         // Draw border and territory
-        bfs(event.unit.tile(), euclDist(event.unit.tile(), config.borderRadius))
-            .forEach(t => this.paintCell(t.cell(), this.theme.borderColor(event.unit.owner().info()), 255));
+        bfs(unit.tile(), euclDist(unit.tile(), config.borderRadius))
+            .forEach(t => this.paintCell(t.cell(), this.theme.borderColor(unit.owner().info()), 255));
 
-        bfs(event.unit.tile(), euclDist(event.unit.tile(), config.territoryRadius))
-            .forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(event.unit.owner().info()), 130));
+        bfs(unit.tile(), euclDist(unit.tile(), config.territoryRadius))
+            .forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(unit.owner().info()), 130));
 
         // Draw the icon
-        this.renderIcon(iconData, startX, startY, tempCanvas.width, tempCanvas.height, event.unit);
+        this.renderIcon(iconData, startX, startY, tempCanvas.width, tempCanvas.height, unit);
     }
 
     private renderIcon(

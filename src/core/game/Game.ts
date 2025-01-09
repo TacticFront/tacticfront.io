@@ -344,7 +344,7 @@ export interface Game {
     forEachTile(fn: (tile: Tile) => void): void
     executions(): ExecutionView[]
     terraNullius(): TerraNullius
-    executeNextTick(): void
+    executeNextTick(): GameUpdate[]
     ticks(): Tick
     inSpawnPhase(): boolean
     addExecution(...exec: Execution[]): void
@@ -391,17 +391,16 @@ export type GameUpdate = TileUpdate
     | AllianceRequestReplyUpdate
     | BrokeAllianceUpdate
     | AllianceExpiredUpdate
-    | DisplayMessageEvent
+    | DisplayMessageUpdate
     | TargetPlayerUpdate
     | EmojiUpdate
     | WinUpdate
 
 export interface TileUpdate {
     type: GameUpdateType.Tile
-    owner: number
+    ownerID: number
     pos: MapPos
     isBorder: boolean
-    borderOnlyChange: boolean
     hasFallout: boolean
     hasDefenseBonus: boolean
 }
@@ -457,7 +456,7 @@ export interface EmojiUpdate {
     createdAt: Tick
 }
 
-export interface DisplayMessageEvent {
+export interface DisplayMessageUpdate {
     type: GameUpdateType.DisplayEvent
     message: string
     messageType: MessageType

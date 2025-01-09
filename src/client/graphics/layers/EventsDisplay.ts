@@ -2,8 +2,13 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { EventBus } from "../../../core/EventBus";
 import {
+  AllianceRequestReplyUpdate,
+  AllianceRequestUpdate,
   AllPlayers,
+  DisplayMessageUpdate,
+  EmojiUpdate,
   MessageType,
+  TargetPlayerUpdate,
 } from "../../../core/game/Game";
 import { ClientID } from "../../../core/Schemas";
 import { Layer } from "./Layer";
@@ -140,13 +145,6 @@ export class EventsDisplay extends LitElement implements Layer {
   }
 
   init() {
-    this.eventBus.on(AllianceRequestEvent, a => this.onAllianceRequestEvent(a));
-    this.eventBus.on(AllianceRequestReplyEvent, a => this.onAllianceRequestReplyEvent(a));
-    this.eventBus.on(DisplayMessageEvent, e => this.onDisplayMessageEvent(e));
-    this.eventBus.on(BrokeAllianceEvent, e => this.onBrokeAllianceEvent(e));
-    this.eventBus.on(AllianceExpiredEvent, e => this.onAllianceExpiredEvent(e));
-    this.eventBus.on(TargetPlayerEvent, e => this.onTargetPlayerEvent(e));
-    this.eventBus.on(EmojiMessageEvent, e => this.onEmojiMessageEvent(e));
   }
 
   tick() {
@@ -186,9 +184,9 @@ export class EventsDisplay extends LitElement implements Layer {
 
   renderLayer(): void { }
 
-  onDisplayMessageEvent(event: DisplayMessageEvent) {
+  onDisplayMessageEvent(event: DisplayMessageUpdate) {
     const myPlayer = this.game.playerByClientID(this.clientID);
-    if (event.playerID != null && (!myPlayer || myPlayer.id() !== event.playerID)) {
+    if (event.playerID != null && (!myPlayer || myPlayer.smallID() !== event.playerID)) {
       return;
     }
 
@@ -196,122 +194,137 @@ export class EventsDisplay extends LitElement implements Layer {
       description: event.message,
       createdAt: this.game.ticks(),
       highlight: true,
-      type: event.type,
+      type: event.messageType,
       unsafeDescription: true,
     });
   }
 
-  onAllianceRequestEvent(event: AllianceRequestEvent) {
+  onAllianceRequestEvent(update: AllianceRequestUpdate) {
     const myPlayer = this.game.playerByClientID(this.clientID);
-    if (!myPlayer || event.allianceRequest.recipient() !== myPlayer) {
+    if (!myPlayer || update.recipientID !== myPlayer.smallID()) {
       return;
     }
 
+    const requestor = this.game.playerBySmallID(update.requestorID)
+    const recipient = this.game.playerBySmallID(update.recipientID)
+
     this.addEvent({
-      description: `${event.allianceRequest.requestor().name()} requests an alliance!`,
+      description: `${requestor.name()} requests an alliance!`,
       buttons: [
         {
           text: "Accept",
           className: "btn",
-          action: () => this.eventBus.emit(new SendAllianceReplyIntentEvent(event.allianceRequest, true)),
+          action: () => this.eventBus.emit(
+            new SendAllianceReplyIntentEvent(requestor, recipient, true)
+          ),
         },
         {
           text: "Reject",
           className: "btn btn-info",
-          action: () => this.eventBus.emit(new SendAllianceReplyIntentEvent(event.allianceRequest, false)),
+          action: () => this.eventBus.emit(
+            new SendAllianceReplyIntentEvent(requestor, recipient, false)
+          ),
         }
       ],
       highlight: true,
       type: MessageType.INFO,
       createdAt: this.game.ticks(),
-      onDelete: () => this.eventBus.emit(new SendAllianceReplyIntentEvent(event.allianceRequest, false))
+      onDelete: () => this.eventBus.emit(
+        new SendAllianceReplyIntentEvent(requestor, recipient, false)
+      )
     });
   }
 
-  onAllianceRequestReplyEvent(event: AllianceRequestReplyEvent) {
-    const myPlayer = this.game.playerByClientID(this.clientID);
-    if (!myPlayer || event.allianceRequest.requestor() !== myPlayer) {
-      return;
-    }
+  // onAllianceRequestReplyEvent(event: AllianceRequestReplyUpdate) {
+  //   const myPlayer = this.game.playerByClientID(this.clientID);
+  //   if (!myPlayer || event.allianceRequest.requestor() !== myPlayer) {
+  //     return;
+  //   }
 
-    this.addEvent({
-      description: `${event.allianceRequest.recipient().name()} ${event.accepted ? "accepted" : "rejected"} your alliance request`,
-      type: event.accepted ? MessageType.SUCCESS : MessageType.ERROR,
-      highlight: true,
-      createdAt: this.game.ticks(),
-    });
-  }
+  //   this.addEvent({
+  //     description: `${event.allianceRequest.recipient().name()} ${event.accepted ? "accepted" : "rejected"} your alliance request`,
+  //     type: event.accepted ? MessageType.SUCCESS : MessageType.ERROR,
+  //     highlight: true,
+  //     createdAt: this.game.ticks(),
+  //   });
+  // }
 
-  onBrokeAllianceEvent(event: BrokeAllianceEvent) {
-    const myPlayer = this.game.playerByClientID(this.clientID);
-    if (!myPlayer) return;
+  // onBrokeAllianceEvent(event: BrokeAllianceEvent) {
+  //   const myPlayer = this.game.playerByClientID(this.clientID);
+  //   if (!myPlayer) return;
 
-    if (!event.betrayed.isTraitor() && event.traitor === myPlayer) {
-      this.addEvent({
-        description: `You broke your alliance with ${event.betrayed.name()}, making you a TRAITOR`,
-        type: MessageType.ERROR,
-        highlight: true,
-        createdAt: this.game.ticks(),
-      });
-    } else if (event.betrayed === myPlayer) {
-      this.addEvent({
-        description: `${event.traitor.name()}, broke their alliance with you`,
-        type: MessageType.ERROR,
-        highlight: true,
-        createdAt: this.game.ticks(),
-      });
-    }
-  }
+  //   if (!event.betrayed.isTraitor() && event.traitor === myPlayer) {
+  //     this.addEvent({
+  //       description: `You broke your alliance with ${event.betrayed.name()}, making you a TRAITOR`,
+  //       type: MessageType.ERROR,
+  //       highlight: true,
+  //       createdAt: this.game.ticks(),
+  //     });
+  //   } else if (event.betrayed === myPlayer) {
+  //     this.addEvent({
+  //       description: `${event.traitor.name()}, broke their alliance with you`,
+  //       type: MessageType.ERROR,
+  //       highlight: true,
+  //       createdAt: this.game.ticks(),
+  //     });
+  //   }
+  // }
 
-  onAllianceExpiredEvent(event: AllianceExpiredEvent) {
-    const myPlayer = this.game.playerByClientID(this.clientID);
-    if (!myPlayer) return;
+  // onAllianceExpiredEvent(event: AllianceExpiredEvent) {
+  //   const myPlayer = this.game.playerByClientID(this.clientID);
+  //   if (!myPlayer) return;
 
-    const other = event.player1 === myPlayer ? event.player2 : event.player2 === myPlayer ? event.player1 : null;
-    if (!other || !myPlayer.isAlive() || !other.isAlive()) return;
+  //   const other = event.player1 === myPlayer ? event.player2 : event.player2 === myPlayer ? event.player1 : null;
+  //   if (!other || !myPlayer.isAlive() || !other.isAlive()) return;
 
-    this.addEvent({
-      description: `Your alliance with ${other.name()} expired`,
-      type: MessageType.WARN,
-      highlight: true,
-      createdAt: this.game.ticks(),
-    });
-  }
+  //   this.addEvent({
+  //     description: `Your alliance with ${other.name()} expired`,
+  //     type: MessageType.WARN,
+  //     highlight: true,
+  //     createdAt: this.game.ticks(),
+  //   });
+  // }
 
-  onTargetPlayerEvent(event: TargetPlayerEvent) {
-    const myPlayer = this.game.playerByClientID(this.clientID);
-    if (!myPlayer || !myPlayer.isAlliedWith(event.player)) return;
+  // onTargetPlayerEvent(event: TargetPlayerUpdate) {
+  //   const other = this.game.playerBySmallID(event.playerID)
+  //   const myPlayer = this.game.playerByClientID(this.clientID);
+  //   if (!myPlayer || !myPlayer.isAlliedWith(other)) return;
 
-    this.addEvent({
-      description: `${event.player.name()} requests you attack ${event.target.name()}`,
-      type: MessageType.INFO,
-      highlight: true,
-      createdAt: this.game.ticks(),
-    });
-  }
+  //   const target = this.game.playerBySmallID(event.targetID)
 
-  onEmojiMessageEvent(event: EmojiMessageEvent) {
-    const myPlayer = this.game.playerByClientID(this.clientID);
-    if (!myPlayer) return;
+  //   this.addEvent({
+  //     description: `${other.name()} requests you attack ${target.name()}`,
+  //     type: MessageType.INFO,
+  //     highlight: true,
+  //     createdAt: this.game.ticks(),
+  //   });
+  // }
 
-    if (event.message.recipient === myPlayer) {
-      this.addEvent({
-        description: `${event.message.sender.displayName()}:${event.message.emoji}`,
-        unsafeDescription: true,
-        type: MessageType.INFO,
-        highlight: true,
-        createdAt: this.game.ticks(),
-      });
-    } else if (event.message.sender === myPlayer && event.message.recipient !== AllPlayers) {
-      this.addEvent({
-        description: `Sent ${event.message.recipient.displayName()}: ${event.message.emoji}`,
-        unsafeDescription: true,
-        type: MessageType.INFO,
-        highlight: true,
-        createdAt: this.game.ticks(),
-      });
-    }
-  }
+  // onEmojiMessageEvent(update: EmojiUpdate) {
+  //   const myPlayer = this.game.playerByClientID(this.clientID);
+  //   if (!myPlayer) return;
+
+  //   const recipient = update.recipientID == AllPlayers ? AllPlayers : this.game.playerBySmallID(update.recipientID)
+  //   const sender = this.game.playerBySmallID(update.senderID)
+
+  //   if (recipient == myPlayer) {
+  //     this.addEvent({
+  //       description: `${sender.displayName()}:${update.message}`,
+  //       unsafeDescription: true,
+  //       type: MessageType.INFO,
+  //       highlight: true,
+  //       createdAt: this.game.ticks(),
+  //     });
+  //   } else if (sender === myPlayer && recipient !== AllPlayers) {
+  //     this.addEvent({
+  //       description: `Sent ${recipient.displayName()}: ${update.message}`,
+  //       unsafeDescription: true,
+  //       type: MessageType.INFO,
+  //       highlight: true,
+  //       createdAt: this.game.ticks(),
+  //     });
+  //   }
+  // }
 
   render() {
     if (this.events.length === 0) {
