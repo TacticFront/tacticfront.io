@@ -80,7 +80,7 @@ export function createRenderer(canvas: HTMLCanvasElement, game: GameView, eventB
 		new TerritoryLayer(game, eventBus),
 		new StructureLayer(game, eventBus),
 		new UnitLayer(game, eventBus, clientID),
-		new NameLayer(game, eventBus, game.config().theme(), transformHandler, clientID),
+		new NameLayer(game, game.config().theme(), transformHandler, clientID),
 		new UILayer(eventBus, game, clientID, transformHandler),
 		eventsDisplay,
 		new RadialMenu(eventBus, game, transformHandler, clientID, emojiTable as EmojiTable, buildMenu, uiState),

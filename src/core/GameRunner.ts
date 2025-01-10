@@ -62,7 +62,7 @@ export class GameRunner {
         this.currTurn++
         const updates = this.game.executeNextTick()
 
-        if (this.game.inSpawnPhase() || this.game.ticks() % 10 == 0) {
+        if (this.game.inSpawnPhase() || this.game.ticks() % 20 == 0) {
             this.game.players()
                 .forEach(p => this.playerToName.set(p.id(), placeName(this.game, p)))
         }

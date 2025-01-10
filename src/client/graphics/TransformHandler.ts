@@ -14,6 +14,7 @@ export class TransformHandler {
 
     private target: Cell
     private intervalID = null
+    private changed = false
 
     constructor(private game: GameView, private eventBus: EventBus, private canvas: HTMLCanvasElement) {
         this.eventBus.on(ZoomEvent, (e) => this.onZoom(e))
@@ -27,6 +28,9 @@ export class TransformHandler {
 
     width(): number {
         return this.boundingRect().width
+    }
+    hasChanged(): boolean {
+        return this.changed
     }
 
     handleTransform(context: CanvasRenderingContext2D) {
@@ -43,6 +47,32 @@ export class TransformHandler {
             this.game.width() / 2 - this.offsetX * this.scale,
             this.game.height() / 2 - this.offsetY * this.scale
         );
+        this.changed = false
+    }
+
+    worldToScreenCoordinates(cell: Cell): { x: number, y: number } {
+        // Step 1: Convert from Cell coordinates to game coordinates
+        // (reverse of Math.floor operation - we'll use the exact values)
+        const gameX = cell.x;
+        const gameY = cell.y;
+
+        // Step 2: Reverse the game center offset calculation
+        // Original: gameX = centerX + this.game.width() / 2
+        // Therefore: centerX = gameX - this.game.width() / 2
+        const centerX = gameX - this.game.width() / 2;
+        const centerY = gameY - this.game.height() / 2;
+
+        // Step 3: Reverse the world point calculation
+        // Original: centerX = (canvasX - this.game.width() / 2) / this.scale + this.offsetX
+        // Therefore: canvasX = (centerX - this.offsetX) * this.scale + this.game.width() / 2
+        const canvasX = (centerX - this.offsetX) * this.scale + this.game.width() / 2;
+        const canvasY = (centerY - this.offsetY) * this.scale + this.game.height() / 2;
+
+        // Step 4: Convert canvas coordinates back to screen coordinates
+        const canvasRect = this.boundingRect();
+        const screenX = canvasX + canvasRect.left;
+        const screenY = canvasY + canvasRect.top;
+        return { x: screenX, y: screenY }
     }
 
     screenToWorldCoordinates(screenX: number, screenY: number): Cell {
@@ -76,6 +106,11 @@ export class TransformHandler {
         const gameBottomY = rightY + this.game.height() / 2
 
         return [new Cell(Math.floor(gameLeftX), Math.floor(gameTopY)), new Cell(Math.floor(gameRightX), Math.floor(gameBottomY))]
+    }
+
+    isOnScreen(cell: Cell): boolean {
+        const [topLeft, bottomRight] = this.screenBoundingRect()
+        return cell.x > topLeft.x && cell.x < bottomRight.x && cell.y > topLeft.y && cell.y < bottomRight.y
     }
 
     screenCenter(): { screenX: number, screenY: number } {
@@ -121,6 +156,7 @@ export class TransformHandler {
                 this.offsetY += offsetDy
             }
         }
+        this.changed = true
     }
 
     onZoom(event: ZoomEvent) {
@@ -143,12 +179,14 @@ export class TransformHandler {
         // Adjust the offset
         this.offsetX = zoomPointX - (canvasX - this.game.width() / 2) / this.scale;
         this.offsetY = zoomPointY - (canvasY - this.game.height() / 2) / this.scale;
+        this.changed = true
     }
 
     onMove(event: DragEvent) {
         this.clearTarget()
         this.offsetX -= event.deltaX / this.scale;
         this.offsetY -= event.deltaY / this.scale;
+        this.changed = true
     }
 
     private clearTarget() {
