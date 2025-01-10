@@ -126,7 +126,7 @@ export class NameLayer implements Layer {
         this.container.style.transform = `translate(${screenPos.x}px, ${screenPos.y}px) scale(${this.transformHandler.scale})`
 
         const now = Date.now()
-        if (now + this.lastChecked > this.renderRefreshRate) {
+        if (now > this.lastChecked + this.renderCheckRate) {
             this.lastChecked = now
             for (const render of this.renders) {
                 this.renderPlayerInfo(render)
@@ -185,7 +185,7 @@ export class NameLayer implements Layer {
         render.fontSize = Math.max(1, Math.floor(render.player.nameLocation().size))
         // console.log(`zoom ${this.transformHandler.scale}, size: ${render.player.nameLocation().size}`)
         const size = this.transformHandler.scale * render.player.nameLocation().size
-        if (size < 5) {
+        if (size < 10) {
             if (render.element.style.display != 'none') {
                 render.element.style.display = 'none'
             }
