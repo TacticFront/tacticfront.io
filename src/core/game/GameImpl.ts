@@ -399,7 +399,7 @@ export class GameImpl implements MutableGame {
                 (t.owner() as PlayerImpl)._borderTiles.delete(t);
                 t._isBorder = false
             }
-            this.updates.push(t.toUpdate())
+            // this.updates.push(t.toUpdate())
         }
     }
 

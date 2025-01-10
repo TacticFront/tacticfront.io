@@ -149,7 +149,13 @@ export class TerritoryLayer implements Layer {
         }
     }
 
-    paintTerritory(tile: Tile) {
+    paintTerritory(tile: Tile, isBorder: boolean = false, parent: Tile = null) {
+        if (isBorder && !tile.hasOwner()) {
+            return
+        }
+        if (!isBorder) {
+            tile.neighbors().forEach(t => this.paintTerritory(t, true, tile))
+        }
         if (!tile.hasOwner()) {
             if (tile.hasFallout()) {
                 this.paintCell(tile.cell(), this.theme.falloutColor(), 150)

@@ -8,6 +8,8 @@ import { WorkerClient } from './worker/WorkerClient';
 
 export class TileView {
 
+    private _neighbors: TileView[] = []
+
     constructor(private game: GameView, public data: TileUpdate, private _terrain: TerrainTile) { }
 
     type(): TerrainType {
@@ -23,7 +25,12 @@ export class TileView {
         return this.data?.ownerID !== undefined && this.data.ownerID !== 0;
     }
     isBorder(): boolean {
-        return this.data?.isBorder
+        for (const n of this.neighbors()) {
+            if (n.data?.ownerID != this.data?.ownerID) {
+                return true
+            }
+        }
+        return false
     }
     cell(): Cell {
         return this._terrain.cell()
@@ -35,8 +42,11 @@ export class TileView {
         return this._terrain
     }
 
-    neighbors(): Tile[] {
-        return this._terrain.neighbors().map(t => this.game.tile(t.cell()))
+    neighbors(): TileView[] {
+        if (this._neighbors.length == 0) {
+            this._neighbors = this._terrain.neighbors().map(t => this.game.tile(t.cell()))
+        }
+        return this._neighbors
     }
 
     hasDefenseBonus(): boolean {
@@ -303,7 +313,7 @@ export class GameView {
     players(): Player[] {
         return []
     }
-    tile(cell: Cell): Tile {
+    tile(cell: Cell): TileView {
         return this.tiles[cell.x][cell.y]
     }
     isOnMap(cell: Cell): boolean {
