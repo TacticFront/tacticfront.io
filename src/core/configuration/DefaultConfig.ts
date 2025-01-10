@@ -191,16 +191,16 @@ export class DefaultConfig implements Config {
         let speed = 0
         switch (tileToConquer.terrain()) {
             case TerrainType.Plains:
-                mag = 50
-                speed = 10
+                mag = 70
+                speed = 15
                 break
             case TerrainType.Highland:
                 mag = 100
                 speed = 20
                 break
             case TerrainType.Mountain:
-                mag = 150
-                speed = 30
+                mag = 130
+                speed = 25
                 break
         }
         mag *= tileToConquer.defenseBonus(attacker)
@@ -221,7 +221,7 @@ export class DefaultConfig implements Config {
 
         if (defender.isPlayer()) {
             return {
-                attackerTroopLoss: within(defender.troops() / (3 * attackTroops), .1, 10) * mag,
+                attackerTroopLoss: within(defender.troops() / (2.5 * attackTroops), .1, 10) * mag,
                 defenderTroopLoss: defender.troops() / defender.numTilesOwned(),
                 tilesPerTickUsed: within(defender.troops() / (5 * attackTroops), .2, 1.5) * speed
             }
@@ -285,7 +285,7 @@ export class DefaultConfig implements Config {
 
         // const thing = Math.sqrt(player.population() + player.population() * player.workers())
 
-        let toAdd = 10 + Math.pow(player.population(), .7) / 5
+        let toAdd = 10 + Math.pow(player.population(), .73) / 4
 
         const ratio = 1 - (player.population() / max)
         toAdd *= ratio

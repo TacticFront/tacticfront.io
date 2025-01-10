@@ -194,10 +194,10 @@ export class AttackExecution implements Execution {
                     mag = 1
                     break
                 case TerrainType.Highland:
-                    mag = 2
+                    mag = 1.5
                     break
                 case TerrainType.Mountain:
-                    mag = 3
+                    mag = 2
                     break
             }
             this.toConquer.enqueue(new TileContainer(
