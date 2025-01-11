@@ -1,6 +1,6 @@
 import { Colord } from "colord";
 import { Theme } from "../../../core/configuration/Config";
-import { Unit, Cell, Game, Tile, UnitType, Player } from "../../../core/game/Game";
+import { Unit, Cell, Game, Tile, UnitType, Player, UnitUpdate } from "../../../core/game/Game";
 import { bfs, dist, euclDist } from "../../../core/Util";
 import { Layer } from "./Layer";
 import { EventBus } from "../../../core/EventBus";
@@ -12,10 +12,6 @@ enum Relationship {
     Self,
     Ally,
     Enemy
-}
-
-class UnitEvent {
-    constructor(public unit: Unit, public oldTile: Tile) { }
 }
 
 export class UnitLayer implements Layer {
@@ -46,13 +42,12 @@ export class UnitLayer implements Layer {
         if (this.myPlayer == null) {
             this.myPlayer = this.game.playerByClientID(this.clientID)
         }
-        for (const unit of this.game.units()) {
-            this.onUnitEvent(new UnitEvent(unit, unit.tile()))
+        for (const unit of this.game.recentlyUpdatedUnits()) {
+            this.onUnitEvent(unit)
         }
     }
 
     init() {
-        this.eventBus.on(UnitEvent, e => this.onUnitEvent(e));
         this.eventBus.on(AlternateViewEvent, e => this.onAlternativeViewEvent(e))
         this.redraw()
     }
@@ -97,125 +92,125 @@ export class UnitLayer implements Layer {
         return Relationship.Enemy
     }
 
-    onUnitEvent(event: UnitEvent) {
-        switch (event.unit.type()) {
+    onUnitEvent(unit: Unit) {
+        switch (unit.type()) {
             case UnitType.TransportShip:
-                this.handleBoatEvent(event);
+                this.handleBoatEvent(unit);
                 break;
             case UnitType.Destroyer:
-                this.handleDestroyerEvent(event);
+                this.handleDestroyerEvent(unit);
                 break;
             case UnitType.Battleship:
-                this.handleBattleshipEvent(event);
+                this.handleBattleshipEvent(unit);
                 break;
             case UnitType.Shell:
-                this.handleShellEvent(event)
+                this.handleShellEvent(unit)
                 break;
             case UnitType.TradeShip:
-                this.handleTradeShipEvent(event)
+                this.handleTradeShipEvent(unit)
                 break;
             case UnitType.AtomBomb:
             case UnitType.HydrogenBomb:
-                this.handleNuke(event)
+                this.handleNuke(unit)
                 break
         }
     }
 
-    private handleDestroyerEvent(event: UnitEvent) {
-        const rel = this.relationship(event.unit)
-        bfs(event.oldTile, euclDist(event.oldTile, 4)).forEach(t => {
+    private handleDestroyerEvent(unit: Unit) {
+        const rel = this.relationship(unit)
+        bfs(unit.lastTile(), euclDist(unit.lastTile(), 4)).forEach(t => {
             this.clearCell(t.cell());
         });
-        if (!event.unit.isActive()) {
+        if (!unit.isActive()) {
             return
         }
-        bfs(event.unit.tile(), euclDist(event.unit.tile(), 4))
-            .forEach(t => this.paintCell(t.cell(), rel, this.theme.borderColor(event.unit.owner().info()), 255));
-        bfs(event.unit.tile(), dist(event.unit.tile(), 3))
-            .forEach(t => this.paintCell(t.cell(), rel, this.theme.territoryColor(event.unit.owner().info()), 255));
+        bfs(unit.tile(), euclDist(unit.tile(), 4))
+            .forEach(t => this.paintCell(t.cell(), rel, this.theme.borderColor(unit.owner().info()), 255));
+        bfs(unit.tile(), dist(unit.tile(), 3))
+            .forEach(t => this.paintCell(t.cell(), rel, this.theme.territoryColor(unit.owner().info()), 255));
     }
 
-    private handleBattleshipEvent(event: UnitEvent) {
-        const rel = this.relationship(event.unit)
-        bfs(event.oldTile, euclDist(event.oldTile, 6)).forEach(t => {
+    private handleBattleshipEvent(unit: Unit) {
+        const rel = this.relationship(unit)
+        bfs(unit.lastTile(), euclDist(unit.lastTile(), 6)).forEach(t => {
             this.clearCell(t.cell());
         });
-        if (!event.unit.isActive()) {
+        if (!unit.isActive()) {
             return
         }
-        bfs(event.unit.tile(), euclDist(event.unit.tile(), 5))
-            .forEach(t => this.paintCell(t.cell(), rel, this.theme.territoryColor(event.unit.owner().info()), 255));
-        bfs(event.unit.tile(), dist(event.unit.tile(), 4))
-            .forEach(t => this.paintCell(t.cell(), rel, this.theme.borderColor(event.unit.owner().info()), 255));
-        bfs(event.unit.tile(), euclDist(event.unit.tile(), 1))
-            .forEach(t => this.paintCell(t.cell(), rel, this.theme.territoryColor(event.unit.owner().info()), 255));
+        bfs(unit.tile(), euclDist(unit.tile(), 5))
+            .forEach(t => this.paintCell(t.cell(), rel, this.theme.territoryColor(unit.owner().info()), 255));
+        bfs(unit.tile(), dist(unit.tile(), 4))
+            .forEach(t => this.paintCell(t.cell(), rel, this.theme.borderColor(unit.owner().info()), 255));
+        bfs(unit.tile(), euclDist(unit.tile(), 1))
+            .forEach(t => this.paintCell(t.cell(), rel, this.theme.territoryColor(unit.owner().info()), 255));
     }
 
-    private handleShellEvent(event: UnitEvent) {
-        const rel = this.relationship(event.unit)
+    private handleShellEvent(unit: Unit) {
+        const rel = this.relationship(unit)
 
-        this.clearCell(event.oldTile.cell())
-        if (this.oldShellTile.has(event.unit)) {
-            this.clearCell(this.oldShellTile.get(event.unit).cell())
+        this.clearCell(unit.lastTile().cell())
+        if (this.oldShellTile.has(unit)) {
+            this.clearCell(this.oldShellTile.get(unit).cell())
         }
 
-        this.oldShellTile.set(event.unit, event.oldTile)
-        if (!event.unit.isActive()) {
+        this.oldShellTile.set(unit, unit.lastTile())
+        if (!unit.isActive()) {
             return
         }
-        this.paintCell(event.unit.tile().cell(), rel, this.theme.borderColor(event.unit.owner().info()), 255)
-        this.paintCell(event.oldTile.cell(), rel, this.theme.borderColor(event.unit.owner().info()), 255)
+        this.paintCell(unit.tile().cell(), rel, this.theme.borderColor(unit.owner().info()), 255)
+        this.paintCell(unit.lastTile().cell(), rel, this.theme.borderColor(unit.owner().info()), 255)
     }
 
 
-    private handleNuke(event: UnitEvent) {
-        const rel = this.relationship(event.unit)
-        bfs(event.oldTile, euclDist(event.oldTile, 2)).forEach(t => {
+    private handleNuke(unit: Unit) {
+        const rel = this.relationship(unit)
+        bfs(unit.lastTile(), euclDist(unit.lastTile(), 2)).forEach(t => {
             this.clearCell(t.cell());
         });
-        if (event.unit.isActive()) {
-            bfs(event.unit.tile(), euclDist(event.unit.tile(), 2))
-                .forEach(t => this.paintCell(t.cell(), rel, this.theme.borderColor(event.unit.owner().info()), 255));
+        if (unit.isActive()) {
+            bfs(unit.tile(), euclDist(unit.tile(), 2))
+                .forEach(t => this.paintCell(t.cell(), rel, this.theme.borderColor(unit.owner().info()), 255));
         }
 
     }
 
-    private handleTradeShipEvent(event: UnitEvent) {
-        const rel = this.relationship(event.unit)
-        bfs(event.oldTile, euclDist(event.oldTile, 3)).forEach(t => {
+    private handleTradeShipEvent(unit: Unit) {
+        const rel = this.relationship(unit)
+        bfs(unit.lastTile(), euclDist(unit.lastTile(), 3)).forEach(t => {
             this.clearCell(t.cell());
         });
-        if (event.unit.isActive()) {
-            bfs(event.unit.tile(), dist(event.unit.tile(), 2))
-                .forEach(t => this.paintCell(t.cell(), rel, this.theme.territoryColor(event.unit.owner().info()), 255));
+        if (unit.isActive()) {
+            bfs(unit.tile(), dist(unit.tile(), 2))
+                .forEach(t => this.paintCell(t.cell(), rel, this.theme.territoryColor(unit.owner().info()), 255));
         }
-        if (event.unit.isActive()) {
-            bfs(event.unit.tile(), dist(event.unit.tile(), 1))
-                .forEach(t => this.paintCell(t.cell(), rel, this.theme.borderColor(event.unit.owner().info()), 255));
+        if (unit.isActive()) {
+            bfs(unit.tile(), dist(unit.tile(), 1))
+                .forEach(t => this.paintCell(t.cell(), rel, this.theme.borderColor(unit.owner().info()), 255));
         }
     }
 
-    private handleBoatEvent(event: UnitEvent) {
-        const rel = this.relationship(event.unit)
-        if (!this.boatToTrail.has(event.unit)) {
-            this.boatToTrail.set(event.unit, new Set<Tile>());
+    private handleBoatEvent(unit: Unit) {
+        const rel = this.relationship(unit)
+        if (!this.boatToTrail.has(unit)) {
+            this.boatToTrail.set(unit, new Set<Tile>());
         }
-        const trail = this.boatToTrail.get(event.unit);
-        trail.add(event.oldTile);
-        bfs(event.oldTile, dist(event.oldTile, 3)).forEach(t => {
+        const trail = this.boatToTrail.get(unit);
+        trail.add(unit.lastTile());
+        bfs(unit.lastTile(), dist(unit.lastTile(), 3)).forEach(t => {
             this.clearCell(t.cell());
         });
-        if (event.unit.isActive()) {
+        if (unit.isActive()) {
             for (const t of trail) {
-                this.paintCell(t.cell(), rel, this.theme.territoryColor(event.unit.owner().info()), 150);
+                this.paintCell(t.cell(), rel, this.theme.territoryColor(unit.owner().info()), 150);
             }
-            bfs(event.unit.tile(), dist(event.unit.tile(), 2))
-                .forEach(t => this.paintCell(t.cell(), rel, this.theme.borderColor(event.unit.owner().info()), 255));
-            bfs(event.unit.tile(), dist(event.unit.tile(), 1))
-                .forEach(t => this.paintCell(t.cell(), rel, this.theme.territoryColor(event.unit.owner().info()), 255));
+            bfs(unit.tile(), dist(unit.tile(), 2))
+                .forEach(t => this.paintCell(t.cell(), rel, this.theme.borderColor(unit.owner().info()), 255));
+            bfs(unit.tile(), dist(unit.tile(), 1))
+                .forEach(t => this.paintCell(t.cell(), rel, this.theme.territoryColor(unit.owner().info()), 255));
         } else {
             trail.forEach(t => this.clearCell(t.cell()));
-            this.boatToTrail.delete(event.unit);
+            this.boatToTrail.delete(unit);
         }
     }
 

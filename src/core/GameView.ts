@@ -232,6 +232,7 @@ export class GameView {
     private _players = new Map<PlayerID, PlayerView>()
     private _units = new Map<number, UnitView>()
     private updatedTiles: TileView[] = []
+    private updatedUnits: UnitView[] = []
 
     constructor(public worker: WorkerClient, private _config: Config, private _terrainMap: TerrainMap) {
         // Initialize the 2D array
@@ -276,10 +277,14 @@ export class GameView {
                 this._units.set(unit.id, new UnitView(this, unit))
             }
         })
+        this.updatedUnits = gu.units.map(u => this._units.get(u.id))
     }
 
     recentlyUpdatedTiles(): TileView[] {
         return this.updatedTiles
+    }
+    recentlyUpdatedUnits(): UnitView[] {
+        return this.updatedUnits
     }
 
     player(id: PlayerID): PlayerView {

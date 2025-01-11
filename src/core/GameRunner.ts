@@ -76,7 +76,7 @@ export class GameRunner {
 
         this.callBack({
             tick: this.game.ticks(),
-            units: this.game.units().map(u => u.toUpdate()),
+            units: updates.filter(u => u.type == GameUpdateType.Unit),
             packedTileUpdates: updates.filter(u => u.type == GameUpdateType.Tile).map(u => packTileData(u)),
             players: playerViewData
         })
