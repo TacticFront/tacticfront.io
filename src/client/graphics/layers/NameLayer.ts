@@ -140,7 +140,6 @@ export class NameLayer implements Layer {
             mainContex.canvas.width,
             mainContex.canvas.height
         )
-
     }
 
     private createPlayerElement(player: Player): HTMLDivElement {
@@ -152,9 +151,12 @@ export class NameLayer implements Layer {
         // Don't set initial transform, will be handled in renderPlayerInfo
 
         const nameDiv = document.createElement('div')
-        nameDiv.innerHTML = player.displayName()
+        nameDiv.innerHTML = player.name()
         nameDiv.style.color = this.theme.playerInfoColor(player.id()).toHex()
         nameDiv.style.fontFamily = this.theme.font()
+        nameDiv.style.whiteSpace = 'nowrap'
+        nameDiv.style.overflow = 'hidden'
+        nameDiv.style.textOverflow = 'ellipsis'
         element.appendChild(nameDiv)
 
         const troopsDiv = document.createElement('div')
@@ -270,7 +272,7 @@ export class NameLayer implements Layer {
 
         if (render.location != oldLocation) {
             // Handle all positioning in a single transform
-            render.element.style.transform = `translate(${render.location.x}px, ${render.location.y}px) translate(-50%, -50%) scale(${render.fontSize * 0.1})`
+            render.element.style.transform = `translate(${render.location.x}px, ${render.location.y}px) translate(-50%, -50%) scale(${render.fontSize * 0.07})`
         }
     }
 

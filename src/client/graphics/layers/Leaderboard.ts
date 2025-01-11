@@ -6,7 +6,7 @@ import { ClientID } from '../../../core/Schemas';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { EventBus, GameEvent } from '../../../core/EventBus';
 import { renderNumber } from '../../Utils';
-import { GameView } from '../../../core/GameView';
+import { GameView, PlayerView } from '../../../core/GameView';
 
 interface Entry {
   name: string
@@ -14,11 +14,11 @@ interface Entry {
   score: string
   gold: string
   isMyPlayer: boolean
-  player: Player
+  player: PlayerView
 }
 
 export class GoToPlayerEvent implements GameEvent {
-  constructor(public player: Player) { }
+  constructor(public player: PlayerView) { }
 }
 
 @customElement('leader-board')
@@ -88,7 +88,7 @@ export class Leaderboard extends LitElement implements Layer {
     this.requestUpdate()
   }
 
-  private handleRowClick(player: Player) {
+  private handleRowClick(player: PlayerView) {
     this.eventBus.emit(new GoToPlayerEvent(player))
   }
 
