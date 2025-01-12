@@ -25,6 +25,8 @@ ctx.addEventListener('message', async (e: MessageEvent<MainThreadMessage>) => {
     const message = e.data;
 
     switch (message.type) {
+        case 'heartbeat':
+            break
         case 'init':
             try {
                 gameRunner = createGameRunner(

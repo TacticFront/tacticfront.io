@@ -3,6 +3,7 @@ import { GameConfig, GameID, Turn } from "../Schemas";
 import { PlayerActions, PlayerID } from "../game/Game";
 
 export type WorkerMessageType =
+    | 'heartbeat'
     | 'init'
     | 'initialized'
     | 'turn'
@@ -14,6 +15,10 @@ export type WorkerMessageType =
 interface BaseWorkerMessage {
     type: WorkerMessageType;
     id?: string;
+}
+
+export interface HeartbeatMessage extends BaseWorkerMessage {
+    type: 'heartbeat'
 }
 
 // Messages from main thread to worker
@@ -51,7 +56,7 @@ export interface PlayerActionsResultMessage extends BaseWorkerMessage {
 }
 
 // Union types for type safety
-export type MainThreadMessage = InitMessage | TurnMessage | PlayerActionsMessage
+export type MainThreadMessage = HeartbeatMessage | InitMessage | TurnMessage | PlayerActionsMessage
 
 // Message send from worker
 export type WorkerMessage = InitializedMessage | GameUpdateMessage | PlayerActionsResultMessage;

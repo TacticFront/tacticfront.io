@@ -1,5 +1,5 @@
 import { Config } from "../configuration/Config";
-import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerID, PlayerInfo, Player, TerraNullius, Tile, Unit, MutableAllianceRequest, Alliance, Nation, UnitType, UnitInfo, TerrainMap, DefenseBonus, MutableTile, GameUpdate, GameUpdateType, AllPlayers } from "./Game";
+import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerID, PlayerInfo, Player, TerraNullius, Tile, Unit, MutableAllianceRequest, Alliance, Nation, UnitType, UnitInfo, TerrainMap, DefenseBonus, MutableTile, GameUpdate, GameUpdateType, AllPlayers, GameUpdates } from "./Game";
 import { TerrainMapImpl } from "./TerrainMapLoader";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
@@ -23,7 +23,6 @@ export class GameImpl implements MutableGame {
 
     private unInitExecs: Execution[] = []
 
-    // idCounter: PlayerID = 1; // Zero reserved for TerraNullius
     map: TileImpl[][]
 
     private nations_: Nation[] = []
@@ -41,7 +40,7 @@ export class GameImpl implements MutableGame {
     private nextPlayerID = 1
     private _nextUnitID = 1
 
-    private updates: GameUpdate[] = []
+    private updates: GameUpdates = createGameUpdatesMap()
 
     constructor(
         private _terrainMap: TerrainMapImpl,
@@ -67,6 +66,11 @@ export class GameImpl implements MutableGame {
             ))
     }
 
+    addUpdate(update: GameUpdate) {
+        (this.updates[update.type] as any[]).push(update);
+    }
+
+
     nextUnitID(): number {
         const old = this._nextUnitID
         this._nextUnitID++
@@ -79,20 +83,20 @@ export class GameImpl implements MutableGame {
             throw Error(`cannot set fallout, tile ${tile} has owner`)
         }
         ti._hasFallout = true
-        this.updates.push(ti.toUpdate())
+        this.addUpdate(ti.toUpdate())
     }
 
     addTileDefenseBonus(tile: Tile, unit: Unit, amount: number): DefenseBonus {
         const df = { unit: unit, tile: tile, amount: amount };
         (tile as TileImpl)._defenseBonuses.push(df)
-        this.updates.push((tile as TileImpl).toUpdate())
+        this.addUpdate((tile as TileImpl).toUpdate())
         return df
     }
 
     removeTileDefenseBonus(bonus: DefenseBonus): void {
         const t = bonus.tile as TileImpl
         t._defenseBonuses = t._defenseBonuses.filter(db => db != bonus)
-        this.updates.push(t.toUpdate())
+        this.addUpdate(t.toUpdate())
     }
 
     units(...types: UnitType[]): UnitImpl[] {
@@ -122,7 +126,7 @@ export class GameImpl implements MutableGame {
         }
         const ar = new AllianceRequestImpl(requestor, recipient, this._ticks, this)
         this.allianceRequests.push(ar)
-        this.updates.push(ar.toUpdate())
+        this.addUpdate(ar.toUpdate())
         return ar
     }
 
@@ -131,7 +135,7 @@ export class GameImpl implements MutableGame {
         const alliance = new AllianceImpl(this, request.requestor() as PlayerImpl, request.recipient() as PlayerImpl, this._ticks)
         this.alliances_.push(alliance);
         (request.requestor() as PlayerImpl).pastOutgoingAllianceRequests.push(request)
-        this.updates.push({
+        this.addUpdate({
             type: GameUpdateType.AllianceRequestReply,
             request: request.toUpdate(),
             accepted: true,
@@ -142,7 +146,7 @@ export class GameImpl implements MutableGame {
     rejectAllianceRequest(request: AllianceRequestImpl) {
         this.allianceRequests = this.allianceRequests.filter(ar => ar != request);
         (request.requestor() as PlayerImpl).pastOutgoingAllianceRequests.push(request)
-        this.updates.push({
+        this.addUpdate({
             type: GameUpdateType.AllianceRequestReply,
             request: request.toUpdate(),
             accepted: true
@@ -164,8 +168,8 @@ export class GameImpl implements MutableGame {
         return this._ticks
     }
 
-    executeNextTick(): GameUpdate[] {
-        this.updates = []
+    executeNextTick(): GameUpdates {
+        this.updates = createGameUpdatesMap()
         this.execs.forEach(e => {
             if (e.isActive() && (!this.inSpawnPhase() || e.activeDuringSpawnPhase())) {
                 e.tick(this._ticks)
@@ -193,6 +197,10 @@ export class GameImpl implements MutableGame {
                 hash += p.hash()
             })
             consolex.log(`tick ${this._ticks}: hash ${hash}`)
+        }
+        for (const player of this._players.values()) {
+            // Players change each to so always add them
+            this.addUpdate(player.toUpdate())
         }
         return this.updates
     }
@@ -357,7 +365,7 @@ export class GameImpl implements MutableGame {
         owner._lastTileChange = this._ticks
         this.updateBorders(tile)
         tileImpl._hasFallout = false
-        this.updates.push((tile as TileImpl).toUpdate())
+        this.addUpdate((tile as TileImpl).toUpdate())
     }
 
     relinquish(tile: Tile) {
@@ -377,7 +385,7 @@ export class GameImpl implements MutableGame {
 
         tileImpl._owner = this._terraNullius
         this.updateBorders(tile)
-        this.updates.push(
+        this.addUpdate(
             (tile as TileImpl).toUpdate()
         )
     }
@@ -417,11 +425,11 @@ export class GameImpl implements MutableGame {
     }
 
     public fireUnitUpdateEvent(unit: Unit) {
-        this.updates.push((unit as UnitImpl).toUpdate())
+        this.addUpdate((unit as UnitImpl).toUpdate())
     }
 
     target(targeter: Player, target: Player) {
-        this.updates.push({
+        this.addUpdate({
             type: GameUpdateType.TargetPlayer,
             playerID: targeter.smallID(),
             targetID: target.smallID(),
@@ -448,7 +456,7 @@ export class GameImpl implements MutableGame {
             throw new Error(`must have exactly one alliance, have ${alliances.length}`)
         }
         this.alliances_ = this.alliances_.filter(a => a != alliances[0])
-        this.updates.push({
+        this.addUpdate({
             type: GameUpdateType.BrokeAlliance,
             traitorID: breaker.smallID(),
             betrayedID: other.smallID()
@@ -463,7 +471,7 @@ export class GameImpl implements MutableGame {
             throw new Error(`cannot expire alliance: must have exactly one alliance, have ${alliances.length}`)
         }
         this.alliances_ = this.alliances_.filter(a => a != alliances[0])
-        this.updates.push({
+        this.addUpdate({
             type: GameUpdateType.AllianceExpired,
             player1: alliance.requestor().smallID(),
             player2: alliance.recipient().smallID()
@@ -473,7 +481,7 @@ export class GameImpl implements MutableGame {
     sendEmojiUpdate(sender: Player, recipient: Player | typeof AllPlayers, emoji: string): void {
         const recipientID = recipient === AllPlayers ? recipient : recipient.smallID();
 
-        this.updates.push({
+        this.addUpdate({
             type: GameUpdateType.EmojiUpdate,
             message: emoji,
             senderID: sender.smallID(),
@@ -483,7 +491,7 @@ export class GameImpl implements MutableGame {
     }
 
     setWinner(winner: Player): void {
-        this.updates.push({
+        this.addUpdate({
             type: GameUpdateType.WinUpdate,
             winnerID: winner.smallID()
         })
@@ -502,7 +510,7 @@ export class GameImpl implements MutableGame {
         if (playerID != null) {
             id = this.player(playerID).smallID()
         }
-        this.updates.push({
+        this.addUpdate({
             type: GameUpdateType.DisplayEvent,
             messageType: type,
             message: message,
@@ -510,3 +518,14 @@ export class GameImpl implements MutableGame {
         })
     }
 }
+
+// Or a more dynamic approach that will catch new enum values:
+const createGameUpdatesMap = (): GameUpdates => {
+    const map = {} as GameUpdates;
+    Object.values(GameUpdateType)
+        .filter(key => !isNaN(Number(key)))  // Filter out reverse mappings
+        .forEach(key => {
+            map[key as GameUpdateType] = [];
+        });
+    return map;
+};

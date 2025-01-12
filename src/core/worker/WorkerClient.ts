@@ -85,6 +85,12 @@ export class WorkerClient {
         });
     }
 
+    sendHeartbeat() {
+        this.worker.postMessage({
+            type: 'heartbeat'
+        });
+    }
+
     playerInteraction(playerID: PlayerID, tile: Tile): Promise<PlayerActions> {
         return new Promise((resolve, reject) => {
             if (!this.isInitialized) {

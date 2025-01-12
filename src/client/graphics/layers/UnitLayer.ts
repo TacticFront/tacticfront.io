@@ -28,11 +28,9 @@ export class UnitLayer implements Layer {
 
     private oldShellTile = new Map<Unit, Tile>()
 
-
     constructor(private game: GameView, private eventBus: EventBus, private clientID: ClientID) {
         this.theme = game.config().theme();
     }
-
 
     shouldTransform(): boolean {
         return true;
@@ -42,8 +40,9 @@ export class UnitLayer implements Layer {
         if (this.myPlayer == null) {
             this.myPlayer = this.game.playerByClientID(this.clientID)
         }
-        for (const unit of this.game.recentlyUpdatedUnits()) {
-            this.onUnitEvent(unit)
+        for (const unit of this.game.units()) {
+            if (unit.wasUpdated())
+                this.onUnitEvent(unit)
         }
     }
 

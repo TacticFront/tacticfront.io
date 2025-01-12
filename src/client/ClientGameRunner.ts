@@ -128,6 +128,12 @@ export class ClientGameRunner {
             this.gameView.update(gu)
             this.renderer.tick()
         })
+        const worker = this.worker
+        const keepWorkerAlive = () => {
+            worker.sendHeartbeat
+            requestAnimationFrame(keepWorkerAlive)
+        }
+        requestAnimationFrame(keepWorkerAlive)
 
         const onconnect = () => {
             consolex.log('Connected to game server!');

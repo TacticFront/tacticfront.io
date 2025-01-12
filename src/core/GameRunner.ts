@@ -4,7 +4,7 @@ import { getConfig } from "./configuration/Config";
 import { EventBus } from "./EventBus";
 import { Executor } from "./execution/ExecutionManager";
 import { WinCheckExecution } from "./execution/WinCheckExecution";
-import { Cell, DisplayMessageUpdate, Game, GameUpdateType, MessageType, MutableGame, MutableTile, NameViewData, Player, PlayerActions, PlayerID, Tile, UnitType } from "./game/Game";
+import { Cell, DisplayMessageUpdate, Game, GameUpdateType, MessageType, MutableGame, MutableTile, NameViewData, Player, PlayerActions, PlayerID, Tile, TileUpdate, UnitType, UnitUpdate } from "./game/Game";
 import { createGame } from "./game/GameImpl";
 import { loadTerrainMap } from "./game/TerrainMapLoader";
 import { GameConfig, Turn } from "./Schemas";
@@ -26,7 +26,7 @@ export class GameRunner {
     private currTurn = 0
     private isExecuting = false
 
-    private playerToName = new Map<PlayerID, NameViewData>()
+    private playerViewData: Record<PlayerID, NameViewData> = {}
 
     constructor(
         public game: MutableGame,
@@ -63,22 +63,20 @@ export class GameRunner {
         const updates = this.game.executeNextTick()
 
         if (this.game.inSpawnPhase() || this.game.ticks() % 20 == 0) {
-            this.game.players()
-                .forEach(p => this.playerToName.set(p.id(), placeName(this.game, p)))
+            this.game.players().forEach(p => {
+                this.playerViewData[p.id()] = placeName(this.game, p)
+            })
         }
 
-        const playerViewData = {}
-        for (const player of this.game.allPlayers()) {
-            const viewData = player.toUpdate()
-            viewData.nameViewData = this.playerToName.get(player.id())
-            playerViewData[player.id()] = viewData
-        }
+        // Many tiles are updated to pack it into an array
+        const packedTileUpdates = updates[GameUpdateType.Tile].map(u => packTileData(u as TileUpdate))
+        updates[GameUpdateType.Tile] = []
 
         this.callBack({
             tick: this.game.ticks(),
-            units: updates.filter(u => u.type == GameUpdateType.Unit),
-            packedTileUpdates: updates.filter(u => u.type == GameUpdateType.Tile).map(u => packTileData(u)),
-            players: playerViewData
+            packedTileUpdates: packedTileUpdates,
+            updates: updates,
+            playerNameViewData: this.playerViewData
         })
         this.isExecuting = false
     }

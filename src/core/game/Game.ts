@@ -9,6 +9,15 @@ export type Gold = number
 
 export const AllPlayers = "AllPlayers" as const;
 
+// export type GameUpdates = Record<GameUpdateType, GameUpdate[]>;
+// Create a type that maps GameUpdateType to its corresponding update type
+type UpdateTypeMap<T extends GameUpdateType> = Extract<GameUpdate, { type: T }>;
+
+// Then use it to create the record type
+export type GameUpdates = {
+    [K in GameUpdateType]: UpdateTypeMap<K>[];
+}
+
 export interface MapPos {
     x: number
     y: number
@@ -83,6 +92,7 @@ export class EmojiMessage {
 }
 
 export class Cell {
+    public index: number
 
     private strRepr: string
 
@@ -347,7 +357,7 @@ export interface Game {
     forEachTile(fn: (tile: Tile) => void): void
     executions(): ExecutionView[]
     terraNullius(): TerraNullius
-    executeNextTick(): GameUpdate[]
+    executeNextTick(): GameUpdates
     ticks(): Tick
     inSpawnPhase(): boolean
     addExecution(...exec: Execution[]): void

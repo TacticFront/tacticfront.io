@@ -1,4 +1,4 @@
-import { GameUpdateType, MapPos, MessageType, NameViewData, Player, PlayerActions, PlayerUpdate, Tile, TileUpdate, Unit, UnitUpdate } from './game/Game';
+import { GameUpdates, GameUpdateType, MapPos, MessageType, NameViewData, Player, PlayerActions, PlayerUpdate, Tile, TileUpdate, Unit, UnitUpdate } from './game/Game';
 import { Config } from "./configuration/Config";
 import { Alliance, AllianceRequest, AllPlayers, Cell, DefenseBonus, EmojiMessage, Execution, ExecutionView, Game, Gold, MutableTile, Nation, PlayerID, PlayerInfo, PlayerType, Relation, TerrainMap, TerrainTile, TerrainType, TerraNullius, Tick, UnitInfo, UnitType } from "./game/Game";
 import { ClientID } from "./Schemas";
@@ -58,13 +58,31 @@ export class TileView {
 }
 
 export class UnitView implements Unit {
-    constructor(private gameView: GameView, private data: UnitUpdate) { }
+    public _wasUpdated = true
+    public lastPos: MapPos[] = []
+
+    constructor(private gameView: GameView, private data: UnitUpdate) {
+        this.lastPos.push(data.pos)
+    }
+
+    wasUpdated(): boolean {
+        return this._wasUpdated
+    }
+
+    lastTiles(): Tile[] {
+        return this.lastPos.map(pos => this.gameView.tile(new Cell(pos.x, pos.y)))
+    }
 
     lastTile(): Tile {
-        return this.gameView.tile(new Cell(this.data.lastPos.x, this.data.lastPos.y))
+        if (this.lastPos.length == 0) {
+            return this.gameView.tile(new Cell(this.data.pos.x, this.data.pos.y))
+        }
+        return this.gameView.tile(new Cell(this.lastPos[0].x, this.lastPos[0].y))
     }
 
     update(data: UnitUpdate) {
+        this.lastPos.push(data.pos)
+        this._wasUpdated = true
         this.data = data
     }
 
@@ -96,14 +114,15 @@ export class UnitView implements Unit {
 }
 
 export class PlayerView implements Player {
-    constructor(private game: GameView, public data: PlayerUpdate) { }
+
+    constructor(private game: GameView, public data: PlayerUpdate, public nameData: NameViewData) { }
 
     async actions(tile: Tile): Promise<PlayerActions> {
         return this.game.worker.playerInteraction(this.id(), tile)
     }
 
     nameLocation(): NameViewData {
-        return this.data.nameViewData
+        return this.nameData
     }
 
     smallID(): number {
@@ -220,9 +239,9 @@ export class PlayerView implements Player {
 
 export interface GameUpdateViewData {
     tick: number
-    units: UnitUpdate[]
-    players: Record<PlayerID, PlayerUpdate>
+    updates: GameUpdates
     packedTileUpdates: Uint16Array[]
+    playerNameViewData: Record<number, NameViewData>
 }
 
 export class GameView {
@@ -232,7 +251,6 @@ export class GameView {
     private _players = new Map<PlayerID, PlayerView>()
     private _units = new Map<number, UnitView>()
     private updatedTiles: TileView[] = []
-    private updatedUnits: UnitView[] = []
 
     constructor(public worker: WorkerClient, private _config: Config, private _terrainMap: TerrainMap) {
         // Initialize the 2D array
@@ -246,9 +264,10 @@ export class GameView {
         }
         this.lastUpdate = {
             tick: 0,
-            units: [],
             packedTileUpdates: [],
-            players: {}
+            // TODO: make this empty map instead of null?
+            updates: null,
+            playerNameViewData: {},
         }
     }
 
@@ -262,29 +281,30 @@ export class GameView {
         })
         this.updatedTiles = Array.from(updated).map(pos => this.tiles[pos.x][pos.y])
 
-        Object.entries(gu.players).forEach(([key, value]) => {
-            this.smallIDToID.set(value.smallID, key);
-            if (this._players.has(key)) {
-                this._players.get(key).data = value
+        gu.updates[GameUpdateType.Player].forEach((pu) => {
+            this.smallIDToID.set(pu.smallID, pu.id);
+            if (this._players.has(pu.id)) {
+                this._players.get(pu.id).data = pu
+                this._players.get(pu.id).nameData = gu.playerNameViewData[pu.id]
             } else {
-                this._players.set(key, new PlayerView(this, value))
+                this._players.set(pu.id, new PlayerView(this, pu, gu.playerNameViewData[pu.id]))
             }
         });
-        gu.units.forEach(unit => {
+        for (const unit of this._units.values()) {
+            unit._wasUpdated = false
+            unit.lastPos = unit.lastPos.slice(-1)
+        }
+        gu.updates[GameUpdateType.Unit].forEach(unit => {
             if (this._units.has(unit.id)) {
                 this._units.get(unit.id).update(unit)
             } else {
                 this._units.set(unit.id, new UnitView(this, unit))
             }
         })
-        this.updatedUnits = gu.units.map(u => this._units.get(u.id))
     }
 
     recentlyUpdatedTiles(): TileView[] {
         return this.updatedTiles
-    }
-    recentlyUpdatedUnits(): UnitView[] {
-        return this.updatedUnits
     }
 
     player(id: PlayerID): PlayerView {
@@ -347,7 +367,7 @@ export class GameView {
     config(): Config {
         return this._config
     }
-    units(...types: UnitType[]): Unit[] {
+    units(...types: UnitType[]): UnitView[] {
         return Array.from(this._units.values())
     }
     unitInfo(type: UnitType): UnitInfo {
