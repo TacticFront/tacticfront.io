@@ -1,6 +1,6 @@
 import { Tile, Cell, TerrainType, Player, TerraNullius, MutablePlayer, TerrainTile, DefenseBonus, MutableTile, TileUpdate, GameUpdateType } from "./Game";
 import { SearchNode } from "../pathfinding/AStar";
-import { TerrainTileImpl } from "./TerrainMapLoader";
+import { TerrainMapImpl, TerrainTileImpl } from "./TerrainMapLoader";
 import { GameImpl } from "./GameImpl";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
@@ -19,7 +19,7 @@ export class TileImpl implements MutableTile {
         private readonly gs: GameImpl,
         public _owner: PlayerImpl | TerraNulliusImpl,
         private readonly _cell: Cell,
-        private readonly _terrain: TerrainTileImpl
+        private terrainMap: TerrainMapImpl
     ) { }
 
     toUpdate(): TileUpdate {
@@ -41,7 +41,7 @@ export class TileImpl implements MutableTile {
     }
 
     type(): TerrainType {
-        return this._terrain._type
+        return this.terrainMap.terrain(this._cell)._type
     }
 
     hasDefenseBonus(): boolean {
@@ -96,7 +96,7 @@ export class TileImpl implements MutableTile {
         return ns;
     }
     terrain(): TerrainTile {
-        return this._terrain
+        return this.terrainMap.terrain(this._cell)
     }
 
     borders(other: Player | TerraNullius): boolean {

@@ -55,7 +55,7 @@ export class GameImpl implements MutableGame {
             this.map[x] = new Array(this._height);
             for (let y = 0; y < this._height; y++) {
                 let cell = new Cell(x, y);
-                this.map[x][y] = new TileImpl(this, this._terraNullius, cell, _terrainMap.terrain(cell));
+                this.map[x][y] = new TileImpl(this, this._terraNullius, cell, _terrainMap);
             }
         }
         this.nations_ = _terrainMap.nationMap.nations

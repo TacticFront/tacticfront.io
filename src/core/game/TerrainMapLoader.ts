@@ -23,7 +23,6 @@ export class TerrainTileImpl implements TerrainTile {
     public _magnitude: number = 0
     public ocean = false
     public land = false
-    private _neighbors: TerrainTile[] | null = null
 
     constructor(private map: TerrainMap, public _type: TerrainType, private _cell: Cell) { }
     type(): TerrainType {
@@ -62,52 +61,84 @@ export class TerrainTileImpl implements TerrainTile {
     }
 
     neighbors(): TerrainTile[] {
-        if (this._neighbors === null) {
-            const positions = [
-                { x: this._cell.x - 1, y: this._cell.y }, // Left
-                { x: this._cell.x + 1, y: this._cell.y }, // Right
-                { x: this._cell.x, y: this._cell.y - 1 }, // Up
-                { x: this._cell.x, y: this._cell.y + 1 }  // Down
-            ];
+        const positions = [
+            { x: this._cell.x - 1, y: this._cell.y }, // Left
+            { x: this._cell.x + 1, y: this._cell.y }, // Right
+            { x: this._cell.x, y: this._cell.y - 1 }, // Up
+            { x: this._cell.x, y: this._cell.y + 1 }  // Down
+        ];
 
-            this._neighbors = positions
-                .filter(pos => pos.x >= 0 && pos.x < this.map.width() &&
-                    pos.y >= 0 && pos.y < this.map.height())
-                .map(pos => this.map.terrain(new Cell(pos.x, pos.y)));
-        }
-        return this._neighbors;
+        return positions
+            .filter(pos => pos.x >= 0 && pos.x < this.map.width() &&
+                pos.y >= 0 && pos.y < this.map.height())
+            .map(pos => this.map.terrain(new Cell(pos.x, pos.y)));
     }
 }
 
 export class TerrainMapImpl implements TerrainMap {
-    public tiles: TerrainTileImpl[][]
-    public _numLandTiles: number
-    public nationMap: NationMap
-    constructor(
-    ) { }
-    numLandTiles(): number {
-        return this._numLandTiles
+    public rawData: Uint8Array;
+    public width_: number;
+    public height_: number;
+    public _numLandTiles: number;
+    public nationMap: NationMap;
+
+
+    constructor() { }
+
+    terrain(cell: Cell): TerrainTileImpl {
+
+        const idx = cell.y * this.width_ + cell.x;
+        const packedByte = this.rawData[idx];
+
+        const isLand: boolean = (packedByte & 0b10000000) !== 0;
+        const shoreline = !!(packedByte & 0b01000000);
+        const ocean = !!(packedByte & 0b00100000);
+        const magnitude = packedByte & 0b00011111;
+
+        let type: TerrainType;
+        if (isLand) {
+            if (magnitude < 10) {
+                type = TerrainType.Plains;
+            } else if (magnitude < 20) {
+                type = TerrainType.Highland;
+            } else {
+                type = TerrainType.Mountain;
+            }
+        } else {
+            type = ocean ? TerrainType.Ocean : TerrainType.Lake;
+        }
+
+        const tile = new TerrainTileImpl(this, type, cell);
+        tile.shoreline = shoreline;
+        tile._magnitude = magnitude;
+        tile.ocean = ocean;
+        tile.land = isLand;
+
+        return tile;
     }
+
     isOnMap(cell: Cell): boolean {
-        return cell.x >= 0 && cell.x < this.tiles.length && cell.y >= 0 && cell.y < this.tiles[0].length
+        return cell.x >= 0 && cell.x < this.width_ &&
+            cell.y >= 0 && cell.y < this.height_;
+    }
+
+    width(): number {
+        return this.width_;
+    }
+
+    height(): number {
+        return this.height_;
+    }
+
+    numLandTiles(): number {
+        return this._numLandTiles;
     }
 
     neighbors(terrainTile: TerrainTile): TerrainTile[] {
         return (terrainTile as TerrainTileImpl).neighbors();
     }
-
-    terrain(cell: Cell): TerrainTileImpl {
-        return this.tiles[cell.x][cell.y]
-    }
-
-    width(): number {
-        return this.tiles.length
-    }
-
-    height(): number {
-        return this.tiles[0].length
-    }
 }
+
 
 export async function loadTerrainMap(map: GameMap): Promise<{ map: TerrainMapImpl, miniMap: TerrainMapImpl }> {
     if (loadedMaps.has(map)) {
@@ -123,67 +154,31 @@ export async function loadTerrainMap(map: GameMap): Promise<{ map: TerrainMapImp
 }
 
 export async function loadTerrainFromFile(fileData: string): Promise<TerrainMapImpl> {
-
-
-    consolex.log(`Loaded data length: ${fileData.length} bytes`);
-
-    // Extract width and height from the first 4 bytes
     const width = (fileData.charCodeAt(1) << 8) | fileData.charCodeAt(0);
     const height = (fileData.charCodeAt(3) << 8) | fileData.charCodeAt(2);
 
-    consolex.log(`Decoded dimensions: ${width}x${height}`);
-
-    // Check if the data length matches the expected size
-    if (fileData.length != width * height + 4) {  // +4 for the width and height bytes
+    if (fileData.length != width * height + 4) {
         throw new Error(`Invalid data: buffer size ${fileData.length} incorrect for ${width}x${height} terrain plus 4 bytes for dimensions.`);
     }
 
-    const terrain: TerrainTileImpl[][] = Array(width).fill(null).map(() => Array(height).fill(null));
-    let numLand = 0
-
     const m = new TerrainMapImpl();
+    m.width_ = width;
+    m.height_ = height;
 
-    // Start from the 5th byte (index 4) when processing terrain data
-    for (let x = 0; x < width; x++) {
-        for (let y = 0; y < height; y++) {
-            const packedByte = fileData.charCodeAt(4 + y * width + x);  // +4 to skip dimension bytes
-            const isLand = (packedByte & 0b10000000)
-            const shoreline = !!(packedByte & 0b01000000);
-            const ocean = !!(packedByte & 0b00100000);
-            const magnitude = packedByte & 0b00011111;
+    // Store raw data in Uint8Array
+    m.rawData = new Uint8Array(width * height);
+    let numLand = 0;
 
-            let type: TerrainType = null
-            let land = false
-            if (isLand) {
-                numLand++
-                land = true
-                if (magnitude < 10) {
-                    type = TerrainType.Plains
-                } else if (magnitude < 20) {
-                    type = TerrainType.Highland
-                } else {
-                    type = TerrainType.Mountain
-                }
-            } else {
-                if (ocean) {
-                    type = TerrainType.Ocean
-                } else {
-                    type = TerrainType.Lake
-                }
-            }
-
-            terrain[x][y] = new TerrainTileImpl(m, type, new Cell(x, y));
-            terrain[x][y].shoreline = shoreline;
-            terrain[x][y]._magnitude = magnitude;
-            terrain[x][y].ocean = ocean
-            terrain[x][y].land = land
-        }
+    // Copy data starting after the header
+    for (let i = 0; i < width * height; i++) {
+        const packedByte = fileData.charCodeAt(i + 4);
+        m.rawData[i] = packedByte;
+        if (packedByte & 0b10000000) numLand++;
     }
-    m.tiles = terrain
-    m._numLandTiles = numLand
-    return m
-}
 
+    m._numLandTiles = numLand;
+    return m;
+}
 
 
 function logBinaryAsAscii(data: string, length: number = 8) {
