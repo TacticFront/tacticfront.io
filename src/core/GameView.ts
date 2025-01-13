@@ -1,4 +1,4 @@
-import { GameUpdates, GameUpdateType, MapPos, MessageType, NameViewData, Player, PlayerActions, PlayerUpdate, Tile, TileUpdate, Unit, UnitUpdate } from './game/Game';
+import { GameUpdates, GameUpdateType, MapPos, MessageType, NameViewData, Player, PlayerActions, PlayerProfile, PlayerUpdate, Tile, TileUpdate, Unit, UnitUpdate } from './game/Game';
 import { Config } from "./configuration/Config";
 import { Alliance, AllianceRequest, AllPlayers, Cell, DefenseBonus, EmojiMessage, Execution, ExecutionView, Game, Gold, MutableTile, Nation, PlayerID, PlayerInfo, PlayerType, Relation, TerrainMap, TerrainTile, TerrainType, TerraNullius, Tick, UnitInfo, UnitType } from "./game/Game";
 import { ClientID } from "./Schemas";
@@ -205,6 +205,11 @@ export class PlayerView implements Player {
     relation(other: Player): Relation {
         return Relation.Neutral
     }
+
+    profile(): Promise<PlayerProfile> {
+        return this.game.worker.playerProfile(this.smallID())
+    }
+
     allRelationsSorted(): { player: Player; relation: Relation; }[] {
         return []
     }

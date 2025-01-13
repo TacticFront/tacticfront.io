@@ -105,10 +105,19 @@ export class GameRunner {
         return actions
     }
 
+
     public playerProfile(playerID: number): PlayerProfile {
-        return {
-            relations: this.game.players().filter(p => p.smallID() == playerID)[0]?.allRelationsSorted()
+        const player = this.game.players().filter(p => p.smallID() == playerID)[0];
+        if (!player) {
+            throw new Error(`player with id ${playerID} not found`);
         }
+
+        return {
+            relations: Object.fromEntries(
+                player.allRelationsSorted()
+                    .map(({ player, relation }) => [player.smallID(), relation])
+            )
+        };
     }
 
     private canBoat(myPlayer: Player, tile: Tile): boolean {

@@ -29,7 +29,7 @@ export class WorkerClient {
                 break;
 
             case 'initialized':
-            case 'player_actions_result':
+            default:
                 if (message.id && this.messageHandlers.has(message.id)) {
                     const handler = this.messageHandlers.get(message.id)!;
                     handler(message);
@@ -91,7 +91,7 @@ export class WorkerClient {
         });
     }
 
-    playerInfo(playerID: number): Promise<PlayerProfile> {
+    playerProfile(playerID: number): Promise<PlayerProfile> {
         return new Promise((resolve, reject) => {
             if (!this.isInitialized) {
                 reject(new Error('Worker not initialized'));

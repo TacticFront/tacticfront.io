@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { Layer } from './Layer';
-import { Game, GameType, Player, PlayerType, Relation, Unit, UnitType } from '../../../core/game/Game';
+import { Game, GameType, Player, PlayerProfile, PlayerType, Relation, Unit, UnitType } from '../../../core/game/Game';
 import { ClientID } from '../../../core/Schemas';
 import { EventBus } from '../../../core/EventBus';
 import { TransformHandler } from '../TransformHandler';
@@ -9,7 +9,7 @@ import { MouseMoveEvent } from '../../InputHandler';
 import { euclideanDist, distSortUnit } from '../../../core/Util';
 import { renderNumber, renderTroops } from '../../Utils';
 import { PauseGameEvent } from '../../Transport';
-import { GameView } from '../../../core/GameView';
+import { GameView, PlayerView } from '../../../core/GameView';
 
 @customElement('player-info-overlay')
 export class PlayerInfoOverlay extends LitElement implements Layer {
@@ -27,6 +27,9 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
 
     @state()
     private player: Player | null = null;
+
+    @state()
+    private playerProfile: PlayerProfile | null = null
 
     @state()
     private unit: Unit | null = null;
@@ -51,6 +54,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     private onMouseEvent(event: MouseMoveEvent) {
         this.setVisible(false);
         this.unit = null;
+        const lastPlayer = this.player
         this.player = null;
 
         const worldCoord = this.transform.screenToWorldCoordinates(event.x, event.y);
@@ -63,6 +67,10 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
 
         if (owner.isPlayer()) {
             this.player = owner;
+            (this.player as PlayerView).profile().then(p => {
+                console.log(`got profile ${JSON.stringify(p)}`)
+                this.playerProfile = p
+            })
             this.setVisible(true);
         } else if (!tile.terrain().isLand()) {
             const units = this.game.units(UnitType.Destroyer, UnitType.Battleship, UnitType.TradeShip)
@@ -112,11 +120,12 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     private renderPlayerInfo(player: Player) {
         const myPlayer = this.myPlayer();
         const isAlly = (myPlayer?.isAlliedWith(player) || player == this.myPlayer()) ?? false;
-        let relation = null
+        let relationHtml = null
         if (player.type() == PlayerType.FakeHuman && myPlayer != null) {
             let classType = ''
             let relationName = ''
-            switch (player.relation(myPlayer)) {
+            const relation = this.playerProfile?.relations[myPlayer.smallID()] ?? Relation.Neutral
+            switch (relation) {
                 case Relation.Hostile:
                     classType = 'hostile'
                     relationName = 'Hostile'
@@ -135,14 +144,14 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
                     break
             }
 
-            relation = html`<div class="type-label">Attitude: <span class="${classType}">${relationName}</span></div>`;
+            relationHtml = html`<div class="type-label">Attitude: <span class="${classType}">${relationName}</span></div>`;
         }
         return html`
         <div class="info-content">
             <div class="player-name ${isAlly ? 'ally' : ''}">${player.name()}</div>
             <div class="type-label">Troops: ${renderTroops(player.troops())}</div>
             <div class="type-label">Gold: ${renderNumber(player.gold())}</div>
-            ${relation == null ? '' : relation}
+            ${relationHtml == null ? '' : relationHtml}
         </div>
         `;
     }

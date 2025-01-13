@@ -5,6 +5,7 @@ import {
     WorkerMessage,
     InitializedMessage,
     PlayerActionsResultMessage,
+    PlayerProfileResultMessage,
 } from './WorkerMessages';
 
 const ctx: Worker = self as any;
@@ -83,19 +84,17 @@ ctx.addEventListener('message', async (e: MessageEvent<MainThreadMessage>) => {
             }
 
             try {
-                const actions = (await gameRunner).playerActions(message.playerID, message.x, message.y)
+                const profile = (await gameRunner).playerProfile(message.playerID)
                 sendMessage({
-                    type: 'player_actions_result',
+                    type: 'player_profile_result',
                     id: message.id,
-                    result: actions
-                } as PlayerActionsResultMessage);
+                    result: profile
+                } as PlayerProfileResultMessage);
             } catch (error) {
                 console.error('Failed to check borders:', error);
                 throw error;
             }
             break;
-
-
         default:
             console.warn('Unknown message :', message);
     }
