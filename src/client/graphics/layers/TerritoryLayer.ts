@@ -146,15 +146,13 @@ export class TerritoryLayer implements Layer {
             numToRender--
             const tile = this.tileToRenderQueue.pop().tile
             this.paintTerritory(tile)
+            tile.neighbors().forEach(t => this.paintTerritory(t, true))
         }
     }
 
-    paintTerritory(tile: Tile, isBorder: boolean = false, parent: Tile = null) {
+    paintTerritory(tile: Tile, isBorder: boolean = false) {
         if (isBorder && !tile.hasOwner()) {
             return
-        }
-        if (!isBorder) {
-            tile.neighbors().forEach(t => this.paintTerritory(t, true, tile))
         }
         if (!tile.hasOwner()) {
             if (tile.hasFallout()) {
