@@ -77,6 +77,24 @@ ctx.addEventListener('message', async (e: MessageEvent<MainThreadMessage>) => {
                 throw error;
             }
             break;
+        case 'player_profile':
+            if (!gameRunner) {
+                throw new Error('Game runner not initialized');
+            }
+
+            try {
+                const actions = (await gameRunner).playerActions(message.playerID, message.x, message.y)
+                sendMessage({
+                    type: 'player_actions_result',
+                    id: message.id,
+                    result: actions
+                } as PlayerActionsResultMessage);
+            } catch (error) {
+                console.error('Failed to check borders:', error);
+                throw error;
+            }
+            break;
+
 
         default:
             console.warn('Unknown message :', message);

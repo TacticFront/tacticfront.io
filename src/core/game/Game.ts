@@ -412,6 +412,11 @@ export interface PlayerActions {
     interaction?: PlayerInteraction
 }
 
+export interface PlayerProfile {
+    relations: Record<number, Relation>
+    // TODO: add alliances etc
+}
+
 export interface PlayerInteraction {
     sharedBorder: boolean
     canSendEmoji: boolean
@@ -495,8 +500,8 @@ export interface BrokeAllianceUpdate {
 
 export interface AllianceExpiredUpdate {
     type: GameUpdateType.AllianceExpired
-    player1: number
-    player2: number
+    player1ID: number
+    player2ID: number
 }
 
 export interface TargetPlayerUpdate {

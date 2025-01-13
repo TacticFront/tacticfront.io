@@ -271,6 +271,10 @@ export class GameView {
         }
     }
 
+    public updatesSinceLastTick(): GameUpdates {
+        return this.lastUpdate.updates
+    }
+
     public update(gu: GameUpdateViewData) {
         this.lastUpdate = gu
 

@@ -473,8 +473,8 @@ export class GameImpl implements MutableGame {
         this.alliances_ = this.alliances_.filter(a => a != alliances[0])
         this.addUpdate({
             type: GameUpdateType.AllianceExpired,
-            player1: alliance.requestor().smallID(),
-            player2: alliance.recipient().smallID()
+            player1ID: alliance.requestor().smallID(),
+            player2ID: alliance.recipient().smallID()
         })
     }
 

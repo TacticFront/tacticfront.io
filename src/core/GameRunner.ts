@@ -4,7 +4,7 @@ import { getConfig } from "./configuration/Config";
 import { EventBus } from "./EventBus";
 import { Executor } from "./execution/ExecutionManager";
 import { WinCheckExecution } from "./execution/WinCheckExecution";
-import { Cell, DisplayMessageUpdate, Game, GameUpdateType, MessageType, MutableGame, MutableTile, NameViewData, Player, PlayerActions, PlayerID, Tile, TileUpdate, UnitType, UnitUpdate } from "./game/Game";
+import { Cell, DisplayMessageUpdate, Game, GameUpdateType, MessageType, MutableGame, MutableTile, NameViewData, Player, PlayerActions, PlayerID, PlayerProfile, Tile, TileUpdate, UnitType, UnitUpdate } from "./game/Game";
 import { createGame } from "./game/GameImpl";
 import { loadTerrainMap } from "./game/TerrainMapLoader";
 import { GameConfig, Turn } from "./Schemas";
@@ -103,6 +103,12 @@ export class GameRunner {
         }
 
         return actions
+    }
+
+    public playerProfile(playerID: number): PlayerProfile {
+        return {
+            relations: this.game.players().filter(p => p.smallID() == playerID)[0]?.allRelationsSorted()
+        }
     }
 
     private canBoat(myPlayer: Player, tile: Tile): boolean {

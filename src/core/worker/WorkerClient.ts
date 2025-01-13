@@ -1,4 +1,4 @@
-import { PlayerActions, PlayerID, Tile } from "../game/Game";
+import { PlayerActions, PlayerID, PlayerInfo, PlayerProfile, Tile } from "../game/Game";
 import { GameUpdateViewData } from "../GameView";
 import { GameConfig, GameID, Turn } from "../Schemas";
 import { generateID } from "../Util";
@@ -89,6 +89,30 @@ export class WorkerClient {
         this.worker.postMessage({
             type: 'heartbeat'
         });
+    }
+
+    playerInfo(playerID: number): Promise<PlayerProfile> {
+        return new Promise((resolve, reject) => {
+            if (!this.isInitialized) {
+                reject(new Error('Worker not initialized'));
+                return;
+            }
+
+            const messageId = generateID()
+
+            this.messageHandlers.set(messageId, (message) => {
+                if (message.type === 'player_profile_result' && message.result !== undefined) {
+                    resolve(message.result);
+                }
+            });
+
+            this.worker.postMessage({
+                type: 'player_profile',
+                id: messageId,
+                playerID: playerID,
+            });
+
+        })
     }
 
     playerInteraction(playerID: PlayerID, tile: Tile): Promise<PlayerActions> {
