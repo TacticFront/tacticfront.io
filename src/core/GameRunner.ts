@@ -14,7 +14,7 @@ import { GameUpdateViewData, packTileData } from "./GameView";
 export async function createGameRunner(gameID: string, gameConfig: GameConfig, callBack: (gu: GameUpdateViewData) => void): Promise<GameRunner> {
     const config = getConfig(gameConfig)
     const terrainMap = await loadTerrainMap(gameConfig.gameMap);
-    const game = createGame(terrainMap.gameMap, terrainMap.miniGameMap, terrainMap.map, terrainMap.miniMap, config)
+    const game = createGame(terrainMap.gameMap, terrainMap.miniGameMap, terrainMap.nationMap, config)
     const gr = new GameRunner(game as MutableGame, new Executor(game, gameID), callBack)
     gr.init()
     return gr

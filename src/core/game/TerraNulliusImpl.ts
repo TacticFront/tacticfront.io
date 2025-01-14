@@ -9,6 +9,9 @@ export class TerraNulliusImpl implements TerraNullius {
 
     constructor() {
     }
+    smallID(): number {
+        return 0
+    }
     clientID(): ClientID {
         return "TERRA_NULLIUS_CLIENT_ID"
     }

@@ -1,6 +1,6 @@
 import { Config } from "../configuration/Config";
 import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerID, PlayerInfo, Player, TerraNullius, Tile, Unit, MutableAllianceRequest, Alliance, Nation, UnitType, UnitInfo, TerrainMap, DefenseBonus, MutableTile, GameUpdate, GameUpdateType, AllPlayers, GameUpdates } from "./Game";
-import { TerrainMapImpl } from "./TerrainMapLoader";
+import { NationMap, TerrainMapImpl } from "./TerrainMapLoader";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
 import { TileImpl } from "./TileImpl";
@@ -10,11 +10,10 @@ import { ClientID, GameConfig } from "../Schemas";
 import { MessageType } from './Game';
 import { UnitImpl } from "./UnitImpl";
 import { consolex } from "../Consolex";
-import { string } from "zod";
-import { GameMap } from "./GameMap";
+import { GameMap, TileRef } from "./GameMap";
 
-export function createGame(gameMap: GameMap, miniGameMap: GameMap, terrainMap: TerrainMapImpl, miniMap: TerrainMap, config: Config): Game {
-    return new GameImpl(terrainMap, miniMap, gameMap, miniGameMap, config)
+export function createGame(gameMap: GameMap, miniGameMap: GameMap, nationMap: NationMap, config: Config): Game {
+    return new GameImpl(gameMap, miniGameMap, nationMap, config)
 }
 
 export type CellString = string
@@ -24,7 +23,6 @@ export class GameImpl implements MutableGame {
 
     private unInitExecs: Execution[] = []
 
-    _map: TileImpl[][]
 
     private nations_: Nation[] = []
 
@@ -32,7 +30,6 @@ export class GameImpl implements MutableGame {
     private execs: Execution[] = []
     private _width: number
     private _height: number
-    private _numLandTiles: number
     _terraNullius: TerraNulliusImpl
 
     allianceRequests: AllianceRequestImpl[] = []
@@ -44,24 +41,15 @@ export class GameImpl implements MutableGame {
     private updates: GameUpdates = createGameUpdatesMap()
 
     constructor(
-        private _terrainMap: TerrainMapImpl,
-        private _miniMap: TerrainMap,
         private gameMap: GameMap,
         private miniGameMap: GameMap,
+        nationMap: NationMap,
         private _config: Config,
     ) {
         this._terraNullius = new TerraNulliusImpl()
-        this._width = _terrainMap.width();
-        this._height = _terrainMap.height();
-        this._map = new Array(this._width);
-        for (let x = 0; x < this._width; x++) {
-            this._map[x] = new Array(this._height);
-            for (let y = 0; y < this._height; y++) {
-                let cell = new Cell(x, y);
-                this._map[x][y] = new TileImpl(this, this._terraNullius, cell, _terrainMap);
-            }
-        }
-        this.nations_ = _terrainMap.nationMap.nations
+        this._width = gameMap.width();
+        this._height = gameMap.height();
+        this.nations_ = nationMap.nations
             .map(n => new Nation(
                 n.name,
                 new Cell(n.coordinates[0], n.coordinates[1]),
@@ -91,21 +79,23 @@ export class GameImpl implements MutableGame {
         if (tile.hasOwner()) {
             throw Error(`cannot set fallout, tile ${tile} has owner`)
         }
-        ti._hasFallout = true
+        this.gameMap.setFallout(tile.ref(), true)
         this.addUpdate(ti.toUpdate())
     }
 
     addTileDefenseBonus(tile: Tile, unit: Unit, amount: number): DefenseBonus {
+        // TODO!!
         const df = { unit: unit, tile: tile, amount: amount };
-        (tile as TileImpl)._defenseBonuses.push(df)
-        this.addUpdate((tile as TileImpl).toUpdate())
+        // (tile as TileImpl)._defenseBonuses.push(df)
+        // this.addUpdate((tile as TileImpl).toUpdate())
         return df
     }
 
     removeTileDefenseBonus(bonus: DefenseBonus): void {
-        const t = bonus.tile as TileImpl
-        t._defenseBonuses = t._defenseBonuses.filter(db => db != bonus)
-        this.addUpdate(t.toUpdate())
+        // TODO!!
+        // const t = bonus.tile as TileImpl
+        // t._defenseBonuses = t._defenseBonuses.filter(db => db != bonus)
+        // this.addUpdate(t.toUpdate())
     }
 
     units(...types: UnitType[]): UnitImpl[] {
@@ -305,7 +295,7 @@ export class GameImpl implements MutableGame {
 
     tile(cell: Cell): MutableTile {
         this.assertIsOnMap(cell)
-        return this._map[cell.x][cell.y] as MutableTile
+        return new TileImpl(this, this.gameMap.ref(cell.x, cell.y))
     }
 
     isOnMap(cell: Cell): boolean {
@@ -315,36 +305,25 @@ export class GameImpl implements MutableGame {
             && cell.y < this._height
     }
 
+    fromRef(ref: TileRef): Tile {
+        return new TileImpl(this, ref)
+    }
+
     neighbors(tile: Tile): Tile[] {
-        const x = tile.cell().x
-        const y = tile.cell().y
-        const ns: TileImpl[] = []
-        if (y > 0) {
-            ns.push(this._map[x][y - 1])
-        }
-        if (y < this._height - 1) {
-            ns.push(this._map[x][y + 1])
-        }
-        if (x > 0) {
-            ns.push(this._map[x - 1][y])
-        }
-        if (x < this._width - 1) {
-            ns.push(this._map[x + 1][y])
-        }
-        return ns
+        return this.gameMap.neighbors(tile.ref()).map(tr => new TileImpl(this, tr))
     }
 
     neighborsWithDiag(tile: Tile): Tile[] {
         const x = tile.cell().x
         const y = tile.cell().y
-        const ns: TileImpl[] = []
+        const ns: Tile[] = []
         for (let dx = -1; dx <= 1; dx++) {
             for (let dy = -1; dy <= 1; dy++) {
                 if (dx === 0 && dy === 0) continue // Skip the center tile
                 const newX = x + dx
                 const newY = y + dy
                 if (newX >= 0 && newX < this._width && newY >= 0 && newY < this._height) {
-                    ns.push(this._map[newX][newY])
+                    ns.push(this.fromRef(this.gameMap.ref(newX, newY)))
                 }
             }
         }
@@ -362,18 +341,18 @@ export class GameImpl implements MutableGame {
             throw Error(`cannot conquer water`)
         }
         const tileImpl = tile as TileImpl
-        let previousOwner = tileImpl._owner
+        let previousOwner = tileImpl.owner() as TerraNullius | PlayerImpl
         if (previousOwner.isPlayer()) {
             previousOwner._lastTileChange = this._ticks
             previousOwner._tiles.delete(tile.cell().toString())
             previousOwner._borderTiles.delete(tileImpl)
-            tileImpl._isBorder = false
+            this.gameMap.setBorder(tileImpl.ref(), false)
         }
-        tileImpl._owner = owner
+        this.gameMap.setPlayerId(tileImpl.ref(), owner.smallID())
         owner._tiles.set(tile.cell().toString(), tile)
         owner._lastTileChange = this._ticks
         this.updateBorders(tile)
-        tileImpl._hasFallout = false
+        this.gameMap.setFallout(tileImpl.ref(), false)
         this.addUpdate((tile as TileImpl).toUpdate())
     }
 
@@ -386,13 +365,13 @@ export class GameImpl implements MutableGame {
         }
 
         const tileImpl = tile as TileImpl
-        let previousOwner = tileImpl._owner as PlayerImpl
+        let previousOwner = tileImpl.owner() as PlayerImpl
         previousOwner._lastTileChange = this._ticks
         previousOwner._tiles.delete(tile.cell().toString())
         previousOwner._borderTiles.delete(tileImpl)
-        tileImpl._isBorder = false
+        this.gameMap.setBorder(tileImpl.ref(), false)
 
-        tileImpl._owner = this._terraNullius
+        this.gameMap.setPlayerId(tileImpl.ref(), 0)
         this.updateBorders(tile)
         this.addUpdate(
             (tile as TileImpl).toUpdate()
@@ -406,15 +385,15 @@ export class GameImpl implements MutableGame {
 
         for (const t of tiles) {
             if (!t.hasOwner()) {
-                t._isBorder = false
+                this.gameMap.setBorder(t.ref(), false)
                 continue
             }
             if (this.isBorder(t)) {
                 (t.owner() as PlayerImpl)._borderTiles.add(t);
-                t._isBorder = true
+                this.gameMap.setBorder(t.ref(), true)
             } else {
                 (t.owner() as PlayerImpl)._borderTiles.delete(t);
-                t._isBorder = false
+                this.gameMap.setBorder(t.ref(), false)
             }
             // this.updates.push(t.toUpdate())
         }
@@ -504,14 +483,6 @@ export class GameImpl implements MutableGame {
             type: GameUpdateType.WinUpdate,
             winnerID: winner.smallID()
         })
-    }
-
-    public terrainMap(): TerrainMapImpl {
-        return this._terrainMap
-    }
-
-    public terrainMiniMap(): TerrainMap {
-        return this._miniMap
     }
 
     displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void {

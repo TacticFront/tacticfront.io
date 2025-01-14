@@ -203,7 +203,6 @@ export interface TerrainTile {
     cell(): Cell
     neighbors(): TerrainTile[]
     cost(): number
-    key(): TerrainTileKey
 }
 
 export interface DefenseBonus {
@@ -260,6 +259,7 @@ export interface TerraNullius {
     isPlayer(): false
     id(): PlayerID // always zero, maybe make it TerraNulliusID?
     clientID(): ClientID
+    smallID(): number
 }
 
 export interface Player {
@@ -376,8 +376,6 @@ export interface Game {
     displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void
     units(...types: UnitType[]): Unit[]
     unitInfo(type: UnitType): UnitInfo
-    terrainMap(): TerrainMap
-    terrainMiniMap(): TerrainMap
 
     map(): GameMap
     miniMap(): GameMap

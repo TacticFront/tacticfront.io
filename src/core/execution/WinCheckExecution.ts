@@ -27,7 +27,7 @@ export class WinCheckExecution implements Execution {
             return
         }
         const max = sorted[0]
-        if (max.numTilesOwned() / this.mg.terrainMap().numLandTiles() * 100 > this.mg.config().percentageTilesOwnedToWin()) {
+        if (max.numTilesOwned() / this.mg.map().numLandTiles() * 100 > this.mg.config().percentageTilesOwnedToWin()) {
             this.mg.setWinner(max)
             this.active = false
         }

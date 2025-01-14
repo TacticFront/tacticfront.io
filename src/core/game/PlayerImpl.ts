@@ -6,6 +6,7 @@ import { UnitImpl } from "./UnitImpl";
 import { TileImpl } from "./TileImpl";
 import { MessageType } from './Game';
 import { renderTroops } from "../../client/Utils";
+import { TerraNulliusImpl } from "./TerraNulliusImpl";
 
 interface Target {
     tick: Tick
@@ -135,7 +136,7 @@ export class PlayerImpl implements MutablePlayer {
         for (const border of this.borderTiles()) {
             for (const neighbor of border.neighbors()) {
                 if (neighbor.terrain().isLand() && neighbor.owner() != this) {
-                    ns.add((neighbor as TileImpl)._owner);
+                    ns.add(neighbor.owner() as PlayerImpl | TerraNulliusImpl);
                 }
             }
         }
