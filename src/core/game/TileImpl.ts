@@ -1,5 +1,4 @@
 import { Tile, Cell, TerrainType, Player, TerraNullius, MutablePlayer, TerrainTile, DefenseBonus, MutableTile, TileUpdate, GameUpdateType } from "./Game";
-import { SearchNode } from "../pathfinding/AStar";
 import { TerrainMapImpl, TerrainTileImpl } from "./TerrainMapLoader";
 import { GameImpl } from "./GameImpl";
 import { PlayerImpl } from "./PlayerImpl";

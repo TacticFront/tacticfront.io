@@ -1,5 +1,5 @@
 import { Cell, Game, TerrainMap, TerrainTile, TerrainType } from "../game/Game";
-import { AStar, PathFindResultType, Point, SearchNode } from "./AStar";
+import { AStar, PathFindResultType,  } from "./AStar";
 import { SerialAStar } from "./SerialAStar";
 
 // TODO: test this, get it work
@@ -10,9 +10,9 @@ export class MiniAStar implements AStar {
     constructor(
         private terrainMap: TerrainMap,
         private miniMap: TerrainMap,
-        private src: SearchNode,
-        private dst: SearchNode,
-        private canMove: (t: SearchNode) => boolean,
+        private src: TerrainTile,
+        private dst: TerrainTile,
+        private canMove: (t: TerrainTile) => boolean,
         private iterations: number,
         private maxTries: number
     ) {

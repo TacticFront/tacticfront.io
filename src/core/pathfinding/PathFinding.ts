@@ -1,6 +1,6 @@
 import { Cell, Game, TerrainTile, TerrainType, Tile } from "../game/Game";
 import { manhattanDist } from "../Util";
-import { AStar, PathFindResultType, SearchNode, TileResult } from "./AStar";
+import { AStar, PathFindResultType, TileResult } from "./AStar";
 import { SerialAStar } from "./SerialAStar";
 import { MiniAStar } from "./MiniAStar";
 import { consolex } from "../Consolex";
@@ -19,15 +19,15 @@ export class PathFinder {
     ) { }
 
 
-    public static Mini(game: Game, iterations: number, canMove: (s: SearchNode) => boolean, maxTries: number = 20) {
+    public static Mini(game: Game, iterations: number, canMove: (s: TerrainTile) => boolean, maxTries: number = 20) {
         return new PathFinder(
             game,
             (curr: Tile, dst: Tile) => {
                 return new MiniAStar(
                     game.terrainMap(),
                     game.terrainMiniMap(),
-                    curr,
-                    dst,
+                    curr.terrain(),
+                    dst.terrain(),
                     canMove,
                     iterations,
                     maxTries
@@ -36,13 +36,13 @@ export class PathFinder {
         )
     }
 
-    public static Serial(game: Game, iterations: number, canMove: (t: Tile) => boolean, maxTries: number = 20): PathFinder {
+    public static Serial(game: Game, iterations: number, canMove: (t: TerrainTile) => boolean, maxTries: number = 20): PathFinder {
         return new PathFinder(
             game,
             (curr: Tile, dst: Tile) => {
                 return new SerialAStar(
-                    curr,
-                    dst,
+                    curr.terrain(),
+                    dst.terrain(),
                     canMove,
                     iterations,
                     maxTries

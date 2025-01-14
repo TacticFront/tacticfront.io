@@ -87,7 +87,7 @@ export class PortExecution implements Execution {
             const pf = new MiniAStar(
                 this.mg.terrainMap(),
                 this.mg.terrainMiniMap(),
-                this.port.tile(), port.tile(),
+                this.port.tile().terrain(), port.tile().terrain(),
                 sn => sn.type() == TerrainType.Ocean,
                 10_000,
                 25

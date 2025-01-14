@@ -1,7 +1,6 @@
 import { Config } from "../configuration/Config"
 import { GameEvent } from "../EventBus"
 import { ClientID, GameConfig, GameID } from "../Schemas"
-import { SearchNode } from "../pathfinding/AStar"
 
 export type PlayerID = string
 export type Tick = number
@@ -185,7 +184,11 @@ export interface TerrainMap {
     numLandTiles(): number
 }
 
-export interface TerrainTile extends SearchNode {
+export type TerrainTileKey = string
+
+
+
+export interface TerrainTile {
     isLand(): boolean
     isShore(): boolean
     isOceanShore(): boolean
@@ -195,6 +198,11 @@ export interface TerrainTile extends SearchNode {
     isLake(): boolean
     type(): TerrainType
     magnitude(): number
+    equals(other: TerrainTile): boolean
+    cell(): Cell
+    neighbors(): TerrainTile[]
+    cost(): number
+    key(): TerrainTileKey
 }
 
 export interface DefenseBonus {
@@ -204,7 +212,7 @@ export interface DefenseBonus {
     tile: Tile
 }
 
-export interface Tile extends SearchNode {
+export interface Tile {
     owner(): Player | TerraNullius
     hasOwner(): boolean
     isBorder(): boolean

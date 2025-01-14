@@ -22,12 +22,6 @@ export enum PathFindResultType {
     type: PathFindResultType.PathNotFound;
 };
 
-export interface SearchNode {
-    cost(): number
-    cell(): Cell
-    neighbors(): SearchNode[]
-    type(): TerrainType
-}
 export interface Point {
     x: number;
     y: number;

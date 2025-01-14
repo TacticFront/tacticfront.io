@@ -1,46 +1,46 @@
 import { PriorityQueue } from "@datastructures-js/priority-queue";
-import { AStar, SearchNode } from "./AStar";
+import { AStar} from "./AStar";
 import { PathFindResultType } from "./AStar";
-import { Cell } from "../game/Game";
+import { Cell, TerrainTile, TerrainTileKey } from "../game/Game";
 import { consolex } from "../Consolex";
 
 
 export class SerialAStar implements AStar {
-    private fwdOpenSet: PriorityQueue<{ tile: SearchNode; fScore: number; }>;
-    private bwdOpenSet: PriorityQueue<{ tile: SearchNode; fScore: number; }>;
-    private fwdCameFrom: Map<SearchNode, SearchNode>;
-    private bwdCameFrom: Map<SearchNode, SearchNode>;
-    private fwdGScore: Map<SearchNode, number>;
-    private bwdGScore: Map<SearchNode, number>;
-    private meetingPoint: SearchNode | null;
+    private fwdOpenSet: PriorityQueue<{ tile: TerrainTile; fScore: number; }>;
+    private bwdOpenSet: PriorityQueue<{ tile: TerrainTile; fScore: number; }>;
+    private fwdCameFrom: Map<TerrainTileKey, TerrainTile>;
+    private bwdCameFrom: Map<TerrainTileKey, TerrainTile>;
+    private fwdGScore: Map<TerrainTileKey, number>;
+    private bwdGScore: Map<TerrainTileKey, number>;
+    private meetingPoint: TerrainTile | null;
     public completed: boolean;
 
     constructor(
-        private src: SearchNode,
-        private dst: SearchNode,
-        private canMove: (t: SearchNode) => boolean,
+        private src: TerrainTile,
+        private dst: TerrainTile,
+        private canMove: (t: TerrainTile) => boolean,
         private iterations: number,
         private maxTries: number
     ) {
-        this.fwdOpenSet = new PriorityQueue<{ tile: SearchNode; fScore: number; }>(
+        this.fwdOpenSet = new PriorityQueue<{ tile: TerrainTile; fScore: number; }>(
             (a, b) => a.fScore - b.fScore
         );
-        this.bwdOpenSet = new PriorityQueue<{ tile: SearchNode; fScore: number; }>(
+        this.bwdOpenSet = new PriorityQueue<{ tile: TerrainTile; fScore: number; }>(
             (a, b) => a.fScore - b.fScore
         );
-        this.fwdCameFrom = new Map<SearchNode, SearchNode>();
-        this.bwdCameFrom = new Map<SearchNode, SearchNode>();
-        this.fwdGScore = new Map<SearchNode, number>();
-        this.bwdGScore = new Map<SearchNode, number>();
+        this.fwdCameFrom = new Map<TerrainTileKey, TerrainTile>();
+        this.bwdCameFrom = new Map<TerrainTileKey, TerrainTile>();
+        this.fwdGScore = new Map<TerrainTileKey, number>();
+        this.bwdGScore = new Map<TerrainTileKey, number>();
         this.meetingPoint = null;
         this.completed = false;
 
         // Initialize forward search
-        this.fwdGScore.set(src, 0);
+        this.fwdGScore.set(src.key(), 0);
         this.fwdOpenSet.enqueue({ tile: src, fScore: this.heuristic(src, dst) });
 
         // Initialize backward search
-        this.bwdGScore.set(dst, 0);
+        this.bwdGScore.set(dst.key(), 0);
         this.bwdOpenSet.enqueue({ tile: dst, fScore: this.heuristic(dst, src) });
     }
 
@@ -61,43 +61,43 @@ export class SerialAStar implements AStar {
 
             // Process forward search
             const fwdCurrent = this.fwdOpenSet.dequeue()!.tile;
-            if (this.bwdGScore.has(fwdCurrent)) {
+            if (this.bwdGScore.has(fwdCurrent.key())) {
                 // We found a meeting point!
                 this.meetingPoint = fwdCurrent;
                 this.completed = true;
                 return PathFindResultType.Completed;
             }
 
-            this.expandSearchNode(fwdCurrent, true);
+            this.expandTerrainTile(fwdCurrent, true);
 
             // Process backward search
             const bwdCurrent = this.bwdOpenSet.dequeue()!.tile;
-            if (this.fwdGScore.has(bwdCurrent)) {
+            if (this.fwdGScore.has(bwdCurrent.key())) {
                 // We found a meeting point!
                 this.meetingPoint = bwdCurrent;
                 this.completed = true;
                 return PathFindResultType.Completed;
             }
 
-            this.expandSearchNode(bwdCurrent, false);
+            this.expandTerrainTile(bwdCurrent, false);
         }
 
         return this.completed ? PathFindResultType.Completed : PathFindResultType.PathNotFound;
     }
 
-    private expandSearchNode(current: SearchNode, isForward: boolean) {
+    private expandTerrainTile(current: TerrainTile, isForward: boolean) {
         for (const neighbor of current.neighbors()) {
-            if (neighbor !== (isForward ? this.dst : this.src) && !this.canMove(neighbor)) continue;
+            if (!neighbor.equals(isForward ? this.dst : this.src) && !this.canMove(neighbor)) continue;
 
             const gScore = isForward ? this.fwdGScore : this.bwdGScore;
             const openSet = isForward ? this.fwdOpenSet : this.bwdOpenSet;
             const cameFrom = isForward ? this.fwdCameFrom : this.bwdCameFrom;
 
-            let tentativeGScore = gScore.get(current)! + neighbor.cost();
+            let tentativeGScore = gScore.get(current.key())! + neighbor.cost();
 
-            if (!gScore.has(neighbor) || tentativeGScore < gScore.get(neighbor)!) {
-                cameFrom.set(neighbor, current);
-                gScore.set(neighbor, tentativeGScore);
+            if (!gScore.has(neighbor.key()) || tentativeGScore < gScore.get(neighbor.key())!) {
+                cameFrom.set(neighbor.key(), current);
+                gScore.set(neighbor.key(), tentativeGScore);
                 const fScore = tentativeGScore + this.heuristic(
                     neighbor,
                     isForward ? this.dst : this.src
@@ -107,7 +107,7 @@ export class SerialAStar implements AStar {
         }
     }
 
-    private heuristic(a: SearchNode, b: SearchNode): number {
+    private heuristic(a: TerrainTile, b: TerrainTile): number {
         // TODO use wrapped
         try {
             return 1.1 * Math.abs(a.cell().x - b.cell().x) + Math.abs(a.cell().y - b.cell().y);
@@ -120,17 +120,17 @@ export class SerialAStar implements AStar {
         if (!this.meetingPoint) return [];
 
         // Reconstruct path from start to meeting point
-        const fwdPath: SearchNode[] = [this.meetingPoint];
+        const fwdPath: TerrainTile[] = [this.meetingPoint];
         let current = this.meetingPoint;
-        while (this.fwdCameFrom.has(current)) {
-            current = this.fwdCameFrom.get(current)!;
+        while (this.fwdCameFrom.has(current.key())) {
+            current = this.fwdCameFrom.get(current.key())!;
             fwdPath.unshift(current);
         }
 
         // Reconstruct path from meeting point to goal
         current = this.meetingPoint;
-        while (this.bwdCameFrom.has(current)) {
-            current = this.bwdCameFrom.get(current)!;
+        while (this.bwdCameFrom.has(current.key())) {
+            current = this.bwdCameFrom.get(current.key())!;
             fwdPath.push(current);
         }
 

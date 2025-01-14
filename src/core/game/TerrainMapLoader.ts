@@ -25,6 +25,14 @@ export class TerrainTileImpl implements TerrainTile {
     public land = false
 
     constructor(private map: TerrainMap, public _type: TerrainType, private _cell: Cell) { }
+
+    key(): string {
+        return this._cell.toString()
+    }
+
+    equals(other: TerrainTile): boolean {
+        return this._cell.x == other.cell().x && this._cell.y == other.cell().y
+    }
     type(): TerrainType {
         return this._type
     }
