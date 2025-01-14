@@ -1,8 +1,9 @@
 import { consolex } from '../Consolex';
-import { Cell, GameMap, TerrainMap, TerrainTile, TerrainType } from './Game';
+import { Cell, GameMapType, TerrainMap, TerrainTile, TerrainType } from './Game';
+import { GameMap } from './GameMap';
 import { terrainMapFileLoader } from './TerrainMapFileLoader';
 
-const loadedMaps = new Map<GameMap, { map: TerrainMapImpl, miniMap: TerrainMapImpl }>()
+const loadedMaps = new Map<GameMapType, { map: TerrainMapImpl, miniMap: TerrainMapImpl, gameMap: GameMap, miniGameMap: GameMap }>()
 
 export interface NationMap {
     name: string;
@@ -148,20 +149,20 @@ export class TerrainMapImpl implements TerrainMap {
 }
 
 
-export async function loadTerrainMap(map: GameMap): Promise<{ map: TerrainMapImpl, miniMap: TerrainMapImpl }> {
+export async function loadTerrainMap(map: GameMapType): Promise<{ map: TerrainMapImpl, miniMap: TerrainMapImpl, gameMap: GameMap, miniGameMap: GameMap }> {
     if (loadedMaps.has(map)) {
         return loadedMaps.get(map)
     }
     const mapFiles = await terrainMapFileLoader.getMapData(map)
 
-    const mainMap = await loadTerrainFromFile(mapFiles.mapBin)
+    const { terrain: mainMap, gameMap: mainGameMap } = await loadTerrainFromFile(mapFiles.mapBin)
     mainMap.nationMap = mapFiles.nationMap
-    const mini = await loadTerrainFromFile(mapFiles.miniMapBin)
-    loadedMaps.set(map, { map: mainMap, miniMap: mini })
-    return { map: mainMap, miniMap: mini }
+    const { terrain: mini, gameMap: miniMap } = await loadTerrainFromFile(mapFiles.miniMapBin)
+    loadedMaps.set(map, { map: mainMap, miniMap: mini, gameMap: mainGameMap, miniGameMap: miniMap })
+    return { map: mainMap, miniMap: mini, gameMap: mainGameMap, miniGameMap: miniMap }
 }
 
-export async function loadTerrainFromFile(fileData: string): Promise<TerrainMapImpl> {
+export async function loadTerrainFromFile(fileData: string): Promise<{ terrain: TerrainMapImpl, gameMap: GameMap }> {
     const width = (fileData.charCodeAt(1) << 8) | fileData.charCodeAt(0);
     const height = (fileData.charCodeAt(3) << 8) | fileData.charCodeAt(2);
 
@@ -183,9 +184,10 @@ export async function loadTerrainFromFile(fileData: string): Promise<TerrainMapI
         m.rawData[i] = packedByte;
         if (packedByte & 0b10000000) numLand++;
     }
+    const gm = new GameMap(width, height, m.rawData, numLand)
 
     m._numLandTiles = numLand;
-    return m;
+    return { terrain: m, gameMap: gm };
 }
 
 
