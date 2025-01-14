@@ -1,5 +1,7 @@
-import { Cell, Game, TerrainMap, TerrainTile, TerrainType } from "../game/Game";
-import { AStar, PathFindResultType,  } from "./AStar";
+import { GameManager } from "../../server/GameManager";
+import { Cell, Game, TerrainMap, TerrainType } from "../game/Game";
+import { GameMap, TileRef } from "../game/GameMap";
+import { AStar, PathFindResultType, } from "./AStar";
 import { SerialAStar } from "./SerialAStar";
 
 // TODO: test this, get it work
@@ -8,22 +10,29 @@ export class MiniAStar implements AStar {
     private aStar: SerialAStar
 
     constructor(
-        private terrainMap: TerrainMap,
-        private miniMap: TerrainMap,
-        private src: TerrainTile,
-        private dst: TerrainTile,
-        private canMove: (t: TerrainTile) => boolean,
+        private gameMap: GameMap,
+        private miniMap: GameMap,
+        private src: TileRef,
+        private dst: TileRef,
+        private canMove: (t: TileRef) => boolean,
         private iterations: number,
         private maxTries: number
     ) {
-        const miniSrc = miniMap.terrain(new Cell(Math.floor(src.cell().x / 2), Math.floor(src.cell().y / 2)))
-        const miniDst = miniMap.terrain(new Cell(Math.floor(dst.cell().x / 2), Math.floor(dst.cell().y / 2)))
+        const miniSrc = this.miniMap.ref(
+            Math.floor(gameMap.x(src) / 2),
+            Math.floor(gameMap.y(src) / 2)
+        )
+        const miniDst = this.miniMap.ref(
+            Math.floor(gameMap.x(dst) / 2),
+            Math.floor(gameMap.y(dst) / 2)
+        )
         this.aStar = new SerialAStar(
             miniSrc,
             miniDst,
             canMove,
             iterations,
-            maxTries
+            maxTries,
+            this.miniMap
         )
     }
 
@@ -33,7 +42,7 @@ export class MiniAStar implements AStar {
 
     reconstructPath(): Cell[] {
         const upscaled = upscalePath(this.aStar.reconstructPath())
-        upscaled.push(this.dst.cell())
+        upscaled.push(new Cell(this.gameMap.x(this.dst), this.gameMap.y(this.dst)))
         return upscaled
     }
 
@@ -42,8 +51,8 @@ export class MiniAStar implements AStar {
 function upscalePath(path: Cell[], scaleFactor: number = 2): Cell[] {
     // Scale up each point
     const scaledPath = path.map(point => (new Cell(
-       point.x * scaleFactor,
-       point.y * scaleFactor
+        point.x * scaleFactor,
+        point.y * scaleFactor
     )));
 
     const smoothPath: Cell[] = [];

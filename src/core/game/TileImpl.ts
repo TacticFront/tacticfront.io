@@ -3,6 +3,7 @@ import { TerrainMapImpl, TerrainTileImpl } from "./TerrainMapLoader";
 import { GameImpl } from "./GameImpl";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
+import { TileRef } from "./GameMap";
 
 
 export class TileImpl implements MutableTile {
@@ -20,6 +21,10 @@ export class TileImpl implements MutableTile {
         private readonly _cell: Cell,
         private terrainMap: TerrainMapImpl
     ) { }
+
+    ref(): TileRef {
+        return this.gs.map().ref(this._cell.x, this._cell.y)
+    }
 
     toUpdate(): TileUpdate {
         return {
@@ -71,26 +76,26 @@ export class TileImpl implements MutableTile {
 
         // Check top neighbor
         if (y > 0) {
-            ns.push(this.gs.map[x][y - 1]);
+            ns.push(this.gs._map[x][y - 1]);
         }
 
         // Check bottom neighbor
         if (y < this.gs.height() - 1) {
-            ns.push(this.gs.map[x][y + 1]);
+            ns.push(this.gs._map[x][y + 1]);
         }
 
         // Check left neighbor (wrap around)
         if (x > 0) {
-            ns.push(this.gs.map[x - 1][y]);
+            ns.push(this.gs._map[x - 1][y]);
         } else {
-            ns.push(this.gs.map[this.gs.width() - 1][y]);
+            ns.push(this.gs._map[this.gs.width() - 1][y]);
         }
 
         // Check right neighbor (wrap around)
         if (x < this.gs.width() - 1) {
-            ns.push(this.gs.map[x + 1][y]);
+            ns.push(this.gs._map[x + 1][y]);
         } else {
-            ns.push(this.gs.map[0][y]);
+            ns.push(this.gs._map[0][y]);
         }
         return ns;
     }

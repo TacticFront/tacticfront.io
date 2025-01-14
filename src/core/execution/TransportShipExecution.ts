@@ -45,7 +45,7 @@ export class TransportShipExecution implements Execution {
     init(mg: MutableGame, ticks: number) {
         this.lastMove = ticks
         this.mg = mg
-        this.pathFinder = PathFinder.Mini(mg, 10_000, t => t.type() == TerrainType.Ocean, 2)
+        this.pathFinder = PathFinder.Mini(mg, 10_000, false, 2)
 
         this.attacker = mg.player(this.attackerID)
 

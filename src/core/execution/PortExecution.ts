@@ -7,6 +7,7 @@ import { bfs, dist, manhattanDist } from "../Util";
 import { TradeShipExecution } from "./TradeShipExecution";
 import { consolex } from "../Consolex";
 import { MiniAStar } from "../pathfinding/MiniAStar";
+import { TileRef } from "../game/GameMap";
 
 export class PortExecution implements Execution {
 
@@ -85,10 +86,11 @@ export class PortExecution implements Execution {
             }
 
             const pf = new MiniAStar(
-                this.mg.terrainMap(),
-                this.mg.terrainMiniMap(),
-                this.port.tile().terrain(), port.tile().terrain(),
-                sn => sn.type() == TerrainType.Ocean,
+                this.mg.map(),
+                this.mg.miniMap(),
+                this.port.tile().ref(),
+                port.tile().ref(),
+                (tr: TileRef) => this.mg.miniMap().isOcean(tr),
                 10_000,
                 25
             )
@@ -108,7 +110,7 @@ export class PortExecution implements Execution {
             const port = this.random.randElement(portConnections)
             const path = this.portPaths.get(port)
             if (path != null) {
-                const pf = PathFinder.Mini(this.mg, 10, (sn) => sn.type() == TerrainType.Ocean)
+                const pf = PathFinder.Mini(this.mg, 10, false)
                 this.mg.addExecution(new TradeShipExecution(this.player().id(), this.port, port, pf, path))
             }
         }

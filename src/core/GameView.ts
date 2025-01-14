@@ -4,6 +4,7 @@ import { Alliance, AllianceRequest, AllPlayers, Cell, DefenseBonus, EmojiMessage
 import { ClientID } from "./Schemas";
 import { TerraNulliusImpl } from './game/TerraNulliusImpl';
 import { WorkerClient } from './worker/WorkerClient';
+import { TileRef } from './game/GameMap';
 
 
 export class TileView {
@@ -12,6 +13,9 @@ export class TileView {
 
     constructor(private game: GameView, public data: TileUpdate, private _terrain: TerrainTile) { }
 
+    ref(): TileRef {
+        throw new Error('uh oh')
+    }
     type(): TerrainType {
         return this._terrain.type()
     }
@@ -31,6 +35,9 @@ export class TileView {
             }
         }
         return false
+    }
+    isBorderUpdated(): boolean {
+        return this.data.isBorder
     }
     cell(): Cell {
         return this._terrain.cell()

@@ -1,6 +1,7 @@
 import { Config } from "../configuration/Config"
 import { GameEvent } from "../EventBus"
 import { ClientID, GameConfig, GameID } from "../Schemas"
+import { GameMap, TileRef } from "./GameMap"
 
 export type PlayerID = string
 export type Tick = number
@@ -221,6 +222,7 @@ export interface Tile {
     terrain(): TerrainTile
     neighbors(): Tile[]
     hasDefenseBonus(): boolean
+    ref(): TileRef
 }
 
 export interface MutableTile extends Tile {
@@ -376,6 +378,9 @@ export interface Game {
     unitInfo(type: UnitType): UnitInfo
     terrainMap(): TerrainMap
     terrainMiniMap(): TerrainMap
+
+    map(): GameMap
+    miniMap(): GameMap
 }
 
 export interface MutableGame extends Game {

@@ -11,9 +11,10 @@ import { MessageType } from './Game';
 import { UnitImpl } from "./UnitImpl";
 import { consolex } from "../Consolex";
 import { string } from "zod";
+import { GameMap } from "./GameMap";
 
-export function createGame(terrainMap: TerrainMapImpl, miniMap: TerrainMap, config: Config): Game {
-    return new GameImpl(terrainMap, miniMap, config)
+export function createGame(gameMap: GameMap, miniGameMap: GameMap, terrainMap: TerrainMapImpl, miniMap: TerrainMap, config: Config): Game {
+    return new GameImpl(terrainMap, miniMap, gameMap, miniGameMap, config)
 }
 
 export type CellString = string
@@ -23,7 +24,7 @@ export class GameImpl implements MutableGame {
 
     private unInitExecs: Execution[] = []
 
-    map: TileImpl[][]
+    _map: TileImpl[][]
 
     private nations_: Nation[] = []
 
@@ -45,17 +46,19 @@ export class GameImpl implements MutableGame {
     constructor(
         private _terrainMap: TerrainMapImpl,
         private _miniMap: TerrainMap,
+        private gameMap: GameMap,
+        private miniGameMap: GameMap,
         private _config: Config,
     ) {
         this._terraNullius = new TerraNulliusImpl()
         this._width = _terrainMap.width();
         this._height = _terrainMap.height();
-        this.map = new Array(this._width);
+        this._map = new Array(this._width);
         for (let x = 0; x < this._width; x++) {
-            this.map[x] = new Array(this._height);
+            this._map[x] = new Array(this._height);
             for (let y = 0; y < this._height; y++) {
                 let cell = new Cell(x, y);
-                this.map[x][y] = new TileImpl(this, this._terraNullius, cell, _terrainMap);
+                this._map[x][y] = new TileImpl(this, this._terraNullius, cell, _terrainMap);
             }
         }
         this.nations_ = _terrainMap.nationMap.nations
@@ -64,6 +67,12 @@ export class GameImpl implements MutableGame {
                 new Cell(n.coordinates[0], n.coordinates[1]),
                 n.strength
             ))
+    }
+    map(): GameMap {
+        return this.gameMap
+    }
+    miniMap(): GameMap {
+        return this.miniGameMap
     }
 
     addUpdate(update: GameUpdate) {
@@ -296,7 +305,7 @@ export class GameImpl implements MutableGame {
 
     tile(cell: Cell): MutableTile {
         this.assertIsOnMap(cell)
-        return this.map[cell.x][cell.y] as MutableTile
+        return this._map[cell.x][cell.y] as MutableTile
     }
 
     isOnMap(cell: Cell): boolean {
@@ -311,16 +320,16 @@ export class GameImpl implements MutableGame {
         const y = tile.cell().y
         const ns: TileImpl[] = []
         if (y > 0) {
-            ns.push(this.map[x][y - 1])
+            ns.push(this._map[x][y - 1])
         }
         if (y < this._height - 1) {
-            ns.push(this.map[x][y + 1])
+            ns.push(this._map[x][y + 1])
         }
         if (x > 0) {
-            ns.push(this.map[x - 1][y])
+            ns.push(this._map[x - 1][y])
         }
         if (x < this._width - 1) {
-            ns.push(this.map[x + 1][y])
+            ns.push(this._map[x + 1][y])
         }
         return ns
     }
@@ -335,7 +344,7 @@ export class GameImpl implements MutableGame {
                 const newX = x + dx
                 const newY = y + dy
                 if (newX >= 0 && newX < this._width && newY >= 0 && newY < this._height) {
-                    ns.push(this.map[newX][newY])
+                    ns.push(this._map[newX][newY])
                 }
             }
         }

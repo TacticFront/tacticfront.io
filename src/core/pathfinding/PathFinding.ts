@@ -4,6 +4,7 @@ import { AStar, PathFindResultType, TileResult } from "./AStar";
 import { SerialAStar } from "./SerialAStar";
 import { MiniAStar } from "./MiniAStar";
 import { consolex } from "../Consolex";
+import { TileRef } from "../game/GameMap";
 
 export class PathFinder {
 
@@ -19,31 +20,23 @@ export class PathFinder {
     ) { }
 
 
-    public static Mini(game: Game, iterations: number, canMove: (s: TerrainTile) => boolean, maxTries: number = 20) {
+    public static Mini(game: Game, iterations: number, canMoveOnLand: boolean, maxTries: number = 20) {
         return new PathFinder(
             game,
             (curr: Tile, dst: Tile) => {
+                const currRef = game.map().ref(curr.cell().x, curr.cell().y)
+                const dstRef = game.map().ref(dst.cell().x, dst.cell().y)
                 return new MiniAStar(
-                    game.terrainMap(),
-                    game.terrainMiniMap(),
-                    curr.terrain(),
-                    dst.terrain(),
-                    canMove,
-                    iterations,
-                    maxTries
-                )
-            }
-        )
-    }
-
-    public static Serial(game: Game, iterations: number, canMove: (t: TerrainTile) => boolean, maxTries: number = 20): PathFinder {
-        return new PathFinder(
-            game,
-            (curr: Tile, dst: Tile) => {
-                return new SerialAStar(
-                    curr.terrain(),
-                    dst.terrain(),
-                    canMove,
+                    game.map(),
+                    game.miniMap(),
+                    currRef,
+                    dstRef,
+                    (tr: TileRef): boolean => {
+                        if (canMoveOnLand) {
+                            return true
+                        }
+                        return game.miniMap().isOcean(tr)
+                    },
                     iterations,
                     maxTries
                 )

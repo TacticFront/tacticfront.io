@@ -1,4 +1,4 @@
-import { TerrainType } from "./Game";
+import { Cell, TerrainType } from "./Game";
 
 export type TileRef = number;
 
@@ -9,10 +9,10 @@ export class GameMap {
     private readonly height_: number;
 
     // Terrain bits (Uint8Array)
-    private static readonly IS_LAND_BIT = 0;
-    private static readonly SHORELINE_BIT = 1;
-    private static readonly OCEAN_BIT = 2;
-    private static readonly MAGNITUDE_OFFSET = 3;  // Uses bits 3-7 (5 bits)
+    private static readonly IS_LAND_BIT = 7;
+    private static readonly SHORELINE_BIT = 6;
+    private static readonly OCEAN_BIT = 5;
+    private static readonly MAGNITUDE_OFFSET = 4;  // Uses bits 3-7 (5 bits)
     private static readonly MAGNITUDE_MASK = 0x1F; // 11111 in binary
 
     // State bits (Uint16Array)
@@ -48,6 +48,10 @@ export class GameMap {
         return Math.floor(ref / this.width_);
     }
 
+    cell(ref: TileRef): Cell {
+        return new Cell(this.x(ref), this.y(ref))
+    }
+
     width(): number { return this.width_; }
     height(): number { return this.height_; }
     numLandTiles(): number { return this.numLandTiles_; }
@@ -70,7 +74,7 @@ export class GameMap {
     }
 
     magnitude(ref: TileRef): number {
-        return (this.terrain[ref] >> GameMap.MAGNITUDE_OFFSET) & GameMap.MAGNITUDE_MASK;
+        return this.terrain[ref] & GameMap.MAGNITUDE_MASK;
     }
 
     // State getters and setters (mutable)
@@ -156,6 +160,10 @@ export class GameMap {
         if (ref < (this.height_ - 1) * w) neighbors.push(ref + w);
         if (ref % w !== 0) neighbors.push(ref - 1);
         if (ref % w !== w - 1) neighbors.push(ref + 1);
+
+        for (const n of neighbors) {
+            (this.ref(this.x(n), this.y(n)))
+        }
 
         return neighbors;
     }
