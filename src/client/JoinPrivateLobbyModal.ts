@@ -1,6 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
-import { GameMap, GameType } from '../core/game/Game';
+import { GameMapType, GameType } from '../core/game/Game';
 import { consolex } from '../core/Consolex';
 
 @customElement('join-private-lobby-modal')
@@ -174,7 +174,7 @@ export class JoinPrivateLobbyModal extends LitElement {
             detail: {
               lobby: { id: lobbyId },
               gameType: GameType.Private,
-              map: GameMap.World,
+              map: GameMapType.World,
             },
             bubbles: true,
             composed: true

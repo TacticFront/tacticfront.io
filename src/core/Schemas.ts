@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AllPlayers, Difficulty, GameMap, GameType, PlayerType, UnitType } from './game/Game';
+import { AllPlayers, Difficulty, GameMapType, GameType, PlayerType, UnitType } from './game/Game';
 
 export type GameID = string
 export type ClientID = string
@@ -65,7 +65,7 @@ export interface Lobby {
 }
 
 const GameConfigSchema = z.object({
-    gameMap: z.nativeEnum(GameMap),
+    gameMap: z.nativeEnum(GameMapType),
     difficulty: z.nativeEnum(Difficulty),
     gameType: z.nativeEnum(GameType)
 })

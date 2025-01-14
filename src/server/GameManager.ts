@@ -3,7 +3,7 @@ import { ClientID, GameConfig, GameID } from "../core/Schemas";
 import { v4 as uuidv4 } from 'uuid';
 import { Client } from "./Client";
 import { GamePhase, GameServer } from "./GameServer";
-import { Difficulty, GameMap, GameType } from "../core/game/Game";
+import { Difficulty, GameMapType, GameType } from "../core/game/Game";
 import { generateID } from "../core/Util";
 
 
@@ -50,7 +50,7 @@ export class GameManager {
             false,
             this.config,
             {
-                gameMap: GameMap.World,
+                gameMap: GameMapType.World,
                 gameType: GameType.Private,
                 difficulty: Difficulty.Medium
             }
@@ -88,7 +88,7 @@ export class GameManager {
                 true,
                 this.config,
                 {
-                    gameMap: GameMap.World,
+                    gameMap: GameMapType.World,
                     gameType: GameType.Public,
                     difficulty: Difficulty.Medium
                 }

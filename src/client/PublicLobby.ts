@@ -1,7 +1,7 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { Lobby } from "../core/Schemas";
-import { Difficulty, GameMap, GameType } from '../core/game/Game';
+import { Difficulty, GameMapType, GameType } from '../core/game/Game';
 import { consolex } from '../core/Consolex';
 
 @customElement('public-lobby')
@@ -113,7 +113,7 @@ export class PublicLobby extends LitElement {
                 detail: {
                     lobby: lobby,
                     gameType: GameType.Public,
-                    map: GameMap.World,
+                    map: GameMapType.World,
                     difficulty: Difficulty.Medium,
                 },
                 bubbles: true,

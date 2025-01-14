@@ -1,13 +1,13 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { Difficulty, GameMap, GameType } from '../core/game/Game';
+import { Difficulty, GameMapType, GameType } from '../core/game/Game';
 import { generateID as generateID } from '../core/Util';
 import { consolex } from '../core/Consolex';
 
 @customElement('single-player-modal')
 export class SinglePlayerModal extends LitElement {
   @state() private isModalOpen = false;
-  @state() private selectedMap: GameMap = GameMap.World;
+  @state() private selectedMap: GameMapType = GameMapType.World;
   @state() private selectedDifficulty: Difficulty = Difficulty.Medium;
 
   static styles = css`
@@ -81,7 +81,7 @@ export class SinglePlayerModal extends LitElement {
           <div>
             <label for="map-select">Map: </label>
             <select id="map-select" @change=${this.handleMapChange}>
-              ${Object.entries(GameMap)
+              ${Object.entries(GameMapType)
         .filter(([key]) => isNaN(Number(key)))
         .map(([key, value]) => html`
                   <option value=${value} ?selected=${this.selectedMap === value}>
@@ -118,13 +118,13 @@ export class SinglePlayerModal extends LitElement {
   }
 
   private handleMapChange(e: Event) {
-    this.selectedMap = String((e.target as HTMLSelectElement).value) as GameMap;
+    this.selectedMap = String((e.target as HTMLSelectElement).value) as GameMapType;
   }
   private handleDifficultyChange(e: Event) {
     this.selectedDifficulty = String((e.target as HTMLSelectElement).value) as Difficulty;
   }
   private startGame() {
-    consolex.log(`Starting single player game with map: ${GameMap[this.selectedMap]}`);
+    consolex.log(`Starting single player game with map: ${GameMapType[this.selectedMap]}`);
     this.dispatchEvent(new CustomEvent('join-lobby', {
       detail: {
         gameType: GameType.Singleplayer,

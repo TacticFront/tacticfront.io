@@ -1,4 +1,4 @@
-import { Cell, GameMap, TerrainMap, TerrainTile, TerrainType } from './Game';
+import { Cell, GameMapType, TerrainMap, TerrainTile, TerrainType } from './Game';
 import { consolex } from '../Consolex';
 import { NationMap } from './TerrainMapLoader';
 
@@ -23,25 +23,25 @@ interface NationMapModule {
 }
 
 // Mapping from GameMap enum values to file names
-const MAP_FILE_NAMES: Record<GameMap, string> = {
-    [GameMap.World]: 'WorldMap',
-    [GameMap.Europe]: 'Europe',
-    [GameMap.Mena]: 'Mena',
-    [GameMap.NorthAmerica]: 'NorthAmerica',
-    [GameMap.Oceania]: 'Oceania',
-    [GameMap.BlackSea]: 'BlackSea',
+const MAP_FILE_NAMES: Record<GameMapType, string> = {
+    [GameMapType.World]: 'WorldMap',
+    [GameMapType.Europe]: 'Europe',
+    [GameMapType.Mena]: 'Mena',
+    [GameMapType.NorthAmerica]: 'NorthAmerica',
+    [GameMapType.Oceania]: 'Oceania',
+    [GameMapType.BlackSea]: 'BlackSea',
 };
 
 class GameMapLoader {
-    private maps: Map<GameMap, MapCache>;
-    private loadingPromises: Map<GameMap, Promise<MapData>>;
+    private maps: Map<GameMapType, MapCache>;
+    private loadingPromises: Map<GameMapType, Promise<MapData>>;
 
     constructor() {
-        this.maps = new Map<GameMap, MapCache>();
-        this.loadingPromises = new Map<GameMap, Promise<MapData>>();
+        this.maps = new Map<GameMapType, MapCache>();
+        this.loadingPromises = new Map<GameMapType, Promise<MapData>>();
     }
 
-    public async getMapData(map: GameMap): Promise<MapData> {
+    public async getMapData(map: GameMapType): Promise<MapData> {
         const cachedMap = this.maps.get(map);
         if (cachedMap?.bin && cachedMap?.nationMap) {
             return cachedMap as MapData;
@@ -56,7 +56,7 @@ class GameMapLoader {
         return data;
     }
 
-    private async loadMapData(map: GameMap): Promise<MapData> {
+    private async loadMapData(map: GameMapType): Promise<MapData> {
         const fileName = MAP_FILE_NAMES[map];
         if (!fileName) {
             throw new Error(`No file name mapping found for map: ${map}`);
@@ -75,12 +75,12 @@ class GameMapLoader {
         };
     }
 
-    public isMapLoaded(map: GameMap): boolean {
+    public isMapLoaded(map: GameMapType): boolean {
         const mapData = this.maps.get(map);
         return !!mapData?.bin && !!mapData?.nationMap;
     }
 
-    public getLoadedMaps(): GameMap[] {
+    public getLoadedMaps(): GameMapType[] {
         return Array.from(this.maps.keys()).filter(map => this.isMapLoaded(map));
     }
 }

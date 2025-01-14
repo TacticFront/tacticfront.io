@@ -29,7 +29,7 @@ export enum Difficulty {
     Impossible = "Impossible",
 }
 
-export enum GameMap {
+export enum GameMapType {
     World = "World",
     Europe = "Europe",
     Mena = "Mena",

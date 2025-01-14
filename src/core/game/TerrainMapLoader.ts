@@ -27,7 +27,7 @@ export class TerrainTileImpl implements TerrainTile {
     constructor(private map: TerrainMap, public _type: TerrainType, private _cell: Cell) { }
 
     key(): string {
-        return this._cell.toString()
+        throw new Error('Method not implemented.');
     }
 
     equals(other: TerrainTile): boolean {

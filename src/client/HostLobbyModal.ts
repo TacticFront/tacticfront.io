@@ -1,13 +1,13 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { Difficulty, GameMap, GameType } from '../core/game/Game';
+import { Difficulty, GameMapType, GameType } from '../core/game/Game';
 import { Lobby } from '../core/Schemas';
 import { consolex } from '../core/Consolex';
 
 @customElement('host-lobby-modal')
 export class HostLobbyModal extends LitElement {
   @state() private isModalOpen = false;
-  @state() private selectedMap: GameMap = GameMap.World;
+  @state() private selectedMap: GameMapType = GameMapType.World;
   @state() private selectedDiffculty: Difficulty = Difficulty.Medium;
   @state() private lobbyId = '';
   @state() private copySuccess = false;
@@ -116,7 +116,7 @@ export class HostLobbyModal extends LitElement {
           <div>
             <label for="map-select">Map: </label>
             <select id="map-select" @change=${this.handleMapChange}>
-              ${Object.entries(GameMap)
+              ${Object.entries(GameMapType)
         .filter(([key]) => isNaN(Number(key)))
         .map(([key, value]) => html`
                   <option value=${value} ?selected=${this.selectedMap === value}>
@@ -179,7 +179,7 @@ export class HostLobbyModal extends LitElement {
   }
 
   private async handleMapChange(e: Event) {
-    this.selectedMap = String((e.target as HTMLSelectElement).value) as GameMap;
+    this.selectedMap = String((e.target as HTMLSelectElement).value) as GameMapType;
     consolex.log(`updating map to ${this.selectedMap}`)
     this.putGameConfig()
   }
@@ -201,7 +201,7 @@ export class HostLobbyModal extends LitElement {
   }
 
   private async startGame() {
-    consolex.log(`Starting private game with map: ${GameMap[this.selectedMap]}`);
+    consolex.log(`Starting private game with map: ${GameMapType[this.selectedMap]}`);
     this.close();
     const response = await fetch(`/start_private_lobby/${this.lobbyId}`, {
       method: 'POST',
