@@ -272,6 +272,7 @@ export interface Player {
     type(): PlayerType
     units(...types: UnitType[]): Unit[]
     isAlive(): boolean
+    borderTileRefs(): ReadonlySet<TileRef>
     borderTiles(): ReadonlySet<Tile>
     isPlayer(): this is Player
     numTilesOwned(): number
@@ -316,7 +317,7 @@ export interface MutablePlayer extends Player {
     neighbors(): (Player | TerraNullius)[]
     tiles(): ReadonlySet<MutableTile>
     ownsTile(cell: Cell): boolean
-    tiles(): ReadonlySet<MutableTile>
+    tiles(): ReadonlySet<Tile>
     conquer(tile: Tile): void
     relinquish(tile: Tile): void
     executions(): Execution[]
@@ -354,6 +355,7 @@ export interface MutablePlayer extends Player {
 }
 
 export interface Game {
+    M: GameMap
     // Throws exception is player not found
     player(id: PlayerID): Player
     playerByClientID(id: ClientID): Player | null
@@ -376,7 +378,8 @@ export interface Game {
     displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void
     units(...types: UnitType[]): Unit[]
     unitInfo(type: UnitType): UnitInfo
-
+    playerBySmallID(id: number): Player | TerraNullius
+    fromRef(ref: TileRef): Tile
     map(): GameMap
     miniMap(): GameMap
 }

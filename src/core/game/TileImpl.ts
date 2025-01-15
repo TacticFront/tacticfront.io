@@ -82,11 +82,13 @@ export class TileImpl implements MutableTile {
     }
 
     hasOwner(): boolean { return this.owner().smallID() != 0 }
+
     owner(): MutablePlayer | TerraNullius {
-        const ownerID = this.gs.map().playerId(this.ref_)
+        const ownerID = this.gs.map().ownerID(this.ref_)
         if (ownerID == 0) {
             return this.gs.terraNullius()
         }
+        return this.gs.playerBySmallID(ownerID) as MutablePlayer
     }
     isBorder(): boolean { return this.gs.map().isBorder(this.ref_); }
 

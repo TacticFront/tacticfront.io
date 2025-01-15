@@ -400,7 +400,7 @@ export class FakeHumanExecution implements Execution {
         }
 
         if (oceanShore == null) {
-            oceanShore = Array.from(this.player.borderTiles()).filter(t => t.terrain().isOceanShore())
+            oceanShore = Array.from(this.player.borderTileRefs()).filter(t => this.mg.M.isOceanShore(t)).map(tr => this.mg.fromRef(tr))
         }
         if (oceanShore.length == 0) {
             return

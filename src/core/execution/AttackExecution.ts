@@ -4,6 +4,7 @@ import { PseudoRandom } from "../PseudoRandom";
 import { manhattanDist } from "../Util";
 import { MessageType } from '../game/Game';
 import { renderNumber } from "../../client/Utils";
+import { TileRef } from "../game/GameMap";
 
 export class AttackExecution implements Execution {
     private breakAlliance = false
@@ -25,7 +26,7 @@ export class AttackExecution implements Execution {
 
     private mg: MutableGame
 
-    private border = new Set<Tile>()
+    private border = new Set<TileRef>()
 
     constructor(
         private troops: number | null,
@@ -153,7 +154,7 @@ export class AttackExecution implements Execution {
             }
 
             const tileToConquer = this.toConquer.dequeue().tile
-            this.border.delete(tileToConquer)
+            this.border.delete(tileToConquer.ref())
 
             const onBorder = tileToConquer.neighbors().filter(t => t.owner() == this._owner).length > 0
             if (tileToConquer.owner() != this.target || !onBorder) {
@@ -176,7 +177,7 @@ export class AttackExecution implements Execution {
             if (neighbor.terrain().isWater() || neighbor.owner() != this.target) {
                 continue
             }
-            this.border.add(neighbor)
+            this.border.add(neighbor.ref())
             let numOwnedByMe = neighbor.neighbors()
                 .filter(t => t.terrain().isLand())
                 .filter(t => t.owner() == this._owner)

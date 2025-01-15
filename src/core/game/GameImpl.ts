@@ -27,6 +27,8 @@ export class GameImpl implements MutableGame {
     private nations_: Nation[] = []
 
     _players: Map<PlayerID, PlayerImpl> = new Map<PlayerID, PlayerImpl>
+    _playersBySmallID = []
+
     private execs: Execution[] = []
     private _width: number
     private _height: number
@@ -41,14 +43,14 @@ export class GameImpl implements MutableGame {
     private updates: GameUpdates = createGameUpdatesMap()
 
     constructor(
-        private gameMap: GameMap,
+        public readonly M: GameMap,
         private miniGameMap: GameMap,
         nationMap: NationMap,
         private _config: Config,
     ) {
         this._terraNullius = new TerraNulliusImpl()
-        this._width = gameMap.width();
-        this._height = gameMap.height();
+        this._width = M.width();
+        this._height = M.height();
         this.nations_ = nationMap.nations
             .map(n => new Nation(
                 n.name,
@@ -56,8 +58,14 @@ export class GameImpl implements MutableGame {
                 n.strength
             ))
     }
+    playerBySmallID(id: number): Player | TerraNullius {
+        if (id == 0) {
+            return this.terraNullius()
+        }
+        return this._playersBySmallID[id - 1]
+    }
     map(): GameMap {
-        return this.gameMap
+        return this.M
     }
     miniMap(): GameMap {
         return this.miniGameMap
@@ -79,7 +87,7 @@ export class GameImpl implements MutableGame {
         if (tile.hasOwner()) {
             throw Error(`cannot set fallout, tile ${tile} has owner`)
         }
-        this.gameMap.setFallout(tile.ref(), true)
+        this.M.setFallout(tile.ref(), true)
         this.addUpdate(ti.toUpdate())
     }
 
@@ -271,6 +279,7 @@ export class GameImpl implements MutableGame {
 
     addPlayer(playerInfo: PlayerInfo, manpower: number): MutablePlayer {
         let player = new PlayerImpl(this, this.nextPlayerID, playerInfo, manpower)
+        this._playersBySmallID.push(player)
         this.nextPlayerID++
         this._players.set(playerInfo.id, player)
         return player
@@ -295,7 +304,7 @@ export class GameImpl implements MutableGame {
 
     tile(cell: Cell): MutableTile {
         this.assertIsOnMap(cell)
-        return new TileImpl(this, this.gameMap.ref(cell.x, cell.y))
+        return new TileImpl(this, this.M.ref(cell.x, cell.y))
     }
 
     isOnMap(cell: Cell): boolean {
@@ -310,7 +319,7 @@ export class GameImpl implements MutableGame {
     }
 
     neighbors(tile: Tile): Tile[] {
-        return this.gameMap.neighbors(tile.ref()).map(tr => new TileImpl(this, tr))
+        return this.M.neighbors(tile.ref()).map(tr => new TileImpl(this, tr))
     }
 
     neighborsWithDiag(tile: Tile): Tile[] {
@@ -323,7 +332,7 @@ export class GameImpl implements MutableGame {
                 const newX = x + dx
                 const newY = y + dy
                 if (newX >= 0 && newX < this._width && newY >= 0 && newY < this._height) {
-                    ns.push(this.fromRef(this.gameMap.ref(newX, newY)))
+                    ns.push(this.fromRef(this.M.ref(newX, newY)))
                 }
             }
         }
@@ -345,14 +354,14 @@ export class GameImpl implements MutableGame {
         if (previousOwner.isPlayer()) {
             previousOwner._lastTileChange = this._ticks
             previousOwner._tiles.delete(tile.cell().toString())
-            previousOwner._borderTiles.delete(tileImpl)
-            this.gameMap.setBorder(tileImpl.ref(), false)
+            previousOwner._borderTiles.delete(tileImpl.ref())
+            this.M.setBorder(tileImpl.ref(), false)
         }
-        this.gameMap.setPlayerId(tileImpl.ref(), owner.smallID())
+        this.M.setOwnerID(tileImpl.ref(), owner.smallID())
         owner._tiles.set(tile.cell().toString(), tile)
         owner._lastTileChange = this._ticks
         this.updateBorders(tile)
-        this.gameMap.setFallout(tileImpl.ref(), false)
+        this.M.setFallout(tileImpl.ref(), false)
         this.addUpdate((tile as TileImpl).toUpdate())
     }
 
@@ -368,10 +377,10 @@ export class GameImpl implements MutableGame {
         let previousOwner = tileImpl.owner() as PlayerImpl
         previousOwner._lastTileChange = this._ticks
         previousOwner._tiles.delete(tile.cell().toString())
-        previousOwner._borderTiles.delete(tileImpl)
-        this.gameMap.setBorder(tileImpl.ref(), false)
+        previousOwner._borderTiles.delete(tileImpl.ref())
+        this.M.setBorder(tileImpl.ref(), false)
 
-        this.gameMap.setPlayerId(tileImpl.ref(), 0)
+        this.M.setOwnerID(tileImpl.ref(), 0)
         this.updateBorders(tile)
         this.addUpdate(
             (tile as TileImpl).toUpdate()
@@ -385,15 +394,15 @@ export class GameImpl implements MutableGame {
 
         for (const t of tiles) {
             if (!t.hasOwner()) {
-                this.gameMap.setBorder(t.ref(), false)
+                this.M.setBorder(t.ref(), false)
                 continue
             }
             if (this.isBorder(t)) {
-                (t.owner() as PlayerImpl)._borderTiles.add(t);
-                this.gameMap.setBorder(t.ref(), true)
+                (t.owner() as PlayerImpl)._borderTiles.add(t.ref());
+                this.M.setBorder(t.ref(), true)
             } else {
-                (t.owner() as PlayerImpl)._borderTiles.delete(t);
-                this.gameMap.setBorder(t.ref(), false)
+                (t.owner() as PlayerImpl)._borderTiles.delete(t.ref());
+                this.M.setBorder(t.ref(), false)
             }
             // this.updates.push(t.toUpdate())
         }

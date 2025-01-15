@@ -3,6 +3,7 @@ import { Execution, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, 
 import { bfs, calculateBoundingBox, getMode, inscribed, simpleHash } from "../Util"
 import { GameImpl } from "../game/GameImpl"
 import { consolex } from "../Consolex"
+import { TileRef } from "../game/GameMap"
 
 export class PlayerExecution implements Execution {
 
@@ -79,7 +80,8 @@ export class PlayerExecution implements Execution {
             if (this.player.lastTileChange() > this.lastCalc) {
                 this.lastCalc = ticks
                 const start = performance.now()
-                this.removeClusters()
+                // TODO
+                // this.removeClusters()
                 const end = performance.now()
                 if (end - start > 1000) {
                     consolex.log(`player ${this.player.name()}, took ${end - start}ms`)
@@ -109,15 +111,15 @@ export class PlayerExecution implements Execution {
         }
     }
 
-    private surroundedBySamePlayer(cluster: Set<Tile>): false | Player {
-        const enemies = new Set<Player>()
-        for (const tile of cluster) {
-            if (tile.terrain().isOceanShore() || tile.neighbors().find(n => !n.hasOwner())) {
+    private surroundedBySamePlayer(cluster: Set<TileRef>): false | Player {
+        const enemies = new Set<number>()
+        for (const ref of cluster) {
+            if (this.mg.M.isOceanShore(ref) || this.mg.M.neighbors(ref).some(n => !this.mg.M.hasOwner(n))) {
                 return false
             }
-            tile.neighbors()
-                .filter(n => n.hasOwner() && n.owner() != this.player)
-                .forEach(p => enemies.add(p.owner() as Player))
+            this.mg.M.neighbors(ref)
+                .filter(n => this.mg.M.ownerID(n) != this.player.smallID())
+                .forEach(p => enemies.add(this.mg.M.ownerID(p)))
             if (enemies.size != 1) {
                 return false
             }
@@ -125,63 +127,63 @@ export class PlayerExecution implements Execution {
         if (enemies.size != 1) {
             return false
         }
-        return Array.from(enemies)[0]
+        return this.mg.playerBySmallID(Array.from(enemies)[0]) as Player
     }
 
-    private isSurrounded(cluster: Set<Tile>): boolean {
-        let enemyTiles = new Set<Tile>()
-        for (const tile of cluster) {
-            if (tile.terrain().isOceanShore()) {
+    private isSurrounded(cluster: Set<TileRef>): boolean {
+        let enemyTiles = new Set<TileRef>()
+        for (const tr of cluster) {
+            if (this.mg.M.isOceanShore(tr)) {
                 return false
             }
-            tile.neighbors()
-                .filter(n => n.hasOwner() && n.owner() != this.player)
+            this.mg.M.neighbors(tr)
+                .filter(n => this.mg.M.ownerID(n) != this.player.smallID())
                 .forEach(n => enemyTiles.add(n))
         }
         if (enemyTiles.size == 0) {
             return false
         }
-        const enemyBox = calculateBoundingBox(enemyTiles)
-        const clusterBox = calculateBoundingBox(cluster)
+        const enemyBox = calculateBoundingBox(new Set(Array.from(enemyTiles).map(tr => this.mg.fromRef(tr))))
+        const clusterBox = calculateBoundingBox(new Set(Array.from(cluster).map(tr => this.mg.fromRef(tr))))
         return inscribed(enemyBox, clusterBox)
     }
 
-    private removeCluster(cluster: Set<Tile>) {
+    private removeCluster(cluster: Set<TileRef>) {
         const arr = Array.from(cluster)
-        if (arr.some(t => t.owner() != this.player)) {
-            // Other removeCluster operations could change tile owners,
-            // so double check.
-            return
-        }
-        const mode = getMode(arr.flatMap(t => t.neighbors()).filter(t => t.hasOwner() && t.owner() != this.player).map(t => t.owner().id()))
-        if (!this.mg.hasPlayer(mode)) {
+        const mode = getMode(
+            arr.
+                flatMap(t => this.mg.M.neighbors(t))
+                .filter(t => this.mg.M.ownerID(t) != this.player.smallID())
+                .map(t => this.mg.M.ownerID(t))
+        )
+        if (!this.mg.playerBySmallID(mode).isPlayer()) {
             consolex.warn('mode is not found')
             return
         }
         const firstTile = arr[0]
-        const filter = (n: Tile): boolean => n.owner() == firstTile.owner()
-        const tiles = bfs(firstTile, filter)
+        const filter = (n: Tile): boolean => n.owner().smallID() == this.mg.M.ownerID(firstTile)
+        const tiles = bfs(this.mg.fromRef(firstTile), filter)
 
-        const modePlayer = this.mg.player(mode)
-        if (modePlayer == null) {
+        const modePlayer = this.mg.playerBySmallID(mode)
+        if (!modePlayer.isPlayer()) {
             consolex.warn('mode player is null')
         }
         for (const tile of tiles) {
-            modePlayer.conquer(tile)
+            (modePlayer as MutablePlayer).conquer(tile)
         }
     }
 
-    private calculateClusters(): Set<Tile>[] {
-        const seen = new Set<Tile>()
-        const border = this.player.borderTiles()
-        const clusters: Set<Tile>[] = []
+    private calculateClusters(): Set<TileRef>[] {
+        const seen = new Set<TileRef>()
+        const border = this.player.borderTileRefs()
+        const clusters: Set<TileRef>[] = []
         for (const tile of border) {
             if (seen.has(tile)) {
                 continue
             }
 
-            const cluster = new Set<Tile>()
-            const queue: Tile[] = [tile]
+            const cluster = new Set<TileRef>()
+            const queue: TileRef[] = [tile]
             seen.add(tile)
             let loops = 0;
             while (queue.length > 0) {
@@ -189,12 +191,12 @@ export class PlayerExecution implements Execution {
                 const curr = queue.shift()
                 cluster.add(curr)
 
-                const neighbors = (this.mg as GameImpl).neighborsWithDiag(curr)
+                const neighbors = (this.mg as GameImpl).neighborsWithDiag(this.mg.fromRef(curr))
                 for (const neighbor of neighbors) {
-                    if (neighbor.isBorder() && border.has(neighbor)) {
-                        if (!seen.has(neighbor)) {
-                            queue.push(neighbor)
-                            seen.add(neighbor)
+                    if (neighbor.isBorder() && border.has(neighbor.ref())) {
+                        if (!seen.has(neighbor.ref())) {
+                            queue.push(neighbor.ref())
+                            seen.add(neighbor.ref())
                         }
                     }
                 }

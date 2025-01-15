@@ -14,7 +14,9 @@ export class TileView {
     constructor(private game: GameView, public data: TileUpdate, private _terrain: TerrainTile) { }
 
     ref(): TileRef {
-        throw new Error('uh oh')
+        if (!this.data) { return 0 }
+
+        return this.data.pos.x * this.game.width() + this.data.pos.y
     }
     type(): TerrainType {
         return this._terrain.type()
@@ -123,6 +125,9 @@ export class UnitView implements Unit {
 export class PlayerView implements Player {
 
     constructor(private game: GameView, public data: PlayerUpdate, public nameData: NameViewData) { }
+    borderTiles(): ReadonlySet<Tile> {
+        throw new Error('Method not implemented.');
+    }
 
     async actions(tile: Tile): Promise<PlayerActions> {
         return this.game.worker.playerInteraction(this.id(), tile)
@@ -187,7 +192,7 @@ export class PlayerView implements Player {
     allianceWith(other: Player): Alliance | null {
         return null
     }
-    borderTiles(): ReadonlySet<Tile> {
+    borderTileRefs(): ReadonlySet<TileRef> {
         return new Set()
     }
     units(...types: UnitType[]): Unit[] {

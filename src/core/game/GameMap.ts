@@ -65,6 +65,10 @@ export class GameMap {
         return Boolean(this.terrain[ref] & (1 << GameMap.IS_LAND_BIT));
     }
 
+    isOceanShore(ref: TileRef): boolean {
+        return this.isLand(ref) && this.neighbors(ref).some(tr => this.isOcean(tr))
+    }
+
     isOcean(ref: TileRef): boolean {
         return Boolean(this.terrain[ref] & (1 << GameMap.OCEAN_BIT));
     }
@@ -78,11 +82,16 @@ export class GameMap {
     }
 
     // State getters and setters (mutable)
-    playerId(ref: TileRef): number {
+    ownerID(ref: TileRef): number {
         return this.state[ref] & GameMap.PLAYER_ID_MASK;
     }
 
-    setPlayerId(ref: TileRef, playerId: number): void {
+    hasOwner(ref: TileRef): boolean {
+        return this.ownerID(ref) != 0
+    }
+
+
+    setOwnerID(ref: TileRef, playerId: number): void {
         if (playerId > GameMap.PLAYER_ID_MASK) {
             throw new Error(`Player ID ${playerId} exceeds maximum value ${GameMap.PLAYER_ID_MASK}`);
         }

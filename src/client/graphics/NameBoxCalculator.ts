@@ -15,8 +15,15 @@ export interface Rectangle {
 }
 
 
+
 export function placeName(game: Game, player: Player): NameViewData {
+    return {
+        x: 0,
+        y: 0,
+        size: 0
+    }
     const boundingBox = calculateBoundingBox(player.borderTiles());
+
 
     const rawScalingFactor = (boundingBox.max.x - boundingBox.min.x) / 100
     const scalingFactor = within(Math.floor(rawScalingFactor), 1, 1000)

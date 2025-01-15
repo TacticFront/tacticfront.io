@@ -8,6 +8,7 @@ import { number } from 'zod';
 import { GameConfig, GameID, GameRecord, PlayerRecord, Turn } from './Schemas';
 import { customAlphabet, nanoid } from 'nanoid';
 import { GameView } from './GameView';
+import { TileRef } from './game/GameMap';
 
 
 
@@ -110,19 +111,19 @@ function closestOceanShoreTN(tile: Tile, searchDist: number): Tile {
 }
 
 export function bfs(tile: Tile, filter: (tile: Tile) => boolean): Set<Tile> {
-    const seen = new Set<Tile>
+    const seen = new Map<TileRef, Tile>()
     const q: Tile[] = []
     q.push(tile)
     while (q.length > 0) {
         const curr = q.pop()
-        seen.add(curr)
+        seen.set(curr.ref(), curr)
         for (const n of curr.neighbors()) {
-            if (!seen.has(n) && filter(n)) {
+            if (!seen.has(n.ref()) && filter(n)) {
                 q.push(n)
             }
         }
     }
-    return seen
+    return new Set(seen.values())
 }
 
 export function simpleHash(str: string): number {
@@ -166,20 +167,20 @@ export function inscribed(outer: { min: Cell; max: Cell }, inner: { min: Cell; m
     );
 }
 
-export function getMode(list: string[]): string {
+export function getMode(list: number[]): number {
     // Count occurrences
-    const counts: { [key: string]: number } = {};
+    const counts = new Map<number, number>()
     for (const item of list) {
-        counts[item] = (counts[item] || 0) + 1;
+        counts.set(item, (counts.get(item) || 0) + 1);
     }
 
     // Find the item with the highest count
-    let mode = '';
+    let mode = 0;
     let maxCount = 0;
 
-    for (const item in counts) {
-        if (counts[item] > maxCount) {
-            maxCount = counts[item];
+    for (const [item, count] of counts) {
+        if (count > maxCount) {
+            maxCount = count
             mode = item;
         }
     }

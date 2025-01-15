@@ -189,7 +189,8 @@ export class DefaultConfig implements Config {
     attackLogic(attackTroops: number, attacker: Player, defender: Player | TerraNullius, tileToConquer: MutableTile): { attackerTroopLoss: number; defenderTroopLoss: number; tilesPerTickUsed: number } {
         let mag = 0
         let speed = 0
-        switch (tileToConquer.terrain().type()) {
+        const type = tileToConquer.terrain().type()
+        switch (type) {
             case TerrainType.Plains:
                 mag = 80
                 speed = 15
@@ -202,9 +203,12 @@ export class DefaultConfig implements Config {
                 mag = 120
                 speed = 25
                 break
+            default:
+                throw new Error(`terrain type ${type} not supported`)
         }
-        mag *= tileToConquer.defenseBonus(attacker)
-        speed *= tileToConquer.defenseBonus(attacker)
+        // TODO
+        // mag *= tileToConquer.defenseBonus(attacker)
+        // speed *= tileToConquer.defenseBonus(attacker)
         if (tileToConquer.hasFallout()) {
             mag *= this.falloutDefenseModifier()
             speed *= this.falloutDefenseModifier()

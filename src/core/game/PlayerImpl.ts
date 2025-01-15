@@ -7,6 +7,7 @@ import { TileImpl } from "./TileImpl";
 import { MessageType } from './Game';
 import { renderTroops } from "../../client/Utils";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
+import { TileRef } from "./GameMap";
 
 interface Target {
     tick: Tick
@@ -28,7 +29,7 @@ export class PlayerImpl implements MutablePlayer {
 
     isTraitor_ = false
 
-    public _borderTiles: Set<TileImpl> = new Set();
+    public _borderTiles: Set<TileRef> = new Set();
 
     public _units: UnitImpl[] = [];
     public _tiles: Map<CellString, Tile> = new Map<CellString, TileImpl>();
@@ -111,8 +112,8 @@ export class PlayerImpl implements MutablePlayer {
 
     sharesBorderWith(other: Player | TerraNullius): boolean {
         for (const border of this._borderTiles) {
-            for (const neighbor of border.neighbors()) {
-                if (neighbor.owner() == other) {
+            for (const neighbor of this.gs.map().neighbors(border)) {
+                if (this.gs.map().ownerID(neighbor) == other.smallID()) {
                     return true;
                 }
             }
@@ -127,16 +128,23 @@ export class PlayerImpl implements MutablePlayer {
         return new Set(this._tiles.values()) as Set<MutableTile>;
     }
 
-    borderTiles(): ReadonlySet<MutableTile> {
+    borderTileRefs(): ReadonlySet<TileRef> {
         return this._borderTiles;
+    }
+
+    borderTiles(): ReadonlySet<Tile> {
+        return new Set(Array.from(this._borderTiles).map(tr => this.gs.fromRef(tr)))
     }
 
     neighbors(): (MutablePlayer | TerraNullius)[] {
         const ns: Set<(MutablePlayer | TerraNullius)> = new Set();
-        for (const border of this.borderTiles()) {
-            for (const neighbor of border.neighbors()) {
-                if (neighbor.terrain().isLand() && neighbor.owner() != this) {
-                    ns.add(neighbor.owner() as PlayerImpl | TerraNulliusImpl);
+        for (const border of this.borderTileRefs()) {
+            for (const neighbor of this.gs.map().neighbors(border)) {
+                if (this.gs.map().isLake(neighbor)) {
+                    const owner = this.gs.map().ownerID(neighbor)
+                    if (owner != this.smallID()) {
+                        ns.add(this.gs.playerBySmallID(owner) as PlayerImpl | TerraNulliusImpl);
+                    }
                 }
             }
         }
