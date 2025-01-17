@@ -10,9 +10,9 @@ import { ClientID, GameConfig } from "../Schemas";
 import { MessageType } from './Game';
 import { UnitImpl } from "./UnitImpl";
 import { consolex } from "../Consolex";
-import { GameMap, TileRef } from "./GameMap";
+import { GameMapImpl, TileRef } from "./GameMap";
 
-export function createGame(gameMap: GameMap, miniGameMap: GameMap, nationMap: NationMap, config: Config): Game {
+export function createGame(gameMap: GameMapImpl, miniGameMap: GameMapImpl, nationMap: NationMap, config: Config): Game {
     return new GameImpl(gameMap, miniGameMap, nationMap, config)
 }
 
@@ -43,14 +43,14 @@ export class GameImpl implements MutableGame {
     private updates: GameUpdates = createGameUpdatesMap()
 
     constructor(
-        public readonly M: GameMap,
-        private miniGameMap: GameMap,
+        private _map: GameMapImpl,
+        private miniGameMap: GameMapImpl,
         nationMap: NationMap,
         private _config: Config,
     ) {
         this._terraNullius = new TerraNulliusImpl()
-        this._width = M.width();
-        this._height = M.height();
+        this._width = _map.width();
+        this._height = _map.height();
         this.nations_ = nationMap.nations
             .map(n => new Nation(
                 n.name,
@@ -64,10 +64,10 @@ export class GameImpl implements MutableGame {
         }
         return this._playersBySmallID[id - 1]
     }
-    map(): GameMap {
-        return this.M
+    map(): GameMapImpl {
+        return this._map
     }
-    miniMap(): GameMap {
+    miniMap(): GameMapImpl {
         return this.miniGameMap
     }
 
@@ -87,7 +87,7 @@ export class GameImpl implements MutableGame {
         if (tile.hasOwner()) {
             throw Error(`cannot set fallout, tile ${tile} has owner`)
         }
-        this.M.setFallout(tile.ref(), true)
+        this._map.setFallout(tile.ref(), true)
         this.addUpdate(ti.toUpdate())
     }
 
@@ -257,14 +257,6 @@ export class GameImpl implements MutableGame {
         this.unInitExecs = this.unInitExecs.filter(execution => execution !== exec)
     }
 
-    width(): number {
-        return this._width
-    }
-
-    height(): number {
-        return this._height
-    }
-
     forEachTile(fn: (tile: Tile) => void): void {
         for (let x = 0; x < this._width; x++) {
             for (let y = 0; y < this._height; y++) {
@@ -304,7 +296,7 @@ export class GameImpl implements MutableGame {
 
     tile(cell: Cell): MutableTile {
         this.assertIsOnMap(cell)
-        return new TileImpl(this, this.M.ref(cell.x, cell.y))
+        return new TileImpl(this, this._map.ref(cell.x, cell.y))
     }
 
     isOnMap(cell: Cell): boolean {
@@ -318,9 +310,6 @@ export class GameImpl implements MutableGame {
         return new TileImpl(this, ref)
     }
 
-    neighbors(tile: Tile): Tile[] {
-        return this.M.neighbors(tile.ref()).map(tr => new TileImpl(this, tr))
-    }
 
     neighborsWithDiag(tile: Tile): Tile[] {
         const x = tile.cell().x
@@ -332,7 +321,7 @@ export class GameImpl implements MutableGame {
                 const newX = x + dx
                 const newY = y + dy
                 if (newX >= 0 && newX < this._width && newY >= 0 && newY < this._height) {
-                    ns.push(this.fromRef(this.M.ref(newX, newY)))
+                    ns.push(this.fromRef(this._map.ref(newX, newY)))
                 }
             }
         }
@@ -355,13 +344,13 @@ export class GameImpl implements MutableGame {
             previousOwner._lastTileChange = this._ticks
             previousOwner._tiles.delete(tile.cell().toString())
             previousOwner._borderTiles.delete(tileImpl.ref())
-            this.M.setBorder(tileImpl.ref(), false)
+            this._map.setBorder(tileImpl.ref(), false)
         }
-        this.M.setOwnerID(tileImpl.ref(), owner.smallID())
+        this._map.setOwnerID(tileImpl.ref(), owner.smallID())
         owner._tiles.set(tile.cell().toString(), tile)
         owner._lastTileChange = this._ticks
         this.updateBorders(tile)
-        this.M.setFallout(tileImpl.ref(), false)
+        this._map.setFallout(tileImpl.ref(), false)
         this.addUpdate((tile as TileImpl).toUpdate())
     }
 
@@ -378,9 +367,9 @@ export class GameImpl implements MutableGame {
         previousOwner._lastTileChange = this._ticks
         previousOwner._tiles.delete(tile.cell().toString())
         previousOwner._borderTiles.delete(tileImpl.ref())
-        this.M.setBorder(tileImpl.ref(), false)
+        this._map.setBorder(tileImpl.ref(), false)
 
-        this.M.setOwnerID(tileImpl.ref(), 0)
+        this._map.setOwnerID(tileImpl.ref(), 0)
         this.updateBorders(tile)
         this.addUpdate(
             (tile as TileImpl).toUpdate()
@@ -394,21 +383,21 @@ export class GameImpl implements MutableGame {
 
         for (const t of tiles) {
             if (!t.hasOwner()) {
-                this.M.setBorder(t.ref(), false)
+                this._map.setBorder(t.ref(), false)
                 continue
             }
-            if (this.isBorder(t)) {
+            if (this.calcIsBorder(t)) {
                 (t.owner() as PlayerImpl)._borderTiles.add(t.ref());
-                this.M.setBorder(t.ref(), true)
+                this._map.setBorder(t.ref(), true)
             } else {
                 (t.owner() as PlayerImpl)._borderTiles.delete(t.ref());
-                this.M.setBorder(t.ref(), false)
+                this._map.setBorder(t.ref(), false)
             }
             // this.updates.push(t.toUpdate())
         }
     }
 
-    isBorder(tile: Tile): boolean {
+    private calcIsBorder(tile: Tile): boolean {
         if (!tile.hasOwner()) {
             return false
         }
@@ -506,6 +495,28 @@ export class GameImpl implements MutableGame {
             playerID: id
         })
     }
+
+    ref(x: number, y: number): TileRef { return this._map.ref(x, y) }
+    x(ref: TileRef): number { return this._map.x(ref) }
+    y(ref: TileRef): number { return this._map.y(ref) }
+    cell(ref: TileRef): Cell { return this._map.cell(ref) }
+    width(): number { return this._map.width() }
+    height(): number { return this._map.height() }
+    numLandTiles(): number { return this._map.numLandTiles() }
+    isValidCoord(x: number, y: number): boolean { return this._map.isValidCoord(x, y) }
+    isLand(ref: TileRef): boolean { return this._map.isLake(ref) }
+    isOceanShore(ref: TileRef): boolean { return this._map.isOceanShore(ref) }
+    isOcean(ref: TileRef): boolean { return this._map.isOcean(ref) }
+    isShoreline(ref: TileRef): boolean { return this._map.isShoreline(ref) }
+    magnitude(ref: TileRef): number { return this._map.magnitude(ref) }
+    ownerID(ref: TileRef): number { return this._map.ownerID(ref) }
+    hasOwner(ref: TileRef): boolean { return this._map.hasOwner(ref) }
+    setOwnerID(ref: TileRef, playerId: number): void { return this._map.setOwnerID(ref, playerId) }
+    hasFallout(ref: TileRef): boolean { return this._map.hasFallout(ref) }
+    setFallout(ref: TileRef, value: boolean): void { return this._map.setFallout(ref, value) }
+    isBorder(ref: TileRef): boolean { return this._map.isBorder(ref) }
+    setBorder(ref: TileRef, value: boolean): void { return this._map.setBorder(ref, value) }
+    neighbors(ref: TileRef): TileRef[] { return this._map.neighbors(ref) }
 }
 
 // Or a more dynamic approach that will catch new enum values:

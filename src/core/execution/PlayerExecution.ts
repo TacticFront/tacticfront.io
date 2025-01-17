@@ -114,12 +114,12 @@ export class PlayerExecution implements Execution {
     private surroundedBySamePlayer(cluster: Set<TileRef>): false | Player {
         const enemies = new Set<number>()
         for (const ref of cluster) {
-            if (this.mg.M.isOceanShore(ref) || this.mg.M.neighbors(ref).some(n => !this.mg.M.hasOwner(n))) {
+            if (this.mg.isOceanShore(ref) || this.mg.neighbors(ref).some(n => !this.mg.hasOwner(n))) {
                 return false
             }
-            this.mg.M.neighbors(ref)
-                .filter(n => this.mg.M.ownerID(n) != this.player.smallID())
-                .forEach(p => enemies.add(this.mg.M.ownerID(p)))
+            this.mg.neighbors(ref)
+                .filter(n => this.mg.ownerID(n) != this.player.smallID())
+                .forEach(p => enemies.add(this.mg.ownerID(p)))
             if (enemies.size != 1) {
                 return false
             }
@@ -133,11 +133,11 @@ export class PlayerExecution implements Execution {
     private isSurrounded(cluster: Set<TileRef>): boolean {
         let enemyTiles = new Set<TileRef>()
         for (const tr of cluster) {
-            if (this.mg.M.isOceanShore(tr)) {
+            if (this.mg.isOceanShore(tr)) {
                 return false
             }
-            this.mg.M.neighbors(tr)
-                .filter(n => this.mg.M.ownerID(n) != this.player.smallID())
+            this.mg.neighbors(tr)
+                .filter(n => this.mg.ownerID(n) != this.player.smallID())
                 .forEach(n => enemyTiles.add(n))
         }
         if (enemyTiles.size == 0) {
@@ -152,16 +152,16 @@ export class PlayerExecution implements Execution {
         const arr = Array.from(cluster)
         const mode = getMode(
             arr.
-                flatMap(t => this.mg.M.neighbors(t))
-                .filter(t => this.mg.M.ownerID(t) != this.player.smallID())
-                .map(t => this.mg.M.ownerID(t))
+                flatMap(t => this.mg.neighbors(t))
+                .filter(t => this.mg.ownerID(t) != this.player.smallID())
+                .map(t => this.mg.ownerID(t))
         )
         if (!this.mg.playerBySmallID(mode).isPlayer()) {
             consolex.warn('mode is not found')
             return
         }
         const firstTile = arr[0]
-        const filter = (n: Tile): boolean => n.owner().smallID() == this.mg.M.ownerID(firstTile)
+        const filter = (n: Tile): boolean => n.owner().smallID() == this.mg.ownerID(firstTile)
         const tiles = bfs(this.mg.fromRef(firstTile), filter)
 
         const modePlayer = this.mg.playerBySmallID(mode)

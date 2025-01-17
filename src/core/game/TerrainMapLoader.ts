@@ -1,9 +1,9 @@
 import { consolex } from '../Consolex';
 import { Cell, GameMapType, TerrainMap, TerrainTile, TerrainType } from './Game';
-import { GameMap } from './GameMap';
+import { GameMapImpl } from './GameMap';
 import { terrainMapFileLoader } from './TerrainMapFileLoader';
 
-const loadedMaps = new Map<GameMapType, { nationMap: NationMap, gameMap: GameMap, miniGameMap: GameMap, terrain: TerrainMap }>()
+const loadedMaps = new Map<GameMapType, { nationMap: NationMap, gameMap: GameMapImpl, miniGameMap: GameMapImpl, terrain: TerrainMap }>()
 
 export interface NationMap {
     name: string;
@@ -149,7 +149,7 @@ export class TerrainMapImpl implements TerrainMap {
 }
 
 
-export async function loadTerrainMap(map: GameMapType): Promise<{ nationMap: NationMap, gameMap: GameMap, miniGameMap: GameMap, terrain: TerrainMap }> {
+export async function loadTerrainMap(map: GameMapType): Promise<{ nationMap: NationMap, gameMap: GameMapImpl, miniGameMap: GameMapImpl, terrain: TerrainMap }> {
     if (loadedMaps.has(map)) {
         return loadedMaps.get(map)
     }
@@ -162,7 +162,7 @@ export async function loadTerrainMap(map: GameMapType): Promise<{ nationMap: Nat
     return result
 }
 
-export async function loadTerrainFromFile(fileData: string): Promise<{ map: GameMap, terrain: TerrainMap }> {
+export async function loadTerrainFromFile(fileData: string): Promise<{ map: GameMapImpl, terrain: TerrainMap }> {
     const width = (fileData.charCodeAt(1) << 8) | fileData.charCodeAt(0);
     const height = (fileData.charCodeAt(3) << 8) | fileData.charCodeAt(2);
 
@@ -184,7 +184,7 @@ export async function loadTerrainFromFile(fileData: string): Promise<{ map: Game
         m.rawData[i] = packedByte;
         if (packedByte & 0b10000000) numLand++;
     }
-    const gm = new GameMap(width, height, m.rawData, numLand)
+    const gm = new GameMapImpl(width, height, m.rawData, numLand)
 
     m._numLandTiles = numLand;
     return { map: gm, terrain: m }

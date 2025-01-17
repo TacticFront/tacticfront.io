@@ -1,7 +1,7 @@
 import { Config } from "../configuration/Config"
 import { GameEvent } from "../EventBus"
 import { ClientID, GameConfig, GameID } from "../Schemas"
-import { GameMap, TileRef } from "./GameMap"
+import { GameMap, GameMapImpl, TileRef } from "./GameMap"
 
 export type PlayerID = string
 export type Tick = number
@@ -354,8 +354,7 @@ export interface MutablePlayer extends Player {
     toUpdate(): PlayerUpdate
 }
 
-export interface Game {
-    M: GameMap
+export interface Game extends GameMap {
     // Throws exception is player not found
     player(id: PlayerID): Player
     playerByClientID(id: ClientID): Player | null
@@ -363,7 +362,6 @@ export interface Game {
     players(): Player[]
     tile(cell: Cell): Tile
     isOnMap(cell: Cell): boolean
-    neighbors(cell: Cell | Tile): Tile[]
     width(): number
     height(): number
     forEachTile(fn: (tile: Tile) => void): void
@@ -380,8 +378,8 @@ export interface Game {
     unitInfo(type: UnitType): UnitInfo
     playerBySmallID(id: number): Player | TerraNullius
     fromRef(ref: TileRef): Tile
-    map(): GameMap
-    miniMap(): GameMap
+    map(): GameMapImpl
+    miniMap(): GameMapImpl
 }
 
 export interface MutableGame extends Game {

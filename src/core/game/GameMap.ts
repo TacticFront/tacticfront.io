@@ -2,7 +2,36 @@ import { Cell, TerrainType } from "./Game";
 
 export type TileRef = number;
 
-export class GameMap {
+export interface GameMap {
+    ref(x: number, y: number): TileRef
+
+    x(ref: TileRef): number
+    y(ref: TileRef): number
+    cell(ref: TileRef): Cell
+    width(): number
+    height(): number
+    numLandTiles(): number
+
+    isValidCoord(x: number, y: number): boolean
+    // Terrain getters (immutable)
+    isLand(ref: TileRef): boolean
+    isOceanShore(ref: TileRef): boolean
+    isOcean(ref: TileRef): boolean
+    isShoreline(ref: TileRef): boolean
+    magnitude(ref: TileRef): number
+    // State getters and setters (mutable)
+    ownerID(ref: TileRef): number
+    hasOwner(ref: TileRef): boolean
+
+    setOwnerID(ref: TileRef, playerId: number): void
+    hasFallout(ref: TileRef): boolean
+    setFallout(ref: TileRef, value: boolean): void
+    isBorder(ref: TileRef): boolean
+    setBorder(ref: TileRef, value: boolean): void
+    neighbors(ref: TileRef): TileRef[]
+}
+
+export class GameMapImpl implements GameMap {
     private readonly terrain: Uint8Array;     // Immutable terrain data
     private readonly state: Uint16Array;      // Mutable game state
     private readonly width_: number;
@@ -62,7 +91,7 @@ export class GameMap {
 
     // Terrain getters (immutable)
     isLand(ref: TileRef): boolean {
-        return Boolean(this.terrain[ref] & (1 << GameMap.IS_LAND_BIT));
+        return Boolean(this.terrain[ref] & (1 << GameMapImpl.IS_LAND_BIT));
     }
 
     isOceanShore(ref: TileRef): boolean {
@@ -70,20 +99,20 @@ export class GameMap {
     }
 
     isOcean(ref: TileRef): boolean {
-        return Boolean(this.terrain[ref] & (1 << GameMap.OCEAN_BIT));
+        return Boolean(this.terrain[ref] & (1 << GameMapImpl.OCEAN_BIT));
     }
 
     isShoreline(ref: TileRef): boolean {
-        return Boolean(this.terrain[ref] & (1 << GameMap.SHORELINE_BIT));
+        return Boolean(this.terrain[ref] & (1 << GameMapImpl.SHORELINE_BIT));
     }
 
     magnitude(ref: TileRef): number {
-        return this.terrain[ref] & GameMap.MAGNITUDE_MASK;
+        return this.terrain[ref] & GameMapImpl.MAGNITUDE_MASK;
     }
 
     // State getters and setters (mutable)
     ownerID(ref: TileRef): number {
-        return this.state[ref] & GameMap.PLAYER_ID_MASK;
+        return this.state[ref] & GameMapImpl.PLAYER_ID_MASK;
     }
 
     hasOwner(ref: TileRef): boolean {
@@ -92,45 +121,45 @@ export class GameMap {
 
 
     setOwnerID(ref: TileRef, playerId: number): void {
-        if (playerId > GameMap.PLAYER_ID_MASK) {
-            throw new Error(`Player ID ${playerId} exceeds maximum value ${GameMap.PLAYER_ID_MASK}`);
+        if (playerId > GameMapImpl.PLAYER_ID_MASK) {
+            throw new Error(`Player ID ${playerId} exceeds maximum value ${GameMapImpl.PLAYER_ID_MASK}`);
         }
-        this.state[ref] = (this.state[ref] & ~GameMap.PLAYER_ID_MASK) | playerId;
+        this.state[ref] = (this.state[ref] & ~GameMapImpl.PLAYER_ID_MASK) | playerId;
     }
 
     hasFallout(ref: TileRef): boolean {
-        return Boolean(this.state[ref] & (1 << GameMap.FALLOUT_BIT));
+        return Boolean(this.state[ref] & (1 << GameMapImpl.FALLOUT_BIT));
     }
 
     setFallout(ref: TileRef, value: boolean): void {
         if (value) {
-            this.state[ref] |= 1 << GameMap.FALLOUT_BIT;
+            this.state[ref] |= 1 << GameMapImpl.FALLOUT_BIT;
         } else {
-            this.state[ref] &= ~(1 << GameMap.FALLOUT_BIT);
+            this.state[ref] &= ~(1 << GameMapImpl.FALLOUT_BIT);
         }
     }
 
     isBorder(ref: TileRef): boolean {
-        return Boolean(this.state[ref] & (1 << GameMap.BORDER_BIT));
+        return Boolean(this.state[ref] & (1 << GameMapImpl.BORDER_BIT));
     }
 
     setBorder(ref: TileRef, value: boolean): void {
         if (value) {
-            this.state[ref] |= 1 << GameMap.BORDER_BIT;
+            this.state[ref] |= 1 << GameMapImpl.BORDER_BIT;
         } else {
-            this.state[ref] &= ~(1 << GameMap.BORDER_BIT);
+            this.state[ref] &= ~(1 << GameMapImpl.BORDER_BIT);
         }
     }
 
     hasDefenseBonus(ref: TileRef): boolean {
-        return Boolean(this.state[ref] & (1 << GameMap.DEFENSE_BONUS_BIT));
+        return Boolean(this.state[ref] & (1 << GameMapImpl.DEFENSE_BONUS_BIT));
     }
 
     setDefenseBonus(ref: TileRef, value: boolean): void {
         if (value) {
-            this.state[ref] |= 1 << GameMap.DEFENSE_BONUS_BIT;
+            this.state[ref] |= 1 << GameMapImpl.DEFENSE_BONUS_BIT;
         } else {
-            this.state[ref] &= ~(1 << GameMap.DEFENSE_BONUS_BIT);
+            this.state[ref] &= ~(1 << GameMapImpl.DEFENSE_BONUS_BIT);
         }
     }
 

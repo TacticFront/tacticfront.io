@@ -4,7 +4,7 @@ import { Alliance, AllianceRequest, AllPlayers, Cell, DefenseBonus, EmojiMessage
 import { ClientID } from "./Schemas";
 import { TerraNulliusImpl } from './game/TerraNulliusImpl';
 import { WorkerClient } from './worker/WorkerClient';
-import { GameMap, TileRef } from './game/GameMap';
+import { GameMapImpl, TileRef } from './game/GameMap';
 
 
 export class TileView {

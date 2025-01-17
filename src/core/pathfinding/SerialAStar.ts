@@ -3,7 +3,7 @@ import { AStar } from "./AStar";
 import { PathFindResultType } from "./AStar";
 import { Cell } from "../game/Game";
 import { consolex } from "../Consolex";
-import { GameMap, TileRef } from "../game/GameMap";
+import { GameMapImpl, TileRef } from "../game/GameMap";
 
 
 export class SerialAStar implements AStar {
@@ -22,7 +22,7 @@ export class SerialAStar implements AStar {
         private canMove: (t: TileRef) => boolean,
         private iterations: number,
         private maxTries: number,
-        private gameMap: GameMap
+        private gameMap: GameMapImpl
     ) {
         this.fwdOpenSet = new PriorityQueue<{ tile: TileRef; fScore: number; }>(
             (a, b) => a.fScore - b.fScore

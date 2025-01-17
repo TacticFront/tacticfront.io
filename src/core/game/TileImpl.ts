@@ -3,7 +3,7 @@ import { TerrainMapImpl, TerrainTileImpl } from "./TerrainMapLoader";
 import { GameImpl } from "./GameImpl";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
-import { GameMap, TileRef } from "./GameMap";
+import { GameMapImpl, TileRef } from "./GameMap";
 
 
 export class TileImpl implements MutableTile {
@@ -102,14 +102,14 @@ export class TileImpl implements MutableTile {
     }
 
     neighbors(): Tile[] {
-        return this.gs.neighbors(this)
+        return this.gs.neighbors(this.ref()).map(n => this.gs.fromRef(n))
     }
 
 }
 
 export class TerrainRef implements TerrainTile {
 
-    constructor(private map: GameMap, private ref: TileRef) { }
+    constructor(private map: GameMapImpl, private ref: TileRef) { }
 
     isLand(): boolean {
         return this.map.isLand(this.ref)
