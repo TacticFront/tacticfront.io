@@ -230,7 +230,7 @@ export class BuildMenu extends LitElement {
     }
 
     showMenu(player: PlayerView, clickedCell: Cell) {
-        player.actions(this.game.tile(clickedCell)).then(actions => {
+        player.actions(this.game.ref(clickedCell.x, clickedCell.y)).then(actions => {
             console.log(`got actions: ${JSON.stringify(actions)}`)
             this.playerActions = actions
             this.myPlayer = player;

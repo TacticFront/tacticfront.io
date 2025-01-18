@@ -1,7 +1,6 @@
 import { EventBus } from "../../../../core/EventBus";
-import { AllPlayers, Cell, Game, Player, PlayerActions, Tile, UnitType } from "../../../../core/game/Game";
+import { AllPlayers, Cell, Game, Player, PlayerActions, } from "../../../../core/game/Game";
 import { ClientID } from "../../../../core/Schemas";
-import { and, bfs, dist, manhattanDist, manhattanDistWrapped, sourceDstOceanShore, targetTransportTile } from "../../../../core/Util";
 import { ContextMenuEvent, MouseUpEvent, ShowBuildMenuEvent } from "../../../InputHandler";
 import { SendAllianceRequestIntentEvent, SendAttackIntentEvent, SendBoatAttackIntentEvent, SendBreakAllianceIntentEvent, SendDonateIntentEvent, SendEmojiIntentEvent, SendSpawnIntentEvent, SendTargetPlayerIntentEvent } from "../../../Transport";
 import { TransformHandler } from "../../TransformHandler";
@@ -21,6 +20,7 @@ import { UIState } from "../../UIState";
 import { BuildMenu } from "./BuildMenu";
 import { consolex } from "../../../../core/Consolex";
 import { GameView, PlayerView } from "../../../../core/GameView";
+import { TileRef } from "../../../../core/game/GameMap";
 
 
 enum Slot {
@@ -54,7 +54,7 @@ export class RadialMenu implements Layer {
 
     constructor(
         private eventBus: EventBus,
-        private game: GameView,
+        private g: GameView,
         private transformHandler: TransformHandler,
         private clientID: ClientID,
         private emojiTable: EmojiTable,
@@ -70,10 +70,10 @@ export class RadialMenu implements Layer {
             if (clickedCell == null) {
                 return
             }
-            if (!this.game.isOnMap(clickedCell)) {
+            if (!this.g.isValidCoord(clickedCell.x, clickedCell.y)) {
                 return
             }
-            const p = this.game.playerByClientID(this.clientID)
+            const p = this.g.playerByClientID(this.clientID)
             if (p == null) {
                 return
             }
@@ -233,19 +233,19 @@ export class RadialMenu implements Layer {
         }
 
         this.clickedCell = this.transformHandler.screenToWorldCoordinates(event.x, event.y)
-        if (!this.game.isOnMap(this.clickedCell)) {
+        if (!this.g.isValidCoord(this.clickedCell.x, this.clickedCell.y)) {
             return
         }
-        const tile = this.game.tile(this.clickedCell)
+        const tile = this.g.ref(this.clickedCell.x, this.clickedCell.y)
 
-        if (this.game.inSpawnPhase()) {
-            if (tile.terrain().isLand() && !tile.hasOwner()) {
+        if (this.g.inSpawnPhase()) {
+            if (this.g.isLand(tile) && !this.g.hasOwner(tile)) {
                 this.enableCenterButton(true)
             }
             return
         }
 
-        const myPlayer = this.game.playerViews().find(p => p.clientID() == this.clientID)
+        const myPlayer = this.g.playerViews().find(p => p.clientID() == this.clientID)
         if (!myPlayer) {
             consolex.warn('my player not found')
             return
@@ -255,13 +255,13 @@ export class RadialMenu implements Layer {
         })
     }
 
-    private handlePlayerActions(myPlayer: PlayerView, actions: PlayerActions, tile: Tile) {
+    private handlePlayerActions(myPlayer: PlayerView, actions: PlayerActions, tile: TileRef) {
         this.activateMenuElement(Slot.Build, "#ebe250", buildIcon, () => {
             this.buildMenu.showMenu(myPlayer, this.clickedCell)
         })
         if (actions.interaction?.canSendEmoji) {
             this.activateMenuElement(Slot.Emoji, "#00a6a4", emojiIcon, () => {
-                const target = tile.owner() == myPlayer ? AllPlayers : (tile.owner() as Player)
+                const target = this.g.owner(tile) == myPlayer ? AllPlayers : (this.g.owner(tile) as Player)
                 this.emojiTable.onEmojiClicked = (emoji: string) => {
                     this.emojiTable.hideTable()
                     this.eventBus.emit(new SendEmojiIntentEvent(target, emoji))
@@ -274,7 +274,7 @@ export class RadialMenu implements Layer {
             this.activateMenuElement(Slot.Boat, "#3f6ab1", boatIcon, () => {
                 this.eventBus.emit(
                     new SendBoatAttackIntentEvent(
-                        tile.owner().id(),
+                        this.g.owner(tile).id(),
                         this.clickedCell,
                         this.uiState.attackRatio * myPlayer.troops()
                     )
@@ -285,10 +285,10 @@ export class RadialMenu implements Layer {
             this.enableCenterButton(true)
         }
 
-        if (!tile.hasOwner()) {
+        if (!this.g.hasOwner(tile)) {
             return
         }
-        const other = tile.owner() as Player
+        const other = this.g.owner(tile) as Player
 
 
         if (actions?.interaction.canDonate) {
@@ -351,13 +351,13 @@ export class RadialMenu implements Layer {
             return
         }
         consolex.log('Center button clicked');
-        const clicked = this.game.tile(this.clickedCell)
-        if (this.game.inSpawnPhase()) {
+        const clicked = this.g.ref(this.clickedCell.x, this.clickedCell.y)
+        if (this.g.inSpawnPhase()) {
             this.eventBus.emit(new SendSpawnIntentEvent(this.clickedCell))
         } else {
-            const myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
-            if (myPlayer != null && clicked.owner() != myPlayer) {
-                this.eventBus.emit(new SendAttackIntentEvent(clicked.owner().id(), this.uiState.attackRatio * myPlayer.troops()))
+            const myPlayer = this.g.players().find(p => p.clientID() == this.clientID)
+            if (myPlayer != null && this.g.owner(clicked) != myPlayer) {
+                this.eventBus.emit(new SendAttackIntentEvent(this.g.owner(clicked).id(), this.uiState.attackRatio * myPlayer.troops()))
             }
         }
         this.hideRadialMenu();

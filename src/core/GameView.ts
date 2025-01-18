@@ -1,70 +1,10 @@
-import { GameUpdates, GameUpdateType, MapPos, MessageType, NameViewData, Player, PlayerActions, PlayerProfile, PlayerUpdate, Tile, TileUpdate, Unit, UnitUpdate } from './game/Game';
+import { GameUpdates, GameUpdateType, MapPos, MessageType, NameViewData, Player, PlayerActions, PlayerProfile, PlayerUpdate, Unit, UnitUpdate } from './game/Game';
 import { Config } from "./configuration/Config";
-import { Alliance, AllianceRequest, AllPlayers, Cell, DefenseBonus, EmojiMessage, Execution, ExecutionView, Game, Gold, MutableTile, Nation, PlayerID, PlayerInfo, PlayerType, Relation, TerrainMap, TerrainTile, TerrainType, TerraNullius, Tick, UnitInfo, UnitType } from "./game/Game";
+import { Alliance, AllianceRequest, AllPlayers, Cell, DefenseBonus, EmojiMessage, Execution, ExecutionView, Game, Gold, Nation, PlayerID, PlayerInfo, PlayerType, Relation, TerrainType, TerraNullius, Tick, UnitInfo, UnitType } from "./game/Game";
 import { ClientID } from "./Schemas";
 import { TerraNulliusImpl } from './game/TerraNulliusImpl';
 import { WorkerClient } from './worker/WorkerClient';
-import { GameMapImpl, TileRef } from './game/GameMap';
-
-
-export class TileView {
-
-    private _neighbors: TileView[] = []
-
-    constructor(private game: GameView, public data: TileUpdate, private _terrain: TerrainTile) { }
-
-    ref(): TileRef {
-        if (!this.data) { return 0 }
-
-        return this.data.pos.x * this.game.width() + this.data.pos.y
-    }
-    type(): TerrainType {
-        return this._terrain.type()
-    }
-    owner(): PlayerView | TerraNullius {
-        if (!this.hasOwner()) {
-            return new TerraNulliusImpl()
-        }
-        return this.game.playerBySmallID(this.data?.ownerID)
-    }
-    hasOwner(): boolean {
-        return this.data?.ownerID !== undefined && this.data.ownerID !== 0;
-    }
-    isBorder(): boolean {
-        for (const n of this.neighbors()) {
-            if (n.data?.ownerID != this.data?.ownerID) {
-                return true
-            }
-        }
-        return false
-    }
-    isBorderUpdated(): boolean {
-        return this.data.isBorder
-    }
-    cell(): Cell {
-        return this._terrain.cell()
-    }
-    hasFallout(): boolean {
-        return this.data?.hasFallout
-    }
-    terrain(): TerrainTile {
-        return this._terrain
-    }
-
-    neighbors(): TileView[] {
-        if (this._neighbors.length == 0) {
-            this._neighbors = this._terrain.neighbors().map(t => this.game.tile(t.cell()))
-        }
-        return this._neighbors
-    }
-
-    hasDefenseBonus(): boolean {
-        return this.data?.hasDefenseBonus ?? false
-    }
-    cost(): number {
-        return this._terrain.cost()
-    }
-}
+import { GameMap, GameMapImpl, TileRef, TileUpdate } from './game/GameMap';
 
 export class UnitView implements Unit {
     public _wasUpdated = true
@@ -78,15 +18,15 @@ export class UnitView implements Unit {
         return this._wasUpdated
     }
 
-    lastTiles(): Tile[] {
-        return this.lastPos.map(pos => this.gameView.tile(new Cell(pos.x, pos.y)))
+    lastTiles(): TileRef[] {
+        return this.lastPos.map(pos => this.gameView.ref(pos.x, pos.y))
     }
 
-    lastTile(): Tile {
+    lastTile(): TileRef {
         if (this.lastPos.length == 0) {
-            return this.gameView.tile(new Cell(this.data.pos.x, this.data.pos.y))
+            return this.gameView.ref(this.data.pos.x, this.data.pos.y)
         }
-        return this.gameView.tile(new Cell(this.lastPos[0].x, this.lastPos[0].y))
+        return this.gameView.ref(this.lastPos[0].x, this.lastPos[0].y)
     }
 
     update(data: UnitUpdate) {
@@ -105,8 +45,8 @@ export class UnitView implements Unit {
     troops(): number {
         return this.data.troops
     }
-    tile(): Tile {
-        return this.gameView.tile(new Cell(this.data.pos.x, this.data.pos.y))
+    tile(): TileRef {
+        return this.gameView.ref(this.data.pos.x, this.data.pos.y)
     }
     owner(): PlayerView {
         return this.gameView.playerBySmallID(this.data.ownerID)
@@ -125,12 +65,12 @@ export class UnitView implements Unit {
 export class PlayerView implements Player {
 
     constructor(private game: GameView, public data: PlayerUpdate, public nameData: NameViewData) { }
-    borderTiles(): ReadonlySet<Tile> {
+    borderTiles(): ReadonlySet<TileRef> {
         throw new Error('Method not implemented.');
     }
 
-    async actions(tile: Tile): Promise<PlayerActions> {
-        return this.game.worker.playerInteraction(this.id(), tile)
+    async actions(tile: TileRef): Promise<PlayerActions> {
+        return this.game.worker.playerInteraction(this.id(), this.game.x(tile), this.game.y(tile))
     }
 
     nameLocation(): NameViewData {
@@ -192,9 +132,6 @@ export class PlayerView implements Player {
     allianceWith(other: Player): Alliance | null {
         return null
     }
-    borderTileRefs(): ReadonlySet<TileRef> {
-        return new Set()
-    }
     units(...types: UnitType[]): Unit[] {
         return []
     }
@@ -246,7 +183,7 @@ export class PlayerView implements Player {
     canDonate(recipient: Player): boolean {
         return false
     }
-    canBuild(type: UnitType, targetTile: Tile): Tile | false {
+    canBuild(type: UnitType, targetTile: TileRef): TileRef | false {
         return false
     }
     info(): PlayerInfo {
@@ -257,31 +194,21 @@ export class PlayerView implements Player {
 export interface GameUpdateViewData {
     tick: number
     updates: GameUpdates
-    packedTileUpdates: Uint16Array[]
+    packedTileUpdates: BigUint64Array
     playerNameViewData: Record<number, NameViewData>
 }
 
-export class GameView {
+export class GameView implements GameMap {
     private lastUpdate: GameUpdateViewData
-    private tiles: TileView[][] = []
     private smallIDToID = new Map<number, PlayerID>()
     private _players = new Map<PlayerID, PlayerView>()
     private _units = new Map<number, UnitView>()
-    private updatedTiles: TileView[] = []
+    private updatedTiles: TileRef[] = []
 
-    constructor(public worker: WorkerClient, private _config: Config, private _terrainMap: TerrainMap) {
-        // Initialize the 2D array
-        this.tiles = Array(_terrainMap.width()).fill(null).map(() => Array(_terrainMap.height()).fill(null));
-
-        // Fill the array with new TileView objects
-        for (let x = 0; x < _terrainMap.width(); x++) {
-            for (let y = 0; y < _terrainMap.height(); y++) {
-                this.tiles[x][y] = new TileView(this, null, _terrainMap.terrain(new Cell(x, y)));
-            }
-        }
+    constructor(public worker: WorkerClient, private _config: Config, private _map: GameMap) {
         this.lastUpdate = {
             tick: 0,
-            packedTileUpdates: [],
+            packedTileUpdates: new BigUint64Array([]),
             // TODO: make this empty map instead of null?
             updates: null,
             playerNameViewData: {},
@@ -295,12 +222,9 @@ export class GameView {
     public update(gu: GameUpdateViewData) {
         this.lastUpdate = gu
 
-        const updated = new Set<MapPos>()
-        this.lastUpdate.packedTileUpdates.map(tu => unpackTileData(tu)).forEach(tu => {
-            this.tiles[tu.pos.x][tu.pos.y].data = tu
-            updated.add(tu.pos)
+        this.lastUpdate.packedTileUpdates.forEach(tu => {
+            this.updatedTiles.push(this.updateTile(tu))
         })
-        this.updatedTiles = Array.from(updated).map(pos => this.tiles[pos.x][pos.y])
 
         gu.updates[GameUpdateType.Player].forEach((pu) => {
             this.smallIDToID.set(pu.smallID, pu.id);
@@ -324,7 +248,7 @@ export class GameView {
         })
     }
 
-    recentlyUpdatedTiles(): TileView[] {
+    recentlyUpdatedTiles(): TileRef[] {
         return this.updatedTiles
     }
 
@@ -359,26 +283,11 @@ export class GameView {
     players(): Player[] {
         return []
     }
-    tile(cell: Cell): TileView {
-        return this.tiles[cell.x][cell.y]
-    }
-    isOnMap(cell: Cell): boolean {
-        return this._terrainMap.isOnMap(cell)
-    }
-    width(): number {
-        return this._terrainMap.width()
-    }
-    height(): number {
-        return this._terrainMap.height()
+
+    owner(tile: TileRef): PlayerView {
+        return this.playerBySmallID(this.ownerID(tile))
     }
 
-    forEachTile(fn: (tile: Tile) => void): void {
-        for (let x = 0; x < this._terrainMap.width(); x++) {
-            for (let y = 0; y < this._terrainMap.height(); y++) {
-                fn(this.tile(new Cell(x, y)))
-            }
-        }
-    }
     ticks(): Tick {
         return this.lastUpdate.tick
     }
@@ -394,35 +303,37 @@ export class GameView {
     unitInfo(type: UnitType): UnitInfo {
         return this._config.unitInfo(type)
     }
-    terrainMap(): TerrainMap {
-        return this._terrainMap
-    }
-}
 
-export function packTileData(tile: TileUpdate): Uint16Array {
-    const packed = new Uint16Array(4);
-    packed[0] = tile.pos.x;
-    packed[1] = tile.pos.y;
-    packed[2] = tile.ownerID;
-
-    // Pack booleans into bits
-    packed[3] = (tile.hasFallout ? 1 : 0) |
-        (tile.hasDefenseBonus ? 2 : 0) |
-        (tile.isBorder ? 4 : 0)
-
-    return packed;
-}
-
-export function unpackTileData(packed: Uint16Array): TileUpdate {
-    return {
-        type: GameUpdateType.Tile,
-        pos: {
-            x: packed[0],
-            y: packed[1],
-        },
-        ownerID: packed[2],
-        hasFallout: !!(packed[3] & 1),
-        hasDefenseBonus: !!(packed[3] & 2),
-        isBorder: !!(packed[3] & 4),
-    };
+    ref(x: number, y: number): TileRef { return this._map.ref(x, y) }
+    x(ref: TileRef): number { return this._map.x(ref) }
+    y(ref: TileRef): number { return this._map.y(ref) }
+    cell(ref: TileRef): Cell { return this._map.cell(ref) }
+    width(): number { return this._map.width() }
+    height(): number { return this._map.height() }
+    numLandTiles(): number { return this._map.numLandTiles() }
+    isValidCoord(x: number, y: number): boolean { return this._map.isValidCoord(x, y) }
+    isLand(ref: TileRef): boolean { return this._map.isLake(ref) }
+    isOceanShore(ref: TileRef): boolean { return this._map.isOceanShore(ref) }
+    isOcean(ref: TileRef): boolean { return this._map.isOcean(ref) }
+    isShoreline(ref: TileRef): boolean { return this._map.isShoreline(ref) }
+    magnitude(ref: TileRef): number { return this._map.magnitude(ref) }
+    ownerID(ref: TileRef): number { return this._map.ownerID(ref) }
+    hasOwner(ref: TileRef): boolean { return this._map.hasOwner(ref) }
+    setOwnerID(ref: TileRef, playerId: number): void { return this._map.setOwnerID(ref, playerId) }
+    hasFallout(ref: TileRef): boolean { return this._map.hasFallout(ref) }
+    setFallout(ref: TileRef, value: boolean): void { return this._map.setFallout(ref, value) }
+    isBorder(ref: TileRef): boolean { return this._map.isBorder(ref) }
+    setBorder(ref: TileRef, value: boolean): void { return this._map.setBorder(ref, value) }
+    neighbors(ref: TileRef): TileRef[] { return this._map.neighbors(ref) }
+    isWater(ref: TileRef): boolean { return this._map.isWater(ref) }
+    isLake(ref: TileRef): boolean { return this._map.isLake(ref) }
+    isShore(ref: TileRef): boolean { return this._map.isShore(ref) }
+    cost(ref: TileRef): number { return this._map.cost(ref) }
+    terrainType(ref: TileRef): TerrainType { return this._map.terrainType(ref) }
+    forEachTile(fn: (tile: TileRef) => void): void { return this._map.forEachTile(fn) }
+    manhattanDist(c1: TileRef, c2: TileRef): number { return this._map.manhattanDist(c1, c2) }
+    euclideanDist(c1: TileRef, c2: TileRef): number { return this._map.euclideanDist(c1, c2) }
+    bfs(tile: TileRef, filter: (gm: GameMap, tile: TileRef) => boolean): Set<TileRef> { return this._map.bfs(tile, filter) }
+    toTileUpdate(tile: TileRef): bigint { return this._map.toTileUpdate(tile) }
+    updateTile(tu: TileUpdate): TileRef { return this._map.updateTile(tu) }
 }

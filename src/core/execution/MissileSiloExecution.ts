@@ -1,5 +1,6 @@
 import { consolex } from "../Consolex";
-import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, Tile, Unit, UnitType } from "../game/Game";
+import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, UnitType } from "../game/Game";
+import { TileRef } from "../game/GameMap";
 
 export class MissileSiloExecution implements Execution {
 
@@ -10,7 +11,7 @@ export class MissileSiloExecution implements Execution {
 
     constructor(
         private _owner: PlayerID,
-        private cell: Cell
+        private tile: TileRef
     ) { }
 
 
@@ -21,13 +22,12 @@ export class MissileSiloExecution implements Execution {
 
     tick(ticks: number): void {
         if (this.silo == null) {
-            const tile = this.mg.tile(this.cell)
-            if (!this.player.canBuild(UnitType.MissileSilo, tile)) {
-                consolex.warn(`player ${this.player} cannot build port at ${this.cell}`)
+            if (!this.player.canBuild(UnitType.MissileSilo, this.tile)) {
+                consolex.warn(`player ${this.player} cannot build port at ${this.tile}`)
                 this.active = false
                 return
             }
-            this.silo = this.player.buildUnit(UnitType.MissileSilo, 0, tile)
+            this.silo = this.player.buildUnit(UnitType.MissileSilo, 0, this.tile)
         }
     }
 

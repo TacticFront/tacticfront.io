@@ -1,4 +1,4 @@
-import { Difficulty, GameType, Gold, Player, PlayerID, PlayerInfo, TerraNullius, Tick, Tile, Unit, UnitInfo, UnitType } from "../game/Game";
+import { Difficulty, GameType, Gold, Player, PlayerID, PlayerInfo, TerraNullius, Tick, UnitInfo, UnitType } from "../game/Game";
 import { Colord, colord } from "colord";
 import { preprodConfig } from "./PreprodConfig";
 import { prodConfig } from "./ProdConfig";
@@ -6,6 +6,7 @@ import { consolex } from "../Consolex";
 import { GameConfig } from "../Schemas";
 import { DefaultConfig } from "./DefaultConfig";
 import { DevConfig, DevServerConfig } from "./DevConfig";
+import { GameMap, TileRef } from "../game/GameMap";
 
 export enum GameEnv {
 	Dev,
@@ -61,7 +62,7 @@ export interface Config {
 	goldAdditionRate(player: Player): number
 	troopAdjustmentRate(player: Player): number
 	attackTilesPerTick(attckTroops: number, attacker: Player, defender: Player | TerraNullius, numAdjacentTilesWithEnemy: number): number
-	attackLogic(attackTroops: number, attacker: Player, defender: Player | TerraNullius, tileToConquer: Tile): {
+	attackLogic(gm: GameMap, attackTroops: number, attacker: Player, defender: Player | TerraNullius, tileToConquer: TileRef): {
 		attackerTroopLoss: number,
 		defenderTroopLoss: number,
 		tilesPerTickUsed: number
@@ -81,7 +82,7 @@ export interface Config {
 	donateCooldown(): Tick
 	defaultDonationAmount(sender: Player): number
 	unitInfo(type: UnitType): UnitInfo
-	tradeShipGold(src: Unit, dst: Unit): Gold
+	tradeShipGold(dist: number): Gold
 	tradeShipSpawnRate(): number
 	defensePostRange(): number
 	defensePostDefenseBonus(): number
@@ -94,7 +95,7 @@ export interface Theme {
 	territoryColor(playerInfo: PlayerInfo): Colord;
 	borderColor(playerInfo: PlayerInfo): Colord;
 	defendedBorderColor(playerInfo: PlayerInfo): Colord;
-	terrainColor(tile: Tile): Colord;
+	terrainColor(gm: GameMap, tile: TileRef): Colord;
 	backgroundColor(): Colord;
 	falloutColor(): Colord
 	font(): string;

@@ -1,9 +1,10 @@
 import { Colord, colord, random } from "colord";
-import { PlayerID, PlayerInfo, TerrainType, Tile } from "../game/Game";
+import { Game, PlayerID, PlayerInfo, TerrainType } from "../game/Game";
 import { Theme } from "./Config";
 import { time } from "console";
 import { PseudoRandom } from "../PseudoRandom";
 import { simpleHash } from "../Util";
+import { GameMap, TileRef } from "../game/GameMap";
 
 export const pastelTheme = new class implements Theme {
 
@@ -154,19 +155,19 @@ export const pastelTheme = new class implements Theme {
         })
     }
 
-    terrainColor(tile: Tile): Colord {
-        let mag = tile.terrain().magnitude()
-        if (tile.terrain().isShore()) {
+    terrainColor(gm: GameMap, tile: TileRef): Colord {
+        let mag = gm.magnitude(tile)
+        if (gm.isShore(tile)) {
             return this.shore
         }
-        switch (tile.terrain().type()) {
+        switch (gm.terrainType(tile)) {
             case TerrainType.Ocean:
             case TerrainType.Lake:
                 const w = this.water.rgba
-                if (tile.terrain().isShorelineWater()) {
+                if (gm.isShoreline(tile) && gm.isWater(tile)) {
                     return this.shorelineWater
                 }
-                if (tile.terrain().magnitude() < 7) {
+                if (gm.magnitude(tile) < 7) {
                     return colord({
                         r: Math.max(w.r - 7 + mag, 0),
                         g: Math.max(w.g - 7 + mag, 0),

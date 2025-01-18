@@ -1,6 +1,7 @@
 import { Cell, TerrainType } from "./Game";
 
 export type TileRef = number;
+export type TileUpdate = bigint
 
 export interface GameMap {
     ref(x: number, y: number): TileRef
@@ -29,6 +30,20 @@ export interface GameMap {
     isBorder(ref: TileRef): boolean
     setBorder(ref: TileRef, value: boolean): void
     neighbors(ref: TileRef): TileRef[]
+    isWater(ref: TileRef): boolean
+    isLake(ref: TileRef): boolean
+    isShore(ref: TileRef): boolean
+    cost(ref: TileRef): number
+    terrainType(ref: TileRef): TerrainType
+    forEachTile(fn: (tile: TileRef) => void): void
+
+
+    manhattanDist(c1: TileRef, c2: TileRef): number
+    euclideanDist(c1: TileRef, c2: TileRef): number
+    bfs(tile: TileRef, filter: (gm: GameMap, tile: TileRef) => boolean): Set<TileRef>
+
+    toTileUpdate(tile: TileRef): bigint
+    updateTile(tu: TileUpdate): TileRef
 }
 
 export class GameMapImpl implements GameMap {
@@ -180,7 +195,7 @@ export class GameMapImpl implements GameMap {
         return this.magnitude(ref) < 10 ? 2 : 1;
     }
 
-    getTerrainType(ref: TileRef): TerrainType {
+    terrainType(ref: TileRef): TerrainType {
         if (this.isLand(ref)) {
             const magnitude = this.magnitude(ref);
             if (magnitude < 10) return TerrainType.Plains;
@@ -205,4 +220,64 @@ export class GameMapImpl implements GameMap {
 
         return neighbors;
     }
+
+    forEachTile(fn: (tile: TileRef) => void): void {
+        for (let x = 0; x < this.width_; x++) {
+            for (let y = 0; y < this.height_; y++) {
+                fn(this.ref(x, y))
+            }
+        }
+    }
+
+    manhattanDist(c1: TileRef, c2: TileRef): number {
+        return Math.abs(this.x(c1) - this.x(c2)) + Math.abs(this.y(c1) - this.y(c2));
+    }
+    euclideanDist(c1: TileRef, c2: TileRef): number {
+        return Math.sqrt(Math.pow(this.x(c1) - this.x(c2), 2) + Math.pow(this.y(c1) - this.y(c2), 2));
+    }
+    bfs(tile: TileRef, filter: (gm: GameMap, tile: TileRef) => boolean): Set<TileRef> {
+        const seen = new Set<TileRef>()
+        const q: TileRef[] = []
+        q.push(tile)
+        while (q.length > 0) {
+            const curr = q.pop()
+            seen.add(curr)
+            for (const n of this.neighbors(curr)) {
+                if (!seen.has(n) && filter(this, n)) {
+                    q.push(n)
+                }
+            }
+        }
+        return seen
+    }
+
+    toTileUpdate(tile: TileRef): bigint {
+        // Pack the tile reference and state into a bigint
+        // Format: [32 bits for tile reference][16 bits for state]
+        return (BigInt(tile) << 16n) | BigInt(this.state[tile]);
+    }
+
+    updateTile(tu: TileUpdate): TileRef {
+        // Extract tile reference and state from the TileUpdate
+        // Last 16 bits are state, rest is tile reference
+        const tileRef = Number(tu >> 16n);
+        const state = Number(tu & 0xFFFFn);
+
+        // Update the state for this tile
+        this.state[tileRef] = state;
+
+        return tileRef;
+    }
+}
+
+export function euclDistFN(root: TileRef, dist: number): (gm: GameMap, tile: TileRef) => boolean {
+    return (gm: GameMap, n: TileRef) => gm.euclideanDist(root, n) <= dist;
+}
+
+export function manhattanDistFN(root: TileRef, dist: number): (gm: GameMap, tile: TileRef) => boolean {
+    return (gm: GameMap, n: TileRef) => gm.manhattanDist(root, n) <= dist;
+}
+
+export function andFN(x: (gm: GameMap, tile: TileRef) => boolean, y: (gm: GameMap, tile: TileRef) => boolean): (gm: GameMap, tile: TileRef) => boolean {
+    return (gm: GameMap, tile: TileRef) => x(gm, tile) && y(gm, tile)
 }

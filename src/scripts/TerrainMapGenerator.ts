@@ -2,7 +2,6 @@ import { decodePNGFromStream } from 'pureimage'; import path from 'path';
 import fs from 'fs/promises';
 import { createReadStream } from 'fs';
 import { fileURLToPath } from 'url';
-import { TerrainTile } from '../core/game/Game';
 
 
 const __filename = fileURLToPath(import.meta.url);

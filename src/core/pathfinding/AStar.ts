@@ -1,8 +1,8 @@
-import { Cell, TerrainType, Tile } from "../game/Game";
+import { TileRef } from "../game/GameMap";
 
 export interface AStar {
     compute(): PathFindResultType
-    reconstructPath(): Cell[]
+    reconstructPath(): TileRef[]
 }
 
 export enum PathFindResultType {
@@ -12,12 +12,12 @@ export enum PathFindResultType {
     PathNotFound
 } export type TileResult = {
     type: PathFindResultType.NextTile;
-    tile: Tile;
+    tile: TileRef;
 } | {
     type: PathFindResultType.Pending;
 } | {
     type: PathFindResultType.Completed;
-    tile: Tile;
+    tile: TileRef;
 } | {
     type: PathFindResultType.PathNotFound;
 };

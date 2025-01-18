@@ -1,9 +1,9 @@
 import { Config } from "../configuration/Config"
-import { Execution, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, Tile, UnitType } from "../game/Game"
-import { bfs, calculateBoundingBox, getMode, inscribed, simpleHash } from "../Util"
+import { Execution, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, UnitType } from "../game/Game"
+import { calculateBoundingBox, getMode, inscribed, simpleHash } from "../Util"
 import { GameImpl } from "../game/GameImpl"
 import { consolex } from "../Consolex"
-import { TileRef } from "../game/GameMap"
+import { GameMap, TileRef } from "../game/GameMap"
 
 export class PlayerExecution implements Execution {
 
@@ -37,7 +37,7 @@ export class PlayerExecution implements Execution {
                 return
             }
             u.modifyHealth(1)
-            const tileOwner = u.tile().owner()
+            const tileOwner = this.mg.owner(u.tile())
             if (u.info().territoryBound) {
                 if (tileOwner.isPlayer()) {
                     if (tileOwner != this.player) {
@@ -80,8 +80,7 @@ export class PlayerExecution implements Execution {
             if (this.player.lastTileChange() > this.lastCalc) {
                 this.lastCalc = ticks
                 const start = performance.now()
-                // TODO
-                // this.removeClusters()
+                this.removeClusters()
                 const end = performance.now()
                 if (end - start > 1000) {
                     consolex.log(`player ${this.player.name()}, took ${end - start}ms`)
@@ -143,8 +142,8 @@ export class PlayerExecution implements Execution {
         if (enemyTiles.size == 0) {
             return false
         }
-        const enemyBox = calculateBoundingBox(new Set(Array.from(enemyTiles).map(tr => this.mg.fromRef(tr))))
-        const clusterBox = calculateBoundingBox(new Set(Array.from(cluster).map(tr => this.mg.fromRef(tr))))
+        const enemyBox = calculateBoundingBox(this.mg, enemyTiles)
+        const clusterBox = calculateBoundingBox(this.mg, cluster)
         return inscribed(enemyBox, clusterBox)
     }
 
@@ -161,8 +160,8 @@ export class PlayerExecution implements Execution {
             return
         }
         const firstTile = arr[0]
-        const filter = (n: Tile): boolean => n.owner().smallID() == this.mg.ownerID(firstTile)
-        const tiles = bfs(this.mg.fromRef(firstTile), filter)
+        const filter = (_, t: TileRef): boolean => this.mg.ownerID(t) == this.mg.ownerID(firstTile)
+        const tiles = this.mg.bfs(firstTile, filter)
 
         const modePlayer = this.mg.playerBySmallID(mode)
         if (!modePlayer.isPlayer()) {
@@ -175,7 +174,7 @@ export class PlayerExecution implements Execution {
 
     private calculateClusters(): Set<TileRef>[] {
         const seen = new Set<TileRef>()
-        const border = this.player.borderTileRefs()
+        const border = this.player.borderTiles()
         const clusters: Set<TileRef>[] = []
         for (const tile of border) {
             if (seen.has(tile)) {
@@ -191,12 +190,12 @@ export class PlayerExecution implements Execution {
                 const curr = queue.shift()
                 cluster.add(curr)
 
-                const neighbors = (this.mg as GameImpl).neighborsWithDiag(this.mg.fromRef(curr))
+                const neighbors = (this.mg as GameImpl).neighborsWithDiag(curr)
                 for (const neighbor of neighbors) {
-                    if (neighbor.isBorder() && border.has(neighbor.ref())) {
-                        if (!seen.has(neighbor.ref())) {
-                            queue.push(neighbor.ref())
-                            seen.add(neighbor.ref())
+                    if (this.mg.isBorder(neighbor) && border.has(neighbor)) {
+                        if (!seen.has(neighbor)) {
+                            queue.push(neighbor)
+                            seen.add(neighbor)
                         }
                     }
                 }

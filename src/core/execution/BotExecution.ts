@@ -55,8 +55,8 @@ export class BotExecution implements Execution {
 
         if (this.neighborsTerraNullius) {
             for (const b of this.bot.borderTiles()) {
-                for (const n of b.neighbors()) {
-                    if (n.owner() == this.mg.terraNullius() && n.terrain().isLand()) {
+                for (const n of this.mg.neighbors(b)) {
+                    if (!this.mg.hasOwner(n) && this.mg.isLake(n)) {
                         this.sendAttack(this.mg.terraNullius())
                         return
                     }
@@ -65,14 +65,16 @@ export class BotExecution implements Execution {
             this.neighborsTerraNullius = false
         }
 
-        const border = Array.from(this.bot.borderTiles()).flatMap(t => t.neighbors()).filter(t => t.hasOwner() && t.owner() != this.bot)
+        const border = Array.from(this.bot.borderTiles())
+            .flatMap(t => this.mg.neighbors(t))
+            .filter(t => this.mg.hasOwner(t) && this.mg.owner(t) != this.bot)
 
         if (border.length == 0) {
             return
         }
 
         const toAttack = border[this.random.nextInt(0, border.length)]
-        const owner = toAttack.owner()
+        const owner = this.mg.owner(toAttack)
 
         if (owner.isPlayer()) {
             if (this.bot.isAlliedWith(owner)) {

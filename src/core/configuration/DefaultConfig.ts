@@ -1,6 +1,7 @@
-import { Difficulty, GameType, Gold, MutableTile, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tick, Tile, Unit, UnitInfo, UnitType } from "../game/Game";
+import { Difficulty, GameType, Gold, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tick, UnitInfo, UnitType } from "../game/Game";
+import { GameMap, TileRef } from "../game/GameMap";
 import { GameConfig } from "../Schemas";
-import { assertNever, distSort, manhattanDist, simpleHash, within } from "../Util";
+import { assertNever, within } from "../Util";
 import { Config, ServerConfig, Theme } from "./Config";
 import { pastelTheme } from "./PastelTheme";
 
@@ -62,8 +63,7 @@ export class DefaultConfig implements Config {
     spawnNPCs(): boolean {
         return true
     }
-    tradeShipGold(src: Unit, dst: Unit): Gold {
-        const dist = manhattanDist(src.tile().cell(), dst.tile().cell())
+    tradeShipGold(dist: number): Gold {
         return 10000 + 100 * Math.pow(dist, 1.1)
     }
     tradeShipSpawnRate(): number {
@@ -186,10 +186,10 @@ export class DefaultConfig implements Config {
     }
     theme(): Theme { return pastelTheme; }
 
-    attackLogic(attackTroops: number, attacker: Player, defender: Player | TerraNullius, tileToConquer: MutableTile): { attackerTroopLoss: number; defenderTroopLoss: number; tilesPerTickUsed: number } {
+    attackLogic(gm: GameMap, attackTroops: number, attacker: Player, defender: Player | TerraNullius, tileToConquer: TileRef): { attackerTroopLoss: number; defenderTroopLoss: number; tilesPerTickUsed: number } {
         let mag = 0
         let speed = 0
-        const type = tileToConquer.terrain().type()
+        const type = gm.terrainType(tileToConquer)
         switch (type) {
             case TerrainType.Plains:
                 mag = 80
@@ -209,7 +209,7 @@ export class DefaultConfig implements Config {
         // TODO
         // mag *= tileToConquer.defenseBonus(attacker)
         // speed *= tileToConquer.defenseBonus(attacker)
-        if (tileToConquer.hasFallout()) {
+        if (gm.hasFallout(tileToConquer)) {
             mag *= this.falloutDefenseModifier()
             speed *= this.falloutDefenseModifier()
         }

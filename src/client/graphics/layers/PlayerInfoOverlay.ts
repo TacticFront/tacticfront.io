@@ -6,10 +6,25 @@ import { ClientID } from '../../../core/Schemas';
 import { EventBus } from '../../../core/EventBus';
 import { TransformHandler } from '../TransformHandler';
 import { MouseMoveEvent } from '../../InputHandler';
-import { euclideanDist, distSortUnit } from '../../../core/Util';
-import { renderNumber, renderTroops } from '../../Utils';
-import { PauseGameEvent } from '../../Transport';
 import { GameView, PlayerView } from '../../../core/GameView';
+import { TileRef } from '../../../core/game/GameMap';
+import { PauseGameEvent } from '../../Transport';
+
+function euclideanDistWorld(coord: { x: number, y: number }, tileRef: TileRef, game: GameView): number {
+    const x = game.x(tileRef);
+    const y = game.y(tileRef);
+    const dx = coord.x - x;
+    const dy = coord.y - y;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+function distSortUnitWorld(coord: { x: number, y: number }, game: GameView) {
+    return (a: Unit, b: Unit) => {
+        const distA = euclideanDistWorld(coord, a.tile(), game);
+        const distB = euclideanDistWorld(coord, b.tile(), game);
+        return distA - distB;
+    };
+}
 
 @customElement('player-info-overlay')
 export class PlayerInfoOverlay extends LitElement implements Layer {
@@ -29,13 +44,13 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     private player: Player | null = null;
 
     @state()
-    private playerProfile: PlayerProfile | null = null
+    private playerProfile: PlayerProfile | null = null;
 
     @state()
     private unit: Unit | null = null;
 
     @state()
-    private showPauseButton: boolean = true
+    private showPauseButton: boolean = true;
 
     @state()
     private _isInfoVisible: boolean = false;
@@ -43,39 +58,40 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     @state()
     private _isPaused: boolean = false;
 
-    private _isActive = false
+    private _isActive = false;
 
     init() {
         this.eventBus.on(MouseMoveEvent, (e: MouseMoveEvent) => this.onMouseEvent(e));
-        this._isActive = true
-        this.showPauseButton = this.game.config().gameConfig().gameType == GameType.Singleplayer
+        this._isActive = true;
+        this.showPauseButton = this.game.config().gameConfig().gameType == GameType.Singleplayer;
     }
 
     private onMouseEvent(event: MouseMoveEvent) {
         this.setVisible(false);
         this.unit = null;
-        const lastPlayer = this.player
         this.player = null;
 
         const worldCoord = this.transform.screenToWorldCoordinates(event.x, event.y);
-        if (!this.game.isOnMap(worldCoord)) {
+        if (!this.game.isValidCoord(worldCoord.x, worldCoord.y)) {
             return;
         }
 
-        const tile = this.game.tile(worldCoord);
-        const owner = tile.owner();
+        const tile = this.game.ref(worldCoord.x, worldCoord.y);
+        if (!tile) return;
 
-        if (owner.isPlayer()) {
+        const owner = this.game.owner(tile);
+
+        if (owner && owner.isPlayer()) {
             this.player = owner;
             (this.player as PlayerView).profile().then(p => {
-                console.log(`got profile ${JSON.stringify(p)}`)
-                this.playerProfile = p
-            })
+                console.log(`got profile ${JSON.stringify(p)}`);
+                this.playerProfile = p;
+            });
             this.setVisible(true);
-        } else if (!tile.terrain().isLand()) {
+        } else if (!this.game.isLand(tile)) {
             const units = this.game.units(UnitType.Destroyer, UnitType.Battleship, UnitType.TradeShip)
-                .filter(u => euclideanDist(worldCoord, u.tile().cell()) < 50)
-                .sort(distSortUnit(tile));
+                .filter(u => euclideanDistWorld(worldCoord, u.tile(), this.game) < 50)
+                .sort(distSortUnitWorld(worldCoord, this.game));
 
             if (units.length > 0) {
                 this.unit = units[0];
@@ -120,28 +136,28 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     private renderPlayerInfo(player: Player) {
         const myPlayer = this.myPlayer();
         const isAlly = (myPlayer?.isAlliedWith(player) || player == this.myPlayer()) ?? false;
-        let relationHtml = null
+        let relationHtml = null;
         if (player.type() == PlayerType.FakeHuman && myPlayer != null) {
-            let classType = ''
-            let relationName = ''
-            const relation = this.playerProfile?.relations[myPlayer.smallID()] ?? Relation.Neutral
+            let classType = '';
+            let relationName = '';
+            const relation = this.playerProfile?.relations[myPlayer.smallID()] ?? Relation.Neutral;
             switch (relation) {
                 case Relation.Hostile:
-                    classType = 'hostile'
-                    relationName = 'Hostile'
-                    break
+                    classType = 'hostile';
+                    relationName = 'Hostile';
+                    break;
                 case Relation.Distrustful:
-                    classType = 'distrustful'
-                    relationName = 'Distrustful'
-                    break
+                    classType = 'distrustful';
+                    relationName = 'Distrustful';
+                    break;
                 case Relation.Neutral:
-                    classType = 'neutral'
-                    relationName = 'Neutral'
-                    break
+                    classType = 'neutral';
+                    relationName = 'Neutral';
+                    break;
                 case Relation.Friendly:
-                    classType = 'friendly'
-                    relationName = 'Friendly'
-                    break
+                    classType = 'friendly';
+                    relationName = 'Friendly';
+                    break;
             }
 
             relationHtml = html`<div class="type-label">Attitude: <span class="${classType}">${relationName}</span></div>`;
@@ -149,8 +165,8 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
         return html`
         <div class="info-content">
             <div class="player-name ${isAlly ? 'ally' : ''}">${player.name()}</div>
-            <div class="type-label">Troops: ${renderTroops(player.troops())}</div>
-            <div class="type-label">Gold: ${renderNumber(player.gold())}</div>
+            <div class="type-label">Troops: ${player.troops()}</div>
+            <div class="type-label">Gold: ${player.gold()}</div>
             ${relationHtml == null ? '' : relationHtml}
         </div>
         `;
@@ -173,7 +189,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
 
     render() {
         if (!this._isActive) {
-            return html``
+            return html``;
         }
         return html`
             <div class="container">
@@ -277,6 +293,19 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
             margin-top: 4px;
         }
 
+        .hostile {
+            color: #ff4444;
+        }
+        .distrustful {
+            color: #ff8888;
+        }
+        .neutral {
+            color: #ffffff;
+        }
+        .friendly {
+            color: #4CAF50;
+        }
+
         @media (max-width: 768px) {
             .container {
                 top: 5px;
@@ -302,19 +331,6 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
             .type-label {
                 font-size: 12px;
             }
-                  
-        }
-        .hostile {
-            color: #ff4444;
-        }
-        .distrustful {
-            color: #ff8888;
-        }
-        .neutral {
-            color: #ffffff;
-        }
-        .friendly {
-            color: #4CAF50;
         }
     `;
 }

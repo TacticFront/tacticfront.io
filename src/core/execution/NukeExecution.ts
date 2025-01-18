@@ -1,10 +1,10 @@
 import { nextTick } from "process";
-import { Cell, Execution, MutableGame, MutablePlayer, PlayerID, Tile, MutableUnit, UnitType, Player, TerraNullius } from "../game/Game";
+import { Cell, Execution, MutableGame, MutablePlayer, PlayerID, MutableUnit, UnitType, Player, TerraNullius } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { PseudoRandom } from "../PseudoRandom";
-import { bfs, dist, distSortUnit, euclideanDist, manhattanDist } from "../Util";
 import { consolex } from "../Consolex";
+import { TileRef } from "../game/GameMap";
 
 export class NukeExecution implements Execution {
 
@@ -15,13 +15,12 @@ export class NukeExecution implements Execution {
     private mg: MutableGame
 
     private nuke: MutableUnit
-    private dst: Tile
 
     private pathFinder: PathFinder
     constructor(
         private type: UnitType.AtomBomb | UnitType.HydrogenBomb,
         private senderID: PlayerID,
-        private cell: Cell,
+        private dst: TileRef,
     ) { }
 
 
@@ -29,11 +28,10 @@ export class NukeExecution implements Execution {
         this.mg = mg
         this.pathFinder = PathFinder.Mini(mg, 10_000, true)
         this.player = mg.player(this.senderID)
-        this.dst = this.mg.tile(this.cell)
     }
 
     public target(): Player | TerraNullius {
-        return this.dst.owner()
+        return this.mg.owner(this.dst)
     }
 
     tick(ticks: number): void {
@@ -70,9 +68,8 @@ export class NukeExecution implements Execution {
     private detonate() {
         const magnitude = this.type == UnitType.AtomBomb ? { inner: 15, outer: 40 } : { inner: 140, outer: 160 }
         const rand = new PseudoRandom(this.mg.ticks())
-        const tile = this.mg.tile(this.cell)
-        const toDestroy = bfs(tile, (n: Tile) => {
-            const d = euclideanDist(tile.cell(), n.cell())
+        const toDestroy = this.mg.bfs(this.dst, (_, n: TileRef) => {
+            const d = this.mg.euclideanDist(this.dst, n)
             return (d <= magnitude.inner || rand.chance(2)) && d <= magnitude.outer
         })
 
@@ -81,7 +78,7 @@ export class NukeExecution implements Execution {
         )
         const attacked = new Map<MutablePlayer, number>()
         for (const tile of toDestroy) {
-            const owner = tile.owner()
+            const owner = this.mg.owner(tile)
             if (owner.isPlayer()) {
                 const mp = this.mg.player(owner.id())
                 mp.relinquish(tile)
@@ -92,8 +89,8 @@ export class NukeExecution implements Execution {
                 const prev = attacked.get(mp)
                 attacked.set(mp, prev + 1)
             }
-            if (tile.terrain().isLand()) {
-                this.mg.addFallout(tile)
+            if (this.mg.isLand(tile)) {
+                this.mg.setFallout(tile, true)
             }
         }
         for (const [other, tilesDestroyed] of attacked) {
@@ -110,7 +107,7 @@ export class NukeExecution implements Execution {
 
         for (const unit of this.mg.units()) {
             if (unit.type() != UnitType.AtomBomb && unit.type() != UnitType.HydrogenBomb) {
-                if (euclideanDist(this.cell, unit.tile().cell()) < magnitude.outer) {
+                if (this.mg.euclideanDist(this.dst, unit.tile()) < magnitude.outer) {
                     unit.delete()
                 }
             }

@@ -1,11 +1,11 @@
-import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, TerrainType, Tile, Unit, UnitType } from "../game/Game";
+import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, TerrainType, Unit, UnitType } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
-import { SerialAStar } from "../pathfinding/SerialAStar";
 import { PseudoRandom } from "../PseudoRandom";
-import { distSort, distSortUnit, manhattanDist } from "../Util";
+import { distSort, distSortUnit } from "../Util";
 import { ShellExecution } from "./ShellExecution";
 import { consolex } from "../Consolex";
+import { TileRef } from "../game/GameMap";
 
 export class BattleshipExecution implements Execution {
     private random: PseudoRandom
@@ -17,8 +17,7 @@ export class BattleshipExecution implements Execution {
 
     private pathfinder: PathFinder
 
-    private patrolTile: Tile;
-    private patrolCenterTile: Tile
+    private patrolTile: TileRef;
 
     // TODO: put in config
     private searchRange = 100
@@ -29,7 +28,7 @@ export class BattleshipExecution implements Execution {
 
     constructor(
         private playerID: PlayerID,
-        private cell: Cell,
+        private patrolCenterTile: TileRef,
     ) { }
 
 
@@ -37,7 +36,6 @@ export class BattleshipExecution implements Execution {
         this.pathfinder = PathFinder.Mini(mg, 5000, false)
         this._owner = mg.player(this.playerID)
         this.mg = mg
-        this.patrolCenterTile = mg.tile(this.cell)
         this.patrolTile = this.patrolCenterTile
         this.random = new PseudoRandom(mg.ticks())
     }
@@ -85,15 +83,15 @@ export class BattleshipExecution implements Execution {
         }
 
         let ships = this.mg.units(UnitType.TransportShip, UnitType.Destroyer, UnitType.TradeShip, UnitType.Battleship)
-            .filter(u => manhattanDist(u.tile().cell(), this.battleship.tile().cell()) < 100)
+            .filter(u => this.mg.manhattanDist(u.tile(), this.battleship.tile()) < 100)
             .filter(u => u.owner() != this.battleship.owner())
             .filter(u => u != this.battleship)
             .filter(u => !u.owner().isAlliedWith(this.battleship.owner()))
             .filter(u => !this.alreadyTargeted.has(u))
-            .sort(distSortUnit(this.battleship));
+            .sort(distSortUnit(this.mg, this.battleship));
 
         const friendlyDestroyerNearby = this.battleship.owner().units(UnitType.Destroyer)
-            .filter(d => manhattanDist(d.tile().cell(), this.battleship.tile().cell()) < 120)
+            .filter(d => this.mg.manhattanDist(d.tile(), this.battleship.tile()) < 120)
             .length > 0
 
         if (friendlyDestroyerNearby) {
@@ -124,16 +122,15 @@ export class BattleshipExecution implements Execution {
         return false
     }
 
-    randomTile(): Tile {
+    randomTile(): TileRef {
         while (true) {
-            const x = this.patrolCenterTile.cell().x + this.random.nextInt(-this.searchRange / 2, this.searchRange / 2)
-            const y = this.patrolCenterTile.cell().y + this.random.nextInt(-this.searchRange / 2, this.searchRange / 2)
-            const cell = new Cell(x, y)
-            if (!this.mg.isOnMap(cell)) {
+            const x = this.mg.x(this.patrolCenterTile) + this.random.nextInt(-this.searchRange / 2, this.searchRange / 2)
+            const y = this.mg.y(this.patrolCenterTile) + this.random.nextInt(-this.searchRange / 2, this.searchRange / 2)
+            if (!this.mg.isValidCoord(x, y)) {
                 continue
             }
-            const tile = this.mg.tile(cell)
-            if (!tile.terrain().isOcean()) {
+            const tile = this.mg.ref(x, y)
+            if (!this.mg.isOcean(tile)) {
                 continue
             }
             return tile

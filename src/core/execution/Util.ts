@@ -1,15 +1,14 @@
-import { Game, Cell, Tile } from "../game/Game";
-import { and, bfs, euclDist } from "../Util";
+import { euclDistFN, GameMap, TileRef } from "../game/GameMap";
 
 
-export function getSpawnTiles(tile: Tile): Tile[] {
-    return Array.from(bfs(tile, euclDist(tile, 4)))
-        .filter(t => !t.hasOwner() && t.terrain().isLand())
+export function getSpawnTiles(gm: GameMap, tile: TileRef): TileRef[] {
+    return Array.from(gm.bfs(tile, euclDistFN(tile, 4)))
+        .filter(t => !gm.hasOwner(t) && gm.isLand(t))
 }
 
-export function closestTwoTiles(x: Iterable<Tile>, y: Iterable<Tile>): { x: Tile, y: Tile } {
-    const xSorted = Array.from(x).sort((a, b) => a.cell().x - b.cell().x);
-    const ySorted = Array.from(y).sort((a, b) => a.cell().x - b.cell().x);
+export function closestTwoTiles(gm: GameMap, x: Iterable<TileRef>, y: Iterable<TileRef>): { x: TileRef, y: TileRef } {
+    const xSorted = Array.from(x).sort((a, b) => gm.x(a) - gm.x(b));
+    const ySorted = Array.from(y).sort((a, b) => gm.x(a) - gm.x(b));
 
     if (xSorted.length == 0 || ySorted.length == 0) {
         return null;
@@ -25,8 +24,8 @@ export function closestTwoTiles(x: Iterable<Tile>, y: Iterable<Tile>): { x: Tile
         const currentY = ySorted[j];
 
         const distance =
-            Math.abs(currentX.cell().x - currentY.cell().x) +
-            Math.abs(currentX.cell().y - currentY.cell().y);
+            Math.abs(gm.x(currentX) - gm.x(currentY)) +
+            Math.abs(gm.y(currentX) - gm.y(currentY));
 
         if (distance < minDistance) {
             minDistance = distance;
@@ -42,7 +41,7 @@ export function closestTwoTiles(x: Iterable<Tile>, y: Iterable<Tile>): { x: Tile
             i++;
         }
         // Otherwise, move whichever pointer has smaller x value
-        else if (currentX.cell().x < currentY.cell().x) {
+        else if (gm.x(currentX) < gm.x(currentY)) {
             i++;
         } else {
             j++;

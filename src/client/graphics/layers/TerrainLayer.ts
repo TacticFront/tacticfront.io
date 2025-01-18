@@ -1,8 +1,4 @@
-import { inherits } from "util"
-import { Game } from "../../../core/game/Game";
-import { throws } from "assert";
 import { Layer } from "./Layer";
-import { TransformHandler } from "../TransformHandler";
 import { GameView } from "../../../core/GameView";
 
 export class TerrainLayer implements Layer {
@@ -37,8 +33,9 @@ export class TerrainLayer implements Layer {
     initImageData() {
         const theme = this.game.config().theme()
         this.game.forEachTile((tile) => {
-            let terrainColor = theme.terrainColor(tile)
-            const index = (tile.cell().y * this.game.width()) + tile.cell().x
+            let terrainColor = theme.terrainColor(this.game, tile)
+            // TODO: isn'te tileref and index the same?
+            const index = (this.game.y(tile) * this.game.width()) + this.game.x(tile)
             const offset = index * 4
             this.imageData.data[offset] = terrainColor.rgba.r;
             this.imageData.data[offset + 1] = terrainColor.rgba.g;

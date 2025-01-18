@@ -3,22 +3,14 @@ import twemoji from 'twemoji';
 import DOMPurify from 'dompurify';
 
 
-import { Cell, Game, Player, TerraNullius, Tile, Unit } from "./game/Game";
-import { number } from 'zod';
+import { Cell, Game, MutableGame, Player, Unit } from "./game/Game";
 import { GameConfig, GameID, GameRecord, PlayerRecord, Turn } from './Schemas';
 import { customAlphabet, nanoid } from 'nanoid';
-import { GameView } from './GameView';
-import { TileRef } from './game/GameMap';
+import { andFN, GameMap, manhattanDistFN, TileRef } from './game/GameMap';
 
 
 
-export function manhattanDist(c1: Cell, c2: Cell): number {
-    return Math.abs(c1.x - c2.x) + Math.abs(c1.y - c2.y);
-}
 
-export function euclideanDist(c1: Cell, c2: Cell): number {
-    return Math.sqrt(Math.pow(c1.x - c2.x, 2) + Math.pow(c1.y - c2.y, 2));
-}
 
 export function manhattanDistWrapped(c1: Cell, c2: Cell, width: number): number {
     // Calculate x distance
@@ -37,93 +29,67 @@ export function within(value: number, min: number, max: number): number {
     return Math.min(Math.max(value, min), max);
 }
 
-export function euclDist(root: Tile, dist: number): (tile: Tile) => boolean {
-    return (n: Tile) => euclideanDist(root.cell(), n.cell()) <= dist;
-}
 
-export function dist(root: Tile, dist: number): (tile: Tile) => boolean {
-    return (n: Tile) => manhattanDist(root.cell(), n.cell()) <= dist;
-}
-
-export function distSort(target: Tile): (a: Tile, b: Tile) => number {
-    return (a: Tile, b: Tile) => {
-        return manhattanDist(a.cell(), target.cell()) - manhattanDist(b.cell(), target.cell());
+export function distSort(gm: GameMap, target: TileRef): (a: TileRef, b: TileRef) => number {
+    return (a: TileRef, b: TileRef) => {
+        return gm.manhattanDist(a, target) - gm.manhattanDist(b, target);
     }
 }
 
-export function distSortUnit(target: Unit | Tile): (a: Unit, b: Unit) => number {
-    const targetCell = ('tile' in target) ? target.tile().cell() : target.cell();
+export function distSortUnit(gm: GameMap, target: Unit | TileRef): (a: Unit, b: Unit) => number {
+    const targetRef = (typeof target === 'number') ? target : target.tile()
 
     return (a: Unit, b: Unit) => {
-        return manhattanDist(a.tile().cell(), targetCell) - manhattanDist(b.tile().cell(), targetCell);
+        return gm.manhattanDist(a.tile(), targetRef) - gm.manhattanDist(b.tile(), targetRef);
     }
 }
 
-export function and(x: (tile: Tile) => boolean, y: (tile: Tile) => boolean): (tile: Tile) => boolean {
-    return (tile: Tile) => x(tile) && y(tile)
-}
 
 // TODO: refactor to new file
-export function sourceDstOceanShore(game: GameView, src: Player, tile: Tile): [Tile | null, Tile | null] {
-    const dst = tile.owner()
-    let srcTile = closestOceanShoreFromPlayer(src, tile, game.width())
-    let dstTile: Tile | null = null
+export function sourceDstOceanShore(gm: MutableGame, src: Player, tile: TileRef): [TileRef | null, TileRef | null] {
+    const dst = gm.owner(tile)
+    let srcTile = closestOceanShoreFromPlayer(gm, src, tile)
+    let dstTile: TileRef | null = null
     if (dst.isPlayer()) {
-        dstTile = closestOceanShoreFromPlayer(dst as Player, tile, game.width())
+        dstTile = closestOceanShoreFromPlayer(gm, dst as Player, tile)
     } else {
-        dstTile = closestOceanShoreTN(tile, 300)
+        dstTile = closestOceanShoreTN(gm, tile, 300)
     }
     return [srcTile, dstTile]
 }
 
-export function targetTransportTile(gameWidth: number, tile: Tile): Tile | null {
-    const dst = tile.owner()
-    let dstTile: Tile | null = null
+export function targetTransportTile(gm: Game, tile: TileRef): TileRef | null {
+    const dst = gm.playerBySmallID(gm.ownerID(tile))
+    let dstTile: TileRef | null = null
     if (dst.isPlayer()) {
-        dstTile = closestOceanShoreFromPlayer(dst as Player, tile, gameWidth)
+        dstTile = closestOceanShoreFromPlayer(gm, dst as Player, tile)
     } else {
-        dstTile = closestOceanShoreTN(tile, 300)
+        dstTile = closestOceanShoreTN(gm, tile, 300)
     }
     return dstTile
 }
 
-export function closestOceanShoreFromPlayer(player: Player, target: Tile, width: number): Tile | null {
-    const shoreTiles = Array.from(player.borderTiles()).filter(t => t.terrain().isOceanShore())
+export function closestOceanShoreFromPlayer(gm: GameMap, player: Player, target: TileRef): TileRef | null {
+    const shoreTiles = Array.from(player.borderTiles()).filter(t => gm.isOceanShore(t))
     if (shoreTiles.length == 0) {
         return null
     }
 
     return shoreTiles.reduce((closest, current) => {
-        const closestDistance = manhattanDistWrapped(target.cell(), closest.cell(), width);
-        const currentDistance = manhattanDistWrapped(target.cell(), current.cell(), width);
+        const closestDistance = manhattanDistWrapped(gm.cell(target), gm.cell(closest), gm.width());
+        const currentDistance = manhattanDistWrapped(gm.cell(target), gm.cell(current), gm.width());
         return currentDistance < closestDistance ? current : closest;
     });
 }
 
-function closestOceanShoreTN(tile: Tile, searchDist: number): Tile {
-    const tn = Array.from(bfs(tile, and(t => !t.hasOwner(), dist(tile, searchDist))))
-        .filter(t => t.terrain().isOceanShore())
-        .sort((a, b) => manhattanDist(tile.cell(), a.cell()) - manhattanDist(tile.cell(), b.cell()))
+function closestOceanShoreTN(gm: GameMap, tile: TileRef, searchDist: number): TileRef {
+    const tn = Array.from(gm.bfs(tile, andFN((_, t) => !gm.hasOwner(t), manhattanDistFN(tile, searchDist))))
+        .filter(t => gm.isOceanShore(t))
+        .sort((a, b) => gm.manhattanDist(tile, a) - gm.manhattanDist(tile, b))
     if (tn.length == 0) {
         return null
     }
     return tn[0]
-}
-
-export function bfs(tile: Tile, filter: (tile: Tile) => boolean): Set<Tile> {
-    const seen = new Map<TileRef, Tile>()
-    const q: Tile[] = []
-    q.push(tile)
-    while (q.length > 0) {
-        const curr = q.pop()
-        seen.set(curr.ref(), curr)
-        for (const n of curr.neighbors()) {
-            if (!seen.has(n.ref()) && filter(n)) {
-                q.push(n)
-            }
-        }
-    }
-    return new Set(seen.values())
 }
 
 export function simpleHash(str: string): number {
@@ -136,11 +102,11 @@ export function simpleHash(str: string): number {
     return Math.abs(hash);
 }
 
-export function calculateBoundingBox(borderTiles: ReadonlySet<Tile>): { min: Cell; max: Cell } {
+export function calculateBoundingBox(gm: GameMap, borderTiles: ReadonlySet<TileRef>): { min: Cell; max: Cell } {
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
-    borderTiles.forEach((tile: Tile) => {
-        const cell = tile.cell();
+    borderTiles.forEach((tile: TileRef) => {
+        const cell = gm.cell(tile);
         minX = Math.min(minX, cell.x);
         minY = Math.min(minY, cell.y);
         maxX = Math.max(maxX, cell.x);
@@ -150,8 +116,8 @@ export function calculateBoundingBox(borderTiles: ReadonlySet<Tile>): { min: Cel
     return { min: new Cell(minX, minY), max: new Cell(maxX, maxY) }
 }
 
-export function calculateBoundingBoxCenter(borderTiles: ReadonlySet<Tile>): Cell {
-    const { min, max } = calculateBoundingBox(borderTiles)
+export function calculateBoundingBoxCenter(gm: GameMap, borderTiles: ReadonlySet<TileRef>): Cell {
+    const { min, max } = calculateBoundingBox(gm, borderTiles)
     return new Cell(
         min.x + Math.floor((max.x - min.x) / 2),
         min.y + Math.floor((max.y - min.y) / 2)

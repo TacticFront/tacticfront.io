@@ -1,13 +1,12 @@
-import { MutablePlayer, Tile, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, EmojiMessage, AllPlayers, Gold, UnitType, Unit, MutableUnit, Relation, MutableTile, PlayerUpdate, GameUpdateType } from "./Game";
+import { MutablePlayer, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, EmojiMessage, AllPlayers, Gold, UnitType, Unit, MutableUnit, Relation, PlayerUpdate, GameUpdateType } from "./Game";
 import { ClientID } from "../Schemas";
-import { assertNever, bfs, closestOceanShoreFromPlayer, dist, distSortUnit, manhattanDist, manhattanDistWrapped, processName, simpleHash, sourceDstOceanShore, within } from "../Util";
+import { assertNever, closestOceanShoreFromPlayer, distSortUnit, simpleHash, sourceDstOceanShore, within } from "../Util";
 import { CellString, GameImpl } from "./GameImpl";
 import { UnitImpl } from "./UnitImpl";
-import { TileImpl } from "./TileImpl";
 import { MessageType } from './Game';
 import { renderTroops } from "../../client/Utils";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
-import { TileRef } from "./GameMap";
+import { manhattanDistFN, TileRef } from "./GameMap";
 
 interface Target {
     tick: Tick
@@ -32,7 +31,7 @@ export class PlayerImpl implements MutablePlayer {
     public _borderTiles: Set<TileRef> = new Set();
 
     public _units: UnitImpl[] = [];
-    public _tiles: Map<CellString, Tile> = new Map<CellString, TileImpl>();
+    public _tiles: Set<TileRef>
 
     private _name: string;
     private _displayName: string;
@@ -48,7 +47,7 @@ export class PlayerImpl implements MutablePlayer {
     private relations = new Map<Player, number>()
 
 
-    constructor(private gs: GameImpl, private _smallID: number, private readonly playerInfo: PlayerInfo, startPopulation: number) {
+    constructor(private mg: GameImpl, private _smallID: number, private readonly playerInfo: PlayerInfo, startPopulation: number) {
         this._name = playerInfo.name;
         this._targetTroopRatio = 1
         this._troops = startPopulation * this._targetTroopRatio;
@@ -112,8 +111,8 @@ export class PlayerImpl implements MutablePlayer {
 
     sharesBorderWith(other: Player | TerraNullius): boolean {
         for (const border of this._borderTiles) {
-            for (const neighbor of this.gs.map().neighbors(border)) {
-                if (this.gs.map().ownerID(neighbor) == other.smallID()) {
+            for (const neighbor of this.mg.map().neighbors(border)) {
+                if (this.mg.map().ownerID(neighbor) == other.smallID()) {
                     return true;
                 }
             }
@@ -124,26 +123,22 @@ export class PlayerImpl implements MutablePlayer {
         return this._tiles.size;
     }
 
-    tiles(): ReadonlySet<MutableTile> {
-        return new Set(this._tiles.values()) as Set<MutableTile>;
+    tiles(): ReadonlySet<TileRef> {
+        return new Set(this._tiles.values()) as Set<TileRef>;
     }
 
-    borderTileRefs(): ReadonlySet<TileRef> {
+    borderTiles(): ReadonlySet<TileRef> {
         return this._borderTiles;
-    }
-
-    borderTiles(): ReadonlySet<Tile> {
-        return new Set(Array.from(this._borderTiles).map(tr => this.gs.fromRef(tr)))
     }
 
     neighbors(): (MutablePlayer | TerraNullius)[] {
         const ns: Set<(MutablePlayer | TerraNullius)> = new Set();
-        for (const border of this.borderTileRefs()) {
-            for (const neighbor of this.gs.map().neighbors(border)) {
-                if (this.gs.map().isLake(neighbor)) {
-                    const owner = this.gs.map().ownerID(neighbor)
+        for (const border of this.borderTiles()) {
+            for (const neighbor of this.mg.map().neighbors(border)) {
+                if (this.mg.map().isLake(neighbor)) {
+                    const owner = this.mg.map().ownerID(neighbor)
                     if (owner != this.smallID()) {
-                        ns.add(this.gs.playerBySmallID(owner) as PlayerImpl | TerraNulliusImpl);
+                        ns.add(this.mg.playerBySmallID(owner) as PlayerImpl | TerraNulliusImpl);
                     }
                 }
             }
@@ -152,31 +147,30 @@ export class PlayerImpl implements MutablePlayer {
     }
 
     isPlayer(): this is MutablePlayer { return true as const; }
-    ownsTile(cell: Cell): boolean { return this._tiles.has(cell.toString()); }
     setTroops(troops: number) { this._troops = Math.floor(troops); }
-    conquer(tile: Tile) { this.gs.conquer(this, tile); }
-    relinquish(tile: Tile) {
-        if (tile.owner() != this) {
+    conquer(tile: TileRef) { this.mg.conquer(this, tile); }
+    relinquish(tile: TileRef) {
+        if (this.mg.owner(tile) != this) {
             throw new Error(`Cannot relinquish tile not owned by this player`);
         }
-        this.gs.relinquish(tile);
+        this.mg.relinquish(tile);
     }
     info(): PlayerInfo { return this.playerInfo; }
     isAlive(): boolean { return this._tiles.size > 0; }
     executions(): Execution[] {
-        return this.gs.executions().filter(exec => exec.owner().id() == this.id());
+        return this.mg.executions().filter(exec => exec.owner().id() == this.id());
     }
 
     incomingAllianceRequests(): MutableAllianceRequest[] {
-        return this.gs.allianceRequests.filter(ar => ar.recipient() == this)
+        return this.mg.allianceRequests.filter(ar => ar.recipient() == this)
     }
 
     outgoingAllianceRequests(): MutableAllianceRequest[] {
-        return this.gs.allianceRequests.filter(ar => ar.requestor() == this)
+        return this.mg.allianceRequests.filter(ar => ar.requestor() == this)
     }
 
     alliances(): MutableAlliance[] {
-        return this.gs.alliances_.filter(a => a.requestor() == this || a.recipient() == this)
+        return this.mg.alliances_.filter(a => a.requestor() == this || a.recipient() == this)
     }
 
     allies(): MutablePlayer[] {
@@ -212,13 +206,13 @@ export class PlayerImpl implements MutablePlayer {
             return false
         }
 
-        const delta = this.gs.ticks() - recent[0].createdAt()
+        const delta = this.mg.ticks() - recent[0].createdAt()
 
-        return delta < this.gs.config().allianceRequestCooldown()
+        return delta < this.mg.config().allianceRequestCooldown()
     }
 
     breakAlliance(alliance: Alliance): void {
-        this.gs.breakAlliance(this, alliance)
+        this.mg.breakAlliance(this, alliance)
     }
 
 
@@ -230,7 +224,7 @@ export class PlayerImpl implements MutablePlayer {
         if (this.isAlliedWith(recipient)) {
             throw new Error(`cannot create alliance request, already allies`)
         }
-        return this.gs.createAllianceRequest(this, recipient as MutablePlayer)
+        return this.mg.createAllianceRequest(this, recipient as MutablePlayer)
     }
 
     relation(other: Player): Relation {
@@ -291,7 +285,7 @@ export class PlayerImpl implements MutablePlayer {
             return false
         }
         for (const t of this.targets_) {
-            if (this.gs.ticks() - t.tick < this.gs.config().targetCooldown()) {
+            if (this.mg.ticks() - t.tick < this.mg.config().targetCooldown()) {
                 return false
             }
         }
@@ -299,13 +293,13 @@ export class PlayerImpl implements MutablePlayer {
     }
 
     target(other: Player): void {
-        this.targets_.push({ tick: this.gs.ticks(), target: other })
-        this.gs.target(this, other)
+        this.targets_.push({ tick: this.mg.ticks(), target: other })
+        this.mg.target(this, other)
     }
 
     targets(): PlayerImpl[] {
         return this.targets_
-            .filter(t => this.gs.ticks() - t.tick < this.gs.config().targetDuration())
+            .filter(t => this.mg.ticks() - t.tick < this.mg.config().targetDuration())
             .map(t => t.target as PlayerImpl)
     }
 
@@ -319,21 +313,21 @@ export class PlayerImpl implements MutablePlayer {
         if (recipient == this) {
             throw Error(`Cannot send emoji to oneself: ${this}`)
         }
-        const msg = new EmojiMessage(this, recipient, emoji, this.gs.ticks())
+        const msg = new EmojiMessage(this, recipient, emoji, this.mg.ticks())
         this.outgoingEmojis_.push(msg)
-        this.gs.sendEmojiUpdate(this, recipient, emoji)
+        this.mg.sendEmojiUpdate(this, recipient, emoji)
     }
 
     outgoingEmojis(): EmojiMessage[] {
         return this.outgoingEmojis_
-            .filter(e => this.gs.ticks() - e.createdAt < this.gs.config().emojiMessageDuration())
+            .filter(e => this.mg.ticks() - e.createdAt < this.mg.config().emojiMessageDuration())
             .sort((a, b) => b.createdAt - a.createdAt)
     }
 
     canSendEmoji(recipient: Player | typeof AllPlayers): boolean {
         const prevMsgs = this.outgoingEmojis_.filter(msg => msg.recipient == recipient)
         for (const msg of prevMsgs) {
-            if (this.gs.ticks() - msg.createdAt < this.gs.config().emojiMessageCooldown()) {
+            if (this.mg.ticks() - msg.createdAt < this.mg.config().emojiMessageCooldown()) {
                 return false
             }
         }
@@ -346,7 +340,7 @@ export class PlayerImpl implements MutablePlayer {
         }
         for (const donation of this.sentDonations) {
             if (donation.recipient == recipient) {
-                if (this.gs.ticks() - donation.tick < this.gs.config().donateCooldown()) {
+                if (this.mg.ticks() - donation.tick < this.mg.config().donateCooldown()) {
                     return false
                 }
             }
@@ -355,10 +349,10 @@ export class PlayerImpl implements MutablePlayer {
     }
 
     donate(recipient: MutablePlayer, troops: number): void {
-        this.sentDonations.push(new Donation(recipient, this.gs.ticks()))
+        this.sentDonations.push(new Donation(recipient, this.mg.ticks()))
         recipient.addTroops(this.removeTroops(troops))
-        this.gs.displayMessage(`Sent ${renderTroops(troops)} troops to ${recipient.name()}`, MessageType.INFO, this.id())
-        this.gs.displayMessage(`Recieved ${renderTroops(troops)} troops from ${this.name()}`, MessageType.SUCCESS, recipient.id())
+        this.mg.displayMessage(`Sent ${renderTroops(troops)} troops to ${recipient.name()}`, MessageType.INFO, this.id())
+        this.mg.displayMessage(`Recieved ${renderTroops(troops)} troops from ${this.name()}`, MessageType.SUCCESS, recipient.id())
     }
 
     gold(): Gold {
@@ -426,24 +420,24 @@ export class PlayerImpl implements MutablePlayer {
         (prev as PlayerImpl)._units = (prev as PlayerImpl)._units.filter(u => u != unit);
         (unit as UnitImpl)._owner = this
         this._units.push(unit as UnitImpl)
-        this.gs.fireUnitUpdateEvent(unit)
-        this.gs.displayMessage(`${unit.type()} captured by ${this.displayName()}`, MessageType.ERROR, prev.id())
-        this.gs.displayMessage(`Captured ${unit.type()} from ${prev.displayName()}`, MessageType.SUCCESS, this.id())
+        this.mg.fireUnitUpdateEvent(unit)
+        this.mg.displayMessage(`${unit.type()} captured by ${this.displayName()}`, MessageType.ERROR, prev.id())
+        this.mg.displayMessage(`Captured ${unit.type()} from ${prev.displayName()}`, MessageType.SUCCESS, this.id())
     }
 
-    buildUnit(type: UnitType, troops: number, spawnTile: Tile): UnitImpl {
-        const cost = this.gs.unitInfo(type).cost(this)
-        const b = new UnitImpl(type, this.gs, spawnTile, troops, this.gs.nextUnitID(), this);
+    buildUnit(type: UnitType, troops: number, spawnTile: TileRef): UnitImpl {
+        const cost = this.mg.unitInfo(type).cost(this)
+        const b = new UnitImpl(type, this.mg, spawnTile, troops, this.mg.nextUnitID(), this);
         this._units.push(b);
         this.removeGold(cost)
         this.removeTroops(troops)
-        this.gs.fireUnitUpdateEvent(b);
+        this.mg.fireUnitUpdateEvent(b);
         return b;
     }
 
 
-    canBuild(unitType: UnitType, targetTile: Tile): Tile | false {
-        const cost = this.gs.unitInfo(unitType).cost(this)
+    canBuild(unitType: UnitType, targetTile: TileRef): TileRef | false {
+        const cost = this.mg.unitInfo(unitType).cost(this)
         if (!this.isAlive() || this.gold() < cost) {
             return false
         }
@@ -473,56 +467,56 @@ export class PlayerImpl implements MutablePlayer {
         }
     }
 
-    nukeSpawn(tile: Tile): Tile | false {
-        const spawns = this.units(UnitType.MissileSilo).map(u => u as Unit).sort(distSortUnit(tile))
+    nukeSpawn(tile: TileRef): TileRef | false {
+        const spawns = this.units(UnitType.MissileSilo).map(u => u as Unit).sort(distSortUnit(this.mg, tile))
         if (spawns.length == 0) {
             return false
         }
         return spawns[0].tile()
     }
 
-    portSpawn(tile: Tile): Tile | false {
-        const spawns = Array.from(bfs(tile, dist(tile, 20)))
-            .filter(t => t.owner() == this && t.terrain().isOceanShore())
-            .sort((a, b) => manhattanDist(a.cell(), tile.cell()) - manhattanDist(b.cell(), tile.cell()))
+    portSpawn(tile: TileRef): TileRef | false {
+        const spawns = Array.from(this.mg.bfs(tile, manhattanDistFN(tile, 20)))
+            .filter(t => this.mg.owner(t) == this && this.mg.isOceanShore(t))
+            .sort((a, b) => this.mg.manhattanDist(a, tile) - this.mg.manhattanDist(b, tile))
         if (spawns.length == 0) {
             return false
         }
         return spawns[0]
     }
 
-    warshipSpawn(tile: Tile): Tile | false {
-        if (!tile.terrain().isOcean()) {
+    warshipSpawn(tile: TileRef): TileRef | false {
+        if (!this.mg.isOcean(tile)) {
             return false
         }
         const spawns = this.units(UnitType.Port)
-            .filter(u => manhattanDist(u.tile().cell(), tile.cell()) < this.gs.config().boatMaxDistance())
-            .sort((a, b) => manhattanDist(a.tile().cell(), tile.cell()) - manhattanDist(b.tile().cell(), tile.cell()))
+            .filter(u => this.mg.manhattanDist(u.tile(), tile) < this.mg.config().boatMaxDistance())
+            .sort((a, b) => this.mg.manhattanDist(a.tile(), tile) - this.mg.manhattanDist(b.tile(), tile))
         if (spawns.length == 0) {
             return false
         }
         return spawns[0].tile()
     }
 
-    landBasedStructureSpawn(tile: Tile): Tile | false {
-        if (tile.owner() != this) {
+    landBasedStructureSpawn(tile: TileRef): TileRef | false {
+        if (this.mg.owner(tile) != this) {
             return false
         }
         return tile
     }
 
-    transportShipSpawn(targetTile: Tile): Tile | false {
-        if (!targetTile.terrain().isOceanShore()) {
+    transportShipSpawn(targetTile: TileRef): TileRef | false {
+        if (!this.mg.isOceanShore(targetTile)) {
             return false
         }
-        const spawn = closestOceanShoreFromPlayer(this, targetTile, this.gs.width())
+        const spawn = closestOceanShoreFromPlayer(this.mg, this, targetTile)
         if (spawn == null) {
             return false
         }
         return spawn
     }
 
-    tradeShipSpawn(targetTile: Tile): Tile | false {
+    tradeShipSpawn(targetTile: TileRef): TileRef | false {
         const spawns = this.units(UnitType.Port).filter(u => u.tile() == targetTile)
         if (spawns.length == 0) {
             return false

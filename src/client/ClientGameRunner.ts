@@ -4,8 +4,7 @@ import { EventBus } from "../core/EventBus";
 import { createRenderer, GameRenderer } from "./graphics/GameRenderer";
 import { InputHandler, MouseUpEvent, ZoomEvent, DragEvent, MouseDownEvent } from "./InputHandler"
 import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, ClientMessageSchema, GameConfig, GameID, Intent, ServerMessage, ServerMessageSchema, ServerSyncMessage, Turn } from "../core/Schemas";
-import { loadTerrainFromFile, loadTerrainMap, TerrainMapImpl } from "../core/game/TerrainMapLoader";
-import { and, bfs, dist, generateID, manhattanDist } from "../core/Util";
+import { loadTerrainFromFile, loadTerrainMap } from "../core/game/TerrainMapLoader";
 import { SendAttackIntentEvent, SendSpawnIntentEvent, Transport } from "./Transport";
 import { createCanvas } from "./Utils";
 import { MessageType } from '../core/game/Game';
@@ -72,10 +71,10 @@ export function joinLobby(lobbyConfig: LobbyConfig, onjoin: () => void): () => v
 export async function createClientGame(lobbyConfig: LobbyConfig, gameConfig: GameConfig, eventBus: EventBus, transport: Transport): Promise<ClientGameRunner> {
     const config = getConfig(gameConfig)
 
-    const terrainMap = await loadTerrainMap(gameConfig.gameMap);
+    const gameMap = await loadTerrainMap(gameConfig.gameMap);
     const worker = new WorkerClient(lobbyConfig.gameID, gameConfig)
     await worker.initialize()
-    const gameView = new GameView(worker, config, terrainMap.terrain)
+    const gameView = new GameView(worker, config, gameMap.gameMap)
 
 
     consolex.log('going to init path finder')
@@ -177,12 +176,12 @@ export class ClientGameRunner {
             return
         }
         const cell = this.renderer.transformHandler.screenToWorldCoordinates(event.x, event.y)
-        if (!this.gameView.isOnMap(cell)) {
+        if (!this.gameView.isValidCoord(cell.x, cell.y)) {
             return
         }
         consolex.log(`clicked cell ${cell}`)
-        const tile = this.gameView.tile(cell)
-        if (tile.terrain().isLand() && !tile.hasOwner() && this.gameView.inSpawnPhase()) {
+        const tile = this.gameView.ref(cell.x, cell.y)
+        if (this.gameView.isLand(tile) && !this.gameView.hasOwner(tile) && this.gameView.inSpawnPhase()) {
             this.eventBus.emit(new SendSpawnIntentEvent(cell))
             return
         }
@@ -200,7 +199,7 @@ export class ClientGameRunner {
             if (actions.canAttack) {
                 this.eventBus.emit(
                     new SendAttackIntentEvent(
-                        tile.owner().id(),
+                        this.gameView.owner(tile).id(),
                         this.myPlayer.troops() * this.renderer.uiState.attackRatio
                     )
                 )

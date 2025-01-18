@@ -1,7 +1,7 @@
 import { Config, ServerConfig } from "../core/configuration/Config"
 import { SendLogEvent } from "../core/Consolex"
 import { EventBus, GameEvent } from "../core/EventBus"
-import { AllianceRequest, AllPlayers, Cell, GameType, Player, PlayerID, PlayerType, Tile, UnitType } from "../core/game/Game"
+import { AllianceRequest, AllPlayers, Cell, GameType, Player, PlayerID, PlayerType, UnitType } from "../core/game/Game"
 import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ClientPingMessageSchema, GameConfig, ClientLogMessageSchema } from "../core/Schemas"
 import { LobbyConfig } from "./ClientGameRunner"
 import { LocalServer } from "./LocalServer"
@@ -298,10 +298,6 @@ export class Transport {
             attackerID: this.lobbyConfig.playerID,
             targetID: event.targetID,
             troops: event.troops,
-            sourceX: null,
-            sourceY: null,
-            targetX: null,
-            targetY: null,
         })
     }
 

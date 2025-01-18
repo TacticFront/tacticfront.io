@@ -1,4 +1,4 @@
-import { PlayerActions, PlayerID, PlayerInfo, PlayerProfile, Tile } from "../game/Game";
+import { PlayerActions, PlayerID, PlayerInfo, PlayerProfile } from "../game/Game";
 import { GameUpdateViewData } from "../GameView";
 import { GameConfig, GameID, Turn } from "../Schemas";
 import { generateID } from "../Util";
@@ -115,7 +115,7 @@ export class WorkerClient {
         })
     }
 
-    playerInteraction(playerID: PlayerID, tile: Tile): Promise<PlayerActions> {
+    playerInteraction(playerID: PlayerID, x: number, y: number): Promise<PlayerActions> {
         return new Promise((resolve, reject) => {
             if (!this.isInitialized) {
                 reject(new Error('Worker not initialized'));
@@ -134,8 +134,8 @@ export class WorkerClient {
                 type: 'player_actions',
                 id: messageId,
                 playerID: playerID,
-                x: tile.cell().x,
-                y: tile.cell().y
+                x: x,
+                y: y
             });
         });
     }

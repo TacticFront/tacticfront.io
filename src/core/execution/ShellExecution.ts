@@ -1,7 +1,8 @@
-import { Execution, MutableGame, MutablePlayer, MutableUnit, Tile, Unit, UnitType } from "../game/Game";
+import { Execution, MutableGame, MutablePlayer, MutableUnit, Unit, UnitType } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { consolex } from "../Consolex";
+import { TileRef } from "../game/GameMap";
 
 export class ShellExecution implements Execution {
 
@@ -9,7 +10,7 @@ export class ShellExecution implements Execution {
     private pathFinder: PathFinder
     private shell: MutableUnit
 
-    constructor(private spawn: Tile, private _owner: MutablePlayer, private ownerUnit: Unit, private target: MutableUnit) {
+    constructor(private spawn: TileRef, private _owner: MutablePlayer, private ownerUnit: Unit, private target: MutableUnit) {
 
     }
 

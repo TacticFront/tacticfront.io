@@ -1,7 +1,7 @@
 import { Config } from "../configuration/Config"
 import { GameEvent } from "../EventBus"
 import { ClientID, GameConfig, GameID } from "../Schemas"
-import { GameMap, GameMapImpl, TileRef } from "./GameMap"
+import { GameMap, GameMapImpl, TileRef, TileUpdate } from "./GameMap"
 
 export type PlayerID = string
 export type Tick = number
@@ -15,7 +15,7 @@ type UpdateTypeMap<T extends GameUpdateType> = Extract<GameUpdate, { type: T }>;
 
 // Then use it to create the record type
 export type GameUpdates = {
-    [K in GameUpdateType]: UpdateTypeMap<K>[];
+    [K in GameUpdateType]: UpdateTypeMap<K>[]
 }
 
 export interface MapPos {
@@ -176,76 +176,26 @@ export class PlayerInfo {
     ) { }
 }
 
-export interface TerrainMap {
-    terrain(cell: Cell): TerrainTile
-    neighbors(terrainTile: TerrainTile): TerrainTile[]
-    width(): number
-    height(): number
-    isOnMap(cell: Cell): boolean
-    numLandTiles(): number
-}
-
-export type TerrainTileKey = string
-
-
-
-export interface TerrainTile {
-    isLand(): boolean
-    isShore(): boolean
-    isOceanShore(): boolean
-    isWater(): boolean
-    isShorelineWater(): boolean
-    isOcean(): boolean
-    isLake(): boolean
-    type(): TerrainType
-    magnitude(): number
-    equals(other: TerrainTile): boolean
-    cell(): Cell
-    neighbors(): TerrainTile[]
-    cost(): number
-}
-
 export interface DefenseBonus {
     // Unit providing the defense bonus
     unit: Unit
     amount: number
-    tile: Tile
-}
-
-export interface Tile {
-    owner(): Player | TerraNullius
-    hasOwner(): boolean
-    isBorder(): boolean
-    cell(): Cell
-    hasFallout(): boolean
-    terrain(): TerrainTile
-    neighbors(): Tile[]
-    hasDefenseBonus(): boolean
-    ref(): TileRef
-}
-
-export interface MutableTile extends Tile {
-    // defense bonus against this player
-    defenseBonus(player: Player): number
-    borders(other: Player | TerraNullius): boolean
-    neighborsWrapped(): Tile[]
-    defenseBonuses(): DefenseBonus[]
-    toUpdate(isBorderOnly: boolean): TileUpdate
+    tile: TileRef
 }
 
 export interface Unit {
     type(): UnitType
     troops(): number
-    tile(): Tile
+    tile(): TileRef
     owner(): Player
     isActive(): boolean
     hasHealth(): boolean
     health(): number
-    lastTile(): Tile
+    lastTile(): TileRef
 }
 
 export interface MutableUnit extends Unit {
-    move(tile: Tile): void
+    move(tile: TileRef): void
     owner(): MutablePlayer
     setTroops(troops: number): void
     info(): UnitInfo
@@ -255,7 +205,6 @@ export interface MutableUnit extends Unit {
 }
 
 export interface TerraNullius {
-    ownsTile(cell: Cell): boolean
     isPlayer(): false
     id(): PlayerID // always zero, maybe make it TerraNulliusID?
     clientID(): ClientID
@@ -272,8 +221,7 @@ export interface Player {
     type(): PlayerType
     units(...types: UnitType[]): Unit[]
     isAlive(): boolean
-    borderTileRefs(): ReadonlySet<TileRef>
-    borderTiles(): ReadonlySet<Tile>
+    borderTiles(): ReadonlySet<TileRef>
     isPlayer(): this is Player
     numTilesOwned(): number
     sharesBorderWith(other: Player | TerraNullius): boolean
@@ -306,7 +254,7 @@ export interface Player {
     troops(): number
 
     // If can build returns the spawn tile, false otherwise
-    canBuild(type: UnitType, targetTile: Tile): Tile | false
+    canBuild(type: UnitType, targetTile: TileRef): TileRef | false
     lastTileChange(): Tick
 }
 
@@ -315,11 +263,9 @@ export interface MutablePlayer extends Player {
     targets(): Player[]
     // Targets of player and all allies.
     neighbors(): (Player | TerraNullius)[]
-    tiles(): ReadonlySet<MutableTile>
-    ownsTile(cell: Cell): boolean
-    tiles(): ReadonlySet<Tile>
-    conquer(tile: Tile): void
-    relinquish(tile: Tile): void
+    tiles(): ReadonlySet<TileRef>
+    conquer(tile: TileRef): void
+    relinquish(tile: TileRef): void
     executions(): Execution[]
     neighbors(): (MutablePlayer | TerraNullius)[]
     units(...types: UnitType[]): MutableUnit[]
@@ -348,7 +294,7 @@ export interface MutablePlayer extends Player {
     addTroops(troops: number): void
     removeTroops(troops: number): number
 
-    buildUnit(type: UnitType, troops: number, tile: Tile): MutableUnit
+    buildUnit(type: UnitType, troops: number, tile: TileRef): MutableUnit
     captureUnit(unit: MutableUnit): void
 
     toUpdate(): PlayerUpdate
@@ -360,11 +306,10 @@ export interface Game extends GameMap {
     playerByClientID(id: ClientID): Player | null
     hasPlayer(id: PlayerID): boolean
     players(): Player[]
-    tile(cell: Cell): Tile
     isOnMap(cell: Cell): boolean
     width(): number
     height(): number
-    forEachTile(fn: (tile: Tile) => void): void
+    forEachTile(fn: (tile: TileRef) => void): void
     executions(): ExecutionView[]
     terraNullius(): TerraNullius
     executeNextTick(): GameUpdates
@@ -377,13 +322,12 @@ export interface Game extends GameMap {
     units(...types: UnitType[]): Unit[]
     unitInfo(type: UnitType): UnitInfo
     playerBySmallID(id: number): Player | TerraNullius
-    fromRef(ref: TileRef): Tile
-    map(): GameMapImpl
-    miniMap(): GameMapImpl
+    map(): GameMap
+    miniMap(): GameMap
+    owner(ref: TileRef): Player | TerraNullius
 }
 
 export interface MutableGame extends Game {
-    tile(cell: Cell): MutableTile
     player(id: PlayerID): MutablePlayer
     playerByClientID(id: ClientID): MutablePlayer | null
     players(): MutablePlayer[]
@@ -391,9 +335,9 @@ export interface MutableGame extends Game {
     addPlayer(playerInfo: PlayerInfo, manpower: number): MutablePlayer
     executions(): Execution[]
     units(...types: UnitType[]): MutableUnit[]
-    addTileDefenseBonus(tile: Tile, unit: Unit, amount: number): DefenseBonus
+    addTileDefenseBonus(tile: TileRef, unit: Unit, amount: number): DefenseBonus
     removeTileDefenseBonus(bonus: DefenseBonus): void
-    addFallout(tile: Tile): void
+    addFallout(tile: TileRef): void
     setWinner(winner: Player): void
 }
 
@@ -438,7 +382,7 @@ export interface PlayerInteraction {
     canDonate: boolean
 }
 
-export type GameUpdate = TileUpdate
+export type GameUpdate = TileUpdateWrapper
     | UnitUpdate
     | PlayerUpdate
     | AllianceRequestUpdate
@@ -450,13 +394,9 @@ export type GameUpdate = TileUpdate
     | EmojiUpdate
     | WinUpdate
 
-export interface TileUpdate {
-    type: GameUpdateType.Tile
-    ownerID: number
-    pos: MapPos
-    isBorder: boolean
-    hasFallout: boolean
-    hasDefenseBonus: boolean
+export interface TileUpdateWrapper {
+    type: GameUpdateType.Tile,
+    update: TileUpdate
 }
 
 export interface UnitUpdate {

@@ -1,7 +1,6 @@
 import { PriorityQueue } from "@datastructures-js/priority-queue";
-import { Cell, Execution, MutableGame, MutablePlayer, Player, PlayerID, PlayerType, TerrainType, TerraNullius, Tile } from "../game/Game";
+import { Cell, Execution, MutableGame, MutablePlayer, Player, PlayerID, PlayerType, TerrainType, TerraNullius } from "../game/Game";
 import { PseudoRandom } from "../PseudoRandom";
-import { manhattanDist } from "../Util";
 import { MessageType } from '../game/Game';
 import { renderNumber } from "../../client/Utils";
 import { TileRef } from "../game/GameMap";
@@ -32,8 +31,7 @@ export class AttackExecution implements Execution {
         private troops: number | null,
         private _ownerID: PlayerID,
         private _targetID: PlayerID | null,
-        private sourceCell: Cell | null,
-        private targetCell: Cell | null,
+        private sourceTile: TileRef | null,
         private removeTroops: boolean = true,
     ) { }
 
@@ -50,8 +48,6 @@ export class AttackExecution implements Execution {
             return
         }
         this.mg = mg
-
-        this.targetCell = null
 
         this._owner = mg.player(this._ownerID)
         this.target = this._targetID == this.mg.terraNullius().id() ? mg.terraNullius() : mg.player(this._targetID)
@@ -84,7 +80,7 @@ export class AttackExecution implements Execution {
                     }
                 }
                 // Existing attack on same target, add troops
-                if (otherAttack._owner == this._owner && otherAttack._targetID == this._targetID && this.sourceCell == otherAttack.sourceCell) {
+                if (otherAttack._owner == this._owner && otherAttack._targetID == this._targetID && this.sourceTile == otherAttack.sourceTile) {
                     otherAttack.troops += this.troops
                     otherAttack.refreshToConquer()
                     this.active = false
@@ -95,8 +91,8 @@ export class AttackExecution implements Execution {
         if (this._owner.type() != PlayerType.Bot && this.target.isPlayer() && this.target.type() == PlayerType.Human) {
             mg.displayMessage(`You are being attacked by ${this._owner.displayName()}`, MessageType.ERROR, this._targetID)
         }
-        if (this.sourceCell != null) {
-            this.addNeighbors(mg.tile(this.sourceCell))
+        if (this.sourceTile != null) {
+            this.addNeighbors(this.sourceTile)
         } else {
             this.refreshToConquer()
         }
@@ -154,14 +150,14 @@ export class AttackExecution implements Execution {
             }
 
             const tileToConquer = this.toConquer.dequeue().tile
-            this.border.delete(tileToConquer.ref())
+            this.border.delete(tileToConquer)
 
-            const onBorder = tileToConquer.neighbors().filter(t => t.owner() == this._owner).length > 0
-            if (tileToConquer.owner() != this.target || !onBorder) {
+            const onBorder = this.mg.neighbors(tileToConquer).filter(t => this.mg.owner(t) == this._owner).length > 0
+            if (this.mg.owner(tileToConquer) != this.target || !onBorder) {
                 continue
             }
             this.addNeighbors(tileToConquer)
-            const { attackerTroopLoss, defenderTroopLoss, tilesPerTickUsed } = this.mg.config().attackLogic(this.troops, this._owner, this.target, tileToConquer)
+            const { attackerTroopLoss, defenderTroopLoss, tilesPerTickUsed } = this.mg.config().attackLogic(this.mg, this.troops, this._owner, this.target, tileToConquer)
             numTilesPerTick -= tilesPerTickUsed
             this.troops -= attackerTroopLoss
             if (this.target.isPlayer()) {
@@ -172,25 +168,22 @@ export class AttackExecution implements Execution {
         }
     }
 
-    private addNeighbors(tile: Tile) {
-        for (const neighbor of tile.neighbors()) {
-            if (neighbor.terrain().isWater() || neighbor.owner() != this.target) {
+    private addNeighbors(tile: TileRef) {
+        for (const neighbor of this.mg.neighbors(tile)) {
+            if (this.mg.isWater(neighbor) || this.mg.owner(neighbor) != this.target) {
                 continue
             }
-            this.border.add(neighbor.ref())
-            let numOwnedByMe = neighbor.neighbors()
-                .filter(t => t.terrain().isLand())
-                .filter(t => t.owner() == this._owner)
+            this.border.add(neighbor)
+            let numOwnedByMe = this.mg.neighbors(neighbor)
+                .filter(t => this.mg.isLake(t))
+                .filter(t => this.mg.owner(t) == this._owner)
                 .length
             let dist = 0
-            if (this.targetCell != null) {
-                dist = manhattanDist(tile.cell(), this.targetCell)
-            }
             if (numOwnedByMe > 2) {
                 numOwnedByMe = 10
             }
             let mag = 0
-            switch (tile.terrain().type()) {
+            switch (this.mg.terrainType(tile)) {
                 case TerrainType.Plains:
                     mag = 1
                     break
@@ -218,11 +211,12 @@ export class AttackExecution implements Execution {
 
             for (let i = 0; i < 10; i++) {
                 for (const tile of this.target.tiles()) {
-                    if (tile.borders(this._owner)) {
+                    const borders = this.mg.neighbors(tile).some(t => this.mg.owner(t) == this._owner)
+                    if (borders) {
                         this._owner.conquer(tile)
                     } else {
-                        for (const neighbor of tile.neighbors()) {
-                            const no = neighbor.owner()
+                        for (const neighbor of this.mg.neighbors(tile)) {
+                            const no = this.mg.owner(neighbor)
                             if (no.isPlayer() && no != this.target) {
                                 this.mg.player(no.id()).conquer(tile)
                                 break
@@ -246,5 +240,5 @@ export class AttackExecution implements Execution {
 
 
 class TileContainer {
-    constructor(public readonly tile: Tile, public readonly priority: number, public readonly tick: number) { }
+    constructor(public readonly tile: TileRef, public readonly priority: number, public readonly tick: number) { }
 }

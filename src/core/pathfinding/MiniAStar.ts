@@ -1,6 +1,5 @@
-import { GameManager } from "../../server/GameManager";
-import { Cell, Game, TerrainMap, TerrainType } from "../game/Game";
-import { GameMapImpl, TileRef } from "../game/GameMap";
+import { Cell, } from "../game/Game";
+import { GameMap, GameMapImpl, TileRef } from "../game/GameMap";
 import { AStar, PathFindResultType, } from "./AStar";
 import { SerialAStar } from "./SerialAStar";
 
@@ -10,8 +9,8 @@ export class MiniAStar implements AStar {
     private aStar: SerialAStar
 
     constructor(
-        private gameMap: GameMapImpl,
-        private miniMap: GameMapImpl,
+        private gameMap: GameMap,
+        private miniMap: GameMap,
         private src: TileRef,
         private dst: TileRef,
         private canMove: (t: TileRef) => boolean,
@@ -40,10 +39,10 @@ export class MiniAStar implements AStar {
         return this.aStar.compute()
     }
 
-    reconstructPath(): Cell[] {
-        const upscaled = upscalePath(this.aStar.reconstructPath())
+    reconstructPath(): TileRef[] {
+        const upscaled = upscalePath(this.aStar.reconstructPath().map(tr => new Cell(this.gameMap.x(tr), this.gameMap.y(tr))))
         upscaled.push(new Cell(this.gameMap.x(this.dst), this.gameMap.y(this.dst)))
-        return upscaled
+        return upscaled.map(c => this.gameMap.ref(c.x, c.y))
     }
 
 }

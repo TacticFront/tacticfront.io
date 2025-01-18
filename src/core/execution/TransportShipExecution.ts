@@ -1,12 +1,11 @@
-import { Unit, Cell, Execution, MutableUnit, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, Tile, UnitType, TerrainType } from "../game/Game";
-import { and, bfs, manhattanDistWrapped, sourceDstOceanShore, targetTransportTile } from "../Util";
+import { Unit, Cell, Execution, MutableUnit, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, UnitType, TerrainType } from "../game/Game";
 import { AttackExecution } from "./AttackExecution";
 import { MessageType } from '../game/Game';
-import { DisplayMessageUpdate } from '../game/Game';
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
-import { SerialAStar } from "../pathfinding/SerialAStar";
 import { consolex } from "../Consolex";
+import { TileRef } from "../game/GameMap";
+import { targetTransportTile } from "../Util";
 
 export class TransportShipExecution implements Execution {
 
@@ -22,9 +21,9 @@ export class TransportShipExecution implements Execution {
     private target: MutablePlayer | TerraNullius
 
     // TODO make private
-    public path: Tile[]
-    private src: Tile | null
-    private dst: Tile | null
+    public path: TileRef[]
+    private src: TileRef | null
+    private dst: TileRef | null
 
 
     private boat: MutableUnit
@@ -34,7 +33,7 @@ export class TransportShipExecution implements Execution {
     constructor(
         private attackerID: PlayerID,
         private targetID: PlayerID | null,
-        private cell: Cell,
+        private ref: TileRef,
         private troops: number | null,
     ) { }
 
@@ -68,7 +67,7 @@ export class TransportShipExecution implements Execution {
 
         this.troops = Math.min(this.troops, this.attacker.troops())
 
-        this.dst = targetTransportTile(this.mg.width(), this.mg.tile(this.cell))
+        this.dst = targetTransportTile(this.mg, this.ref)
         if (this.dst == null) {
             consolex.warn(`${this.attacker} cannot send ship to ${this.target}, cannot find attack tile`)
             this.active = false
@@ -102,7 +101,7 @@ export class TransportShipExecution implements Execution {
         const result = this.pathFinder.nextTile(this.boat.tile(), this.dst)
         switch (result.type) {
             case PathFindResultType.Completed:
-                if (this.dst.owner() == this.attacker) {
+                if (this.mg.owner(this.dst) == this.attacker) {
                     this.attacker.addTroops(this.troops)
                     this.boat.delete(false)
                     this.active = false
@@ -113,7 +112,7 @@ export class TransportShipExecution implements Execution {
                 } else {
                     this.attacker.conquer(this.dst)
                     this.mg.addExecution(
-                        new AttackExecution(this.troops, this.attacker.id(), this.targetID, this.dst.cell(), null, false)
+                        new AttackExecution(this.troops, this.attacker.id(), this.targetID, this.dst, false)
                     )
                 }
                 this.boat.delete(false)

@@ -1,7 +1,6 @@
 import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { Layer } from './Layer';
-import { Game, Player } from '../../../core/game/Game';
 import { ClientID } from '../../../core/Schemas';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { EventBus, GameEvent } from '../../../core/EventBus';
@@ -59,7 +58,7 @@ export class Leaderboard extends LitElement implements Layer {
       .map((player, index) => ({
         name: player.displayName(),
         position: index + 1,
-        score: formatPercentage(player.numTilesOwned() / this.game.terrainMap().numLandTiles()),
+        score: formatPercentage(player.numTilesOwned() / this.game.numLandTiles()),
         gold: renderNumber(player.gold()),
         isMyPlayer: player == myPlayer,
         player: player
@@ -78,7 +77,7 @@ export class Leaderboard extends LitElement implements Layer {
       this.players.push({
         name: myPlayer.displayName(),
         position: place,
-        score: formatPercentage(myPlayer.numTilesOwned() / this.game.terrainMap().numLandTiles()),
+        score: formatPercentage(myPlayer.numTilesOwned() / this.game.numLandTiles()),
         gold: renderNumber(myPlayer.gold()),
         isMyPlayer: true,
         player: myPlayer

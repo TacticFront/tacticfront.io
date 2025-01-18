@@ -1,9 +1,8 @@
 import { PriorityQueue } from "@datastructures-js/priority-queue";
 import { AStar } from "./AStar";
 import { PathFindResultType } from "./AStar";
-import { Cell } from "../game/Game";
 import { consolex } from "../Consolex";
-import { GameMapImpl, TileRef } from "../game/GameMap";
+import { GameMap, GameMapImpl, TileRef } from "../game/GameMap";
 
 
 export class SerialAStar implements AStar {
@@ -22,7 +21,7 @@ export class SerialAStar implements AStar {
         private canMove: (t: TileRef) => boolean,
         private iterations: number,
         private maxTries: number,
-        private gameMap: GameMapImpl
+        private gameMap: GameMap
     ) {
         this.fwdOpenSet = new PriorityQueue<{ tile: TileRef; fScore: number; }>(
             (a, b) => a.fScore - b.fScore
@@ -118,7 +117,7 @@ export class SerialAStar implements AStar {
         }
     }
 
-    public reconstructPath(): Cell[] {
+    public reconstructPath(): TileRef[] {
         if (!this.meetingPoint) return [];
 
         // Reconstruct path from start to meeting point
@@ -136,6 +135,6 @@ export class SerialAStar implements AStar {
             fwdPath.push(current);
         }
 
-        return fwdPath.map(sn => new Cell(this.gameMap.x(sn), this.gameMap.y(sn)));
+        return fwdPath
     }
 }

@@ -1,12 +1,11 @@
 import { MessageType } from '../game/Game';
 import { renderNumber } from "../../client/Utils";
-import { AllPlayers, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, Tile, Unit, UnitType } from "../game/Game";
+import { AllPlayers, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID,  UnitType } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
-import { SerialAStar } from "../pathfinding/SerialAStar";
-import { PseudoRandom } from "../PseudoRandom";
-import { bfs, dist, distSortUnit, manhattanDist } from "../Util";
+import { distSortUnit } from "../Util";
 import { consolex } from "../Consolex";
+import { TileRef } from '../game/GameMap';
 
 export class TradeShipExecution implements Execution {
 
@@ -23,7 +22,7 @@ export class TradeShipExecution implements Execution {
         private dstPort: MutableUnit,
         private pathFinder: PathFinder,
         // don't modify
-        private path: Tile[]
+        private path: TileRef[]
     ) { }
 
 
@@ -60,7 +59,7 @@ export class TradeShipExecution implements Execution {
         }
 
         if (this.wasCaptured) {
-            const ports = this.tradeShip.owner().units(UnitType.Port).sort(distSortUnit(this.tradeShip))
+            const ports = this.tradeShip.owner().units(UnitType.Port).sort(distSortUnit(this.mg, this.tradeShip))
             if (ports.length == 0) {
                 this.tradeShip.delete(false)
                 this.active = false
@@ -70,7 +69,7 @@ export class TradeShipExecution implements Execution {
             const result = this.pathFinder.nextTile(this.tradeShip.tile(), dstPort.tile())
             switch (result.type) {
                 case PathFindResultType.Completed:
-                    const gold = this.mg.config().tradeShipGold(this.srcPort, dstPort)
+                    const gold = this.mg.config().tradeShipGold(this.mg.manhattanDist(this.srcPort.tile(), dstPort.tile()))
                     this.tradeShip.owner().addGold(gold)
                     this.mg.displayMessage(
                         `Received ${renderNumber(gold)} gold from ship captured from ${this.origOwner.displayName()}`,
@@ -97,7 +96,7 @@ export class TradeShipExecution implements Execution {
 
         if (this.index >= this.path.length) {
             this.active = false
-            const gold = this.mg.config().tradeShipGold(this.srcPort, this.dstPort)
+            const gold = this.mg.config().tradeShipGold(this.mg.manhattanDist(this.srcPort.tile(), this.dstPort.tile()))
             this.srcPort.owner().addGold(gold)
             this.dstPort.owner().addGold(gold)
             this.mg.displayMessage(

@@ -1,20 +1,18 @@
 import { consolex } from "../Consolex";
-import { Cell, DefenseBonus, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, Tile, UnitType } from "../game/Game";
-import { bfs, dist } from "../Util";
+import { Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, UnitType } from "../game/Game";
+import { TileRef } from "../game/GameMap";
 
 export class CityExecution implements Execution {
 
     private player: MutablePlayer
     private mg: MutableGame
     private city: MutableUnit
-    private tile: Tile
     private active: boolean = true
 
-    constructor(private ownerId: PlayerID, private cell: Cell) { }
+    constructor(private ownerId: PlayerID, private tile: TileRef) { }
 
     init(mg: MutableGame, ticks: number): void {
         this.mg = mg
-        this.tile = mg.tile(this.cell)
         this.player = mg.player(this.ownerId)
     }
 

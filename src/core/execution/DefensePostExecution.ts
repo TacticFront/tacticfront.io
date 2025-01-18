@@ -1,22 +1,20 @@
 import { consolex } from "../Consolex";
-import { Cell, DefenseBonus, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, Tile, UnitType } from "../game/Game";
-import { bfs, dist } from "../Util";
+import { Cell, DefenseBonus, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, UnitType } from "../game/Game";
+import { manhattanDistFN, TileRef } from "../game/GameMap";
 
 export class DefensePostExecution implements Execution {
 
     private player: MutablePlayer
     private mg: MutableGame
     private post: MutableUnit
-    private tile: Tile
     private active: boolean = true
 
     private defenseBonuses: DefenseBonus[] = []
 
-    constructor(private ownerId: PlayerID, private cell: Cell) { }
+    constructor(private ownerId: PlayerID, private tile: TileRef) { }
 
     init(mg: MutableGame, ticks: number): void {
         this.mg = mg
-        this.tile = mg.tile(this.cell)
         this.player = mg.player(this.ownerId)
     }
 
@@ -29,9 +27,11 @@ export class DefensePostExecution implements Execution {
                 return
             }
             this.post = this.player.buildUnit(UnitType.DefensePost, 0, spawnTile)
-            bfs(spawnTile, dist(spawnTile, this.mg.config().defensePostRange())).forEach(t => {
-                if (t.terrain().isLand()) {
-                    this.defenseBonuses.push(this.mg.addTileDefenseBonus(t, this.post, this.mg.config().defensePostDefenseBonus()))
+            this.mg.bfs(spawnTile, manhattanDistFN(spawnTile, this.mg.config().defensePostRange())).forEach(t => {
+                if (this.mg.isLake(t)) {
+                    this.defenseBonuses.push(
+                        this.mg.addTileDefenseBonus(t, this.post, this.mg.config().defensePostDefenseBonus())
+                    )
                 }
             })
         }

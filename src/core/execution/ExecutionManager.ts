@@ -1,4 +1,4 @@
-import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerInfo, TerraNullius, Tile, PlayerType, Alliance, UnitType } from "../game/Game";
+import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerInfo, TerraNullius, PlayerType, Alliance, UnitType } from "../game/Game";
 import { AttackIntent, BoatAttackIntentSchema, GameID, Intent, Turn } from "../Schemas";
 import { AttackExecution } from "./AttackExecution";
 import { SpawnExecution } from "./SpawnExecution";
@@ -21,6 +21,7 @@ import { MissileSiloExecution } from "./MissileSiloExecution";
 import { BattleshipExecution } from "./BattleshipExecution";
 import { DefensePostExecution } from "./DefensePostExecution";
 import { CityExecution } from "./CityExecution";
+import { TileRef } from "../game/GameMap";
 
 
 
@@ -30,7 +31,7 @@ export class Executor {
     // private random = new PseudoRandom(999)
     private random: PseudoRandom = null
 
-    constructor(private gs: Game, private gameID: GameID) {
+    constructor(private mg: Game, private gameID: GameID) {
         // Add one to avoid id collisions with bots.
         this.random = new PseudoRandom(simpleHash(gameID) + 1)
     }
@@ -42,30 +43,23 @@ export class Executor {
     createExec(intent: Intent): Execution {
         switch (intent.type) {
             case "attack": {
-                const source: Cell | null = intent.sourceX != null && intent.sourceY != null
-                    ? new Cell(intent.sourceX, intent.sourceY)
-                    : null;
-                const target: Cell | null = intent.targetX != null && intent.targetY != null
-                    ? new Cell(intent.targetX, intent.targetY)
-                    : null;
                 return new AttackExecution(
                     intent.troops,
                     intent.attackerID,
                     intent.targetID,
-                    source,
-                    target,
+                    null
                 );
             }
             case "spawn":
                 return new SpawnExecution(
                     new PlayerInfo(sanitize(intent.name), intent.playerType, intent.clientID, intent.playerID),
-                    new Cell(intent.x, intent.y)
+                    this.mg.ref(intent.x, intent.y)
                 );
             case "boat":
                 return new TransportShipExecution(
                     intent.attackerID,
                     intent.targetID,
-                    new Cell(intent.x, intent.y),
+                    this.mg.ref(intent.x, intent.y),
                     intent.troops
                 );
             case "allianceRequest":
@@ -86,19 +80,19 @@ export class Executor {
                 switch (intent.unit) {
                     case UnitType.AtomBomb:
                     case UnitType.HydrogenBomb:
-                        return new NukeExecution(intent.unit, intent.player, new Cell(intent.x, intent.y))
+                        return new NukeExecution(intent.unit, intent.player, this.mg.ref(intent.x, intent.y))
                     case UnitType.Destroyer:
-                        return new DestroyerExecution(intent.player, new Cell(intent.x, intent.y))
+                        return new DestroyerExecution(intent.player, this.mg.ref(intent.x, intent.y))
                     case UnitType.Battleship:
-                        return new BattleshipExecution(intent.player, new Cell(intent.x, intent.y))
+                        return new BattleshipExecution(intent.player, this.mg.ref(intent.x, intent.y))
                     case UnitType.Port:
-                        return new PortExecution(intent.player, new Cell(intent.x, intent.y))
+                        return new PortExecution(intent.player, this.mg.ref(intent.x, intent.y))
                     case UnitType.MissileSilo:
-                        return new MissileSiloExecution(intent.player, new Cell(intent.x, intent.y))
+                        return new MissileSiloExecution(intent.player, this.mg.ref(intent.x, intent.y))
                     case UnitType.DefensePost:
-                        return new DefensePostExecution(intent.player, new Cell(intent.x, intent.y))
+                        return new DefensePostExecution(intent.player, this.mg.ref(intent.x, intent.y))
                     case UnitType.City:
-                        return new CityExecution(intent.player, new Cell(intent.x, intent.y))
+                        return new CityExecution(intent.player, this.mg.ref(intent.x, intent.y))
                     default:
                         throw Error(`unit type ${intent.unit} not supported`)
                 }
@@ -108,12 +102,12 @@ export class Executor {
     }
 
     spawnBots(numBots: number): Execution[] {
-        return new BotSpawner(this.gs, this.gameID).spawnBots(numBots).map(i => this.createExec(i))
+        return new BotSpawner(this.mg, this.gameID).spawnBots(numBots).map(i => this.createExec(i))
     }
 
     fakeHumanExecutions(): Execution[] {
         const execs = []
-        for (const nation of this.gs.nations()) {
+        for (const nation of this.mg.nations()) {
             execs.push(new FakeHumanExecution(
                 this.gameID,
                 new PlayerInfo(
@@ -123,7 +117,7 @@ export class Executor {
                     this.random.nextID()
                 ),
                 nation.cell,
-                nation.strength * this.gs.config().difficultyModifier(this.gs.config().gameConfig().difficulty)
+                nation.strength * this.mg.config().difficultyModifier(this.mg.config().gameConfig().difficulty)
             ))
         }
         return execs

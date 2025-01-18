@@ -100,10 +100,6 @@ export const AttackIntentSchema = BaseIntentSchema.extend({
     attackerID: ID,
     targetID: ID.nullable(),
     troops: z.number().nullable(),
-    sourceX: z.number().nullable(),
-    sourceY: z.number().nullable(),
-    targetX: z.number().nullable(),
-    targetY: z.number().nullable()
 });
 
 export const SpawnIntentSchema = BaseIntentSchema.extend({

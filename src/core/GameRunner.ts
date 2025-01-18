@@ -4,17 +4,18 @@ import { getConfig } from "./configuration/Config";
 import { EventBus } from "./EventBus";
 import { Executor } from "./execution/ExecutionManager";
 import { WinCheckExecution } from "./execution/WinCheckExecution";
-import { Cell, DisplayMessageUpdate, Game, GameUpdateType, MessageType, MutableGame, MutableTile, NameViewData, Player, PlayerActions, PlayerID, PlayerProfile, Tile, TileUpdate, UnitType, UnitUpdate } from "./game/Game";
+import { Cell, DisplayMessageUpdate, Game, GameUpdateType, MessageType, MutableGame, NameViewData, Player, PlayerActions, PlayerID, PlayerProfile, UnitType } from "./game/Game";
 import { createGame } from "./game/GameImpl";
-import { loadTerrainMap } from "./game/TerrainMapLoader";
+import { loadTerrainMap as loadGameMap } from "./game/TerrainMapLoader";
 import { GameConfig, Turn } from "./Schemas";
-import { and, bfs, dist, targetTransportTile } from "./Util";
-import { GameUpdateViewData, packTileData } from "./GameView";
+import { GameUpdateViewData} from "./GameView";
+import { andFN, manhattanDistFN, TileRef } from "./game/GameMap";
+import { targetTransportTile } from "./Util";
 
 export async function createGameRunner(gameID: string, gameConfig: GameConfig, callBack: (gu: GameUpdateViewData) => void): Promise<GameRunner> {
     const config = getConfig(gameConfig)
-    const terrainMap = await loadTerrainMap(gameConfig.gameMap);
-    const game = createGame(terrainMap.gameMap, terrainMap.miniGameMap, terrainMap.nationMap, config)
+    const gameMap = await loadGameMap(gameConfig.gameMap);
+    const game = createGame(gameMap.gameMap, gameMap.miniGameMap, gameMap.nationMap, config)
     const gr = new GameRunner(game as MutableGame, new Executor(game, gameID), callBack)
     gr.init()
     return gr
@@ -69,12 +70,12 @@ export class GameRunner {
         }
 
         // Many tiles are updated to pack it into an array
-        const packedTileUpdates = updates[GameUpdateType.Tile].map(u => packTileData(u as TileUpdate))
+        const packedTileUpdates = updates[GameUpdateType.Tile].map(u => u.update)
         updates[GameUpdateType.Tile] = []
 
         this.callBack({
             tick: this.game.ticks(),
-            packedTileUpdates: packedTileUpdates,
+            packedTileUpdates: new BigUint64Array(packedTileUpdates),
             updates: updates,
             playerNameViewData: this.playerViewData
         })
@@ -83,15 +84,15 @@ export class GameRunner {
 
     public playerActions(playerID: PlayerID, x: number, y: number): PlayerActions {
         const player = this.game.player(playerID)
-        const tile = this.game.tile(new Cell(x, y))
+        const tile = this.game.ref(x, y)
         const actions = {
             canBoat: this.canBoat(player, tile),
             canAttack: this.canAttack(player, tile),
             buildableUnits: Object.values(UnitType).filter(ut => player.canBuild(ut, tile) != false)
         } as PlayerActions
 
-        if (tile.hasOwner()) {
-            const other = tile.owner() as Player
+        if (this.game.hasOwner(tile)) {
+            const other = this.game.owner(tile) as Player
             actions.interaction = {
                 sharedBorder: player.sharesBorderWith(other),
                 canSendEmoji: player.canSendEmoji(other),
@@ -120,25 +121,25 @@ export class GameRunner {
         };
     }
 
-    private canBoat(myPlayer: Player, tile: Tile): boolean {
-        const other = tile.owner()
+    private canBoat(myPlayer: Player, tile: TileRef): boolean {
+        const other = this.game.owner(tile)
         if (myPlayer.units(UnitType.TransportShip).length >= this.game.config().boatMaxNumber()) {
             return false
         }
 
         let myPlayerBordersOcean = false
         for (const bt of myPlayer.borderTiles()) {
-            if (bt.terrain().isOceanShore()) {
+            if (this.game.isOceanShore(bt)) {
                 myPlayerBordersOcean = true
                 break
             }
         }
         let otherPlayerBordersOcean = false
-        if (!tile.hasOwner()) {
+        if (!this.game.hasOwner(tile)) {
             otherPlayerBordersOcean = true
         } else {
             for (const bt of (other as Player).borderTiles()) {
-                if (bt.terrain().isOceanShore()) {
+                if (this.game.isOceanShore(bt)) {
                     otherPlayerBordersOcean = true
                     break
                 }
@@ -150,8 +151,8 @@ export class GameRunner {
         }
 
         let nearOcean = false
-        for (const t of bfs(tile, and(t => t.owner() == tile.owner() && t.terrain().isLand(), dist(tile, 25)))) {
-            if (t.terrain().isOceanShore()) {
+        for (const t of this.game.bfs(tile, andFN((gm, t) => gm.ownerID(t) == gm.ownerID(tile) && gm.isLand(t), manhattanDistFN(tile, 25)))) {
+            if (this.game.isOceanShore(t)) {
                 nearOcean = true
                 break
             }
@@ -161,7 +162,7 @@ export class GameRunner {
         }
 
         if (myPlayerBordersOcean && otherPlayerBordersOcean) {
-            const dst = targetTransportTile(this.game.width(), tile)
+            const dst = targetTransportTile(this.game, tile)
             if (dst != null) {
                 if (myPlayer.canBuild(UnitType.TransportShip, dst)) {
                     return true
@@ -170,24 +171,24 @@ export class GameRunner {
         }
     }
 
-    private canAttack(myPlayer: Player, tile: Tile): boolean {
-        if (tile.owner() == myPlayer) {
+    private canAttack(myPlayer: Player, tile: TileRef): boolean {
+        if (this.game.owner(tile) == myPlayer) {
             return false
         }
         // TODO: fix event bus
-        if (tile.owner().isPlayer() && myPlayer.isAlliedWith(tile.owner() as Player)) {
+        if (this.game.hasOwner(tile) && myPlayer.isAlliedWith(this.game.owner(tile) as Player)) {
             // this.eventBus.emit(new DisplayMessageEvent("Cannot attack ally", MessageType.WARN))
             return false
         }
-        if (!tile.terrain().isLand()) {
+        if (!this.game.isLand(tile)) {
             return false
         }
-        if (tile.hasOwner()) {
-            return myPlayer.sharesBorderWith(tile.owner())
+        if (this.game.hasOwner(tile)) {
+            return myPlayer.sharesBorderWith(this.game.owner(tile))
         } else {
-            for (const t of bfs(tile, and(t => !t.hasOwner() && t.terrain().isLand(), dist(tile, 200)))) {
-                for (const n of t.neighbors()) {
-                    if (n.owner() == myPlayer) {
+            for (const t of this.game.bfs(tile, andFN((gm, t) => !gm.hasOwner(t) && gm.isLand(t), manhattanDistFN(tile, 200)))) {
+                for (const n of this.game.neighbors(t)) {
+                    if (this.game.owner(n) == myPlayer) {
                         return true
                     }
                 }

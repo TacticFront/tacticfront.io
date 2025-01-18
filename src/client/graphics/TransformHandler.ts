@@ -1,7 +1,7 @@
 import { colord } from "colord";
 import { EventBus } from "../../core/EventBus"
 import { Cell, Game, Player } from "../../core/game/Game";
-import { calculateBoundingBox, calculateBoundingBoxCenter, manhattanDist } from "../../core/Util";
+import { calculateBoundingBox, calculateBoundingBoxCenter } from "../../core/Util";
 import { ZoomEvent, DragEvent } from "../InputHandler";
 import { GoToPlayerEvent } from "./layers/Leaderboard";
 import { placeName } from "./NameBoxCalculator";
@@ -131,7 +131,7 @@ export class TransformHandler {
         const { screenX, screenY } = this.screenCenter()
         const screenMapCenter = new Cell(screenX, screenY)
 
-        if (manhattanDist(screenMapCenter, this.target) < 2) {
+        if (this.game.manhattanDist(this.game.ref(screenX, screenY), this.game.ref(this.target.x, this.target.y)) < 2) {
             this.clearTarget()
             return
         }

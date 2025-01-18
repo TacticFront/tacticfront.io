@@ -1,7 +1,5 @@
 import { colord, Colord } from "colord";
 import { Theme } from "../../../core/configuration/Config";
-import { Unit, Cell, Game, Tile, UnitType } from "../../../core/game/Game";
-import { bfs, dist, euclDist } from "../../../core/Util";
 import { Layer } from "./Layer";
 import { EventBus } from "../../../core/EventBus";
 
@@ -10,6 +8,8 @@ import missileSiloIcon from '../../../../resources/images/MissileSiloUnit.png';
 import shieldIcon from '../../../../resources/images/ShieldIcon.png';
 import cityIcon from '../../../../resources/images/CityIcon.png';
 import { GameView } from "../../../core/GameView";
+import { Cell, Unit, UnitType } from "../../../core/game/Game";
+import { euclDistFN } from "../../../core/game/GameMap";
 
 interface UnitRenderConfig {
     icon: string;
@@ -17,14 +17,13 @@ interface UnitRenderConfig {
     territoryRadius: number;
 }
 
-
 export class StructureLayer implements Layer {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
     private unitImages: Map<string, HTMLImageElement> = new Map();
     private theme: Theme = null;
 
-    private seenUnits = new Set<Unit>()
+    private seenUnits = new Set<Unit>();
 
     // Configuration for supported unit types only
     private readonly unitConfigs: Partial<Record<UnitType, UnitRenderConfig>> = {
@@ -70,20 +69,20 @@ export class StructureLayer implements Layer {
     }
 
     tick() {
-        this.game.units().forEach(u => this.handleUnitRendering(u))
+        this.game.units().forEach(u => this.handleUnitRendering(u));
     }
 
     init() {
-        this.redraw()
+        this.redraw();
     }
 
     redraw() {
-        console.log('structure layer redrawing')
+        console.log('structure layer redrawing');
         this.canvas = document.createElement('canvas');
         this.context = this.canvas.getContext("2d", { alpha: true });
         this.canvas.width = this.game.width();
         this.canvas.height = this.game.height();
-        this.game.units().forEach(u => this.handleUnitRendering(u))
+        this.game.units().forEach(u => this.handleUnitRendering(u));
     }
 
     renderLayer(context: CanvasRenderingContext2D) {
@@ -106,11 +105,11 @@ export class StructureLayer implements Layer {
 
         if (unit.isActive() && this.seenUnits.has(unit)) {
             // Already rendered, so don't do anything.
-            return
+            return;
         }
         if (!unit.isActive() && !this.seenUnits.has(unit)) {
             // Has been deleted and render is cleared so don't do anything.
-            return
+            return;
         }
 
         const config = this.unitConfigs[unitType];
@@ -119,14 +118,15 @@ export class StructureLayer implements Layer {
         if (!config || !unitImage) return;
 
         // Clear previous rendering
-        bfs(unit.tile(), euclDist(unit.tile(), config.borderRadius))
-            .forEach(t => this.clearCell(t.cell()));
+        for (const tile of this.game.bfs(unit.tile(), euclDistFN(unit.tile(), config.borderRadius))) {
+            this.clearCell(new Cell(this.game.x(tile), this.game.y(tile)));
+        }
 
         if (!unit.isActive()) {
-            this.seenUnits.delete(unit)
+            this.seenUnits.delete(unit);
             return;
         }
-        this.seenUnits.add(unit)
+        this.seenUnits.add(unit);
 
         // Create temporary canvas for icon processing
         const tempCanvas = document.createElement('canvas');
@@ -138,16 +138,25 @@ export class StructureLayer implements Layer {
         tempContext.drawImage(unitImage, 0, 0);
         const iconData = tempContext.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
 
-        const cell = unit.tile().cell();
-        const startX = cell.x - Math.floor(tempCanvas.width / 2);
-        const startY = cell.y - Math.floor(tempCanvas.height / 2);
+        const startX = this.game.x(unit.tile()) - Math.floor(tempCanvas.width / 2);
+        const startY = this.game.y(unit.tile()) - Math.floor(tempCanvas.height / 2);
 
         // Draw border and territory
-        bfs(unit.tile(), euclDist(unit.tile(), config.borderRadius))
-            .forEach(t => this.paintCell(t.cell(), this.theme.borderColor(unit.owner().info()), 255));
+        for (const tile of this.game.bfs(unit.tile(), euclDistFN(unit.tile(), config.borderRadius))) {
+            this.paintCell(
+                new Cell(this.game.x(tile), this.game.y(tile)),
+                this.theme.borderColor(unit.owner().info()),
+                255
+            );
+        }
 
-        bfs(unit.tile(), euclDist(unit.tile(), config.territoryRadius))
-            .forEach(t => this.paintCell(t.cell(), this.theme.territoryColor(unit.owner().info()), 130));
+        for (const tile of this.game.bfs(unit.tile(), euclDistFN(unit.tile(), config.territoryRadius))) {
+            this.paintCell(
+                new Cell(this.game.x(tile), this.game.y(tile)),
+                this.theme.territoryColor(unit.owner().info()),
+                130
+            );
+        }
 
         // Draw the icon
         this.renderIcon(iconData, startX, startY, tempCanvas.width, tempCanvas.height, unit);
@@ -184,7 +193,7 @@ export class StructureLayer implements Layer {
     }
 
     paintCell(cell: Cell, color: Colord, alpha: number) {
-        this.clearCell(cell)
+        this.clearCell(cell);
         this.context.fillStyle = color.alpha(alpha / 255).toRgbString();
         this.context.fillRect(cell.x, cell.y, 1, 1);
     }

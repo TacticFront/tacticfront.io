@@ -1,9 +1,10 @@
 import { consolex } from "../Consolex";
-import {Cell, Game, PlayerType, Tile} from "../game/Game";
-import {PseudoRandom} from "../PseudoRandom";
-import {GameID, SpawnIntent} from "../Schemas";
-import {bfs, dist as dist, manhattanDist, simpleHash} from "../Util";
-import {BOT_NAME_PREFIXES, BOT_NAME_SUFFIXES} from "./utils/BotNames";
+import { Cell, Game, PlayerType } from "../game/Game";
+import { TileRef } from "../game/GameMap";
+import { PseudoRandom } from "../PseudoRandom";
+import { GameID, SpawnIntent } from "../Schemas";
+import { simpleHash } from "../Util";
+import { BOT_NAME_PREFIXES, BOT_NAME_SUFFIXES } from "./utils/BotNames";
 
 
 export class BotSpawner {
@@ -34,11 +35,11 @@ export class BotSpawner {
 
     spawnBot(botName: string): SpawnIntent | null {
         const tile = this.randTile()
-        if (!tile.terrain().isLand()) {
+        if (!this.gs.isLand(tile)) {
             return null
         }
         for (const spawn of this.bots) {
-            if (manhattanDist(new Cell(spawn.x, spawn.y), tile.cell()) < 30) {
+            if (this.gs.manhattanDist(this.gs.ref(spawn.x, spawn.y), tile) < 30) {
                 return null
             }
         }
@@ -47,8 +48,8 @@ export class BotSpawner {
             playerID: this.random.nextID(),
             name: botName,
             playerType: PlayerType.Bot,
-            x: tile.cell().x,
-            y: tile.cell().y
+            x: this.gs.x(tile),
+            y: this.gs.y(tile)
         };
     }
 
@@ -58,10 +59,10 @@ export class BotSpawner {
         return `${BOT_NAME_PREFIXES[prefixIndex]} ${BOT_NAME_SUFFIXES[suffixIndex]}`;
     }
 
-    private randTile(): Tile {
-        return this.gs.tile(new Cell(
+    private randTile(): TileRef {
+        return this.gs.ref(
             this.random.nextInt(0, this.gs.width()),
             this.random.nextInt(0, this.gs.height())
-        ))
+        )
     }
 }

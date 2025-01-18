@@ -1,4 +1,4 @@
-import { Cell, GameMapType, TerrainMap, TerrainTile, TerrainType } from './Game';
+import { Cell, GameMapType,  TerrainType } from './Game';
 import { consolex } from '../Consolex';
 import { NationMap } from './TerrainMapLoader';
 

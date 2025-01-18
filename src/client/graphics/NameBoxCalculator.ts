@@ -1,5 +1,4 @@
-import { Game, Player, Tile, Cell, NameViewData } from '../../core/game/Game';
-import { GameView } from '../../core/GameView';
+import { Game, Player, Cell, NameViewData } from '../../core/game/Game';
 import { calculateBoundingBox, within } from '../../core/Util';
 
 export interface Point {
@@ -17,12 +16,7 @@ export interface Rectangle {
 
 
 export function placeName(game: Game, player: Player): NameViewData {
-    return {
-        x: 0,
-        y: 0,
-        size: 0
-    }
-    const boundingBox = calculateBoundingBox(player.borderTiles());
+    const boundingBox = calculateBoundingBox(game, player.borderTiles());
 
 
     const rawScalingFactor = (boundingBox.max.x - boundingBox.min.x) / 100
@@ -72,8 +66,8 @@ export function createGrid(game: Game, player: Player, boundingBox: { min: Point
         for (let y = scaledBoundingBox.min.y; y <= scaledBoundingBox.max.y; y++) {
             const cell = new Cell(x * scalingFactor, y * scalingFactor);
             if (game.isOnMap(cell)) {
-                const tile = game.tile(cell);
-                grid[x - scaledBoundingBox.min.x][y - scaledBoundingBox.min.y] = tile.terrain().isLake() || tile.owner() === player; // TODO: okay if lake
+                const tile = game.ref(cell.x, cell.y);
+                grid[x - scaledBoundingBox.min.x][y - scaledBoundingBox.min.y] = this.game.isLake(tile) || this.game.owner(tile) === player; // TODO: okay if lake
             }
         }
     }

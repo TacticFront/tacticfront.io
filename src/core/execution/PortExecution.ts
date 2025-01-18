@@ -1,13 +1,11 @@
-import { AllPlayers, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, TerrainType, Tile, Unit, UnitType } from "../game/Game";
+import { AllPlayers, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, TerrainType, UnitType } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
-import { SerialAStar } from "../pathfinding/SerialAStar";
 import { PseudoRandom } from "../PseudoRandom";
-import { bfs, dist, manhattanDist } from "../Util";
 import { TradeShipExecution } from "./TradeShipExecution";
 import { consolex } from "../Consolex";
 import { MiniAStar } from "../pathfinding/MiniAStar";
-import { TileRef } from "../game/GameMap";
+import { manhattanDistFN, TileRef } from "../game/GameMap";
 
 export class PortExecution implements Execution {
 
@@ -15,12 +13,12 @@ export class PortExecution implements Execution {
     private mg: MutableGame
     private port: MutableUnit
     private random: PseudoRandom
-    private portPaths = new Map<MutableUnit, Tile[]>()
+    private portPaths = new Map<MutableUnit, TileRef[]>()
     private computingPaths = new Map<MutableUnit, MiniAStar>()
 
     constructor(
         private _owner: PlayerID,
-        private cell: Cell,
+        private tile: TileRef,
     ) { }
 
 
@@ -33,16 +31,16 @@ export class PortExecution implements Execution {
 
         if (this.port == null) {
             // TODO: use canBuild
-            const tile = this.mg.tile(this.cell)
+            const tile = this.tile
             const player = this.mg.player(this._owner)
             if (!player.canBuild(UnitType.Port, tile)) {
-                consolex.warn(`player ${player} cannot build port at ${this.cell}`)
+                consolex.warn(`player ${player} cannot build port at ${this.tile}`)
                 this.active = false
                 return
             }
-            const spawns = Array.from(bfs(tile, dist(tile, 20)))
-                .filter(t => t.terrain().isOceanShore() && t.owner() == player)
-                .sort((a, b) => manhattanDist(a.cell(), tile.cell()) - manhattanDist(b.cell(), tile.cell()))
+            const spawns = Array.from(this.mg.bfs(tile, manhattanDistFN(tile, 20)))
+                .filter(t => this.mg.isOceanShore(t) && this.mg.owner(t) == player)
+                .sort((a, b) => this.mg.manhattanDist(a, tile) - this.mg.manhattanDist(b, tile))
 
             if (spawns.length == 0) {
                 consolex.warn(`cannot find spawn for port`)
@@ -73,7 +71,7 @@ export class PortExecution implements Execution {
                 const aStar = this.computingPaths.get(port)
                 switch (aStar.compute()) {
                     case PathFindResultType.Completed:
-                        this.portPaths.set(port, aStar.reconstructPath().map(cell => this.mg.tile(cell)))
+                        this.portPaths.set(port, aStar.reconstructPath())
                         this.computingPaths.delete(port)
                         break
                     case PathFindResultType.Pending:
@@ -88,8 +86,8 @@ export class PortExecution implements Execution {
             const pf = new MiniAStar(
                 this.mg.map(),
                 this.mg.miniMap(),
-                this.port.tile().ref(),
-                port.tile().ref(),
+                this.port.tile(),
+                port.tile(),
                 (tr: TileRef) => this.mg.miniMap().isOcean(tr),
                 10_000,
                 25
