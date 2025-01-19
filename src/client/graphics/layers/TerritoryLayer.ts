@@ -161,7 +161,8 @@ export class TerritoryLayer implements Layer {
         if (!this.game.hasOwner(tile)) {
             if (this.game.hasFallout(tile)) {
                 this.paintCell(
-                    new Cell(this.game.x(tile), this.game.y(tile)),
+                    this.game.x(tile),
+                    this.game.y(tile),
                     this.theme.falloutColor(),
                     150
                 );
@@ -173,21 +174,21 @@ export class TerritoryLayer implements Layer {
         const owner = this.game.owner(tile) as Player;
         if (this.game.isBorder(tile)) {
             this.paintCell(
-                new Cell(this.game.x(tile), this.game.y(tile)),
+                this.game.x(tile), this.game.y(tile),
                 this.theme.borderColor(owner.info()),
                 255
             );
         } else {
             this.paintCell(
-                new Cell(this.game.x(tile), this.game.y(tile)),
+                this.game.x(tile), this.game.y(tile),
                 this.theme.territoryColor(owner.info()),
                 150
             );
         }
     }
 
-    paintCell(cell: Cell, color: Colord, alpha: number) {
-        const index = (cell.y * this.game.width()) + cell.x;
+    paintCell(x: number, y: number, color: Colord, alpha: number) {
+        const index = (y * this.game.width()) + x;
         const offset = index * 4;
         this.imageData.data[offset] = color.rgba.r;
         this.imageData.data[offset + 1] = color.rgba.g;

@@ -31,7 +31,7 @@ export class PlayerImpl implements MutablePlayer {
     public _borderTiles: Set<TileRef> = new Set();
 
     public _units: UnitImpl[] = [];
-    public _tiles: Set<TileRef>
+    public _tiles: Set<TileRef> = new Set()
 
     private _name: string;
     private _displayName: string;

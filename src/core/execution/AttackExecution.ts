@@ -175,7 +175,6 @@ export class AttackExecution implements Execution {
             }
             this.border.add(neighbor)
             let numOwnedByMe = this.mg.neighbors(neighbor)
-                .filter(t => this.mg.isLake(t))
                 .filter(t => this.mg.owner(t) == this._owner)
                 .length
             let dist = 0

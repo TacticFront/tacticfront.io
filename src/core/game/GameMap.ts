@@ -28,7 +28,6 @@ export interface GameMap {
     hasFallout(ref: TileRef): boolean
     setFallout(ref: TileRef, value: boolean): void
     isBorder(ref: TileRef): boolean
-    setBorder(ref: TileRef, value: boolean): void
     neighbors(ref: TileRef): TileRef[]
     isWater(ref: TileRef): boolean
     isLake(ref: TileRef): boolean
@@ -62,8 +61,7 @@ export class GameMapImpl implements GameMap {
     // State bits (Uint16Array)
     private static readonly PLAYER_ID_OFFSET = 0;  // Uses bits 0-11 (12 bits)
     private static readonly PLAYER_ID_MASK = 0xFFF;
-    private static readonly FALLOUT_BIT = 12;
-    private static readonly BORDER_BIT = 13;
+    private static readonly FALLOUT_BIT = 13;
     private static readonly DEFENSE_BONUS_BIT = 14;
     // Bit 15 still reserved
 
@@ -155,15 +153,7 @@ export class GameMapImpl implements GameMap {
     }
 
     isBorder(ref: TileRef): boolean {
-        return Boolean(this.state[ref] & (1 << GameMapImpl.BORDER_BIT));
-    }
-
-    setBorder(ref: TileRef, value: boolean): void {
-        if (value) {
-            this.state[ref] |= 1 << GameMapImpl.BORDER_BIT;
-        } else {
-            this.state[ref] &= ~(1 << GameMapImpl.BORDER_BIT);
-        }
+        return this.neighbors(ref).some(tr => this.ownerID(tr) != this.ownerID(ref))
     }
 
     hasDefenseBonus(ref: TileRef): boolean {

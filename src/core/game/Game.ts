@@ -337,7 +337,6 @@ export interface MutableGame extends Game {
     units(...types: UnitType[]): MutableUnit[]
     addTileDefenseBonus(tile: TileRef, unit: Unit, amount: number): DefenseBonus
     removeTileDefenseBonus(bonus: DefenseBonus): void
-    addFallout(tile: TileRef): void
     setWinner(winner: Player): void
 }
 

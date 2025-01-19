@@ -67,7 +67,7 @@ export function createGrid(game: Game, player: Player, boundingBox: { min: Point
             const cell = new Cell(x * scalingFactor, y * scalingFactor);
             if (game.isOnMap(cell)) {
                 const tile = game.ref(cell.x, cell.y);
-                grid[x - scaledBoundingBox.min.x][y - scaledBoundingBox.min.y] = this.game.isLake(tile) || this.game.owner(tile) === player; // TODO: okay if lake
+                grid[x - scaledBoundingBox.min.x][y - scaledBoundingBox.min.y] = game.isLake(tile) || game.owner(tile) === player; // TODO: okay if lake
             }
         }
     }

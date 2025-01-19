@@ -56,7 +56,7 @@ export class BotExecution implements Execution {
         if (this.neighborsTerraNullius) {
             for (const b of this.bot.borderTiles()) {
                 for (const n of this.mg.neighbors(b)) {
-                    if (!this.mg.hasOwner(n) && this.mg.isLake(n)) {
+                    if (!this.mg.hasOwner(n) && this.mg.isLand(n)) {
                         this.sendAttack(this.mg.terraNullius())
                         return
                     }

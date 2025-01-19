@@ -18,7 +18,7 @@ import { Layer } from "./Layer";
 import { SendAllianceReplyIntentEvent } from "../../Transport";
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { onlyImages, sanitize } from '../../../core/Util';
-import { GameView } from '../../../core/GameView';
+import { GameView, PlayerView } from '../../../core/GameView';
 
 interface Event {
   description: string;
@@ -222,8 +222,8 @@ export class EventsDisplay extends LitElement implements Layer {
       return;
     }
 
-    const requestor = this.game.playerBySmallID(update.requestorID)
-    const recipient = this.game.playerBySmallID(update.recipientID)
+    const requestor = this.game.playerBySmallID(update.requestorID) as PlayerView
+    const recipient = this.game.playerBySmallID(update.recipientID) as PlayerView
 
     this.addEvent({
       description: `${requestor.name()} requests an alliance!`,
@@ -258,7 +258,7 @@ export class EventsDisplay extends LitElement implements Layer {
       return;
     }
 
-    const recipient = this.game.playerBySmallID(update.request.recipientID)
+    const recipient = this.game.playerBySmallID(update.request.recipientID) as PlayerView
 
     this.addEvent({
       description: `${recipient.name()} ${update.accepted ? "accepted" : "rejected"} your alliance request`,
@@ -272,8 +272,8 @@ export class EventsDisplay extends LitElement implements Layer {
     const myPlayer = this.game.playerByClientID(this.clientID);
     if (!myPlayer) return;
 
-    const betrayed = this.game.playerBySmallID(update.betrayedID)
-    const traitor = this.game.playerBySmallID(update.traitorID)
+    const betrayed = this.game.playerBySmallID(update.betrayedID) as PlayerView
+    const traitor = this.game.playerBySmallID(update.traitorID) as PlayerView
 
     if (!betrayed.isTraitor() && traitor === myPlayer) {
       this.addEvent({
@@ -297,7 +297,7 @@ export class EventsDisplay extends LitElement implements Layer {
     if (!myPlayer) return;
 
     const otherID = update.player1ID === myPlayer.smallID() ? update.player2ID : update.player2ID === myPlayer.smallID() ? update.player1ID : null;
-    const other = this.game.playerBySmallID(otherID)
+    const other = this.game.playerBySmallID(otherID) as PlayerView
     if (!other || !myPlayer.isAlive() || !other.isAlive()) return;
 
     this.addEvent({
@@ -309,11 +309,11 @@ export class EventsDisplay extends LitElement implements Layer {
   }
 
   onTargetPlayerEvent(event: TargetPlayerUpdate) {
-    const other = this.game.playerBySmallID(event.playerID)
-    const myPlayer = this.game.playerByClientID(this.clientID);
+    const other = this.game.playerBySmallID(event.playerID) as PlayerView
+    const myPlayer = this.game.playerByClientID(this.clientID) as PlayerView
     if (!myPlayer || !myPlayer.isAlliedWith(other)) return;
 
-    const target = this.game.playerBySmallID(event.targetID)
+    const target = this.game.playerBySmallID(event.targetID) as PlayerView
 
     this.addEvent({
       description: `${other.name()} requests you attack ${target.name()}`,
@@ -328,7 +328,7 @@ export class EventsDisplay extends LitElement implements Layer {
     if (!myPlayer) return;
 
     const recipient = update.recipientID == AllPlayers ? AllPlayers : this.game.playerBySmallID(update.recipientID)
-    const sender = this.game.playerBySmallID(update.senderID)
+    const sender = this.game.playerBySmallID(update.senderID) as PlayerView
 
     if (recipient == myPlayer) {
       this.addEvent({
@@ -340,7 +340,7 @@ export class EventsDisplay extends LitElement implements Layer {
       });
     } else if (sender === myPlayer && recipient !== AllPlayers) {
       this.addEvent({
-        description: `Sent ${recipient.displayName()}: ${update.message}`,
+        description: `Sent ${(recipient as PlayerView).displayName()}: ${update.message}`,
         unsafeDescription: true,
         type: MessageType.INFO,
         highlight: true,

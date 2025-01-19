@@ -20,7 +20,7 @@ export class CityExecution implements Execution {
         if (this.city == null) {
             const spawnTile = this.player.canBuild(UnitType.City, this.tile)
             if (spawnTile == false) {
-                consolex.warn('cannot build Defense Post')
+                consolex.warn('cannot build city')
                 this.active = false
                 return
             }

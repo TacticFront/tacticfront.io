@@ -40,7 +40,7 @@ export class MiniAStar implements AStar {
     }
 
     reconstructPath(): TileRef[] {
-        const upscaled = upscalePath(this.aStar.reconstructPath().map(tr => new Cell(this.gameMap.x(tr), this.gameMap.y(tr))))
+        const upscaled = upscalePath(this.aStar.reconstructPath().map(tr => new Cell(this.miniMap.x(tr), this.miniMap.y(tr))))
         upscaled.push(new Cell(this.gameMap.x(this.dst), this.gameMap.y(this.dst)))
         return upscaled.map(c => this.gameMap.ref(c.x, c.y))
     }

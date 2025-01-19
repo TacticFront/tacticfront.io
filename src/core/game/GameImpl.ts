@@ -84,11 +84,11 @@ export class GameImpl implements MutableGame {
         return old
     }
 
-    addFallout(tile: TileRef) {
-        if (this.hasOwner(tile)) {
+    setFallout(tile: TileRef, value: boolean) {
+        if (value && this.hasOwner(tile)) {
             throw Error(`cannot set fallout, tile ${tile} has owner`)
         }
-        this._map.setFallout(tile, true)
+        this._map.setFallout(tile, value)
         this.addUpdate({
             type: GameUpdateType.Tile,
             update: this.toTileUpdate(tile)
@@ -315,12 +315,6 @@ export class GameImpl implements MutableGame {
         return ns
     }
 
-    private assertIsOnMap(cell: Cell) {
-        if (!this.isOnMap(cell)) {
-            throw new Error(`cell ${cell.toString()} is not on map`)
-        }
-    }
-
     conquer(owner: PlayerImpl, tile: TileRef): void {
         if (!this.isLand(tile)) {
             throw Error(`cannot conquer water`)
@@ -330,7 +324,6 @@ export class GameImpl implements MutableGame {
             previousOwner._lastTileChange = this._ticks
             previousOwner._tiles.delete(tile)
             previousOwner._borderTiles.delete(tile)
-            this._map.setBorder(tile, false)
         }
         this._map.setOwnerID(tile, owner.smallID())
         owner._tiles.add(tile)
@@ -355,7 +348,6 @@ export class GameImpl implements MutableGame {
         previousOwner._lastTileChange = this._ticks
         previousOwner._tiles.delete(tile)
         previousOwner._borderTiles.delete(tile)
-        this._map.setBorder(tile, false)
 
         this._map.setOwnerID(tile, 0)
         this.updateBorders(tile)
@@ -373,15 +365,12 @@ export class GameImpl implements MutableGame {
 
         for (const t of tiles) {
             if (!this.hasOwner(t)) {
-                this._map.setBorder(t, false)
                 continue
             }
             if (this.calcIsBorder(t)) {
                 (this.owner(t) as PlayerImpl)._borderTiles.add(t);
-                this._map.setBorder(t, true)
             } else {
                 (this.owner(t) as PlayerImpl)._borderTiles.delete(t);
-                this._map.setBorder(t, false)
             }
             // this.updates.push(t.toUpdate())
         }
@@ -494,7 +483,7 @@ export class GameImpl implements MutableGame {
     height(): number { return this._map.height() }
     numLandTiles(): number { return this._map.numLandTiles() }
     isValidCoord(x: number, y: number): boolean { return this._map.isValidCoord(x, y) }
-    isLand(ref: TileRef): boolean { return this._map.isLake(ref) }
+    isLand(ref: TileRef): boolean { return this._map.isLand(ref) }
     isOceanShore(ref: TileRef): boolean { return this._map.isOceanShore(ref) }
     isOcean(ref: TileRef): boolean { return this._map.isOcean(ref) }
     isShoreline(ref: TileRef): boolean { return this._map.isShoreline(ref) }
@@ -503,9 +492,7 @@ export class GameImpl implements MutableGame {
     hasOwner(ref: TileRef): boolean { return this._map.hasOwner(ref) }
     setOwnerID(ref: TileRef, playerId: number): void { return this._map.setOwnerID(ref, playerId) }
     hasFallout(ref: TileRef): boolean { return this._map.hasFallout(ref) }
-    setFallout(ref: TileRef, value: boolean): void { return this._map.setFallout(ref, value) }
     isBorder(ref: TileRef): boolean { return this._map.isBorder(ref) }
-    setBorder(ref: TileRef, value: boolean): void { return this._map.setBorder(ref, value) }
     neighbors(ref: TileRef): TileRef[] { return this._map.neighbors(ref) }
     isWater(ref: TileRef): boolean { return this._map.isWater(ref) }
     isLake(ref: TileRef): boolean { return this._map.isLake(ref) }

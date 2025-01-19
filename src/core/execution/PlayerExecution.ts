@@ -150,9 +150,9 @@ export class PlayerExecution implements Execution {
     private removeCluster(cluster: Set<TileRef>) {
         const arr = Array.from(cluster)
         const mode = getMode(
-            arr.
-                flatMap(t => this.mg.neighbors(t))
-                .filter(t => this.mg.ownerID(t) != this.player.smallID())
+            arr
+                .flatMap(t => this.mg.neighbors(t))
+                .filter(t => this.mg.hasOwner(t) && this.mg.ownerID(t) != this.player.smallID())
                 .map(t => this.mg.ownerID(t))
         )
         if (!this.mg.playerBySmallID(mode).isPlayer()) {

@@ -49,7 +49,7 @@ export class UnitView implements Unit {
         return this.gameView.ref(this.data.pos.x, this.data.pos.y)
     }
     owner(): PlayerView {
-        return this.gameView.playerBySmallID(this.data.ownerID)
+        return this.gameView.playerBySmallID(this.data.ownerID) as PlayerView
     }
     isActive(): boolean {
         return this.data.isActive
@@ -222,6 +222,7 @@ export class GameView implements GameMap {
     public update(gu: GameUpdateViewData) {
         this.lastUpdate = gu
 
+        this.updatedTiles = []
         this.lastUpdate.packedTileUpdates.forEach(tu => {
             this.updatedTiles.push(this.updateTile(tu))
         })
@@ -259,7 +260,10 @@ export class GameView implements GameMap {
         throw Error(`player id ${id} not found`)
     }
 
-    playerBySmallID(id: number): PlayerView {
+    playerBySmallID(id: number): PlayerView | TerraNullius {
+        if (id == 0) {
+            return new TerraNulliusImpl()
+        }
         if (!this.smallIDToID.has(id)) {
             throw new Error(`small id ${id} not found`)
         }
@@ -284,7 +288,7 @@ export class GameView implements GameMap {
         return []
     }
 
-    owner(tile: TileRef): PlayerView {
+    owner(tile: TileRef): PlayerView | TerraNullius {
         return this.playerBySmallID(this.ownerID(tile))
     }
 
@@ -312,7 +316,7 @@ export class GameView implements GameMap {
     height(): number { return this._map.height() }
     numLandTiles(): number { return this._map.numLandTiles() }
     isValidCoord(x: number, y: number): boolean { return this._map.isValidCoord(x, y) }
-    isLand(ref: TileRef): boolean { return this._map.isLake(ref) }
+    isLand(ref: TileRef): boolean { return this._map.isLand(ref) }
     isOceanShore(ref: TileRef): boolean { return this._map.isOceanShore(ref) }
     isOcean(ref: TileRef): boolean { return this._map.isOcean(ref) }
     isShoreline(ref: TileRef): boolean { return this._map.isShoreline(ref) }
@@ -323,7 +327,6 @@ export class GameView implements GameMap {
     hasFallout(ref: TileRef): boolean { return this._map.hasFallout(ref) }
     setFallout(ref: TileRef, value: boolean): void { return this._map.setFallout(ref, value) }
     isBorder(ref: TileRef): boolean { return this._map.isBorder(ref) }
-    setBorder(ref: TileRef, value: boolean): void { return this._map.setBorder(ref, value) }
     neighbors(ref: TileRef): TileRef[] { return this._map.neighbors(ref) }
     isWater(ref: TileRef): boolean { return this._map.isWater(ref) }
     isLake(ref: TileRef): boolean { return this._map.isLake(ref) }

@@ -92,7 +92,7 @@ export class FakeHumanExecution implements Execution {
 
         const enemyborder = Array.from(this.player.borderTiles())
             .flatMap(t => this.mg.neighbors(t))
-            .filter(t => this.mg.isLake(t) && this.mg.ownerID(t) != this.player.smallID())
+            .filter(t => this.mg.isLand(t) && this.mg.ownerID(t) != this.player.smallID())
 
         if (enemyborder.length == 0) {
             if (this.random.chance(5)) {
