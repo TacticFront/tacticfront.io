@@ -92,9 +92,6 @@ export class PlayerExecution implements Execution {
 
     private removeClusters() {
         const clusters = this.calculateClusters()
-        // if (clusters.length <= 1) {
-        //     return
-        // }
         clusters.sort((a, b) => b.size - a.size);
 
         const main = clusters.shift()
@@ -148,18 +145,20 @@ export class PlayerExecution implements Execution {
     }
 
     private removeCluster(cluster: Set<TileRef>) {
-        const arr = Array.from(cluster)
-        const mode = getMode(
-            arr
-                .flatMap(t => this.mg.neighbors(t))
-                .filter(t => this.mg.hasOwner(t) && this.mg.ownerID(t) != this.player.smallID())
-                .map(t => this.mg.ownerID(t))
-        )
+        const result = new Set<number>(); // Use Set to automatically deduplicate ownerIDs
+        for (const t of cluster) {
+            for (const neighbor of this.mg.neighbors(t)) {
+                if (this.mg.ownerID(neighbor) != this.player.smallID()) {
+                    result.add(this.mg.ownerID(neighbor));
+                }
+            }
+        }
+        const mode = getMode(result)
         if (!this.mg.playerBySmallID(mode).isPlayer()) {
             consolex.warn('mode is not found')
             return
         }
-        const firstTile = arr[0]
+        const firstTile = cluster.values().next().value
         const filter = (_, t: TileRef): boolean => this.mg.ownerID(t) == this.mg.ownerID(firstTile)
         const tiles = this.mg.bfs(firstTile, filter)
 
@@ -184,19 +183,15 @@ export class PlayerExecution implements Execution {
             const cluster = new Set<TileRef>()
             const queue: TileRef[] = [tile]
             seen.add(tile)
-            let loops = 0;
             while (queue.length > 0) {
-                loops += 1
                 const curr = queue.shift()
                 cluster.add(curr)
 
                 const neighbors = (this.mg as GameImpl).neighborsWithDiag(curr)
                 for (const neighbor of neighbors) {
-                    if (this.mg.isBorder(neighbor) && border.has(neighbor)) {
-                        if (!seen.has(neighbor)) {
-                            queue.push(neighbor)
-                            seen.add(neighbor)
-                        }
+                    if (border.has(neighbor) && !seen.has(neighbor)) {
+                        queue.push(neighbor)
+                        seen.add(neighbor)
                     }
                 }
             }

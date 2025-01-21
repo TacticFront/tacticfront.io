@@ -133,7 +133,7 @@ export function inscribed(outer: { min: Cell; max: Cell }, inner: { min: Cell; m
     );
 }
 
-export function getMode(list: number[]): number {
+export function getMode(list: Set<number>): number {
     // Count occurrences
     const counts = new Map<number, number>()
     for (const item of list) {
