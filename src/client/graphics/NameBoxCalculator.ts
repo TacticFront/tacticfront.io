@@ -37,11 +37,6 @@ export function placeName(game: Game, player: MutablePlayer): NameViewData {
         scalingFactor = 32
     }
 
-    console.log(`for player ${player.name()}, got scaling factor ${scalingFactor}}`)
-
-    // const rawScalingFactor = (boundingBox.max.x - boundingBox.min.x) / 1000
-    // const scalingFactor = within(Math.floor(rawScalingFactor), .1, 1)
-
     const grid = createGrid(game, player, boundingBox, scalingFactor);
     const largestRectangle = findLargestInscribedRectangle(grid);
     largestRectangle.x = largestRectangle.x * scalingFactor

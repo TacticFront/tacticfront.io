@@ -50,6 +50,7 @@ export async function loadTerrainFromFile(fileData: string): Promise<GameMap> {
         rawData[i] = packedByte;
         if (packedByte & 0b10000000) numLand++;
     }
+
     return new GameMapImpl(width, height, rawData, numLand)
 
 }

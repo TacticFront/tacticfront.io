@@ -9,6 +9,7 @@ import { MouseMoveEvent } from '../../InputHandler';
 import { GameView, PlayerView } from '../../../core/GameView';
 import { TileRef } from '../../../core/game/GameMap';
 import { PauseGameEvent } from '../../Transport';
+import { renderNumber, renderTroops } from '../../Utils';
 
 function euclideanDistWorld(coord: { x: number, y: number }, tileRef: TileRef, game: GameView): number {
     const x = game.x(tileRef);
@@ -165,8 +166,8 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
         return html`
         <div class="info-content">
             <div class="player-name ${isAlly ? 'ally' : ''}">${player.name()}</div>
-            <div class="type-label">Troops: ${player.troops()}</div>
-            <div class="type-label">Gold: ${player.gold()}</div>
+            <div class="type-label">Troops: ${renderTroops(player.troops())}</div>
+            <div class="type-label">Gold: ${renderNumber(player.gold())}</div>
             ${relationHtml == null ? '' : relationHtml}
         </div>
         `;
