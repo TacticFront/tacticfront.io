@@ -4,7 +4,7 @@ import { getConfig } from "./configuration/Config";
 import { EventBus } from "./EventBus";
 import { Executor } from "./execution/ExecutionManager";
 import { WinCheckExecution } from "./execution/WinCheckExecution";
-import { Cell, DisplayMessageUpdate, Game, GameUpdateType, MessageType, MutableGame, NameViewData, Player, PlayerActions, PlayerID, PlayerProfile, UnitType } from "./game/Game";
+import { Cell, DisplayMessageUpdate, Game, GameUpdateType, MessageType, MutableGame, NameViewData, Player, PlayerActions, PlayerID, PlayerProfile, PlayerType, UnitType } from "./game/Game";
 import { createGame } from "./game/GameImpl";
 import { loadTerrainMap as loadGameMap } from "./game/TerrainMapLoader";
 import { GameConfig, Turn } from "./Schemas";
@@ -62,8 +62,14 @@ export class GameRunner {
         this.game.addExecution(...this.execManager.createExecs(this.turns[this.currTurn]))
         this.currTurn++
         const updates = this.game.executeNextTick()
-        // TODO: make name rendering more efficient in spawn phase.
-        if (this.game.inSpawnPhase() || this.game.ticks() % 30 == 0) {
+
+        if (this.game.inSpawnPhase() && this.game.ticks() % 2 == 0) {
+            this.game.players()
+                .filter(p => p.type() == PlayerType.Human || p.type() == PlayerType.FakeHuman)
+                .forEach(p => this.playerViewData[p.id()] = placeName(this.game, p))
+        }
+
+        if (this.game.ticks() < 3 || this.game.ticks() % 30 == 0) {
             this.game.players().forEach(p => {
                 this.playerViewData[p.id()] = placeName(this.game, p)
             })
