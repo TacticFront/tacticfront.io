@@ -191,7 +191,7 @@ export class DefaultConfig implements Config {
         let speed = 0
         switch (tileToConquer.terrain()) {
             case TerrainType.Plains:
-                mag = 70
+                mag = 80
                 speed = 15
                 break
             case TerrainType.Highland:
@@ -199,7 +199,7 @@ export class DefaultConfig implements Config {
                 speed = 20
                 break
             case TerrainType.Mountain:
-                mag = 130
+                mag = 120
                 speed = 25
                 break
         }
