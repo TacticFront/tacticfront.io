@@ -103,7 +103,7 @@ export class NameLayer implements Layer {
         if (this.game.ticks() % 10 != 0) {
             return
         }
-        const sorted = this.game.players().sort((a, b) => b.numTilesOwned() - a.numTilesOwned())
+        const sorted = this.game.playerViews().sort((a, b) => b.numTilesOwned() - a.numTilesOwned())
         if (sorted.length > 0) {
             this.firstPlace = sorted[0]
         }
@@ -157,6 +157,7 @@ export class NameLayer implements Layer {
         nameDiv.style.whiteSpace = 'nowrap'
         nameDiv.style.overflow = 'hidden'
         nameDiv.style.textOverflow = 'ellipsis'
+        nameDiv.style.zIndex = '2'  // Higher z-index to appear on top
         element.appendChild(nameDiv)
 
         const troopsDiv = document.createElement('div')
@@ -164,11 +165,14 @@ export class NameLayer implements Layer {
         troopsDiv.style.color = this.theme.playerInfoColor(player.id()).toHex()
         troopsDiv.style.fontFamily = this.theme.font()
         troopsDiv.style.fontWeight = 'bold'
+        troopsDiv.style.zIndex = '2'
         element.appendChild(troopsDiv)
 
         const iconsDiv = document.createElement('div')
+        iconsDiv.style.justifyContent = 'center'
         iconsDiv.style.position = 'absolute'
         iconsDiv.style.display = 'flex'
+        iconsDiv.style.zIndex = '1'  // Lower z-index to appear behind
         element.appendChild(iconsDiv)
 
         this.container.appendChild(element)
@@ -177,7 +181,6 @@ export class NameLayer implements Layer {
 
     renderPlayerInfo(render: RenderInfo) {
         if (!render.player.nameLocation() || !render.player.isAlive()) {
-            console.log(`remove ${render.player.name()}`)
             this.renders = this.renders.filter(r => r != render)
             render.element.remove()
             return
@@ -215,7 +218,7 @@ export class NameLayer implements Layer {
 
         // Get icons container
         const iconsDiv = render.element.children[2] as HTMLDivElement
-        const iconSize = Math.floor(render.fontSize * 2)
+        const iconSize = Math.floor(render.fontSize * 4)
         const myPlayer = this.getPlayer()
 
         // Handle crown icon
@@ -263,7 +266,7 @@ export class NameLayer implements Layer {
         for (const icon of icons) {
             icon.style.width = `${iconSize}px`
             icon.style.height = `${iconSize}px`
-            icon.style.transform = `translateY(${iconSize / 4}px)`
+
         }
 
         if (!render.location) {
