@@ -1,4 +1,4 @@
-import { Game, Player, Cell, NameViewData } from '../../core/game/Game';
+import { Game, Player, Cell, NameViewData, MutablePlayer } from '../../core/game/Game';
 import { calculateBoundingBox, within } from '../../core/Util';
 
 export interface Point {
@@ -15,12 +15,32 @@ export interface Rectangle {
 
 
 
-export function placeName(game: Game, player: Player): NameViewData {
-    const boundingBox = calculateBoundingBox(game, player.borderTiles());
+export function placeName(game: Game, player: MutablePlayer): NameViewData {
 
+    const boundingBox = player.largestClusterBoundingBox ?? calculateBoundingBox(game, player.borderTiles());
 
-    const rawScalingFactor = (boundingBox.max.x - boundingBox.min.x) / 100
-    const scalingFactor = within(Math.floor(rawScalingFactor), 1, 1000)
+    let scalingFactor = 1
+    const width = boundingBox.max.x - boundingBox.min.x
+    const height = boundingBox.max.y - boundingBox.min.y
+    const size = Math.min(width, height)
+    if (size < 25) {
+        scalingFactor = 1
+    } else if (size < 50) {
+        scalingFactor = 2
+    } else if (size < 100) {
+        scalingFactor = 4
+    } else if (size < 250) {
+        scalingFactor = 8
+    } else if (size < 500) {
+        scalingFactor = 16
+    } else {
+        scalingFactor = 32
+    }
+
+    console.log(`for player ${player.name()}, got scaling factor ${scalingFactor}}`)
+
+    // const rawScalingFactor = (boundingBox.max.x - boundingBox.min.x) / 1000
+    // const scalingFactor = within(Math.floor(rawScalingFactor), .1, 1)
 
     const grid = createGrid(game, player, boundingBox, scalingFactor);
     const largestRectangle = findLargestInscribedRectangle(grid);

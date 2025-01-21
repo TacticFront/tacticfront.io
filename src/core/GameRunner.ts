@@ -8,7 +8,7 @@ import { Cell, DisplayMessageUpdate, Game, GameUpdateType, MessageType, MutableG
 import { createGame } from "./game/GameImpl";
 import { loadTerrainMap as loadGameMap } from "./game/TerrainMapLoader";
 import { GameConfig, Turn } from "./Schemas";
-import { GameUpdateViewData} from "./GameView";
+import { GameUpdateViewData } from "./GameView";
 import { andFN, manhattanDistFN, TileRef } from "./game/GameMap";
 import { targetTransportTile } from "./Util";
 
@@ -62,8 +62,8 @@ export class GameRunner {
         this.game.addExecution(...this.execManager.createExecs(this.turns[this.currTurn]))
         this.currTurn++
         const updates = this.game.executeNextTick()
-
-        if (this.game.inSpawnPhase() || this.game.ticks() % 20 == 0) {
+        // TODO: make name rendering more efficient in spawn phase.
+        if (this.game.inSpawnPhase() || this.game.ticks() % 30 == 0) {
             this.game.players().forEach(p => {
                 this.playerViewData[p.id()] = placeName(this.game, p)
             })

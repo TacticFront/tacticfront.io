@@ -56,6 +56,9 @@ export class PlayerImpl implements MutablePlayer {
         this._displayName = this._name // processName(this._name)
 
     }
+
+    largestClusterBoundingBox: { min: Cell, max: Cell } | null
+
     toUpdate(): PlayerUpdate {
         return {
             type: GameUpdateType.Player,

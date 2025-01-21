@@ -259,6 +259,7 @@ export interface Player {
 }
 
 export interface MutablePlayer extends Player {
+    largestClusterBoundingBox: { min: Cell, max: Cell } | null
     // Targets for this player
     targets(): Player[]
     // Targets of player and all allies.
