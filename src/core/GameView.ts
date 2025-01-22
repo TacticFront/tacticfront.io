@@ -166,7 +166,7 @@ export class PlayerView implements Player {
         return []
     }
     isTraitor(): boolean {
-        return false
+        return this.data.isTraitor
     }
     canTarget(other: Player): boolean {
         return false

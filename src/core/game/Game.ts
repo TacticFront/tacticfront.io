@@ -429,6 +429,7 @@ export interface PlayerUpdate {
     troops: number,
     targetTroopRatio: number
     alliances: number[]
+    isTraitor: boolean
 }
 
 

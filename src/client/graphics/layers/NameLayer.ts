@@ -163,6 +163,10 @@ export class NameLayer implements Layer {
         iconsDiv.style.position = 'absolute'
         iconsDiv.style.display = 'flex'
         iconsDiv.style.zIndex = '1'  // Lower z-index to appear behind
+        iconsDiv.style.width = '100%'  // Add this
+        iconsDiv.style.height = '100%' // Add this
+        iconsDiv.style.top = '0'       // Add this
+        iconsDiv.style.left = '0'      // Add this
         element.appendChild(iconsDiv)
 
         this.container.appendChild(element)
