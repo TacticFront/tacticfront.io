@@ -182,7 +182,7 @@ export class PlayerView implements Player {
         return false
     }
     outgoingEmojis(): EmojiMessage[] {
-        return []
+        return this.data.outgoingEmojis
     }
     canDonate(recipient: Player): boolean {
         return false

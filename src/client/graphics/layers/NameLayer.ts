@@ -255,6 +255,27 @@ export class NameLayer implements Layer {
             existingTarget.remove()
         }
 
+        const existingEmoji = iconsDiv.querySelector('[data-icon="emoji"]')
+        const emojis = render.player.outgoingEmojis().filter(emoji =>
+            emoji.recipientID == AllPlayers || emoji.recipientID == myPlayer?.smallID()
+        );
+
+        if (emojis.length > 0) {
+            if (!existingEmoji) {
+                const emojiDiv = document.createElement('div')
+                emojiDiv.setAttribute('data-icon', 'emoji')
+                emojiDiv.style.fontSize = `${iconSize}px`
+                emojiDiv.style.position = 'absolute'
+                emojiDiv.style.top = `-${iconSize}px`
+                emojiDiv.style.width = '100%'
+                emojiDiv.style.textAlign = 'center'
+                emojiDiv.textContent = emojis[0].message
+                iconsDiv.appendChild(emojiDiv)
+            }
+        } else if (existingEmoji) {
+            existingEmoji.remove()
+        }
+
         // Update icon sizes based on scale
         const icons = iconsDiv.getElementsByTagName('img')
         for (const icon of icons) {
