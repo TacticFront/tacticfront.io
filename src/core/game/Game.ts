@@ -422,14 +422,14 @@ export interface PlayerUpdate {
     playerType: PlayerType,
     isAlive: boolean,
     tilesOwned: number,
-    allies: PlayerID[],
     gold: number,
     population: number,
     workers: number,
     troops: number,
     targetTroopRatio: number
-    alliances: number[]
+    allies: number[]
     isTraitor: boolean
+    targets: number[]
 }
 
 

@@ -70,14 +70,14 @@ export class PlayerImpl implements MutablePlayer {
             playerType: this.type(),
             isAlive: this.isAlive(),
             tilesOwned: this.numTilesOwned(),
-            allies: this.allies().map(p => p.id()),
             gold: this._gold,
             population: this.population(),
             workers: this.workers(),
             troops: this.troops(),
             targetTroopRatio: this.targetTroopRatio(),
-            alliances: this.alliances().map(a => a.other(this).smallID()),
+            allies: this.alliances().map(a => a.other(this).smallID()),
             isTraitor: this.isTraitor(),
+            targets: this.targets().map(p => p.smallID())
         }
     }
 

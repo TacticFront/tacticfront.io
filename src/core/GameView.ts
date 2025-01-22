@@ -107,8 +107,11 @@ export class PlayerView implements Player {
     numTilesOwned(): number {
         return this.data.tilesOwned
     }
-    allies(): Player[] {
-        return this.data.allies.map(a => this.game.player(a))
+    allies(): PlayerView[] {
+        return this.data.allies.map(a => this.game.playerBySmallID(a) as PlayerView)
+    }
+    targets(): PlayerView[] {
+        return this.data.targets.map(id => this.game.playerBySmallID(id) as PlayerView)
     }
     gold(): Gold {
         return this.data.gold
@@ -127,7 +130,7 @@ export class PlayerView implements Player {
     }
 
     isAlliedWith(other: Player): boolean {
-        return this.data.alliances.some(n => other.smallID() == n)
+        return this.data.allies.some(n => other.smallID() == n)
     }
     allianceWith(other: Player): Alliance | null {
         return null
@@ -163,8 +166,9 @@ export class PlayerView implements Player {
         return []
     }
     transitiveTargets(): Player[] {
-        return []
+        return [...this.targets(), ...this.allies().flatMap(p => p.targets())]
     }
+
     isTraitor(): boolean {
         return this.data.isTraitor
     }

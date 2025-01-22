@@ -144,7 +144,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
 
     private renderPlayerInfo(player: Player) {
         const myPlayer = this.myPlayer();
-        const isAlly = myPlayer.isAlliedWith(player)
+        const isAlly = myPlayer?.isAlliedWith(player)
         let relationHtml = null;
         if (player.type() == PlayerType.FakeHuman && myPlayer != null) {
             let classType = '';
