@@ -1,5 +1,5 @@
 import { Config } from "../configuration/Config";
-import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerID, PlayerInfo, Player, TerraNullius, Unit, MutableAllianceRequest, Alliance, Nation, UnitType, UnitInfo, DefenseBonus, GameUpdate, GameUpdateType, AllPlayers, GameUpdates, TerrainType } from "./Game";
+import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerID, PlayerInfo, Player, TerraNullius, Unit, MutableAllianceRequest, Alliance, Nation, UnitType, UnitInfo, DefenseBonus, GameUpdate, GameUpdateType, AllPlayers, GameUpdates, TerrainType, EmojiMessage } from "./Game";
 import { NationMap } from "./TerrainMapLoader";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
@@ -443,15 +443,10 @@ export class GameImpl implements MutableGame {
         })
     }
 
-    sendEmojiUpdate(sender: Player, recipient: Player | typeof AllPlayers, emoji: string): void {
-        const recipientID = recipient === AllPlayers ? recipient : recipient.smallID();
-
+    sendEmojiUpdate(msg: EmojiMessage): void {
         this.addUpdate({
             type: GameUpdateType.EmojiUpdate,
-            message: emoji,
-            senderID: sender.smallID(),
-            recipientID: recipientID,
-            createdAt: this._ticks
+            emoji: msg
         })
     }
 

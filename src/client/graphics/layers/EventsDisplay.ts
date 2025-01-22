@@ -328,12 +328,12 @@ export class EventsDisplay extends LitElement implements Layer {
     const myPlayer = this.game.playerByClientID(this.clientID);
     if (!myPlayer) return;
 
-    const recipient = update.recipientID == AllPlayers ? AllPlayers : this.game.playerBySmallID(update.recipientID)
-    const sender = this.game.playerBySmallID(update.senderID) as PlayerView
+    const recipient = update.emoji.recipientID == AllPlayers ? AllPlayers : this.game.playerBySmallID(update.emoji.recipientID)
+    const sender = this.game.playerBySmallID(update.emoji.senderID) as PlayerView
 
     if (recipient == myPlayer) {
       this.addEvent({
-        description: `${sender.displayName()}:${update.message}`,
+        description: `${sender.displayName()}:${update.emoji.message}`,
         unsafeDescription: true,
         type: MessageType.INFO,
         highlight: true,
@@ -341,7 +341,7 @@ export class EventsDisplay extends LitElement implements Layer {
       });
     } else if (sender === myPlayer && recipient !== AllPlayers) {
       this.addEvent({
-        description: `Sent ${(recipient as PlayerView).displayName()}: ${update.message}`,
+        description: `Sent ${(recipient as PlayerView).displayName()}: ${update.emoji.message}`,
         unsafeDescription: true,
         type: MessageType.INFO,
         highlight: true,

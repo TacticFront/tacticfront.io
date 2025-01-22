@@ -1,4 +1,4 @@
-import { MutablePlayer, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, EmojiMessage, AllPlayers, Gold, UnitType, Unit, MutableUnit, Relation, PlayerUpdate, GameUpdateType } from "./Game";
+import { MutablePlayer, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, AllPlayers, Gold, UnitType, Unit, MutableUnit, Relation, PlayerUpdate, GameUpdateType, EmojiMessage } from "./Game";
 import { ClientID } from "../Schemas";
 import { assertNever, closestOceanShoreFromPlayer, distSortUnit, simpleHash, sourceDstOceanShore, within } from "../Util";
 import { CellString, GameImpl } from "./GameImpl";
@@ -7,6 +7,7 @@ import { MessageType } from './Game';
 import { renderTroops } from "../../client/Utils";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
 import { manhattanDistFN, TileRef } from "./GameMap";
+import { Emoji } from "discord.js";
 
 interface Target {
     tick: Tick
@@ -77,7 +78,8 @@ export class PlayerImpl implements MutablePlayer {
             targetTroopRatio: this.targetTroopRatio(),
             allies: this.alliances().map(a => a.other(this).smallID()),
             isTraitor: this.isTraitor(),
-            targets: this.targets().map(p => p.smallID())
+            targets: this.targets().map(p => p.smallID()),
+            outgoingEmojis: this.outgoingEmojis()
         }
     }
 
@@ -318,9 +320,14 @@ export class PlayerImpl implements MutablePlayer {
         if (recipient == this) {
             throw Error(`Cannot send emoji to oneself: ${this}`)
         }
-        const msg = new EmojiMessage(this, recipient, emoji, this.mg.ticks())
+        const msg: EmojiMessage = {
+            message: emoji,
+            senderID: this.smallID(),
+            recipientID: recipient == AllPlayers ? recipient : recipient.smallID(),
+            createdAt: this.mg.ticks()
+        }
         this.outgoingEmojis_.push(msg)
-        this.mg.sendEmojiUpdate(this, recipient, emoji)
+        this.mg.sendEmojiUpdate(msg)
     }
 
     outgoingEmojis(): EmojiMessage[] {
@@ -330,7 +337,8 @@ export class PlayerImpl implements MutablePlayer {
     }
 
     canSendEmoji(recipient: Player | typeof AllPlayers): boolean {
-        const prevMsgs = this.outgoingEmojis_.filter(msg => msg.recipient == recipient)
+        const recipientID = recipient == AllPlayers ? AllPlayers : recipient.smallID()
+        const prevMsgs = this.outgoingEmojis_.filter(msg => msg.recipientID == recipientID)
         for (const msg of prevMsgs) {
             if (this.mg.ticks() - msg.createdAt < this.mg.config().emojiMessageCooldown()) {
                 return false

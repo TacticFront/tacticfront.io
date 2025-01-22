@@ -82,14 +82,6 @@ export class Nation {
     ) { }
 }
 
-export class EmojiMessage {
-    constructor(
-        public readonly sender: Player,
-        public readonly recipient: Player | typeof AllPlayers,
-        public readonly emoji: string,
-        public readonly createdAt: Tick
-    ) { }
-}
 
 export class Cell {
     public index: number
@@ -430,6 +422,7 @@ export interface PlayerUpdate {
     allies: number[]
     isTraitor: boolean
     targets: number[]
+    outgoingEmojis: EmojiMessage[]
 }
 
 
@@ -464,12 +457,16 @@ export interface TargetPlayerUpdate {
     targetID: number
 }
 
-export interface EmojiUpdate {
-    type: GameUpdateType.EmojiUpdate
+export interface EmojiMessage {
     message: string
     senderID: number
     recipientID: number | typeof AllPlayers
     createdAt: Tick
+}
+
+export interface EmojiUpdate {
+    type: GameUpdateType.EmojiUpdate
+    emoji: EmojiMessage
 }
 
 export interface DisplayMessageUpdate {
