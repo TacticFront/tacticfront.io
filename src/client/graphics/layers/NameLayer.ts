@@ -25,14 +25,10 @@ class RenderInfo {
 }
 
 export class NameLayer implements Layer {
-
     private canvas: HTMLCanvasElement
-
     private lastChecked = 0
-
     private renderCheckRate = 100
     private renderRefreshRate = 500
-
     private rand = new PseudoRandom(10)
     private renders: RenderInfo[] = []
     private seenPlayers: Set<Player> = new Set()
@@ -40,24 +36,17 @@ export class NameLayer implements Layer {
     private allianceIconImage: HTMLImageElement;
     private targetIconImage: HTMLImageElement;
     private crownIconImage: HTMLImageElement;
-
     private container: HTMLDivElement
-
-
     private myPlayer: Player | null = null
-
     private firstPlace: Player | null = null
 
     constructor(private game: GameView, private theme: Theme, private transformHandler: TransformHandler, private clientID: ClientID) {
         this.traitorIconImage = new Image();
         this.traitorIconImage.src = traitorIcon;
-
         this.allianceIconImage = new Image()
         this.allianceIconImage.src = allianceIcon
-
         this.crownIconImage = new Image()
         this.crownIconImage.src = crownIcon
-
         this.targetIconImage = new Image()
         this.targetIconImage.src = targetIcon
     }
@@ -65,18 +54,14 @@ export class NameLayer implements Layer {
     resizeCanvas() {
         this.canvas.width = window.innerWidth;
         this.canvas.height = window.innerHeight;
-        //this.redraw()
     }
-
 
     shouldTransform(): boolean {
         return false
     }
 
     public init() {
-        // this.canvas = document.createElement('canvas');
         this.canvas = createCanvas()
-
         window.addEventListener('resize', () => this.resizeCanvas());
         this.resizeCanvas();
 
@@ -84,8 +69,8 @@ export class NameLayer implements Layer {
         this.container.style.position = 'fixed'
         this.container.style.left = '50%'
         this.container.style.top = '50%'
-        this.container.style.pointerEvents = 'none' // Don't interfere with game interaction
-        this.container.style.zIndex = '1000' // Add this line
+        this.container.style.pointerEvents = 'none'
+        this.container.style.zIndex = '1000'
         document.body.appendChild(this.container)
     }
 
@@ -111,8 +96,6 @@ export class NameLayer implements Layer {
     public renderLayer(mainContex: CanvasRenderingContext2D) {
         const screenPosOld = this.transformHandler.worldToScreenCoordinates(new Cell(0, 0))
         const screenPos = new Cell(screenPosOld.x - window.innerWidth / 2, screenPosOld.y - window.innerHeight / 2)
-
-        // render.element.style.fontSize = `${render.fontSize}px`
         this.container.style.transform = `translate(${screenPos.x}px, ${screenPos.y}px) scale(${this.transformHandler.scale})`
 
         const now = Date.now()
@@ -138,7 +121,7 @@ export class NameLayer implements Layer {
         element.style.display = 'flex'
         element.style.flexDirection = 'column'
         element.style.alignItems = 'center'
-        // Don't set initial transform, will be handled in renderPlayerInfo
+        element.style.gap = '0px'
 
         const nameDiv = document.createElement('div')
         nameDiv.innerHTML = player.name()
@@ -147,7 +130,7 @@ export class NameLayer implements Layer {
         nameDiv.style.whiteSpace = 'nowrap'
         nameDiv.style.overflow = 'hidden'
         nameDiv.style.textOverflow = 'ellipsis'
-        nameDiv.style.zIndex = '2'  // Higher z-index to appear on top
+        nameDiv.style.zIndex = '2'
         element.appendChild(nameDiv)
 
         const troopsDiv = document.createElement('div')
@@ -159,15 +142,16 @@ export class NameLayer implements Layer {
         element.appendChild(troopsDiv)
 
         const iconsDiv = document.createElement('div')
-        iconsDiv.style.justifyContent = 'center'
-        iconsDiv.style.position = 'absolute'
         iconsDiv.style.display = 'flex'
-        iconsDiv.style.zIndex = '1'  // Lower z-index to appear behind
-        iconsDiv.style.width = '100%'  // Add this
-        iconsDiv.style.height = '100%' // Add this
-        iconsDiv.style.top = '0'       // Add this
-        iconsDiv.style.left = '0'      // Add this
+        iconsDiv.style.gap = '4px'
+        iconsDiv.style.justifyContent = 'center'
+        iconsDiv.style.alignItems = 'center'
+        iconsDiv.style.position = 'absolute'  // Add this
+        iconsDiv.style.zIndex = '1'          // Add this
+        iconsDiv.style.width = '100%'        // Add this
+        iconsDiv.style.height = '100%'       // Add this
         element.appendChild(iconsDiv)
+
 
         this.container.appendChild(element)
         return element
@@ -179,43 +163,42 @@ export class NameLayer implements Layer {
             render.element.remove()
             return
         }
+
         const oldLocation = render.location
         render.location = new Cell(render.player.nameLocation().x, render.player.nameLocation().y)
-        render.fontSize = Math.max(1, Math.floor(render.player.nameLocation().size))
-        // console.log(`zoom ${this.transformHandler.scale}, size: ${render.player.nameLocation().size}`)
-        const size = this.transformHandler.scale * render.player.nameLocation().size
-        if (size < 10) {
-            if (render.element.style.display != 'none') {
-                render.element.style.display = 'none'
-            }
-            return
-        }
-        if (!this.transformHandler.isOnScreen(render.location)) {
-            if (render.element.style.display != 'none') {
-                render.element.style.display = 'none'
-            }
-            return
-        }
-        if (render.element.style.display != 'flex') {
-            render.element.style.display = 'flex'
-        }
-        const now = Date.now()
-        if (now - render.lastRenderCalc > this.renderRefreshRate) {
-            render.lastRenderCalc = now + this.rand.nextInt(0, 100)
-        } else {
-            return
-        }
 
-        // Update troops count
+        // Calculate base size and scale
+        const baseSize = Math.max(1, Math.floor(render.player.nameLocation().size))
+        render.fontSize = Math.max(4, Math.floor(baseSize * 0.4))
+
+        // Screen space calculations
+        const size = this.transformHandler.scale * baseSize
+        if (size < 7 || !this.transformHandler.isOnScreen(render.location)) {
+            render.element.style.display = 'none'
+            return
+        }
+        render.element.style.display = 'flex'
+
+        // Throttle updates
+        const now = Date.now()
+        if (now - render.lastRenderCalc <= this.renderRefreshRate) {
+            return
+        }
+        render.lastRenderCalc = now + this.rand.nextInt(0, 100)
+
+        // Update text sizes
+        const nameDiv = render.element.children[0] as HTMLDivElement
         const troopsDiv = render.element.children[1] as HTMLDivElement
+        nameDiv.style.fontSize = `${render.fontSize}px`
+        troopsDiv.style.fontSize = `${render.fontSize}px`
         troopsDiv.textContent = renderTroops(render.player.troops())
 
-        // Get icons container
+        // Handle icons
         const iconsDiv = render.element.children[2] as HTMLDivElement
-        const iconSize = Math.floor(render.fontSize * 4)
+        const iconSize = Math.min(render.fontSize * 1.5, 48)
         const myPlayer = this.getPlayer()
 
-        // Handle crown icon
+        // Crown icon
         const existingCrown = iconsDiv.querySelector('[data-icon="crown"]')
         if (render.player === this.firstPlace) {
             if (!existingCrown) {
@@ -225,7 +208,7 @@ export class NameLayer implements Layer {
             existingCrown.remove()
         }
 
-        // Handle traitor icon
+        // Traitor icon
         const existingTraitor = iconsDiv.querySelector('[data-icon="traitor"]')
         if (render.player.isTraitor()) {
             if (!existingTraitor) {
@@ -235,7 +218,7 @@ export class NameLayer implements Layer {
             existingTraitor.remove()
         }
 
-        // Handle alliance icon
+        // Alliance icon
         const existingAlliance = iconsDiv.querySelector('[data-icon="alliance"]')
         if (myPlayer != null && myPlayer.isAlliedWith(render.player)) {
             if (!existingAlliance) {
@@ -245,7 +228,7 @@ export class NameLayer implements Layer {
             existingAlliance.remove()
         }
 
-        // Handle target icon
+        // Target icon
         const existingTarget = iconsDiv.querySelector('[data-icon="target"]')
         if (myPlayer != null && new Set(myPlayer.transitiveTargets()).has(render.player)) {
             if (!existingTarget) {
@@ -255,6 +238,7 @@ export class NameLayer implements Layer {
             existingTarget.remove()
         }
 
+        // Emoji handling
         const existingEmoji = iconsDiv.querySelector('[data-icon="emoji"]')
         const emojis = render.player.outgoingEmojis().filter(emoji =>
             emoji.recipientID == AllPlayers || emoji.recipientID == myPlayer?.smallID()
@@ -265,10 +249,7 @@ export class NameLayer implements Layer {
                 const emojiDiv = document.createElement('div')
                 emojiDiv.setAttribute('data-icon', 'emoji')
                 emojiDiv.style.fontSize = `${iconSize}px`
-                emojiDiv.style.position = 'absolute'
-                emojiDiv.style.top = `-${iconSize}px`
-                emojiDiv.style.width = '100%'
-                emojiDiv.style.textAlign = 'center'
+                // emojiDiv.textAlign = 'center'
                 emojiDiv.textContent = emojis[0].message
                 iconsDiv.appendChild(emojiDiv)
             }
@@ -276,21 +257,17 @@ export class NameLayer implements Layer {
             existingEmoji.remove()
         }
 
-        // Update icon sizes based on scale
+        // Update all icon sizes
         const icons = iconsDiv.getElementsByTagName('img')
         for (const icon of icons) {
             icon.style.width = `${iconSize}px`
             icon.style.height = `${iconSize}px`
-
         }
 
-        if (!render.location) {
-            return
-        }
-
-        if (render.location != oldLocation) {
-            // Handle all positioning in a single transform
-            render.element.style.transform = `translate(${render.location.x}px, ${render.location.y}px) translate(-50%, -50%) scale(${render.fontSize * 0.07})`
+        // Position element with scale
+        if (render.location && render.location != oldLocation) {
+            const scale = Math.min(baseSize * 0.25, 3)
+            render.element.style.transform = `translate(${render.location.x}px, ${render.location.y}px) translate(-50%, -50%) scale(${scale})`
         }
     }
 
@@ -300,7 +277,7 @@ export class NameLayer implements Layer {
         icon.style.width = `${size}px`
         icon.style.height = `${size}px`
         icon.setAttribute('data-icon', id)
-        icon.style.transform = `translateY(${size / 4}px)`
+        icon.style.position = 'absolute'
         return icon
     }
 

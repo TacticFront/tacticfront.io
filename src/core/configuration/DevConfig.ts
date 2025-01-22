@@ -30,6 +30,12 @@ export class DevConfig extends DefaultConfig {
         return info
     }
 
+    // populationIncreaseRate(player: Player): number {
+    //     return this.maxPopulation(player)
+    // }
+
+
+
     // tradeShipSpawnRate(): number { //     return 10
     // }
     // boatMaxDistance(): number {
