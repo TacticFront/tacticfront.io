@@ -30,8 +30,7 @@ export class DevConfig extends DefaultConfig {
         return info
     }
 
-    // tradeShipSpawnRate(): number {
-    //     return 10
+    // tradeShipSpawnRate(): number { //     return 10
     // }
     // boatMaxDistance(): number {
     //     return 5000

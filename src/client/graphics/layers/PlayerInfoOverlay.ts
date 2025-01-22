@@ -61,6 +61,8 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
 
     private _isActive = false;
 
+    private lastMouseUpdate = 0
+
     init() {
         this.eventBus.on(MouseMoveEvent, (e: MouseMoveEvent) => this.onMouseEvent(e));
         this._isActive = true;
@@ -68,6 +70,13 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     }
 
     private onMouseEvent(event: MouseMoveEvent) {
+        const now = Date.now()
+        if (now - this.lastMouseUpdate < 100) {
+            return
+        }
+        this.lastMouseUpdate = now
+
+
         this.setVisible(false);
         this.unit = null;
         this.player = null;
@@ -85,7 +94,6 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
         if (owner && owner.isPlayer()) {
             this.player = owner;
             (this.player as PlayerView).profile().then(p => {
-                console.log(`got profile ${JSON.stringify(p)}`);
                 this.playerProfile = p;
             });
             this.setVisible(true);
@@ -136,7 +144,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
 
     private renderPlayerInfo(player: Player) {
         const myPlayer = this.myPlayer();
-        const isAlly = (myPlayer?.isAlliedWith(player) || player == this.myPlayer()) ?? false;
+        const isAlly = myPlayer.isAlliedWith(player)
         let relationHtml = null;
         if (player.type() == PlayerType.FakeHuman && myPlayer != null) {
             let classType = '';

@@ -370,7 +370,7 @@ export interface PlayerActions {
 
 export interface PlayerProfile {
     relations: Record<number, Relation>
-    // TODO: add alliances etc
+    alliances: number[]
 }
 
 export interface PlayerInteraction {
@@ -428,6 +428,7 @@ export interface PlayerUpdate {
     workers: number,
     troops: number,
     targetTroopRatio: number
+    alliances: number[]
 }
 
 

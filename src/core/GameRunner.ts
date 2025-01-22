@@ -119,12 +119,15 @@ export class GameRunner {
             throw new Error(`player with id ${playerID} not found`);
         }
 
-        return {
+        const rel = {
             relations: Object.fromEntries(
                 player.allRelationsSorted()
                     .map(({ player, relation }) => [player.smallID(), relation])
-            )
+            ),
+            alliances: player.alliances().map(a => a.other(player).smallID())
         };
+        console.log(`got relations: ${JSON.stringify(rel)}`)
+        return rel
     }
 
     private canBoat(myPlayer: Player, tile: TileRef): boolean {

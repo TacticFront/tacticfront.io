@@ -127,7 +127,7 @@ export class PlayerView implements Player {
     }
 
     isAlliedWith(other: Player): boolean {
-        return false
+        return this.data.alliances.some(n => other.smallID() == n)
     }
     allianceWith(other: Player): Alliance | null {
         return null

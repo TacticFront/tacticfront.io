@@ -1,6 +1,5 @@
 import { AllPlayers, Cell, Game, Player, PlayerType } from "../../../core/game/Game"
 import { PseudoRandom } from "../../../core/PseudoRandom"
-import { calculateBoundingBox } from "../../../core/Util"
 import { Theme } from "../../../core/configuration/Config"
 import { Layer } from "./Layer"
 import { TransformHandler } from "../TransformHandler"
@@ -28,7 +27,6 @@ class RenderInfo {
 export class NameLayer implements Layer {
 
     private canvas: HTMLCanvasElement
-    private context: CanvasRenderingContext2D
 
     private lastChecked = 0
 
@@ -49,11 +47,6 @@ export class NameLayer implements Layer {
     private myPlayer: Player | null = null
 
     private firstPlace: Player | null = null
-
-    private lastUpdate = 0
-    private updateFrequency = 250
-
-    private lastRect = null;
 
     constructor(private game: GameView, private theme: Theme, private transformHandler: TransformHandler, private clientID: ClientID) {
         this.traitorIconImage = new Image();
@@ -83,9 +76,6 @@ export class NameLayer implements Layer {
     public init() {
         // this.canvas = document.createElement('canvas');
         this.canvas = createCanvas()
-        this.context = this.canvas.getContext("2d")
-
-
 
         window.addEventListener('resize', () => this.resizeCanvas());
         this.resizeCanvas();
@@ -293,7 +283,7 @@ export class NameLayer implements Layer {
         if (this.myPlayer != null) {
             return this.myPlayer
         }
-        this.myPlayer = this.game.players().find(p => p.clientID() == this.clientID)
+        this.myPlayer = this.game.playerViews().find(p => p.clientID() == this.clientID)
         return this.myPlayer
     }
 }

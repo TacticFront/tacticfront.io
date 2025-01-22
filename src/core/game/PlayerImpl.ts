@@ -75,7 +75,8 @@ export class PlayerImpl implements MutablePlayer {
             population: this.population(),
             workers: this.workers(),
             troops: this.troops(),
-            targetTroopRatio: this.targetTroopRatio()
+            targetTroopRatio: this.targetTroopRatio(),
+            alliances: this.alliances().map(a => a.other(this).smallID())
         }
     }
 
