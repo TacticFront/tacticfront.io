@@ -144,6 +144,7 @@ export class EventsDisplay extends LitElement implements Layer {
 
   private updateMap = new Map([
     [GameUpdateType.DisplayEvent, u => this.onDisplayMessageEvent(u)],
+    [GameUpdateType.AllianceRequest, u => this.onAllianceRequestEvent(u)],
     [GameUpdateType.AllianceRequestReply, u => this.onAllianceRequestReplyEvent(u)],
     [GameUpdateType.BrokeAlliance, u => this.onBrokeAllianceEvent(u)],
     [GameUpdateType.TargetPlayer, u => this.onTargetPlayerEvent(u)],
