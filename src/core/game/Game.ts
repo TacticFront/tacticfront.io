@@ -120,14 +120,9 @@ export enum PlayerType {
     FakeHuman = "FAKEHUMAN",
 }
 
-export interface ExecutionView {
+export interface Execution {
     isActive(): boolean
-    // TODO: remove owner
-    owner(): Player
     activeDuringSpawnPhase(): boolean
-}
-
-export interface Execution extends ExecutionView {
     init(mg: Game, ticks: number): void
     tick(ticks: number): void
     owner(): Player

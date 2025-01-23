@@ -1,6 +1,6 @@
 import { GameUpdates, GameUpdateType, MapPos, MessageType, NameViewData, Player, PlayerActions, PlayerProfile, PlayerUpdate, Unit, UnitUpdate } from './game/Game';
 import { Config } from "./configuration/Config";
-import { Alliance, AllianceRequest, AllPlayers, Cell, DefenseBonus, EmojiMessage, Execution, ExecutionView, Game, Gold, Nation, PlayerID, PlayerInfo, PlayerType, Relation, TerrainType, TerraNullius, Tick, UnitInfo, UnitType } from "./game/Game";
+import { Alliance, AllianceRequest, AllPlayers, Cell, DefenseBonus, EmojiMessage, Game, Gold, Nation, PlayerID, PlayerInfo, PlayerType, Relation, TerrainType, TerraNullius, Tick, UnitInfo, UnitType } from "./game/Game";
 import { ClientID } from "./Schemas";
 import { TerraNulliusImpl } from './game/TerraNulliusImpl';
 import { WorkerClient } from './worker/WorkerClient';
