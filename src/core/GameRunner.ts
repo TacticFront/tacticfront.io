@@ -4,7 +4,7 @@ import { getConfig } from "./configuration/Config";
 import { EventBus } from "./EventBus";
 import { Executor } from "./execution/ExecutionManager";
 import { WinCheckExecution } from "./execution/WinCheckExecution";
-import { Cell, DisplayMessageUpdate, Game, GameUpdateType, MessageType, MutableGame, NameViewData, Player, PlayerActions, PlayerID, PlayerProfile, PlayerType, UnitType } from "./game/Game";
+import { AllPlayers, Cell, DisplayMessageUpdate, Game, GameUpdateType, MessageType, MutableGame, NameViewData, Player, PlayerActions, PlayerID, PlayerProfile, PlayerType, UnitType } from "./game/Game";
 import { createGame } from "./game/GameImpl";
 import { loadTerrainMap as loadGameMap } from "./game/TerrainMapLoader";
 import { GameConfig, Turn } from "./Schemas";
@@ -94,7 +94,8 @@ export class GameRunner {
         const actions = {
             canBoat: this.canBoat(player, tile),
             canAttack: this.canAttack(player, tile),
-            buildableUnits: Object.values(UnitType).filter(ut => player.canBuild(ut, tile) != false)
+            buildableUnits: Object.values(UnitType).filter(ut => player.canBuild(ut, tile) != false),
+            canSendEmojiAllPlayers: player.canSendEmoji(AllPlayers)
         } as PlayerActions
 
         if (this.game.hasOwner(tile)) {

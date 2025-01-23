@@ -357,6 +357,7 @@ export interface PlayerActions {
     canBoat: boolean
     canAttack: boolean
     buildableUnits: UnitType[]
+    canSendEmojiAllPlayers: boolean
     interaction?: PlayerInteraction
 }
 

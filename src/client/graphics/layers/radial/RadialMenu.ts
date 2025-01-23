@@ -259,7 +259,9 @@ export class RadialMenu implements Layer {
         this.activateMenuElement(Slot.Build, "#ebe250", buildIcon, () => {
             this.buildMenu.showMenu(myPlayer, this.clickedCell)
         })
-        if (actions.interaction?.canSendEmoji) {
+        const canSendEmojiToPlayer = this.g.hasOwner(tile) && this.g.ownerID(tile) != myPlayer.smallID() && actions.interaction?.canSendEmoji
+        const canSendEmojiToAllPlayers = this.g.ownerID(tile) == myPlayer.smallID() && actions.canSendEmojiAllPlayers
+        if (canSendEmojiToPlayer || canSendEmojiToAllPlayers) {
             this.activateMenuElement(Slot.Emoji, "#00a6a4", emojiIcon, () => {
                 const target = this.g.owner(tile) == myPlayer ? AllPlayers : (this.g.owner(tile) as Player)
                 this.emojiTable.onEmojiClicked = (emoji: string) => {
