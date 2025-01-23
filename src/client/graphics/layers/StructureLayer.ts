@@ -20,7 +20,7 @@ interface UnitRenderConfig {
 export class StructureLayer implements Layer {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
-    private unitImages: Map<string, HTMLImageElement> = new Map();
+    private unitIcons: Map<string, ImageData> = new Map();
     private theme: Theme = null;
 
 
@@ -50,15 +50,25 @@ export class StructureLayer implements Layer {
 
     constructor(private game: GameView, private eventBus: EventBus) {
         this.theme = game.config().theme();
-        this.loadUnitImages();
+        this.loadIconData();
     }
 
-    private loadUnitImages() {
+    private loadIconData() {
         Object.entries(this.unitConfigs).forEach(([unitType, config]) => {
             const image = new Image();
             image.src = config.icon;
             image.onload = () => {
-                this.unitImages.set(unitType, image);
+                // Create temporary canvas for icon processing
+                const tempCanvas = document.createElement('canvas');
+                const tempContext = tempCanvas.getContext('2d');
+                tempCanvas.width = image.width;
+                tempCanvas.height = image.height;
+
+                // Draw the unit icon
+                tempContext.drawImage(image, 0, 0);
+                const iconData = tempContext.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
+                this.unitIcons.set(unitType, iconData)
+                console.log(`icond data width height: ${iconData.width}, ${iconData.height}`)
             };
         });
     }
@@ -105,27 +115,14 @@ export class StructureLayer implements Layer {
 
 
         const config = this.unitConfigs[unitType];
-        const unitImage = this.unitImages.get(unitType);
+        const icon = this.unitIcons.get(unitType);
 
-        if (!config || !unitImage) return;
+        if (!config || !icon) return;
 
         // Clear previous rendering
         for (const tile of this.game.bfs(unit.tile(), euclDistFN(unit.tile(), config.borderRadius))) {
             this.clearCell(new Cell(this.game.x(tile), this.game.y(tile)));
         }
-
-        // Create temporary canvas for icon processing
-        const tempCanvas = document.createElement('canvas');
-        const tempContext = tempCanvas.getContext('2d');
-        tempCanvas.width = unitImage.width;
-        tempCanvas.height = unitImage.height;
-
-        // Draw the unit icon
-        tempContext.drawImage(unitImage, 0, 0);
-        const iconData = tempContext.getImageData(0, 0, tempCanvas.width, tempCanvas.height);
-
-        const startX = this.game.x(unit.tile()) - Math.floor(tempCanvas.width / 2);
-        const startY = this.game.y(unit.tile()) - Math.floor(tempCanvas.height / 2);
 
         // Draw border and territory
         for (const tile of this.game.bfs(unit.tile(), euclDistFN(unit.tile(), config.borderRadius))) {
@@ -144,8 +141,10 @@ export class StructureLayer implements Layer {
             );
         }
 
+        const startX = this.game.x(unit.tile()) - Math.floor(icon.width / 2);
+        const startY = this.game.y(unit.tile()) - Math.floor(icon.height / 2);
         // Draw the icon
-        this.renderIcon(iconData, startX, startY, tempCanvas.width, tempCanvas.height, unit);
+        this.renderIcon(icon, startX, startY, icon.width, icon.height, unit);
     }
 
     private renderIcon(
