@@ -263,7 +263,7 @@ export class RadialMenu implements Layer {
         const canSendEmojiToAllPlayers = this.g.ownerID(tile) == myPlayer.smallID() && actions.canSendEmojiAllPlayers
         if (canSendEmojiToPlayer || canSendEmojiToAllPlayers) {
             this.activateMenuElement(Slot.Emoji, "#00a6a4", emojiIcon, () => {
-                const target = this.g.owner(tile) == myPlayer ? AllPlayers : (this.g.owner(tile) as Player)
+                const target = this.g.owner(tile) == myPlayer ? AllPlayers : (this.g.owner(tile) as PlayerView)
                 this.emojiTable.onEmojiClicked = (emoji: string) => {
                     this.emojiTable.hideTable()
                     this.eventBus.emit(new SendEmojiIntentEvent(target, emoji))
@@ -290,7 +290,7 @@ export class RadialMenu implements Layer {
         if (!this.g.hasOwner(tile)) {
             return
         }
-        const other = this.g.owner(tile) as Player
+        const other = this.g.owner(tile) as PlayerView
 
 
         if (actions?.interaction.canDonate) {

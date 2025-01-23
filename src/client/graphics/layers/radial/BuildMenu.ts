@@ -38,7 +38,7 @@ const buildTable: BuildItemDisplay[][] = [
 export class BuildMenu extends LitElement {
     public game: GameView;
     public eventBus: EventBus;
-    private myPlayer: Player;
+    private myPlayer: PlayerView;
     private clickedCell: Cell;
     private playerActions: PlayerActions | null
 

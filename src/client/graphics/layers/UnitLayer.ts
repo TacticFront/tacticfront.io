@@ -5,7 +5,7 @@ import { Layer } from "./Layer";
 import { EventBus } from "../../../core/EventBus";
 import { AlternateViewEvent } from "../../InputHandler";
 import { ClientID } from "../../../core/Schemas";
-import { GameView } from "../../../core/GameView";
+import { GameView, PlayerView, UnitView } from "../../../core/GameView";
 import { euclDistFN, manhattanDistFN, TileRef } from "../../../core/game/GameMap";
 
 enum Relationship {
@@ -18,15 +18,15 @@ export class UnitLayer implements Layer {
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
 
-    private boatToTrail = new Map<Unit, Set<TileRef>>();
+    private boatToTrail = new Map<UnitView, Set<TileRef>>();
 
     private theme: Theme = null;
 
     private alternateView = false;
 
-    private myPlayer: Player | null = null;
+    private myPlayer: PlayerView | null = null;
 
-    private oldShellTile = new Map<Unit, TileRef>();
+    private oldShellTile = new Map<UnitView, TileRef>();
 
     constructor(private game: GameView, private eventBus: EventBus, private clientID: ClientID) {
         this.theme = game.config().theme();
@@ -77,7 +77,7 @@ export class UnitLayer implements Layer {
         }
     }
 
-    private relationship(unit: Unit): Relationship {
+    private relationship(unit: UnitView): Relationship {
         if (this.myPlayer == null) {
             return Relationship.Enemy;
         }
@@ -90,7 +90,7 @@ export class UnitLayer implements Layer {
         return Relationship.Enemy;
     }
 
-    onUnitEvent(unit: Unit) {
+    onUnitEvent(unit: UnitView) {
         switch (unit.type()) {
             case UnitType.TransportShip:
                 this.handleBoatEvent(unit);
@@ -114,7 +114,7 @@ export class UnitLayer implements Layer {
         }
     }
 
-    private handleDestroyerEvent(unit: Unit) {
+    private handleDestroyerEvent(unit: UnitView) {
         const rel = this.relationship(unit);
 
         // Clear previous area
@@ -149,7 +149,7 @@ export class UnitLayer implements Layer {
         }
     }
 
-    private handleBattleshipEvent(unit: Unit) {
+    private handleBattleshipEvent(unit: UnitView) {
         const rel = this.relationship(unit);
 
         // Clear previous area
@@ -195,7 +195,7 @@ export class UnitLayer implements Layer {
         }
     }
 
-    private handleShellEvent(unit: Unit) {
+    private handleShellEvent(unit: UnitView) {
         const rel = this.relationship(unit);
 
         // Clear current and previous positions
@@ -227,7 +227,7 @@ export class UnitLayer implements Layer {
         );
     }
 
-    private handleNuke(unit: Unit) {
+    private handleNuke(unit: UnitView) {
         const rel = this.relationship(unit);
 
         // Clear previous area
@@ -249,7 +249,7 @@ export class UnitLayer implements Layer {
         }
     }
 
-    private handleTradeShipEvent(unit: Unit) {
+    private handleTradeShipEvent(unit: UnitView) {
         const rel = this.relationship(unit);
 
         // Clear previous area
@@ -282,7 +282,7 @@ export class UnitLayer implements Layer {
         }
     }
 
-    private handleBoatEvent(unit: Unit) {
+    private handleBoatEvent(unit: UnitView) {
         const rel = this.relationship(unit);
 
         if (!this.boatToTrail.has(unit)) {

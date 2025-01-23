@@ -7,6 +7,7 @@ import { GameConfig } from "../Schemas";
 import { DefaultConfig } from "./DefaultConfig";
 import { DevConfig, DevServerConfig } from "./DevConfig";
 import { GameMap, TileRef } from "../game/GameMap";
+import { PlayerView } from "../GameView";
 
 export enum GameEnv {
 	Dev,
@@ -58,8 +59,8 @@ export interface Config {
 	numSpawnPhaseTurns(): number
 
 	startManpower(playerInfo: PlayerInfo): number
-	populationIncreaseRate(player: Player): number
-	goldAdditionRate(player: Player): number
+	populationIncreaseRate(player: Player | PlayerView): number
+	goldAdditionRate(player: Player | PlayerView): number
 	troopAdjustmentRate(player: Player): number
 	attackTilesPerTick(attckTroops: number, attacker: Player, defender: Player | TerraNullius, numAdjacentTilesWithEnemy: number): number
 	attackLogic(gm: GameMap, attackTroops: number, attacker: Player, defender: Player | TerraNullius, tileToConquer: TileRef): {
@@ -68,7 +69,7 @@ export interface Config {
 		tilesPerTickUsed: number
 	}
 	attackAmount(attacker: Player, defender: Player | TerraNullius): number
-	maxPopulation(player: Player): number
+	maxPopulation(player: Player | PlayerView): number
 	cityPopulationIncrease(): number
 	boatAttackAmount(attacker: Player, defender: Player | TerraNullius): number
 	boatMaxDistance(): number

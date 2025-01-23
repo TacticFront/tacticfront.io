@@ -7,7 +7,7 @@ import anchorIcon from '../../../../resources/images/AnchorIcon.png';
 import missileSiloIcon from '../../../../resources/images/MissileSiloUnit.png';
 import shieldIcon from '../../../../resources/images/ShieldIcon.png';
 import cityIcon from '../../../../resources/images/CityIcon.png';
-import { GameView } from "../../../core/GameView";
+import { GameView, UnitView } from "../../../core/GameView";
 import { Cell, GameUpdateType, Unit, UnitType } from "../../../core/game/Game";
 import { euclDistFN } from "../../../core/game/GameMap";
 
@@ -109,7 +109,7 @@ export class StructureLayer implements Layer {
         return unitType in this.unitConfigs;
     }
 
-    private handleUnitRendering(unit: Unit) {
+    private handleUnitRendering(unit: UnitView) {
         const unitType = unit.type();
         if (!this.isUnitTypeSupported(unitType)) return;
 
@@ -157,7 +157,7 @@ export class StructureLayer implements Layer {
         startY: number,
         width: number,
         height: number,
-        unit: Unit
+        unit: UnitView
     ) {
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {

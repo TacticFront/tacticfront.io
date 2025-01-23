@@ -6,7 +6,7 @@ import { ClientID } from '../../../core/Schemas';
 import { EventBus } from '../../../core/EventBus';
 import { TransformHandler } from '../TransformHandler';
 import { MouseMoveEvent } from '../../InputHandler';
-import { GameView, PlayerView } from '../../../core/GameView';
+import { GameView, PlayerView, UnitView } from '../../../core/GameView';
 import { TileRef } from '../../../core/game/GameMap';
 import { PauseGameEvent } from '../../Transport';
 import { renderNumber, renderTroops } from '../../Utils';
@@ -20,7 +20,7 @@ function euclideanDistWorld(coord: { x: number, y: number }, tileRef: TileRef, g
 }
 
 function distSortUnitWorld(coord: { x: number, y: number }, game: GameView) {
-    return (a: Unit, b: Unit) => {
+    return (a: Unit | UnitView, b: Unit | UnitView) => {
         const distA = euclideanDistWorld(coord, a.tile(), game);
         const distB = euclideanDistWorld(coord, b.tile(), game);
         return distA - distB;
@@ -42,13 +42,13 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     public transform!: TransformHandler;
 
     @state()
-    private player: Player | null = null;
+    private player: PlayerView | null = null;
 
     @state()
     private playerProfile: PlayerProfile | null = null;
 
     @state()
-    private unit: Unit | null = null;
+    private unit: UnitView | null = null;
 
     @state()
     private showPauseButton: boolean = true;
@@ -92,8 +92,8 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
         const owner = this.game.owner(tile);
 
         if (owner && owner.isPlayer()) {
-            this.player = owner;
-            (this.player as PlayerView).profile().then(p => {
+            this.player = owner as PlayerView;
+            this.player.profile().then(p => {
                 this.playerProfile = p;
             });
             this.setVisible(true);
@@ -135,14 +135,14 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
         this.requestUpdate();
     }
 
-    private myPlayer(): Player | null {
+    private myPlayer(): PlayerView | null {
         if (!this.game) {
             return null;
         }
         return this.game.playerByClientID(this.clientID);
     }
 
-    private renderPlayerInfo(player: Player) {
+    private renderPlayerInfo(player: PlayerView) {
         const myPlayer = this.myPlayer();
         const isAlly = myPlayer?.isAlliedWith(player)
         let relationHtml = null;
@@ -181,7 +181,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
         `;
     }
 
-    private renderUnitInfo(unit: Unit) {
+    private renderUnitInfo(unit: UnitView) {
         const isAlly = (unit.owner() == this.myPlayer() || this.myPlayer()?.isAlliedWith(unit.owner())) ?? false;
         return html`
             <div class="info-content">

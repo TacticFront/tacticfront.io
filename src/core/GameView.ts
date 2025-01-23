@@ -6,7 +6,7 @@ import { TerraNulliusImpl } from './game/TerraNulliusImpl';
 import { WorkerClient } from './worker/WorkerClient';
 import { GameMap, GameMapImpl, TileRef, TileUpdate } from './game/GameMap';
 
-export class UnitView implements Unit {
+export class UnitView {
     public _wasUpdated = true
     public lastPos: MapPos[] = []
 
@@ -62,12 +62,9 @@ export class UnitView implements Unit {
     }
 }
 
-export class PlayerView implements Player {
+export class PlayerView {
 
     constructor(private game: GameView, public data: PlayerUpdate, public nameData: NameViewData) { }
-    borderTiles(): ReadonlySet<TileRef> {
-        throw new Error('Method not implemented.');
-    }
 
     async actions(tile: TileRef): Promise<PlayerActions> {
         return this.game.worker.playerInteraction(this.id(), this.game.x(tile), this.game.y(tile))
@@ -79,9 +76,6 @@ export class PlayerView implements Player {
 
     smallID(): number {
         return this.data.smallID
-    }
-    lastTileChange(): Tick {
-        return 0
     }
     name(): string {
         return this.data.name
@@ -129,66 +123,23 @@ export class PlayerView implements Player {
         return this.data.troops
     }
 
-    isAlliedWith(other: Player): boolean {
+    isAlliedWith(other: PlayerView): boolean {
         return this.data.allies.some(n => other.smallID() == n)
-    }
-    allianceWith(other: Player): Alliance | null {
-        return null
-    }
-    units(...types: UnitType[]): Unit[] {
-        return []
-    }
-    sharesBorderWith(other: Player | TerraNullius): boolean {
-        return false
-    }
-
-    incomingAllianceRequests(): AllianceRequest[] {
-        return []
-    }
-    outgoingAllianceRequests(): AllianceRequest[] {
-        return []
-    }
-    alliances(): Alliance[] {
-        return []
-    }
-    recentOrPendingAllianceRequestWith(other: Player): boolean {
-        return false
-    }
-    relation(other: Player): Relation {
-        return Relation.Neutral
     }
 
     profile(): Promise<PlayerProfile> {
         return this.game.worker.playerProfile(this.smallID())
     }
 
-    allRelationsSorted(): { player: Player; relation: Relation; }[] {
-        return []
-    }
-    transitiveTargets(): Player[] {
+    transitiveTargets(): PlayerView[] {
         return [...this.targets(), ...this.allies().flatMap(p => p.targets())]
     }
 
     isTraitor(): boolean {
         return this.data.isTraitor
     }
-    canTarget(other: Player): boolean {
-        return false
-    }
-    toString(): string {
-        return ''
-    }
-    canSendEmoji(recipient: Player | typeof AllPlayers): boolean {
-        return false
-    }
     outgoingEmojis(): EmojiMessage[] {
         return this.data.outgoingEmojis
-    }
-    canDonate(recipient: Player): boolean {
-        return false
-    }
-    canBuild(type: UnitType, targetTile: TileRef): TileRef | false {
-        return false
     }
     info(): PlayerInfo {
         return new PlayerInfo(this.name(), this.type(), this.clientID(), this.id())

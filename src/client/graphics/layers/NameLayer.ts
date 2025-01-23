@@ -31,14 +31,14 @@ export class NameLayer implements Layer {
     private renderRefreshRate = 500
     private rand = new PseudoRandom(10)
     private renders: RenderInfo[] = []
-    private seenPlayers: Set<Player> = new Set()
+    private seenPlayers: Set<PlayerView> = new Set()
     private traitorIconImage: HTMLImageElement;
     private allianceIconImage: HTMLImageElement;
     private targetIconImage: HTMLImageElement;
     private crownIconImage: HTMLImageElement;
     private container: HTMLDivElement
-    private myPlayer: Player | null = null
-    private firstPlace: Player | null = null
+    private myPlayer: PlayerView | null = null
+    private firstPlace: PlayerView | null = null
 
     constructor(private game: GameView, private theme: Theme, private transformHandler: TransformHandler, private clientID: ClientID) {
         this.traitorIconImage = new Image();
@@ -115,7 +115,7 @@ export class NameLayer implements Layer {
         )
     }
 
-    private createPlayerElement(player: Player): HTMLDivElement {
+    private createPlayerElement(player: PlayerView): HTMLDivElement {
         const element = document.createElement('div')
         element.style.position = 'absolute'
         element.style.display = 'flex'
@@ -281,7 +281,7 @@ export class NameLayer implements Layer {
         return icon
     }
 
-    private getPlayer(): Player | null {
+    private getPlayer(): PlayerView | null {
         if (this.myPlayer != null) {
             return this.myPlayer
         }

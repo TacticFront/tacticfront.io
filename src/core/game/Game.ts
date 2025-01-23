@@ -1,5 +1,6 @@
 import { Config } from "../configuration/Config"
 import { GameEvent } from "../EventBus"
+import { PlayerView } from "../GameView"
 import { ClientID, GameConfig, GameID } from "../Schemas"
 import { GameMap, GameMapImpl, TileRef, TileUpdate } from "./GameMap"
 
@@ -46,7 +47,7 @@ export enum GameType {
 }
 
 export interface UnitInfo {
-    cost: (player: Player) => Gold
+    cost: (player: Player | PlayerView) => Gold
     // Determines if its owner changes when its tile is conquered.
     territoryBound: boolean
     maxHealth?: number,

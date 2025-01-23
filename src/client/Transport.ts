@@ -9,6 +9,7 @@ import { UsernameInput } from "./UsernameInput";
 import { HostLobbyModal as HostPrivateLobbyModal } from "./HostLobbyModal";
 import { JoinPrivateLobbyModal } from "./JoinPrivateLobbyModal";
 import { SinglePlayerModal } from "./SinglePlayerModal";
+import { PlayerView } from "../core/GameView"
 
 export class PauseGameEvent implements GameEvent {
     constructor(public readonly paused: boolean) { }
@@ -16,23 +17,23 @@ export class PauseGameEvent implements GameEvent {
 
 export class SendAllianceRequestIntentEvent implements GameEvent {
     constructor(
-        public readonly requestor: Player,
-        public readonly recipient: Player
+        public readonly requestor: PlayerView,
+        public readonly recipient: PlayerView
     ) { }
 }
 
 export class SendBreakAllianceIntentEvent implements GameEvent {
     constructor(
-        public readonly requestor: Player,
-        public readonly recipient: Player
+        public readonly requestor: PlayerView,
+        public readonly recipient: PlayerView
     ) { }
 }
 
 export class SendAllianceReplyIntentEvent implements GameEvent {
     constructor(
         // The original alliance requestor
-        public readonly requestor: Player,
-        public readonly recipient: Player,
+        public readonly requestor: PlayerView,
+        public readonly recipient: PlayerView,
         public readonly accepted: boolean
     ) { }
 }
@@ -73,15 +74,15 @@ export class SendTargetPlayerIntentEvent implements GameEvent {
 
 export class SendEmojiIntentEvent implements GameEvent {
     constructor(
-        public readonly recipient: Player | typeof AllPlayers,
+        public readonly recipient: PlayerView | typeof AllPlayers,
         public readonly emoji: string
     ) { }
 }
 
 export class SendDonateIntentEvent implements GameEvent {
     constructor(
-        public readonly sender: Player,
-        public readonly recipient: Player,
+        public readonly sender: PlayerView,
+        public readonly recipient: PlayerView,
         public readonly troops: number | null,
     ) { }
 }
