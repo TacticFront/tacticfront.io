@@ -1,5 +1,5 @@
 import { PriorityQueue } from "@datastructures-js/priority-queue";
-import { Cell, Execution, MutableGame, Player, PlayerID, PlayerType, TerrainType, TerraNullius } from "../game/Game";
+import { Cell, Execution, Game, Player, PlayerID, PlayerType, TerrainType, TerraNullius } from "../game/Game";
 import { PseudoRandom } from "../PseudoRandom";
 import { MessageType } from '../game/Game';
 import { renderNumber } from "../../client/Utils";
@@ -23,7 +23,7 @@ export class AttackExecution implements Execution {
     private _owner: Player
     private target: Player | TerraNullius
 
-    private mg: MutableGame
+    private mg: Game
 
     private border = new Set<TileRef>()
 
@@ -43,7 +43,7 @@ export class AttackExecution implements Execution {
         return false
     }
 
-    init(mg: MutableGame, ticks: number) {
+    init(mg: Game, ticks: number) {
         if (!this.active) {
             return
         }

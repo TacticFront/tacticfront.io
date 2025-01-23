@@ -1,15 +1,15 @@
 import { consolex } from "../../Consolex";
-import { AllianceRequest, Execution, MutableGame, Player, PlayerID } from "../../game/Game";
+import { AllianceRequest, Execution, Game, Player, PlayerID } from "../../game/Game";
 
 export class BreakAllianceExecution implements Execution {
     private active = true
     private requestor: Player;
     private recipient: Player
-    private mg: MutableGame
+    private mg: Game
 
     constructor(private requestorID: PlayerID, private recipientID: PlayerID) { }
 
-    init(mg: MutableGame, ticks: number): void {
+    init(mg: Game, ticks: number): void {
         this.requestor = mg.player(this.requestorID)
         this.recipient = mg.player(this.recipientID)
         this.mg = mg

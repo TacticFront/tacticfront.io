@@ -1,4 +1,4 @@
-import { Unit, Cell, Execution, MutableUnit, MutableGame, Player, PlayerID, TerraNullius, UnitType, TerrainType } from "../game/Game";
+import { Unit, Cell, Execution, MutableUnit, Game, Player, PlayerID, TerraNullius, UnitType, TerrainType } from "../game/Game";
 import { AttackExecution } from "./AttackExecution";
 import { MessageType } from '../game/Game';
 import { PathFinder } from "../pathfinding/PathFinding";
@@ -16,7 +16,7 @@ export class TransportShipExecution implements Execution {
 
     private active = true
 
-    private mg: MutableGame
+    private mg: Game
     private attacker: Player
     private target: Player | TerraNullius
 
@@ -41,7 +41,7 @@ export class TransportShipExecution implements Execution {
         return false
     }
 
-    init(mg: MutableGame, ticks: number) {
+    init(mg: Game, ticks: number) {
         this.lastMove = ticks
         this.mg = mg
         this.pathFinder = PathFinder.Mini(mg, 10_000, false, 2)

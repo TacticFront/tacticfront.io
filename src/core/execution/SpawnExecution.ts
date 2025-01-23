@@ -1,4 +1,4 @@
-import { Cell, Execution, MutableGame, Player, PlayerInfo, PlayerType } from "../game/Game"
+import { Cell, Execution, Game, Player, PlayerInfo, PlayerType } from "../game/Game"
 import { TileRef } from "../game/GameMap"
 import { BotExecution } from "./BotExecution"
 import { PlayerExecution } from "./PlayerExecution"
@@ -7,14 +7,14 @@ import { getSpawnTiles } from "./Util"
 export class SpawnExecution implements Execution {
 
     active: boolean = true
-    private mg: MutableGame
+    private mg: Game
 
     constructor(
         private playerInfo: PlayerInfo,
         private tile: TileRef
     ) { }
 
-    init(mg: MutableGame, ticks: number) {
+    init(mg: Game, ticks: number) {
         this.mg = mg
     }
 

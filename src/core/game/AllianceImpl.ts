@@ -1,4 +1,4 @@
-import {MutableAlliance, MutableGame, Player, Tick} from "./Game";
+import {MutableAlliance, Game, Player, Tick} from "./Game";
 import {GameImpl} from "./GameImpl";
 import {PlayerImpl} from "./PlayerImpl";
 

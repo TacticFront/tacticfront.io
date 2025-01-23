@@ -1,5 +1,5 @@
 import { Config } from "../configuration/Config";
-import { Cell, Execution, MutableGame, Game, PlayerID, PlayerInfo, Player, TerraNullius, Unit, MutableAllianceRequest, Alliance, Nation, UnitType, UnitInfo, DefenseBonus, GameUpdate, GameUpdateType, AllPlayers, GameUpdates, TerrainType, EmojiMessage } from "./Game";
+import { Cell, Execution, Game, PlayerID, PlayerInfo, Player, TerraNullius, Unit, MutableAllianceRequest, Alliance, Nation, UnitType, UnitInfo, DefenseBonus, GameUpdate, GameUpdateType, AllPlayers, GameUpdates, TerrainType, EmojiMessage } from "./Game";
 import { NationMap } from "./TerrainMapLoader";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
@@ -17,7 +17,7 @@ export function createGame(gameMap: GameMap, miniGameMap: GameMap, nationMap: Na
 
 export type CellString = string
 
-export class GameImpl implements MutableGame {
+export class GameImpl implements Game {
     private _ticks = 0
 
     private unInitExecs: Execution[] = []

@@ -1,5 +1,5 @@
 import { consolex } from "../Consolex";
-import { Execution, MutableGame, Player, PlayerID } from "../game/Game";
+import { Execution, Game, Player, PlayerID } from "../game/Game";
 
 export class DonateExecution implements Execution {
 
@@ -15,7 +15,7 @@ export class DonateExecution implements Execution {
     ) { }
 
 
-    init(mg: MutableGame, ticks: number): void {
+    init(mg: Game, ticks: number): void {
         this.sender = mg.player(this.senderID)
         this.recipient = mg.player(this.recipientID)
         if (this.troops == null) {

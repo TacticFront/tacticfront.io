@@ -1,5 +1,5 @@
 import { consolex } from "../Consolex";
-import { Execution, MutableGame, Player, PlayerID } from "../game/Game";
+import { Execution, Game, Player, PlayerID } from "../game/Game";
 
 export class SetTargetTroopRatioExecution implements Execution {
 
@@ -10,7 +10,7 @@ export class SetTargetTroopRatioExecution implements Execution {
     constructor(private playerID: PlayerID, private targetTroopsRatio: number) { }
 
 
-    init(mg: MutableGame, ticks: number): void {
+    init(mg: Game, ticks: number): void {
         this.player = mg.player(this.playerID)
     }
 

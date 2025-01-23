@@ -1,5 +1,5 @@
 import { Config } from "../configuration/Config"
-import { Execution, MutableGame, Player, PlayerID, TerraNullius, UnitType } from "../game/Game"
+import { Execution, Game, Player, PlayerID, TerraNullius, UnitType } from "../game/Game"
 import { calculateBoundingBox, getMode, inscribed, simpleHash } from "../Util"
 import { GameImpl } from "../game/GameImpl"
 import { consolex } from "../Consolex"
@@ -12,7 +12,7 @@ export class PlayerExecution implements Execution {
     private player: Player
     private config: Config
     private lastCalc = 0
-    private mg: MutableGame
+    private mg: Game
     private active = true
 
     constructor(private playerID: PlayerID) {
@@ -22,7 +22,7 @@ export class PlayerExecution implements Execution {
         return false
     }
 
-    init(mg: MutableGame, ticks: number) {
+    init(mg: Game, ticks: number) {
         this.mg = mg
         this.config = mg.config()
         this.player = mg.player(this.playerID)

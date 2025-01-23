@@ -1,4 +1,4 @@
-import { Cell, Execution, MutableGame, Player, MutableUnit, PlayerID, TerrainType, UnitType } from "../game/Game";
+import { Cell, Execution, Game, Player, MutableUnit, PlayerID, TerrainType, UnitType } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { PseudoRandom } from "../PseudoRandom";
@@ -12,7 +12,7 @@ export class DestroyerExecution implements Execution {
     private _owner: Player
     private active = true
     private destroyer: MutableUnit = null
-    private mg: MutableGame = null
+    private mg: Game = null
 
     private target: MutableUnit = null
     private pathfinder: PathFinder
@@ -28,7 +28,7 @@ export class DestroyerExecution implements Execution {
     ) { }
 
 
-    init(mg: MutableGame, ticks: number): void {
+    init(mg: Game, ticks: number): void {
         this.pathfinder = PathFinder.Mini(mg, 5000, false)
         this._owner = mg.player(this.playerID)
         this.mg = mg

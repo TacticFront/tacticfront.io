@@ -1,11 +1,11 @@
 import { consolex } from "../Consolex";
-import { Cell, Execution, MutableGame, Player, MutableUnit, PlayerID, UnitType } from "../game/Game";
+import { Cell, Execution, Game, Player, MutableUnit, PlayerID, UnitType } from "../game/Game";
 import { TileRef } from "../game/GameMap";
 
 export class MissileSiloExecution implements Execution {
 
     private active = true
-    private mg: MutableGame
+    private mg: Game
     private player: Player
     private silo: MutableUnit
 
@@ -15,7 +15,7 @@ export class MissileSiloExecution implements Execution {
     ) { }
 
 
-    init(mg: MutableGame, ticks: number): void {
+    init(mg: Game, ticks: number): void {
         this.mg = mg
         this.player = mg.player(this._owner)
     }

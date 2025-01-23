@@ -4,7 +4,7 @@ import { getConfig } from "./configuration/Config";
 import { EventBus } from "./EventBus";
 import { Executor } from "./execution/ExecutionManager";
 import { WinCheckExecution } from "./execution/WinCheckExecution";
-import { AllPlayers, Cell, DisplayMessageUpdate, Game, GameUpdateType, MessageType, MutableGame, NameViewData, Player, PlayerActions, PlayerID, PlayerProfile, PlayerType, UnitType } from "./game/Game";
+import { AllPlayers, Cell, DisplayMessageUpdate, Game, GameUpdateType, MessageType, NameViewData, Player, PlayerActions, PlayerID, PlayerProfile, PlayerType, UnitType } from "./game/Game";
 import { createGame } from "./game/GameImpl";
 import { loadTerrainMap as loadGameMap } from "./game/TerrainMapLoader";
 import { GameConfig, Turn } from "./Schemas";
@@ -16,7 +16,7 @@ export async function createGameRunner(gameID: string, gameConfig: GameConfig, c
     const config = getConfig(gameConfig)
     const gameMap = await loadGameMap(gameConfig.gameMap);
     const game = createGame(gameMap.gameMap, gameMap.miniGameMap, gameMap.nationMap, config)
-    const gr = new GameRunner(game as MutableGame, new Executor(game, gameID), callBack)
+    const gr = new GameRunner(game as Game, new Executor(game, gameID), callBack)
     gr.init()
     return gr
 }
@@ -30,7 +30,7 @@ export class GameRunner {
     private playerViewData: Record<PlayerID, NameViewData> = {}
 
     constructor(
-        public game: MutableGame,
+        public game: Game,
         private execManager: Executor,
         private callBack: (gu: GameUpdateViewData) => void
     ) {

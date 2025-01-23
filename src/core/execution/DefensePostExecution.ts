@@ -1,11 +1,11 @@
 import { consolex } from "../Consolex";
-import { Cell, DefenseBonus, Execution, MutableGame, Player, MutableUnit, PlayerID, UnitType } from "../game/Game";
+import { Cell, DefenseBonus, Execution, Game, Player, MutableUnit, PlayerID, UnitType } from "../game/Game";
 import { manhattanDistFN, TileRef } from "../game/GameMap";
 
 export class DefensePostExecution implements Execution {
 
     private player: Player
-    private mg: MutableGame
+    private mg: Game
     private post: MutableUnit
     private active: boolean = true
 
@@ -13,7 +13,7 @@ export class DefensePostExecution implements Execution {
 
     constructor(private ownerId: PlayerID, private tile: TileRef) { }
 
-    init(mg: MutableGame, ticks: number): void {
+    init(mg: Game, ticks: number): void {
         this.mg = mg
         this.player = mg.player(this.ownerId)
     }

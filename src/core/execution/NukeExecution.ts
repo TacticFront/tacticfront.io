@@ -1,5 +1,5 @@
 import { nextTick } from "process";
-import { Cell, Execution, MutableGame, Player, PlayerID, MutableUnit, UnitType, TerraNullius } from "../game/Game";
+import { Cell, Execution, Game, Player, PlayerID, MutableUnit, UnitType, TerraNullius } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { PseudoRandom } from "../PseudoRandom";
@@ -12,7 +12,7 @@ export class NukeExecution implements Execution {
 
     private active = true
 
-    private mg: MutableGame
+    private mg: Game
 
     private nuke: MutableUnit
 
@@ -24,7 +24,7 @@ export class NukeExecution implements Execution {
     ) { }
 
 
-    init(mg: MutableGame, ticks: number): void {
+    init(mg: Game, ticks: number): void {
         this.mg = mg
         this.pathFinder = PathFinder.Mini(mg, 10_000, true)
         this.player = mg.player(this.senderID)

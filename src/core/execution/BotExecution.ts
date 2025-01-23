@@ -1,4 +1,4 @@
-import { Cell, Execution, MutableGame, Player, PlayerType, TerraNullius } from "../game/Game"
+import { Cell, Execution, Game, Player, PlayerType, TerraNullius } from "../game/Game"
 import { PseudoRandom } from "../PseudoRandom"
 import { simpleHash } from "../Util";
 import { AttackExecution } from "./AttackExecution";
@@ -8,7 +8,7 @@ export class BotExecution implements Execution {
     private active = true
     private random: PseudoRandom;
     private attackRate: number
-    private mg: MutableGame
+    private mg: Game
     private neighborsTerraNullius = true
 
 
@@ -20,7 +20,7 @@ export class BotExecution implements Execution {
         return false
     }
 
-    init(mg: MutableGame, ticks: number) {
+    init(mg: Game, ticks: number) {
         this.mg = mg
         // this.neighborsTerra = this.bot.neighbors().filter(n => n == this.gs.terraNullius()).length > 0
     }

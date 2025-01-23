@@ -1,5 +1,5 @@
 import { consolex } from "../Consolex";
-import { AllPlayers, Execution, MutableGame, Player, PlayerID, PlayerType, UnitType } from "../game/Game";
+import { AllPlayers, Execution, Game, Player, PlayerID, PlayerType, UnitType } from "../game/Game";
 
 export class EmojiExecution implements Execution {
 
@@ -15,7 +15,7 @@ export class EmojiExecution implements Execution {
     ) { }
 
 
-    init(mg: MutableGame, ticks: number): void {
+    init(mg: Game, ticks: number): void {
         this.requestor = mg.player(this.senderID)
         this.recipient = this.recipientID == AllPlayers ? AllPlayers : mg.player(this.recipientID)
     }

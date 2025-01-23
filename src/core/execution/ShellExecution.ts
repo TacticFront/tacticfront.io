@@ -1,4 +1,4 @@
-import { Execution, MutableGame, Player, MutableUnit, Unit, UnitType } from "../game/Game";
+import { Execution, Game, Player, MutableUnit, Unit, UnitType } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { consolex } from "../Consolex";
@@ -14,7 +14,7 @@ export class ShellExecution implements Execution {
 
     }
 
-    init(mg: MutableGame, ticks: number): void {
+    init(mg: Game, ticks: number): void {
         this.pathFinder = PathFinder.Mini(mg, 2000,  true, 10)
     }
 

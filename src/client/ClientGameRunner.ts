@@ -1,5 +1,5 @@
 import { Executor } from "../core/execution/ExecutionManager";
-import { Cell, MutableGame, PlayerID, GameMapType, Difficulty, GameType } from "../core/game/Game";
+import { Cell, Game, PlayerID, GameMapType, Difficulty, GameType } from "../core/game/Game";
 import { EventBus } from "../core/EventBus";
 import { createRenderer, GameRenderer } from "./graphics/GameRenderer";
 import { InputHandler, MouseUpEvent, ZoomEvent, DragEvent, MouseDownEvent } from "./InputHandler"

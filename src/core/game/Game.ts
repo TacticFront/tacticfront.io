@@ -128,7 +128,7 @@ export interface ExecutionView {
 }
 
 export interface Execution extends ExecutionView {
-    init(mg: MutableGame, ticks: number): void
+    init(mg: Game, ticks: number): void
     tick(ticks: number): void
     owner(): Player
 }
@@ -290,43 +290,45 @@ export interface Player {
 }
 
 export interface Game extends GameMap {
-    // Throws exception is player not found
-    player(id: PlayerID): Player
-    playerByClientID(id: ClientID): Player | null
-    hasPlayer(id: PlayerID): boolean
-    players(): Player[]
+    // Map & Dimensions
     isOnMap(cell: Cell): boolean
     width(): number
     height(): number
-    forEachTile(fn: (tile: TileRef) => void): void
-    executions(): ExecutionView[]
-    terraNullius(): TerraNullius
-    executeNextTick(): GameUpdates
-    ticks(): Tick
-    inSpawnPhase(): boolean
-    addExecution(...exec: Execution[]): void
-    nations(): Nation[]
-    config(): Config
-    displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void
-    units(...types: UnitType[]): Unit[]
-    unitInfo(type: UnitType): UnitInfo
-    playerBySmallID(id: number): Player | TerraNullius
     map(): GameMap
     miniMap(): GameMap
-    owner(ref: TileRef): Player | TerraNullius
-}
+    forEachTile(fn: (tile: TileRef) => void): void
 
-export interface MutableGame extends Game {
+    // Player Management
     player(id: PlayerID): Player
-    playerByClientID(id: ClientID): Player | null
     players(): Player[]
     allPlayers(): Player[]
+    playerByClientID(id: ClientID): Player | null
+    playerBySmallID(id: number): Player | TerraNullius
+    hasPlayer(id: PlayerID): boolean
     addPlayer(playerInfo: PlayerInfo, manpower: number): Player
-    executions(): Execution[]
+    terraNullius(): TerraNullius
+    owner(ref: TileRef): Player | TerraNullius
+
+    // Game State
+    ticks(): Tick
+    inSpawnPhase(): boolean
+    executeNextTick(): GameUpdates
+    setWinner(winner: Player): void
+    config(): Config
+
+    // Units
     units(...types: UnitType[]): MutableUnit[]
+    unitInfo(type: UnitType): UnitInfo
     addTileDefenseBonus(tile: TileRef, unit: Unit, amount: number): DefenseBonus
     removeTileDefenseBonus(bonus: DefenseBonus): void
-    setWinner(winner: Player): void
+
+    // Events & Messages
+    executions(): Execution[]
+    addExecution(...exec: Execution[]): void
+    displayMessage(message: string, type: MessageType, playerID: PlayerID | null): void
+
+    // Nations
+    nations(): Nation[]
 }
 
 export enum GameUpdateType {

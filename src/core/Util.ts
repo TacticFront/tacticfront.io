@@ -1,9 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import twemoji from 'twemoji';
 import DOMPurify from 'dompurify';
-
-
-import { Cell, Game, MutableGame, Player, Unit } from "./game/Game";
+import { Cell, Game, Player, Unit } from "./game/Game";
 import { GameConfig, GameID, GameRecord, PlayerRecord, Turn } from './Schemas';
 import { customAlphabet, nanoid } from 'nanoid';
 import { andFN, GameMap, manhattanDistFN, TileRef } from './game/GameMap';
@@ -46,7 +44,7 @@ export function distSortUnit(gm: GameMap, target: Unit | TileRef): (a: Unit, b: 
 
 
 // TODO: refactor to new file
-export function sourceDstOceanShore(gm: MutableGame, src: Player, tile: TileRef): [TileRef | null, TileRef | null] {
+export function sourceDstOceanShore(gm: Game, src: Player, tile: TileRef): [TileRef | null, TileRef | null] {
     const dst = gm.owner(tile)
     let srcTile = closestOceanShoreFromPlayer(gm, src, tile)
     let dstTile: TileRef | null = null

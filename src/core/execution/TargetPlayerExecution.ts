@@ -1,4 +1,4 @@
-import { Execution, MutableGame, Player, PlayerID } from "../game/Game";
+import { Execution, Game, Player, PlayerID } from "../game/Game";
 
 export class TargetPlayerExecution implements Execution {
 
@@ -10,7 +10,7 @@ export class TargetPlayerExecution implements Execution {
     constructor(private requestorID: PlayerID, private targetID: PlayerID) { }
 
 
-    init(mg: MutableGame, ticks: number): void {
+    init(mg: Game, ticks: number): void {
         this.requestor = mg.player(this.requestorID)
         this.target = mg.player(this.targetID)
     }
