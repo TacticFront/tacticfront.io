@@ -124,6 +124,10 @@ export class StructureLayer implements Layer {
             this.clearCell(new Cell(this.game.x(tile), this.game.y(tile)));
         }
 
+        if (!unit.isActive()) {
+            return
+        }
+
         // Draw border and territory
         for (const tile of this.game.bfs(unit.tile(), euclDistFN(unit.tile(), config.borderRadius))) {
             this.paintCell(
