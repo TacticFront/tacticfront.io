@@ -1,5 +1,5 @@
 import { nextTick } from "process";
-import { Cell, Execution, MutableGame, MutablePlayer, PlayerID, MutableUnit, UnitType, Player, TerraNullius } from "../game/Game";
+import { Cell, Execution, MutableGame, Player, PlayerID, MutableUnit, UnitType, TerraNullius } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { PseudoRandom } from "../PseudoRandom";
@@ -8,7 +8,7 @@ import { TileRef } from "../game/GameMap";
 
 export class NukeExecution implements Execution {
 
-    private player: MutablePlayer
+    private player: Player
 
     private active = true
 
@@ -76,7 +76,7 @@ export class NukeExecution implements Execution {
         const ratio = Object.fromEntries(
             this.mg.players().map(p => [p.id(), (p.troops() + p.workers()) / p.numTilesOwned()])
         )
-        const attacked = new Map<MutablePlayer, number>()
+        const attacked = new Map<Player, number>()
         for (const tile of toDestroy) {
             const owner = this.mg.owner(tile)
             if (owner.isPlayer()) {
@@ -116,7 +116,7 @@ export class NukeExecution implements Execution {
         this.nuke.delete(false)
     }
 
-    owner(): MutablePlayer {
+    owner(): Player {
         return this.player
     }
 

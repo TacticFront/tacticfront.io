@@ -1,10 +1,10 @@
 import { consolex } from "../Consolex";
-import { AllPlayers, Execution, MutableGame, MutablePlayer, PlayerID, PlayerType, UnitType } from "../game/Game";
+import { AllPlayers, Execution, MutableGame, Player, PlayerID, PlayerType, UnitType } from "../game/Game";
 
 export class EmojiExecution implements Execution {
 
-    private requestor: MutablePlayer
-    private recipient: MutablePlayer | typeof AllPlayers
+    private requestor: Player
+    private recipient: Player | typeof AllPlayers
 
     private active = true
 
@@ -32,7 +32,7 @@ export class EmojiExecution implements Execution {
         this.active = false
     }
 
-    owner(): MutablePlayer {
+    owner(): Player {
         return null
     }
 

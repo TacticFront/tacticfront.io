@@ -1,4 +1,4 @@
-import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, TerrainType, Unit, UnitType } from "../game/Game";
+import { Cell, Execution, MutableGame, Player, MutableUnit, PlayerID, TerrainType, Unit, UnitType } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { PseudoRandom } from "../PseudoRandom";
@@ -10,7 +10,7 @@ import { TileRef } from "../game/GameMap";
 export class BattleshipExecution implements Execution {
     private random: PseudoRandom
 
-    private _owner: MutablePlayer
+    private _owner: Player
     private active = true
     private battleship: MutableUnit = null
     private mg: MutableGame = null
@@ -110,7 +110,7 @@ export class BattleshipExecution implements Execution {
         }
     }
 
-    owner(): MutablePlayer {
+    owner(): Player {
         return this._owner
     }
 

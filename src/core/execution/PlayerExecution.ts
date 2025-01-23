@@ -1,5 +1,5 @@
 import { Config } from "../configuration/Config"
-import { Execution, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, UnitType } from "../game/Game"
+import { Execution, MutableGame, Player, PlayerID, TerraNullius, UnitType } from "../game/Game"
 import { calculateBoundingBox, getMode, inscribed, simpleHash } from "../Util"
 import { GameImpl } from "../game/GameImpl"
 import { consolex } from "../Consolex"
@@ -9,7 +9,7 @@ export class PlayerExecution implements Execution {
 
     private readonly ticksPerClusterCalc = 20
 
-    private player: MutablePlayer
+    private player: Player
     private config: Config
     private lastCalc = 0
     private mg: MutableGame
@@ -168,7 +168,7 @@ export class PlayerExecution implements Execution {
             consolex.warn('mode player is null')
         }
         for (const tile of tiles) {
-            (modePlayer as MutablePlayer).conquer(tile)
+            (modePlayer as Player).conquer(tile)
         }
     }
 
@@ -201,7 +201,7 @@ export class PlayerExecution implements Execution {
         return clusters
     }
 
-    owner(): MutablePlayer {
+    owner(): Player {
         return this.player
     }
 

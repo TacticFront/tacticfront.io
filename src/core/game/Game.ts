@@ -130,7 +130,7 @@ export interface ExecutionView {
 export interface Execution extends ExecutionView {
     init(mg: MutableGame, ticks: number): void
     tick(ticks: number): void
-    owner(): MutablePlayer
+    owner(): Player
 }
 
 export interface AllianceRequest {
@@ -142,8 +142,8 @@ export interface AllianceRequest {
 export interface MutableAllianceRequest extends AllianceRequest {
     accept(): void
     reject(): void
-    requestor(): MutablePlayer
-    recipient(): MutablePlayer
+    requestor(): Player
+    recipient(): Player
 }
 
 export interface Alliance {
@@ -155,7 +155,7 @@ export interface Alliance {
 
 export interface MutableAlliance extends Alliance {
     expire(): void
-    other(player: Player): MutablePlayer
+    other(player: Player): Player
 }
 
 export class PlayerInfo {
@@ -189,7 +189,7 @@ export interface Unit {
 
 export interface MutableUnit extends Unit {
     move(tile: TileRef): void
-    owner(): MutablePlayer
+    owner(): Player
     setTroops(troops: number): void
     info(): UnitInfo
     delete(displayerMessage?: boolean): void
@@ -205,6 +205,7 @@ export interface TerraNullius {
 }
 
 export interface Player {
+    // Basic Info
     smallID(): number
     info(): PlayerInfo
     name(): string
@@ -212,75 +213,30 @@ export interface Player {
     clientID(): ClientID
     id(): PlayerID
     type(): PlayerType
-    units(...types: UnitType[]): Unit[]
-    isAlive(): boolean
-    borderTiles(): ReadonlySet<TileRef>
     isPlayer(): this is Player
-    numTilesOwned(): number
-    sharesBorderWith(other: Player | TerraNullius): boolean
-    incomingAllianceRequests(): AllianceRequest[]
-    outgoingAllianceRequests(): AllianceRequest[]
-    alliances(): Alliance[]
-    allies(): Player[]
-    isAlliedWith(other: Player): boolean
-    allianceWith(other: Player): Alliance | null
-    // Includes recent requests that  are in cooldown
-    // TODO: why can't I have "canSendAllyRequest" function instead?
-    recentOrPendingAllianceRequestWith(other: Player): boolean
-    // How this player feels about other player.
-    relation(other: Player): Relation
-    // Sorted from most hated to most liked
-    allRelationsSorted(): { player: Player, relation: Relation }[]
-    transitiveTargets(): Player[]
-    isTraitor(): boolean
-    canTarget(other: Player): boolean
     toString(): string
-    canSendEmoji(recipient: Player | typeof AllPlayers): boolean
-    outgoingEmojis(): EmojiMessage[]
-    canDonate(recipient: Player): boolean
-    gold(): Gold
-    // Population = troops + workers
-    population(): number
-    workers(): number
-    // Number between 0, 1
-    targetTroopRatio(): number
-    troops(): number
 
-    // If can build returns the spawn tile, false otherwise
-    canBuild(type: UnitType, targetTile: TileRef): TileRef | false
-    lastTileChange(): Tick
-}
-
-export interface MutablePlayer extends Player {
+    // State & Properties
+    isAlive(): boolean
+    isTraitor(): boolean
     largestClusterBoundingBox: { min: Cell, max: Cell } | null
-    // Targets for this player
-    targets(): Player[]
-    // Targets of player and all allies.
-    neighbors(): (Player | TerraNullius)[]
+    lastTileChange(): Tick
+
+    // Territory
     tiles(): ReadonlySet<TileRef>
+    borderTiles(): ReadonlySet<TileRef>
+    numTilesOwned(): number
     conquer(tile: TileRef): void
     relinquish(tile: TileRef): void
-    executions(): Execution[]
-    neighbors(): (MutablePlayer | TerraNullius)[]
-    units(...types: UnitType[]): MutableUnit[]
-    incomingAllianceRequests(): MutableAllianceRequest[]
-    outgoingAllianceRequests(): MutableAllianceRequest[]
-    alliances(): MutableAlliance[]
-    allies(): MutablePlayer[]
-    allianceWith(other: Player): MutableAlliance | null
-    breakAlliance(alliance: Alliance): void
-    createAllianceRequest(recipient: Player): MutableAllianceRequest
-    updateRelation(other: Player, delta: number): void
-    decayRelations(): void
-    target(other: Player): void
-    targets(): MutablePlayer[]
-    transitiveTargets(): MutablePlayer[]
-    sendEmoji(recipient: Player | typeof AllPlayers, emoji: string): void
-    donate(recipient: MutablePlayer, troops: number): void
 
+    // Resources & Population
+    gold(): Gold
+    population(): number
+    workers(): number
+    troops(): number
+    targetTroopRatio(): number
     addGold(toAdd: Gold): void
     removeGold(toRemove: Gold): void
-
     addWorkers(toAdd: number): void
     removeWorkers(toRemove: number): void
     setTargetTroopRatio(target: number): void
@@ -288,9 +244,48 @@ export interface MutablePlayer extends Player {
     addTroops(troops: number): void
     removeTroops(troops: number): number
 
+    // Units
+    units(...types: UnitType[]): MutableUnit[]
+    canBuild(type: UnitType, targetTile: TileRef): TileRef | false
     buildUnit(type: UnitType, troops: number, tile: TileRef): MutableUnit
     captureUnit(unit: MutableUnit): void
 
+    // Relations & Diplomacy
+    neighbors(): (Player | TerraNullius)[]
+    sharesBorderWith(other: Player | TerraNullius): boolean
+    relation(other: Player): Relation
+    allRelationsSorted(): { player: Player, relation: Relation }[]
+    updateRelation(other: Player, delta: number): void
+    decayRelations(): void
+
+    // Alliances
+    incomingAllianceRequests(): MutableAllianceRequest[]
+    outgoingAllianceRequests(): MutableAllianceRequest[]
+    alliances(): MutableAlliance[]
+    allies(): Player[]
+    isAlliedWith(other: Player): boolean
+    allianceWith(other: Player): MutableAlliance | null
+    recentOrPendingAllianceRequestWith(other: Player): boolean
+    breakAlliance(alliance: Alliance): void
+    createAllianceRequest(recipient: Player): MutableAllianceRequest
+
+    // Targeting
+    canTarget(other: Player): boolean
+    target(other: Player): void
+    targets(): Player[]
+    transitiveTargets(): Player[]
+
+    // Communication
+    canSendEmoji(recipient: Player | typeof AllPlayers): boolean
+    outgoingEmojis(): EmojiMessage[]
+    sendEmoji(recipient: Player | typeof AllPlayers, emoji: string): void
+
+    // Trading
+    canDonate(recipient: Player): boolean
+    donate(recipient: Player, troops: number): void
+
+    // Misc
+    executions(): Execution[]
     toUpdate(): PlayerUpdate
 }
 
@@ -322,11 +317,11 @@ export interface Game extends GameMap {
 }
 
 export interface MutableGame extends Game {
-    player(id: PlayerID): MutablePlayer
-    playerByClientID(id: ClientID): MutablePlayer | null
-    players(): MutablePlayer[]
-    allPlayers(): MutablePlayer[]
-    addPlayer(playerInfo: PlayerInfo, manpower: number): MutablePlayer
+    player(id: PlayerID): Player
+    playerByClientID(id: ClientID): Player | null
+    players(): Player[]
+    allPlayers(): Player[]
+    addPlayer(playerInfo: PlayerInfo, manpower: number): Player
     executions(): Execution[]
     units(...types: UnitType[]): MutableUnit[]
     addTileDefenseBonus(tile: TileRef, unit: Unit, amount: number): DefenseBonus

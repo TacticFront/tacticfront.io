@@ -1,6 +1,6 @@
 import { MessageType } from '../game/Game';
 import { renderNumber } from "../../client/Utils";
-import { AllPlayers, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID,  UnitType } from "../game/Game";
+import { AllPlayers, Cell, Execution, MutableGame, MutableUnit, Player, PlayerID,  UnitType } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { distSortUnit } from "../Util";
@@ -11,7 +11,7 @@ export class TradeShipExecution implements Execution {
 
     private active = true
     private mg: MutableGame
-    private origOwner: MutablePlayer
+    private origOwner: Player
     private tradeShip: MutableUnit
     private index = 0
     private wasCaptured = false
@@ -116,7 +116,7 @@ export class TradeShipExecution implements Execution {
         this.index++
     }
 
-    owner(): MutablePlayer {
+    owner(): Player {
         return null
     }
 

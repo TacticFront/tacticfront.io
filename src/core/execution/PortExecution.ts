@@ -1,4 +1,4 @@
-import { AllPlayers, Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, TerrainType, UnitType } from "../game/Game";
+import { AllPlayers, Cell, Execution, MutableGame, Player, MutableUnit, PlayerID, TerrainType, UnitType } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { PseudoRandom } from "../PseudoRandom";
@@ -114,7 +114,7 @@ export class PortExecution implements Execution {
         }
     }
 
-    owner(): MutablePlayer {
+    owner(): Player {
         return null
     }
 
@@ -126,7 +126,7 @@ export class PortExecution implements Execution {
         return false
     }
 
-    player(): MutablePlayer {
+    player(): Player {
         return this.port.owner()
     }
 

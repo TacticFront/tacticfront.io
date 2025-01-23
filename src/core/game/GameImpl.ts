@@ -1,5 +1,5 @@
 import { Config } from "../configuration/Config";
-import { Cell, Execution, MutableGame, Game, MutablePlayer, PlayerID, PlayerInfo, Player, TerraNullius, Unit, MutableAllianceRequest, Alliance, Nation, UnitType, UnitInfo, DefenseBonus, GameUpdate, GameUpdateType, AllPlayers, GameUpdates, TerrainType, EmojiMessage } from "./Game";
+import { Cell, Execution, MutableGame, Game, PlayerID, PlayerInfo, Player, TerraNullius, Unit, MutableAllianceRequest, Alliance, Nation, UnitType, UnitInfo, DefenseBonus, GameUpdate, GameUpdateType, AllPlayers, GameUpdates, TerrainType, EmojiMessage } from "./Game";
 import { NationMap } from "./TerrainMapLoader";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
@@ -120,7 +120,7 @@ export class GameImpl implements MutableGame {
         return this.nations_
     }
 
-    createAllianceRequest(requestor: MutablePlayer, recipient: MutablePlayer): MutableAllianceRequest {
+    createAllianceRequest(requestor: Player, recipient: Player): MutableAllianceRequest {
         if (requestor.isAlliedWith(recipient)) {
             consolex.log('cannot request alliance, already allied')
             return
@@ -240,11 +240,11 @@ export class GameImpl implements MutableGame {
         this.execs = activeExecs
     }
 
-    players(): MutablePlayer[] {
+    players(): Player[] {
         return Array.from(this._players.values()).filter(p => p.isAlive())
     }
 
-    allPlayers(): MutablePlayer[] {
+    allPlayers(): Player[] {
         return Array.from(this._players.values())
     }
 
@@ -262,11 +262,11 @@ export class GameImpl implements MutableGame {
     }
 
 
-    playerView(id: PlayerID): MutablePlayer {
+    playerView(id: PlayerID): Player {
         return this.player(id)
     }
 
-    addPlayer(playerInfo: PlayerInfo, manpower: number): MutablePlayer {
+    addPlayer(playerInfo: PlayerInfo, manpower: number): Player {
         let player = new PlayerImpl(this, this.nextPlayerID, playerInfo, manpower)
         this._playersBySmallID.push(player)
         this.nextPlayerID++
@@ -274,14 +274,14 @@ export class GameImpl implements MutableGame {
         return player
     }
 
-    player(id: PlayerID | null): MutablePlayer {
+    player(id: PlayerID | null): Player {
         if (!this._players.has(id)) {
             throw new Error(`Player with id ${id} not found`)
         }
         return this._players.get(id)
     }
 
-    playerByClientID(id: ClientID): MutablePlayer | null {
+    playerByClientID(id: ClientID): Player | null {
         for (const [pID, player] of this._players) {
             if (player.clientID() == id) {
                 return player

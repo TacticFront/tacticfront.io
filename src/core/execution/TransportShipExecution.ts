@@ -1,4 +1,4 @@
-import { Unit, Cell, Execution, MutableUnit, MutableGame, MutablePlayer, Player, PlayerID, TerraNullius, UnitType, TerrainType } from "../game/Game";
+import { Unit, Cell, Execution, MutableUnit, MutableGame, Player, PlayerID, TerraNullius, UnitType, TerrainType } from "../game/Game";
 import { AttackExecution } from "./AttackExecution";
 import { MessageType } from '../game/Game';
 import { PathFinder } from "../pathfinding/PathFinding";
@@ -17,8 +17,8 @@ export class TransportShipExecution implements Execution {
     private active = true
 
     private mg: MutableGame
-    private attacker: MutablePlayer
-    private target: MutablePlayer | TerraNullius
+    private attacker: Player
+    private target: Player | TerraNullius
 
     // TODO make private
     public path: TileRef[]
@@ -133,7 +133,7 @@ export class TransportShipExecution implements Execution {
         }
     }
 
-    owner(): MutablePlayer {
+    owner(): Player {
         return this.attacker
     }
 

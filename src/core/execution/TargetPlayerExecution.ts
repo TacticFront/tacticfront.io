@@ -1,9 +1,9 @@
-import { Execution, MutableGame, MutablePlayer, PlayerID } from "../game/Game";
+import { Execution, MutableGame, Player, PlayerID } from "../game/Game";
 
 export class TargetPlayerExecution implements Execution {
 
-    private requestor: MutablePlayer
-    private target: MutablePlayer
+    private requestor: Player
+    private target: Player
 
     private active = true
 
@@ -23,7 +23,7 @@ export class TargetPlayerExecution implements Execution {
         this.active = false
     }
 
-    owner(): MutablePlayer {
+    owner(): Player {
         return null
     }
 

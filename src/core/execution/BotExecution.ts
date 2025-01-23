@@ -1,4 +1,4 @@
-import { Cell, Execution, MutableGame, MutablePlayer, Player, PlayerID, PlayerInfo, PlayerType, TerraNullius } from "../game/Game"
+import { Cell, Execution, MutableGame, Player, PlayerType, TerraNullius } from "../game/Game"
 import { PseudoRandom } from "../PseudoRandom"
 import { simpleHash } from "../Util";
 import { AttackExecution } from "./AttackExecution";
@@ -12,7 +12,7 @@ export class BotExecution implements Execution {
     private neighborsTerraNullius = true
 
 
-    constructor(private bot: MutablePlayer) {
+    constructor(private bot: Player) {
         this.random = new PseudoRandom(simpleHash(bot.id()))
         this.attackRate = this.random.nextInt(10, 50)
     }
@@ -99,7 +99,7 @@ export class BotExecution implements Execution {
         ))
     }
 
-    owner(): MutablePlayer {
+    owner(): Player {
         return this.bot
     }
 

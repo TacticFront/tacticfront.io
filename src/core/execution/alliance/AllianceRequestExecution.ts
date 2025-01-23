@@ -1,11 +1,11 @@
 import { consolex } from "../../Consolex";
-import {AllianceRequest, Execution, MutableGame, MutablePlayer, Player, PlayerID} from "../../game/Game";
+import {AllianceRequest, Execution, MutableGame, Player, PlayerID} from "../../game/Game";
 
 export class AllianceRequestExecution implements Execution {
     private active = true
     private mg: MutableGame = null
-    private requestor: MutablePlayer;
-    private recipient: MutablePlayer
+    private requestor: Player;
+    private recipient: Player
 
     constructor(private requestorID: PlayerID, private recipientID: PlayerID) { }
 
@@ -26,7 +26,7 @@ export class AllianceRequestExecution implements Execution {
         this.active = false
     }
 
-    owner(): MutablePlayer {
+    owner(): Player {
         return null
     }
 

@@ -1,4 +1,4 @@
-import { Cell, Execution, MutableGame, MutablePlayer, PlayerInfo, PlayerType } from "../game/Game"
+import { Cell, Execution, MutableGame, Player, PlayerInfo, PlayerType } from "../game/Game"
 import { TileRef } from "../game/GameMap"
 import { BotExecution } from "./BotExecution"
 import { PlayerExecution } from "./PlayerExecution"
@@ -44,7 +44,7 @@ export class SpawnExecution implements Execution {
         }
     }
 
-    owner(): MutablePlayer {
+    owner(): Player {
         return null
     }
     isActive(): boolean {

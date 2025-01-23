@@ -1,4 +1,4 @@
-import { MutablePlayer, PlayerInfo, PlayerID, PlayerType, Player, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, AllPlayers, Gold, UnitType, Unit, MutableUnit, Relation, PlayerUpdate, GameUpdateType, EmojiMessage } from "./Game";
+import { Player, PlayerInfo, PlayerID, PlayerType, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, AllPlayers, Gold, UnitType, Unit, MutableUnit, Relation, PlayerUpdate, GameUpdateType, EmojiMessage } from "./Game";
 import { ClientID } from "../Schemas";
 import { assertNever, closestOceanShoreFromPlayer, distSortUnit, simpleHash, sourceDstOceanShore, within } from "../Util";
 import { CellString, GameImpl } from "./GameImpl";
@@ -18,7 +18,7 @@ class Donation {
     constructor(public readonly recipient: Player, public readonly tick: Tick) { }
 }
 
-export class PlayerImpl implements MutablePlayer {
+export class PlayerImpl implements Player {
 
     public _lastTileChange: number = 0
 
@@ -138,8 +138,8 @@ export class PlayerImpl implements MutablePlayer {
         return this._borderTiles;
     }
 
-    neighbors(): (MutablePlayer | TerraNullius)[] {
-        const ns: Set<(MutablePlayer | TerraNullius)> = new Set();
+    neighbors(): (Player | TerraNullius)[] {
+        const ns: Set<(Player | TerraNullius)> = new Set();
         for (const border of this.borderTiles()) {
             for (const neighbor of this.mg.map().neighbors(border)) {
                 if (this.mg.map().isLake(neighbor)) {
@@ -153,7 +153,7 @@ export class PlayerImpl implements MutablePlayer {
         return Array.from(ns);
     }
 
-    isPlayer(): this is MutablePlayer { return true as const; }
+    isPlayer(): this is Player { return true as const; }
     setTroops(troops: number) { this._troops = Math.floor(troops); }
     conquer(tile: TileRef) { this.mg.conquer(this, tile); }
     relinquish(tile: TileRef) {
@@ -180,7 +180,7 @@ export class PlayerImpl implements MutablePlayer {
         return this.mg.alliances_.filter(a => a.requestor() == this || a.recipient() == this)
     }
 
-    allies(): MutablePlayer[] {
+    allies(): Player[] {
         return this.alliances().map(a => a.other(this))
     }
 
@@ -231,7 +231,7 @@ export class PlayerImpl implements MutablePlayer {
         if (this.isAlliedWith(recipient)) {
             throw new Error(`cannot create alliance request, already allies`)
         }
-        return this.mg.createAllianceRequest(this, recipient as MutablePlayer)
+        return this.mg.createAllianceRequest(this, recipient as Player)
     }
 
     relation(other: Player): Relation {
@@ -310,10 +310,10 @@ export class PlayerImpl implements MutablePlayer {
             .map(t => t.target as PlayerImpl)
     }
 
-    transitiveTargets(): MutablePlayer[] {
+    transitiveTargets(): Player[] {
         const ts = this.alliances().map(a => a.other(this)).flatMap(ally => ally.targets())
         ts.push(...this.targets())
-        return [...new Set(ts)] as MutablePlayer[]
+        return [...new Set(ts)] as Player[]
     }
 
     sendEmoji(recipient: Player | typeof AllPlayers, emoji: string): void {
@@ -361,7 +361,7 @@ export class PlayerImpl implements MutablePlayer {
         return true
     }
 
-    donate(recipient: MutablePlayer, troops: number): void {
+    donate(recipient: Player, troops: number): void {
         this.sentDonations.push(new Donation(recipient, this.mg.ticks()))
         recipient.addTroops(this.removeTroops(troops))
         this.mg.displayMessage(`Sent ${renderTroops(troops)} troops to ${recipient.name()}`, MessageType.INFO, this.id())

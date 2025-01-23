@@ -1,10 +1,10 @@
 import { consolex } from "../Consolex";
-import { Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, UnitType } from "../game/Game";
+import { Execution, MutableGame, Player, MutableUnit, PlayerID, UnitType } from "../game/Game";
 import { TileRef } from "../game/GameMap";
 
 export class CityExecution implements Execution {
 
-    private player: MutablePlayer
+    private player: Player
     private mg: MutableGame
     private city: MutableUnit
     private active: boolean = true
@@ -32,7 +32,7 @@ export class CityExecution implements Execution {
         }
     }
 
-    owner(): MutablePlayer {
+    owner(): Player {
         return null
     }
 

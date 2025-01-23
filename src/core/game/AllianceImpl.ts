@@ -1,4 +1,4 @@
-import {MutableAlliance, MutableGame, MutablePlayer, Player, Tick} from "./Game";
+import {MutableAlliance, MutableGame, Player, Tick} from "./Game";
 import {GameImpl} from "./GameImpl";
 import {PlayerImpl} from "./PlayerImpl";
 
@@ -17,11 +17,11 @@ export class AllianceImpl implements MutableAlliance {
         return this.requestor_
     }
 
-    requestor(): MutablePlayer {
+    requestor(): Player {
         return this.requestor_
     }
 
-    recipient(): MutablePlayer {
+    recipient(): Player {
         return this.recipient_
     }
 

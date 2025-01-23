@@ -1,4 +1,4 @@
-import { Game, Player, Cell, NameViewData, MutablePlayer } from '../../core/game/Game';
+import { Game, Player, Cell, NameViewData } from '../../core/game/Game';
 import { calculateBoundingBox, within } from '../../core/Util';
 
 export interface Point {
@@ -15,7 +15,7 @@ export interface Rectangle {
 
 
 
-export function placeName(game: Game, player: MutablePlayer): NameViewData {
+export function placeName(game: Game, player: Player): NameViewData {
 
     const boundingBox = player.largestClusterBoundingBox ?? calculateBoundingBox(game, player.borderTiles());
 

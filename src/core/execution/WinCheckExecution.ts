@@ -1,5 +1,5 @@
 import { EventBus, GameEvent } from "../EventBus"
-import { Execution, MutableGame, MutablePlayer, Player, PlayerID } from "../game/Game"
+import { Execution, MutableGame, Player, PlayerID } from "../game/Game"
 
 export class WinEvent implements GameEvent {
     constructor(public readonly winner: Player) { }
@@ -33,7 +33,7 @@ export class WinCheckExecution implements Execution {
         }
     }
 
-    owner(): MutablePlayer {
+    owner(): Player {
         return null
     }
 

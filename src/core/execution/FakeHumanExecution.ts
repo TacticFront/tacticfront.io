@@ -1,4 +1,4 @@
-import { AllianceRequest, Cell, Difficulty, Execution, MutableGame, MutablePlayer, Player, PlayerInfo, PlayerType, Relation, TerrainType, TerraNullius, UnitType } from "../game/Game"
+import { AllianceRequest, Cell, Difficulty, Execution, MutableGame, Player, PlayerInfo, PlayerType, Relation, TerrainType, TerraNullius, UnitType } from "../game/Game"
 import { PseudoRandom } from "../PseudoRandom"
 import { AttackExecution } from "./AttackExecution";
 import { TransportShipExecution } from "./TransportShipExecution";
@@ -24,7 +24,7 @@ export class FakeHumanExecution implements Execution {
     private active = true
     private random: PseudoRandom;
     private mg: MutableGame
-    private player: MutablePlayer = null
+    private player: Player = null
 
     private enemy: Player | null = null
 
@@ -476,7 +476,7 @@ export class FakeHumanExecution implements Execution {
         return this.mg.bfs(tile, andFN((gm, t) => gm.isLand(t), manhattanDistFN(tile, 10))).size < 50
     }
 
-    owner(): MutablePlayer {
+    owner(): Player {
         return null
     }
 

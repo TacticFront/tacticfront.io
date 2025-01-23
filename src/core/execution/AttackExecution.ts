@@ -1,5 +1,5 @@
 import { PriorityQueue } from "@datastructures-js/priority-queue";
-import { Cell, Execution, MutableGame, MutablePlayer, Player, PlayerID, PlayerType, TerrainType, TerraNullius } from "../game/Game";
+import { Cell, Execution, MutableGame, Player, PlayerID, PlayerType, TerrainType, TerraNullius } from "../game/Game";
 import { PseudoRandom } from "../PseudoRandom";
 import { MessageType } from '../game/Game';
 import { renderNumber } from "../../client/Utils";
@@ -20,8 +20,8 @@ export class AttackExecution implements Execution {
     });
     private random = new PseudoRandom(123)
 
-    private _owner: MutablePlayer
-    private target: MutablePlayer | TerraNullius
+    private _owner: Player
+    private target: Player | TerraNullius
 
     private mg: MutableGame
 
@@ -227,7 +227,7 @@ export class AttackExecution implements Execution {
         }
     }
 
-    owner(): MutablePlayer {
+    owner(): Player {
         return this._owner
     }
 

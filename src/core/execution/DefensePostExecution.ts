@@ -1,10 +1,10 @@
 import { consolex } from "../Consolex";
-import { Cell, DefenseBonus, Execution, MutableGame, MutablePlayer, MutableUnit, PlayerID, UnitType } from "../game/Game";
+import { Cell, DefenseBonus, Execution, MutableGame, Player, MutableUnit, PlayerID, UnitType } from "../game/Game";
 import { manhattanDistFN, TileRef } from "../game/GameMap";
 
 export class DefensePostExecution implements Execution {
 
-    private player: MutablePlayer
+    private player: Player
     private mg: MutableGame
     private post: MutableUnit
     private active: boolean = true
@@ -42,7 +42,7 @@ export class DefensePostExecution implements Execution {
         }
     }
 
-    owner(): MutablePlayer {
+    owner(): Player {
         return null
     }
 

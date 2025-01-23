@@ -1,10 +1,10 @@
 import { consolex } from "../Consolex";
-import { Execution, MutableGame, MutablePlayer, PlayerID } from "../game/Game";
+import { Execution, MutableGame, Player, PlayerID } from "../game/Game";
 
 export class DonateExecution implements Execution {
 
-    private sender: MutablePlayer
-    private recipient: MutablePlayer
+    private sender: Player
+    private recipient: Player
 
     private active = true
 
@@ -33,7 +33,7 @@ export class DonateExecution implements Execution {
         this.active = false
     }
 
-    owner(): MutablePlayer {
+    owner(): Player {
         return null
     }
 

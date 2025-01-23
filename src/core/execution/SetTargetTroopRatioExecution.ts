@@ -1,9 +1,9 @@
 import { consolex } from "../Consolex";
-import { Execution, MutableGame, MutablePlayer, PlayerID } from "../game/Game";
+import { Execution, MutableGame, Player, PlayerID } from "../game/Game";
 
 export class SetTargetTroopRatioExecution implements Execution {
 
-    private player: MutablePlayer
+    private player: Player
 
     private active = true
 
@@ -23,7 +23,7 @@ export class SetTargetTroopRatioExecution implements Execution {
         this.active = false
     }
 
-    owner(): MutablePlayer {
+    owner(): Player {
         return null
     }
 

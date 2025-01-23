@@ -1,12 +1,12 @@
 import { consolex } from "../Consolex";
-import { Cell, Execution, MutableGame, MutablePlayer, MutableUnit, Player, PlayerID, UnitType } from "../game/Game";
+import { Cell, Execution, MutableGame, Player, MutableUnit, PlayerID, UnitType } from "../game/Game";
 import { TileRef } from "../game/GameMap";
 
 export class MissileSiloExecution implements Execution {
 
     private active = true
     private mg: MutableGame
-    private player: MutablePlayer
+    private player: Player
     private silo: MutableUnit
 
     constructor(
@@ -31,7 +31,7 @@ export class MissileSiloExecution implements Execution {
         }
     }
 
-    owner(): MutablePlayer {
+    owner(): Player {
         return null
     }
 
