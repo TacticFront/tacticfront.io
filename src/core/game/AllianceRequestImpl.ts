@@ -1,8 +1,8 @@
-import { AllianceRequestUpdate, GameUpdateType, MutableAllianceRequest, Player, Tick } from "./Game";
+import { AllianceRequestUpdate, GameUpdateType, AllianceRequest, Player, Tick } from "./Game";
 import { GameImpl } from "./GameImpl";
 
 
-export class AllianceRequestImpl implements MutableAllianceRequest {
+export class AllianceRequestImpl implements AllianceRequest {
 
     constructor(private requestor_: Player, private recipient_: Player, private tickCreated: number, private game: GameImpl) { }
 

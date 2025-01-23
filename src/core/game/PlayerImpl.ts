@@ -1,4 +1,4 @@
-import { Player, PlayerInfo, PlayerID, PlayerType, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, AllPlayers, Gold, UnitType, Unit,  Relation, PlayerUpdate, GameUpdateType, EmojiMessage } from "./Game";
+import { Player, PlayerInfo, PlayerID, PlayerType, TerraNullius, Cell, Execution, AllianceRequest, MutableAlliance, Alliance, Tick, AllPlayers, Gold, UnitType, Unit,  Relation, PlayerUpdate, GameUpdateType, EmojiMessage } from "./Game";
 import { ClientID } from "../Schemas";
 import { assertNever, closestOceanShoreFromPlayer, distSortUnit, simpleHash, sourceDstOceanShore, within } from "../Util";
 import { CellString, GameImpl } from "./GameImpl";
@@ -168,11 +168,11 @@ export class PlayerImpl implements Player {
         return this.mg.executions().filter(exec => exec.owner().id() == this.id());
     }
 
-    incomingAllianceRequests(): MutableAllianceRequest[] {
+    incomingAllianceRequests(): AllianceRequest[] {
         return this.mg.allianceRequests.filter(ar => ar.recipient() == this)
     }
 
-    outgoingAllianceRequests(): MutableAllianceRequest[] {
+    outgoingAllianceRequests(): AllianceRequest[] {
         return this.mg.allianceRequests.filter(ar => ar.requestor() == this)
     }
 
@@ -227,7 +227,7 @@ export class PlayerImpl implements Player {
         return this.isTraitor_
     }
 
-    createAllianceRequest(recipient: Player): MutableAllianceRequest {
+    createAllianceRequest(recipient: Player): AllianceRequest {
         if (this.isAlliedWith(recipient)) {
             throw new Error(`cannot create alliance request, already allies`)
         }

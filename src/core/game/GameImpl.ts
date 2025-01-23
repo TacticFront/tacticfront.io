@@ -1,5 +1,5 @@
 import { Config } from "../configuration/Config";
-import { Cell, Execution, Game, PlayerID, PlayerInfo, Player, TerraNullius, Unit, MutableAllianceRequest, Alliance, Nation, UnitType, UnitInfo, DefenseBonus, GameUpdate, GameUpdateType, AllPlayers, GameUpdates, TerrainType, EmojiMessage } from "./Game";
+import { Cell, Execution, Game, PlayerID, PlayerInfo, Player, TerraNullius, Unit, AllianceRequest, Alliance, Nation, UnitType, UnitInfo, DefenseBonus, GameUpdate, GameUpdateType, AllPlayers, GameUpdates, TerrainType, EmojiMessage } from "./Game";
 import { NationMap } from "./TerrainMapLoader";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
@@ -120,7 +120,7 @@ export class GameImpl implements Game {
         return this.nations_
     }
 
-    createAllianceRequest(requestor: Player, recipient: Player): MutableAllianceRequest {
+    createAllianceRequest(requestor: Player, recipient: Player): AllianceRequest {
         if (requestor.isAlliedWith(recipient)) {
             consolex.log('cannot request alliance, already allied')
             return

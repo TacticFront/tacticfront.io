@@ -134,16 +134,11 @@ export interface Execution extends ExecutionView {
 }
 
 export interface AllianceRequest {
-    requestor(): Player
-    recipient(): Player
-    createdAt(): Tick
-}
-
-export interface MutableAllianceRequest extends AllianceRequest {
     accept(): void
     reject(): void
     requestor(): Player
     recipient(): Player
+    createdAt(): Tick
 }
 
 export interface Alliance {
@@ -264,15 +259,15 @@ export interface Player {
     decayRelations(): void
 
     // Alliances
-    incomingAllianceRequests(): MutableAllianceRequest[]
-    outgoingAllianceRequests(): MutableAllianceRequest[]
+    incomingAllianceRequests(): AllianceRequest[]
+    outgoingAllianceRequests(): AllianceRequest[]
     alliances(): MutableAlliance[]
     allies(): Player[]
     isAlliedWith(other: Player): boolean
     allianceWith(other: Player): MutableAlliance | null
     recentOrPendingAllianceRequestWith(other: Player): boolean
     breakAlliance(alliance: Alliance): void
-    createAllianceRequest(recipient: Player): MutableAllianceRequest
+    createAllianceRequest(recipient: Player): AllianceRequest
 
     // Targeting
     canTarget(other: Player): boolean
