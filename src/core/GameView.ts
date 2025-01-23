@@ -308,6 +308,9 @@ export class GameView implements GameMap {
     units(...types: UnitType[]): UnitView[] {
         return Array.from(this._units.values())
     }
+    unit(id: number): UnitView {
+        return this._units.get(id)
+    }
     unitInfo(type: UnitType): UnitInfo {
         return this._config.unitInfo(type)
     }

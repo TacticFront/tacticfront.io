@@ -433,7 +433,7 @@ export class PlayerImpl implements MutablePlayer {
         (prev as PlayerImpl)._units = (prev as PlayerImpl)._units.filter(u => u != unit);
         (unit as UnitImpl)._owner = this
         this._units.push(unit as UnitImpl)
-        this.mg.fireUnitUpdateEvent(unit)
+        this.mg.addUpdate(unit.toUpdate())
         this.mg.displayMessage(`${unit.type()} captured by ${this.displayName()}`, MessageType.ERROR, prev.id())
         this.mg.displayMessage(`Captured ${unit.type()} from ${prev.displayName()}`, MessageType.SUCCESS, this.id())
     }
@@ -444,7 +444,7 @@ export class PlayerImpl implements MutablePlayer {
         this._units.push(b);
         this.removeGold(cost)
         this.removeTroops(troops)
-        this.mg.fireUnitUpdateEvent(b);
+        this.mg.addUpdate(b.toUpdate());
         return b;
     }
 

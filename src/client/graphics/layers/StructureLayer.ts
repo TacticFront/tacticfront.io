@@ -8,7 +8,7 @@ import missileSiloIcon from '../../../../resources/images/MissileSiloUnit.png';
 import shieldIcon from '../../../../resources/images/ShieldIcon.png';
 import cityIcon from '../../../../resources/images/CityIcon.png';
 import { GameView } from "../../../core/GameView";
-import { Cell, Unit, UnitType } from "../../../core/game/Game";
+import { Cell, GameUpdateType, Unit, UnitType } from "../../../core/game/Game";
 import { euclDistFN } from "../../../core/game/GameMap";
 
 interface UnitRenderConfig {
@@ -23,7 +23,6 @@ export class StructureLayer implements Layer {
     private unitImages: Map<string, HTMLImageElement> = new Map();
     private theme: Theme = null;
 
-    private seenUnits = new Set<Unit>();
 
     // Configuration for supported unit types only
     private readonly unitConfigs: Partial<Record<UnitType, UnitRenderConfig>> = {
@@ -69,7 +68,8 @@ export class StructureLayer implements Layer {
     }
 
     tick() {
-        this.game.units().forEach(u => this.handleUnitRendering(u));
+        this.game.updatesSinceLastTick()[GameUpdateType.Unit]
+            .forEach(u => this.handleUnitRendering(this.game.unit(u.id)));
     }
 
     init() {
@@ -103,14 +103,6 @@ export class StructureLayer implements Layer {
         const unitType = unit.type();
         if (!this.isUnitTypeSupported(unitType)) return;
 
-        if (unit.isActive() && this.seenUnits.has(unit)) {
-            // Already rendered, so don't do anything.
-            return;
-        }
-        if (!unit.isActive() && !this.seenUnits.has(unit)) {
-            // Has been deleted and render is cleared so don't do anything.
-            return;
-        }
 
         const config = this.unitConfigs[unitType];
         const unitImage = this.unitImages.get(unitType);
@@ -121,12 +113,6 @@ export class StructureLayer implements Layer {
         for (const tile of this.game.bfs(unit.tile(), euclDistFN(unit.tile(), config.borderRadius))) {
             this.clearCell(new Cell(this.game.x(tile), this.game.y(tile)));
         }
-
-        if (!unit.isActive()) {
-            this.seenUnits.delete(unit);
-            return;
-        }
-        this.seenUnits.add(unit);
 
         // Create temporary canvas for icon processing
         const tempCanvas = document.createElement('canvas');

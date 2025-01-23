@@ -389,10 +389,6 @@ export class GameImpl implements MutableGame {
         return false
     }
 
-    public fireUnitUpdateEvent(unit: Unit) {
-        this.addUpdate((unit as UnitImpl).toUpdate())
-    }
-
     target(targeter: Player, target: Player) {
         this.addUpdate({
             type: GameUpdateType.TargetPlayer,

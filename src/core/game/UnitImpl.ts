@@ -53,7 +53,7 @@ export class UnitImpl implements MutableUnit {
         }
         this._lastTile = this._tile
         this._tile = tile;
-        this.mg.fireUnitUpdateEvent(this);
+        this.mg.addUpdate(this.toUpdate());
     }
     setTroops(troops: number): void {
         this._troops = troops;
@@ -82,7 +82,7 @@ export class UnitImpl implements MutableUnit {
         const oldOwner = this._owner
         oldOwner._units = oldOwner._units.filter(u => u != this)
         this._owner = newOwner as PlayerImpl
-        this.mg.fireUnitUpdateEvent(this)
+        this.mg.addUpdate(this.toUpdate())
         this.mg.displayMessage(
             `Your ${this.type()} was captured by ${newOwner.displayName()}`,
             MessageType.ERROR,
@@ -105,7 +105,7 @@ export class UnitImpl implements MutableUnit {
         }
         this._owner._units = this._owner._units.filter(b => b != this);
         this._active = false;
-        this.mg.fireUnitUpdateEvent(this);
+        this.mg.addUpdate(this.toUpdate());
         if (displayMessage) {
             this.mg.displayMessage(`Your ${this.type()} was destroyed`, MessageType.ERROR, this.owner().id())
         }
