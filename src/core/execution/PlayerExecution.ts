@@ -7,7 +7,7 @@ import { GameMap, TileRef } from "../game/GameMap"
 
 export class PlayerExecution implements Execution {
 
-    private readonly ticksPerClusterCalc = 10
+    private readonly ticksPerClusterCalc = 20
 
     private player: MutablePlayer
     private config: Config
