@@ -1,4 +1,4 @@
-import { Cell, Execution, Game, Player, MutableUnit, PlayerID, TerrainType, UnitType } from "../game/Game";
+import { Cell, Execution, Game, Player, Unit, PlayerID, TerrainType, UnitType } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { PseudoRandom } from "../PseudoRandom";
@@ -11,10 +11,10 @@ export class DestroyerExecution implements Execution {
 
     private _owner: Player
     private active = true
-    private destroyer: MutableUnit = null
+    private destroyer: Unit = null
     private mg: Game = null
 
-    private target: MutableUnit = null
+    private target: Unit = null
     private pathfinder: PathFinder
 
     private patrolTile: TileRef;

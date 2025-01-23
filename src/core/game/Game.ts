@@ -177,23 +177,28 @@ export interface DefenseBonus {
 }
 
 export interface Unit {
+    // Properties
     type(): UnitType
     troops(): number
-    tile(): TileRef
     owner(): Player
+    info(): UnitInfo
+
+    // Location
+    tile(): TileRef
+    lastTile(): TileRef
+    move(tile: TileRef): void
+
+    // State
     isActive(): boolean
     hasHealth(): boolean
     health(): number
-    lastTile(): TileRef
-}
-
-export interface MutableUnit extends Unit {
-    move(tile: TileRef): void
-    owner(): Player
-    setTroops(troops: number): void
-    info(): UnitInfo
-    delete(displayerMessage?: boolean): void
     modifyHealth(delta: number): void
+
+    // Mutations
+    setTroops(troops: number): void
+    delete(displayerMessage?: boolean): void
+
+    // Updates
     toUpdate(): UnitUpdate
 }
 
@@ -245,10 +250,10 @@ export interface Player {
     removeTroops(troops: number): number
 
     // Units
-    units(...types: UnitType[]): MutableUnit[]
+    units(...types: UnitType[]): Unit[]
     canBuild(type: UnitType, targetTile: TileRef): TileRef | false
-    buildUnit(type: UnitType, troops: number, tile: TileRef): MutableUnit
-    captureUnit(unit: MutableUnit): void
+    buildUnit(type: UnitType, troops: number, tile: TileRef): Unit
+    captureUnit(unit: Unit): void
 
     // Relations & Diplomacy
     neighbors(): (Player | TerraNullius)[]
@@ -317,7 +322,7 @@ export interface Game extends GameMap {
     config(): Config
 
     // Units
-    units(...types: UnitType[]): MutableUnit[]
+    units(...types: UnitType[]): Unit[]
     unitInfo(type: UnitType): UnitInfo
     addTileDefenseBonus(tile: TileRef, unit: Unit, amount: number): DefenseBonus
     removeTileDefenseBonus(bonus: DefenseBonus): void

@@ -1,4 +1,4 @@
-import { AllPlayers, Cell, Execution, Game, Player, MutableUnit, PlayerID, TerrainType, UnitType } from "../game/Game";
+import { AllPlayers, Cell, Execution, Game, Player, Unit, PlayerID, TerrainType, UnitType } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { PseudoRandom } from "../PseudoRandom";
@@ -11,10 +11,10 @@ export class PortExecution implements Execution {
 
     private active = true
     private mg: Game
-    private port: MutableUnit
+    private port: Unit
     private random: PseudoRandom
-    private portPaths = new Map<MutableUnit, TileRef[]>()
-    private computingPaths = new Map<MutableUnit, MiniAStar>()
+    private portPaths = new Map<Unit, TileRef[]>()
+    private computingPaths = new Map<Unit, MiniAStar>()
 
     constructor(
         private _owner: PlayerID,

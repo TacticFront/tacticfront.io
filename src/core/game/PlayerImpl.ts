@@ -1,4 +1,4 @@
-import { Player, PlayerInfo, PlayerID, PlayerType, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, AllPlayers, Gold, UnitType, Unit, MutableUnit, Relation, PlayerUpdate, GameUpdateType, EmojiMessage } from "./Game";
+import { Player, PlayerInfo, PlayerID, PlayerType, TerraNullius, Cell, Execution, AllianceRequest, MutableAllianceRequest, MutableAlliance, Alliance, Tick, AllPlayers, Gold, UnitType, Unit,  Relation, PlayerUpdate, GameUpdateType, EmojiMessage } from "./Game";
 import { ClientID } from "../Schemas";
 import { assertNever, closestOceanShoreFromPlayer, distSortUnit, simpleHash, sourceDstOceanShore, within } from "../Util";
 import { CellString, GameImpl } from "./GameImpl";
@@ -425,7 +425,7 @@ export class PlayerImpl implements Player {
         return toRemove
     }
 
-    captureUnit(unit: MutableUnit): void {
+    captureUnit(unit: Unit): void {
         if (unit.owner() == this) {
             throw new Error(`Cannot capture unit, ${this} already owns ${unit}`)
         }

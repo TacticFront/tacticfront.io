@@ -1,4 +1,4 @@
-import { Unit, Cell, Execution, MutableUnit, Game, Player, PlayerID, TerraNullius, UnitType, TerrainType } from "../game/Game";
+import { Unit, Cell, Execution,  Game, Player, PlayerID, TerraNullius, UnitType, TerrainType } from "../game/Game";
 import { AttackExecution } from "./AttackExecution";
 import { MessageType } from '../game/Game';
 import { PathFinder } from "../pathfinding/PathFinding";
@@ -26,7 +26,7 @@ export class TransportShipExecution implements Execution {
     private dst: TileRef | null
 
 
-    private boat: MutableUnit
+    private boat: Unit
 
     private pathFinder: PathFinder
 

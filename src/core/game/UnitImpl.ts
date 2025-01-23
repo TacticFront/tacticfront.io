@@ -1,12 +1,12 @@
 import { GameUpdateType, MessageType, UnitUpdate } from './Game';
 import { simpleHash, within } from "../Util";
-import { MutableUnit, TerraNullius, UnitType, Player, UnitInfo } from "./Game";
+import { Unit, TerraNullius, UnitType, Player, UnitInfo } from "./Game";
 import { GameImpl } from "./GameImpl";
 import { PlayerImpl } from "./PlayerImpl";
 import { TileRef } from './GameMap';
 
 
-export class UnitImpl implements MutableUnit {
+export class UnitImpl implements Unit {
     private _active = true;
     private _health: number
     private _lastTile: TileRef = null

@@ -1,5 +1,5 @@
 import { nextTick } from "process";
-import { Cell, Execution, Game, Player, PlayerID, MutableUnit, UnitType, TerraNullius } from "../game/Game";
+import { Cell, Execution, Game, Player, PlayerID, Unit, UnitType, TerraNullius } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { PseudoRandom } from "../PseudoRandom";
@@ -14,7 +14,7 @@ export class NukeExecution implements Execution {
 
     private mg: Game
 
-    private nuke: MutableUnit
+    private nuke: Unit
 
     private pathFinder: PathFinder
     constructor(

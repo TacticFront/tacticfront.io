@@ -1,12 +1,12 @@
 import { consolex } from "../Consolex";
-import { Execution, Game, Player, MutableUnit, PlayerID, UnitType } from "../game/Game";
+import { Execution, Game, Player, Unit, PlayerID, UnitType } from "../game/Game";
 import { TileRef } from "../game/GameMap";
 
 export class CityExecution implements Execution {
 
     private player: Player
     private mg: Game
-    private city: MutableUnit
+    private city: Unit
     private active: boolean = true
 
     constructor(private ownerId: PlayerID, private tile: TileRef) { }

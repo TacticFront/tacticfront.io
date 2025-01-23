@@ -1,12 +1,12 @@
 import { consolex } from "../Consolex";
-import { Cell, DefenseBonus, Execution, Game, Player, MutableUnit, PlayerID, UnitType } from "../game/Game";
+import { Cell, DefenseBonus, Execution, Game, Player, Unit, PlayerID, UnitType } from "../game/Game";
 import { manhattanDistFN, TileRef } from "../game/GameMap";
 
 export class DefensePostExecution implements Execution {
 
     private player: Player
     private mg: Game
-    private post: MutableUnit
+    private post: Unit
     private active: boolean = true
 
     private defenseBonuses: DefenseBonus[] = []

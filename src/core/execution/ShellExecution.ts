@@ -1,4 +1,4 @@
-import { Execution, Game, Player, MutableUnit, Unit, UnitType } from "../game/Game";
+import { Execution, Game, Player, Unit, UnitType } from "../game/Game";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { consolex } from "../Consolex";
@@ -8,9 +8,9 @@ export class ShellExecution implements Execution {
 
     private active = true
     private pathFinder: PathFinder
-    private shell: MutableUnit
+    private shell: Unit
 
-    constructor(private spawn: TileRef, private _owner: Player, private ownerUnit: Unit, private target: MutableUnit) {
+    constructor(private spawn: TileRef, private _owner: Player, private ownerUnit: Unit, private target: Unit) {
 
     }
 

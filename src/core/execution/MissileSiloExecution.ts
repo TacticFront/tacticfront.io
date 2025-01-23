@@ -1,5 +1,5 @@
 import { consolex } from "../Consolex";
-import { Cell, Execution, Game, Player, MutableUnit, PlayerID, UnitType } from "../game/Game";
+import { Cell, Execution, Game, Player, Unit, PlayerID, UnitType } from "../game/Game";
 import { TileRef } from "../game/GameMap";
 
 export class MissileSiloExecution implements Execution {
@@ -7,7 +7,7 @@ export class MissileSiloExecution implements Execution {
     private active = true
     private mg: Game
     private player: Player
-    private silo: MutableUnit
+    private silo: Unit
 
     constructor(
         private _owner: PlayerID,
