@@ -5,7 +5,7 @@ import { ClientID } from "../../../core/Schemas";
 import { Layer } from "./Layer";
 import { TransformHandler } from "../TransformHandler";
 import { consolex } from "../../../core/Consolex";
-import { GameView } from "../../../core/GameView";
+import { GameView } from "../../../core/game/GameView";
 
 interface MenuOption {
     label: string;

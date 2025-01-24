@@ -8,7 +8,7 @@ import allianceIcon from '../../../../resources/images/AllianceIcon.png';
 import crownIcon from '../../../../resources/images/CrownIcon.png';
 import targetIcon from '../../../../resources/images/TargetIcon.png';
 import { ClientID } from "../../../core/Schemas"
-import { GameView, PlayerView } from "../../../core/GameView"
+import { GameView, PlayerView } from "../../../core/game/GameView"
 import { createCanvas, renderTroops } from "../../Utils"
 
 

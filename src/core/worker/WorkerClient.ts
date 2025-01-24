@@ -1,5 +1,5 @@
 import { PlayerActions, PlayerID, PlayerInfo, PlayerProfile } from "../game/Game";
-import { GameUpdateViewData } from "../GameView";
+import { GameUpdateViewData } from '../game/GameUpdates';
 import { GameConfig, GameID, Turn } from "../Schemas";
 import { generateID } from "../Util";
 import { WorkerMessage } from "./WorkerMessages";

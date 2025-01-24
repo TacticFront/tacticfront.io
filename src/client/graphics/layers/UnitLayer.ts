@@ -1,11 +1,12 @@
 import { Colord } from "colord";
 import { Theme } from "../../../core/configuration/Config";
-import { Unit, UnitType, Player, UnitUpdate } from "../../../core/game/Game";
+import { Unit, UnitType, Player } from "../../../core/game/Game";
+import { UnitUpdate } from "../../../core/game/GameUpdates";
 import { Layer } from "./Layer";
 import { EventBus } from "../../../core/EventBus";
 import { AlternateViewEvent } from "../../InputHandler";
 import { ClientID } from "../../../core/Schemas";
-import { GameView, PlayerView, UnitView } from "../../../core/GameView";
+import { GameView, PlayerView, UnitView } from "../../../core/game/GameView";
 import { euclDistFN, manhattanDistFN, TileRef } from "../../../core/game/GameMap";
 
 enum Relationship {

@@ -4,11 +4,14 @@ import { getConfig } from "./configuration/Config";
 import { EventBus } from "./EventBus";
 import { Executor } from "./execution/ExecutionManager";
 import { WinCheckExecution } from "./execution/WinCheckExecution";
-import { AllPlayers, Cell, DisplayMessageUpdate, Game, GameUpdateType, MessageType, NameViewData, Player, PlayerActions, PlayerID, PlayerProfile, PlayerType, UnitType } from "./game/Game";
+import { AllPlayers, Cell, Game, MessageType, Player, PlayerActions, PlayerID, PlayerProfile, PlayerType, UnitType } from "./game/Game";
+import { DisplayMessageUpdate } from "./game/GameUpdates";
+import { NameViewData } from './game/Game';
+import { GameUpdateType } from "./game/GameUpdates";
 import { createGame } from "./game/GameImpl";
 import { loadTerrainMap as loadGameMap } from "./game/TerrainMapLoader";
 import { GameConfig, Turn } from "./Schemas";
-import { GameUpdateViewData } from "./GameView";
+import { GameUpdateViewData } from './game/GameUpdates';
 import { andFN, manhattanDistFN, TileRef } from "./game/GameMap";
 import { targetTransportTile } from "./Util";
 

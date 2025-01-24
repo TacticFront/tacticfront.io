@@ -14,7 +14,7 @@ import shieldIcon from '../../../../../resources/images/ShieldIconWhite.svg';
 import cityIcon from '../../../../../resources/images/CityIconWhite.svg';
 import { renderNumber } from '../../../Utils';
 import { ContextMenuEvent } from '../../../InputHandler';
-import { GameView, PlayerView } from '../../../../core/GameView';
+import { GameView, PlayerView } from '../../../../core/game/GameView';
 
 interface BuildItemDisplay {
     unitType: UnitType

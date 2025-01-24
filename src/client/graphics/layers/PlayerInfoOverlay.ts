@@ -6,7 +6,7 @@ import { ClientID } from '../../../core/Schemas';
 import { EventBus } from '../../../core/EventBus';
 import { TransformHandler } from '../TransformHandler';
 import { MouseMoveEvent } from '../../InputHandler';
-import { GameView, PlayerView, UnitView } from '../../../core/GameView';
+import { GameView, PlayerView, UnitView } from '../../../core/game/GameView';
 import { TileRef } from '../../../core/game/GameMap';
 import { PauseGameEvent } from '../../Transport';
 import { renderNumber, renderTroops } from '../../Utils';

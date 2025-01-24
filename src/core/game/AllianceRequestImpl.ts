@@ -1,4 +1,6 @@
-import { AllianceRequestUpdate, GameUpdateType, AllianceRequest, Player, Tick } from "./Game";
+import { AllianceRequest, Player, Tick } from "./Game";
+import { AllianceRequestUpdate } from "./GameUpdates";
+import { GameUpdateType } from "./GameUpdates";
 import { GameImpl } from "./GameImpl";
 
 

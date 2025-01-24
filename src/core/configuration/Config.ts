@@ -7,7 +7,7 @@ import { GameConfig } from "../Schemas";
 import { DefaultConfig } from "./DefaultConfig";
 import { DevConfig, DevServerConfig } from "./DevConfig";
 import { GameMap, TileRef } from "../game/GameMap";
-import { PlayerView } from "../GameView";
+import { PlayerView } from "../game/GameView";
 
 export enum GameEnv {
 	Dev,

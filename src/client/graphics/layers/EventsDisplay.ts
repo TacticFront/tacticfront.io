@@ -2,23 +2,23 @@ import { LitElement, html, css } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { EventBus } from "../../../core/EventBus";
 import {
-  AllianceExpiredUpdate,
-  AllianceRequestReplyUpdate,
-  AllianceRequestUpdate,
   AllPlayers,
-  BrokeAllianceUpdate,
-  DisplayMessageUpdate,
-  EmojiUpdate,
-  GameUpdateType,
   MessageType,
-  TargetPlayerUpdate,
 } from "../../../core/game/Game";
+import { DisplayMessageUpdate } from "../../../core/game/GameUpdates";
+import { EmojiUpdate } from "../../../core/game/GameUpdates";
+import { TargetPlayerUpdate } from "../../../core/game/GameUpdates";
+import { AllianceExpiredUpdate } from "../../../core/game/GameUpdates";
+import { BrokeAllianceUpdate } from "../../../core/game/GameUpdates";
+import { AllianceRequestReplyUpdate } from "../../../core/game/GameUpdates";
+import { AllianceRequestUpdate } from "../../../core/game/GameUpdates";
+import { GameUpdateType } from "../../../core/game/GameUpdates";
 import { ClientID } from "../../../core/Schemas";
 import { Layer } from "./Layer";
 import { SendAllianceReplyIntentEvent } from "../../Transport";
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { onlyImages, sanitize } from '../../../core/Util';
-import { GameView, PlayerView } from '../../../core/GameView';
+import { GameView, PlayerView } from '../../../core/game/GameView';
 
 interface Event {
   description: string;

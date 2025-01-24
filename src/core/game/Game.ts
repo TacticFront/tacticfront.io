@@ -1,8 +1,9 @@
 import { Config } from "../configuration/Config"
 import { GameEvent } from "../EventBus"
-import { PlayerView } from "../GameView"
+import { PlayerView } from "./GameView"
 import { ClientID, GameConfig, GameID } from "../Schemas"
-import { GameMap, GameMapImpl, TileRef, TileUpdate } from "./GameMap"
+import { GameMap, GameMapImpl, TileRef } from "./GameMap"
+import { GameUpdate, GameUpdateType, PlayerUpdate, UnitUpdate } from "./GameUpdates"
 
 export type PlayerID = string
 export type Tick = number
@@ -326,26 +327,6 @@ export interface Game extends GameMap {
     nations(): Nation[]
 }
 
-export enum GameUpdateType {
-    Tile,
-    Unit,
-    Player,
-    DisplayEvent,
-    AllianceRequest,
-    AllianceRequestReply,
-    BrokeAlliance,
-    AllianceExpired,
-    TargetPlayer,
-    EmojiUpdate,
-    WinUpdate
-}
-
-export interface NameViewData {
-    x: number,
-    y: number,
-    size: number,
-}
-
 export interface PlayerActions {
     canBoat: boolean
     canAttack: boolean
@@ -368,89 +349,6 @@ export interface PlayerInteraction {
     canDonate: boolean
 }
 
-export type GameUpdate = TileUpdateWrapper
-    | UnitUpdate
-    | PlayerUpdate
-    | AllianceRequestUpdate
-    | AllianceRequestReplyUpdate
-    | BrokeAllianceUpdate
-    | AllianceExpiredUpdate
-    | DisplayMessageUpdate
-    | TargetPlayerUpdate
-    | EmojiUpdate
-    | WinUpdate
-
-export interface TileUpdateWrapper {
-    type: GameUpdateType.Tile,
-    update: TileUpdate
-}
-
-export interface UnitUpdate {
-    type: GameUpdateType.Unit
-    unitType: UnitType
-    troops: number
-    id: number
-    ownerID: number
-    pos: MapPos
-    lastPos: MapPos
-    isActive: boolean
-    health?: number
-}
-
-export interface PlayerUpdate {
-    type: GameUpdateType.Player
-    nameViewData?: NameViewData,
-    clientID: ClientID,
-    name: string,
-    displayName: string,
-    id: PlayerID,
-    smallID: number,
-    playerType: PlayerType,
-    isAlive: boolean,
-    tilesOwned: number,
-    gold: number,
-    population: number,
-    workers: number,
-    troops: number,
-    targetTroopRatio: number
-    allies: number[]
-    isTraitor: boolean
-    targets: number[]
-    outgoingEmojis: EmojiMessage[]
-}
-
-
-export interface AllianceRequestUpdate {
-    type: GameUpdateType.AllianceRequest
-    requestorID: number,
-    recipientID: number,
-    createdAt: Tick,
-}
-
-export interface AllianceRequestReplyUpdate {
-    type: GameUpdateType.AllianceRequestReply
-    request: AllianceRequestUpdate
-    accepted: boolean
-}
-
-export interface BrokeAllianceUpdate {
-    type: GameUpdateType.BrokeAlliance
-    traitorID: number
-    betrayedID: number
-}
-
-export interface AllianceExpiredUpdate {
-    type: GameUpdateType.AllianceExpired
-    player1ID: number
-    player2ID: number
-}
-
-export interface TargetPlayerUpdate {
-    type: GameUpdateType.TargetPlayer
-    playerID: number
-    targetID: number
-}
-
 export interface EmojiMessage {
     message: string
     senderID: number
@@ -458,27 +356,16 @@ export interface EmojiMessage {
     createdAt: Tick
 }
 
-export interface EmojiUpdate {
-    type: GameUpdateType.EmojiUpdate
-    emoji: EmojiMessage
-}
-
-export interface DisplayMessageUpdate {
-    type: GameUpdateType.DisplayEvent
-    message: string
-    messageType: MessageType
-    playerID: number | null
-}
-
-export interface WinUpdate {
-    type: GameUpdateType.WinUpdate
-    winnerID: number,
-}
-
 export enum MessageType {
     SUCCESS,
     INFO,
     WARN,
     ERROR
+}
+
+export interface NameViewData {
+    x: number;
+    y: number;
+    size: number;
 }
 

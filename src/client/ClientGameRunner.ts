@@ -8,11 +8,12 @@ import { loadTerrainFromFile, loadTerrainMap } from "../core/game/TerrainMapLoad
 import { SendAttackIntentEvent, SendSpawnIntentEvent, Transport } from "./Transport";
 import { createCanvas } from "./Utils";
 import { MessageType } from '../core/game/Game';
-import { DisplayMessageUpdate } from '../core/game/Game';
+import { DisplayMessageUpdate } from "../core/game/GameUpdates";
 import { WorkerClient } from "../core/worker/WorkerClient";
 import { consolex, initRemoteSender } from "../core/Consolex";
 import { getConfig, getServerConfig } from "../core/configuration/Config";
-import { GameUpdateViewData, GameView, PlayerView } from "../core/GameView";
+import { GameView, PlayerView } from "../core/game/GameView";
+import { GameUpdateViewData } from '../core/game/GameUpdates';
 
 export interface LobbyConfig {
     playerName: () => string

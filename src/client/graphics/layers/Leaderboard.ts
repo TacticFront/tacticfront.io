@@ -5,7 +5,7 @@ import { ClientID } from '../../../core/Schemas';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { EventBus, GameEvent } from '../../../core/EventBus';
 import { renderNumber } from '../../Utils';
-import { GameView, PlayerView } from '../../../core/GameView';
+import { GameView, PlayerView } from '../../../core/game/GameView';
 
 interface Entry {
   name: string

@@ -19,7 +19,7 @@ import { StructureLayer } from "./layers/StructureLayer";
 import { PlayerInfoOverlay } from "./layers/PlayerInfoOverlay";
 import { consolex } from "../../core/Consolex";
 import { RefreshGraphicsEvent as RedrawGraphicsEvent } from "../InputHandler";
-import { GameView } from "../../core/GameView";
+import { GameView } from "../../core/game/GameView";
 
 
 export function createRenderer(canvas: HTMLCanvasElement, game: GameView, eventBus: EventBus, clientID: ClientID): GameRenderer {

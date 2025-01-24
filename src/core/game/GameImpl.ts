@@ -1,5 +1,7 @@
 import { Config } from "../configuration/Config";
-import { Cell, Execution, Game, PlayerID, PlayerInfo, Player, TerraNullius, Unit, AllianceRequest, Alliance, Nation, UnitType, UnitInfo, DefenseBonus, GameUpdate, GameUpdateType, AllPlayers, GameUpdates, TerrainType, EmojiMessage } from "./Game";
+import { Cell, Execution, Game, PlayerID, PlayerInfo, Player, TerraNullius, Unit, AllianceRequest, Alliance, Nation, UnitType, UnitInfo, DefenseBonus, AllPlayers, GameUpdates, TerrainType, EmojiMessage } from "./Game";
+import { GameUpdate } from "./GameUpdates";
+import { GameUpdateType } from "./GameUpdates";
 import { NationMap } from "./TerrainMapLoader";
 import { PlayerImpl } from "./PlayerImpl";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";

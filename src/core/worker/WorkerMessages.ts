@@ -1,4 +1,4 @@
-import { GameUpdateViewData } from "../GameView";
+import { GameUpdateViewData } from '../game/GameUpdates';
 import { GameConfig, GameID, Turn } from "../Schemas";
 import { PlayerActions, PlayerID, PlayerProfile } from "../game/Game";
 

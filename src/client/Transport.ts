@@ -9,7 +9,7 @@ import { UsernameInput } from "./UsernameInput";
 import { HostLobbyModal as HostPrivateLobbyModal } from "./HostLobbyModal";
 import { JoinPrivateLobbyModal } from "./JoinPrivateLobbyModal";
 import { SinglePlayerModal } from "./SinglePlayerModal";
-import { PlayerView } from "../core/GameView"
+import { PlayerView } from "../core/game/GameView"
 
 export class PauseGameEvent implements GameEvent {
     constructor(public readonly paused: boolean) { }

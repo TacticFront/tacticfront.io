@@ -1,5 +1,5 @@
 import { createGameRunner, GameRunner } from "../GameRunner";
-import { GameUpdateViewData } from "../GameView";
+import { GameUpdateViewData } from '../game/GameUpdates';
 import {
     MainThreadMessage,
     WorkerMessage,

@@ -1,10 +1,15 @@
-import { GameUpdates, GameUpdateType, MapPos, MessageType, NameViewData, Player, PlayerActions, PlayerProfile, PlayerUpdate, Unit, UnitUpdate } from './game/Game';
-import { Config } from "./configuration/Config";
-import { Alliance, AllianceRequest, AllPlayers, Cell, DefenseBonus, EmojiMessage, Game, Gold, Nation, PlayerID, PlayerInfo, PlayerType, Relation, TerrainType, TerraNullius, Tick, UnitInfo, UnitType } from "./game/Game";
-import { ClientID } from "./Schemas";
-import { TerraNulliusImpl } from './game/TerraNulliusImpl';
-import { WorkerClient } from './worker/WorkerClient';
-import { GameMap, GameMapImpl, TileRef, TileUpdate } from './game/GameMap';
+import { GameUpdates, MapPos, MessageType, Player, PlayerActions, PlayerProfile, Unit } from './Game';
+import { PlayerUpdate } from "./GameUpdates";
+import { UnitUpdate } from "./GameUpdates";
+import { NameViewData } from './Game';
+import { GameUpdateType } from "./GameUpdates";
+import { Config } from "../configuration/Config";
+import { Alliance, AllianceRequest, AllPlayers, Cell, DefenseBonus, EmojiMessage, Game, Gold, Nation, PlayerID, PlayerInfo, PlayerType, Relation, TerrainType, TerraNullius, Tick, UnitInfo, UnitType } from "./Game";
+import { ClientID } from "../Schemas";
+import { TerraNulliusImpl } from './TerraNulliusImpl';
+import { WorkerClient } from '../worker/WorkerClient';
+import { GameMap, GameMapImpl, TileRef, TileUpdate } from './GameMap';
+import { GameUpdateViewData } from './GameUpdates';
 
 export class UnitView {
     public _wasUpdated = true
@@ -148,13 +153,6 @@ export class PlayerView {
     info(): PlayerInfo {
         return new PlayerInfo(this.name(), this.type(), this.clientID(), this.id())
     }
-}
-
-export interface GameUpdateViewData {
-    tick: number
-    updates: GameUpdates
-    packedTileUpdates: BigUint64Array
-    playerNameViewData: Record<number, NameViewData>
 }
 
 export class GameView implements GameMap {

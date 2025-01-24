@@ -1,4 +1,6 @@
-import { Player, PlayerInfo, PlayerID, PlayerType, TerraNullius, Cell, Execution, AllianceRequest, MutableAlliance, Alliance, Tick, AllPlayers, Gold, UnitType, Unit,  Relation, PlayerUpdate, GameUpdateType, EmojiMessage } from "./Game";
+import { Player, PlayerInfo, PlayerID, PlayerType, TerraNullius, Cell, Execution, AllianceRequest, MutableAlliance, Alliance, Tick, AllPlayers, Gold, UnitType, Unit,  Relation, EmojiMessage } from "./Game";
+import { PlayerUpdate } from "./GameUpdates";
+import { GameUpdateType } from "./GameUpdates";
 import { ClientID } from "../Schemas";
 import { assertNever, closestOceanShoreFromPlayer, distSortUnit, simpleHash, sourceDstOceanShore, within } from "../Util";
 import { CellString, GameImpl } from "./GameImpl";

@@ -19,7 +19,7 @@ import { EmojiTable } from "./EmojiTable";
 import { UIState } from "../../UIState";
 import { BuildMenu } from "./BuildMenu";
 import { consolex } from "../../../../core/Consolex";
-import { GameView, PlayerView } from "../../../../core/GameView";
+import { GameView, PlayerView } from "../../../../core/game/GameView";
 import { TileRef } from "../../../../core/game/GameMap";
 
 

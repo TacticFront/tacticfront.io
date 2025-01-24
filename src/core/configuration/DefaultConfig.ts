@@ -1,6 +1,6 @@
 import { Difficulty, GameType, Gold, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tick, UnitInfo, UnitType } from "../game/Game";
 import { GameMap, TileRef } from "../game/GameMap";
-import { PlayerView } from "../GameView";
+import { PlayerView } from "../game/GameView";
 import { GameConfig } from "../Schemas";
 import { assertNever, within } from "../Util";
 import { Config, ServerConfig, Theme } from "./Config";

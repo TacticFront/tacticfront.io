@@ -1,4 +1,6 @@
-import { GameUpdateType, MessageType, UnitUpdate } from './Game';
+import { MessageType } from './Game';
+import { UnitUpdate } from "./GameUpdates";
+import { GameUpdateType } from "./GameUpdates";
 import { simpleHash, within } from "../Util";
 import { Unit, TerraNullius, UnitType, Player, UnitInfo } from "./Game";
 import { GameImpl } from "./GameImpl";

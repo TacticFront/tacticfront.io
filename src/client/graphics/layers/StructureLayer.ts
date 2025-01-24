@@ -7,8 +7,9 @@ import anchorIcon from '../../../../resources/images/AnchorIcon.png';
 import missileSiloIcon from '../../../../resources/images/MissileSiloUnit.png';
 import shieldIcon from '../../../../resources/images/ShieldIcon.png';
 import cityIcon from '../../../../resources/images/CityIcon.png';
-import { GameView, UnitView } from "../../../core/GameView";
-import { Cell, GameUpdateType, Unit, UnitType } from "../../../core/game/Game";
+import { GameView, UnitView } from "../../../core/game/GameView";
+import { Cell, Unit, UnitType } from "../../../core/game/Game";
+import { GameUpdateType } from "../../../core/game/GameUpdates";
 import { euclDistFN } from "../../../core/game/GameMap";
 
 interface UnitRenderConfig {

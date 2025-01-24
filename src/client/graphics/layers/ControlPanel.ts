@@ -7,7 +7,7 @@ import { renderNumber, renderTroops } from '../../Utils';
 import { EventBus } from '../../../core/EventBus';
 import { UIState } from '../UIState';
 import { SendSetTargetTroopRatioEvent } from '../../Transport';
-import { GameView } from '../../../core/GameView';
+import { GameView } from '../../../core/game/GameView';
 
 @customElement('control-panel')
 export class ControlPanel extends LitElement implements Layer {

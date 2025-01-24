@@ -5,7 +5,7 @@ import { calculateBoundingBox, calculateBoundingBoxCenter } from "../../core/Uti
 import { ZoomEvent, DragEvent } from "../InputHandler";
 import { GoToPlayerEvent } from "./layers/Leaderboard";
 import { placeName } from "./NameBoxCalculator";
-import { GameView } from "../../core/GameView";
+import { GameView } from "../../core/game/GameView";
 
 export class TransformHandler {
     public scale: number = 1.8
