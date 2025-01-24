@@ -162,7 +162,15 @@ export class GameView implements GameMap {
     private _units = new Map<number, UnitView>()
     private updatedTiles: TileRef[] = []
 
-    constructor(public worker: WorkerClient, private _config: Config, private _map: GameMap) {
+
+    private _myPlayer: PlayerView | null = null
+
+    constructor(
+        public worker: WorkerClient,
+        private _config: Config,
+        private _map: GameMap,
+        private _myClientID: ClientID
+    ) {
         this.lastUpdate = {
             tick: 0,
             packedTileUpdates: new BigUint64Array([]),
@@ -208,6 +216,17 @@ export class GameView implements GameMap {
 
     recentlyUpdatedTiles(): TileRef[] {
         return this.updatedTiles
+    }
+
+    myClientID(): ClientID {
+        return this._myClientID
+    }
+
+    myPlayer(): PlayerView | null {
+        if (this._myPlayer == null) {
+            this._myPlayer = this.playerByClientID(this._myClientID)
+        }
+        return this._myPlayer
     }
 
     player(id: PlayerID): PlayerView {

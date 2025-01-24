@@ -75,7 +75,7 @@ export async function createClientGame(lobbyConfig: LobbyConfig, gameConfig: Gam
     const gameMap = await loadTerrainMap(gameConfig.gameMap);
     const worker = new WorkerClient(lobbyConfig.gameID, gameConfig)
     await worker.initialize()
-    const gameView = new GameView(worker, config, gameMap.gameMap)
+    const gameView = new GameView(worker, config, gameMap.gameMap, lobbyConfig.clientID)
 
 
     consolex.log('going to init path finder')

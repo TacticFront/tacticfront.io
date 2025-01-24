@@ -80,7 +80,6 @@ export function createRenderer(canvas: HTMLCanvasElement, game: GameView, eventB
 	if (!(playerInfo instanceof WinModal)) {
 		console.error('win modal not found')
 	}
-	winModel.clientID = clientID
 	winModel.game = game
 
 

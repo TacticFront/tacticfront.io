@@ -19,7 +19,7 @@ export class DevConfig extends DefaultConfig {
     }
 
     numSpawnPhaseTurns(): number {
-        return this.gameConfig().gameType == GameType.Singleplayer ? 40 : 200
+        return this.gameConfig().gameType == GameType.Singleplayer ? 40 : 100
         // return 100
     }
 
@@ -30,23 +30,23 @@ export class DevConfig extends DefaultConfig {
         return info
     }
 
-    // percentageTilesOwnedToWin(): number {
-    //     return 10
-    // }
+    percentageTilesOwnedToWin(): number {
+        return 1
+    }
 
-    // populationIncreaseRate(player: Player): number {
-    //     return this.maxPopulation(player)
-    // }
+    populationIncreaseRate(player: Player): number {
+        return this.maxPopulation(player)
+    }
 
     // boatMaxDistance(): number {
     //     return 5000
     // }
 
-    // numBots(): number {
-    //     return 0
-    // }
-    // spawnNPCs(): boolean {
-    //     return false
-    // }
+    numBots(): number {
+        return 0
+    }
+    spawnNPCs(): boolean {
+        return false
+    }
 
 }
