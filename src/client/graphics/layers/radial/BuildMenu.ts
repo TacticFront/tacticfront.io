@@ -29,7 +29,7 @@ const buildTable: BuildItemDisplay[][] = [
         { unitType: UnitType.Battleship, icon: battleshipIcon },
         { unitType: UnitType.Port, icon: portIcon },
         { unitType: UnitType.MissileSilo, icon: missileSiloIcon },
-        { unitType: UnitType.DefensePost, icon: shieldIcon },
+        // { unitType: UnitType.DefensePost, icon: shieldIcon },
         { unitType: UnitType.City, icon: cityIcon }
     ]
 ];
