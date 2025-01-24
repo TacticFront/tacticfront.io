@@ -43,6 +43,8 @@ export class GameImpl implements Game {
 
     private updates: GameUpdates = createGameUpdatesMap()
 
+    private _numTilesWithFallout = 0
+
     constructor(
         private _map: GameMap,
         private miniGameMap: GameMap,
@@ -59,6 +61,11 @@ export class GameImpl implements Game {
                 n.strength
             ))
     }
+
+    numTilesWithFallout(): number {
+        return this._numTilesWithFallout
+    }
+
     owner(ref: TileRef): Player | TerraNullius {
         return this.playerBySmallID(this.ownerID(ref))
     }
@@ -79,7 +86,6 @@ export class GameImpl implements Game {
         (this.updates[update.type] as any[]).push(update);
     }
 
-
     nextUnitID(): number {
         const old = this._nextUnitID
         this._nextUnitID++
@@ -90,6 +96,10 @@ export class GameImpl implements Game {
         if (value && this.hasOwner(tile)) {
             throw Error(`cannot set fallout, tile ${tile} has owner`)
         }
+        if (this._map.hasFallout(tile)) {
+            return
+        }
+        this._numTilesWithFallout++
         this._map.setFallout(tile, value)
         this.addUpdate({
             type: GameUpdateType.Tile,
@@ -331,7 +341,10 @@ export class GameImpl implements Game {
         owner._tiles.add(tile)
         owner._lastTileChange = this._ticks
         this.updateBorders(tile)
-        this._map.setFallout(tile, false)
+        if (this._map.hasFallout(tile)) {
+            this._numTilesWithFallout--
+            this._map.setFallout(tile, false)
+        }
         this.addUpdate({
             type: GameUpdateType.Tile,
             update: this.toTileUpdate(tile)

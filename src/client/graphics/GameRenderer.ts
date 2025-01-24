@@ -3,7 +3,6 @@ import { NameLayer } from "./layers/NameLayer";
 import { TerrainLayer } from "./layers/TerrainLayer";
 import { TerritoryLayer } from "./layers/TerritoryLayer";
 import { ClientID } from "../../core/Schemas";
-import { UILayer } from "./layers/UILayer";
 import { EventBus } from "../../core/EventBus";
 import { TransformHandler } from "./TransformHandler";
 import { Layer } from "./layers/Layer";
@@ -20,6 +19,8 @@ import { PlayerInfoOverlay } from "./layers/PlayerInfoOverlay";
 import { consolex } from "../../core/Consolex";
 import { RefreshGraphicsEvent as RedrawGraphicsEvent } from "../InputHandler";
 import { GameView } from "../../core/game/GameView";
+import { WinModal } from "./layers/WinModal";
+import { SpawnTimer } from "./layers/SpawnTimer";
 
 
 export function createRenderer(canvas: HTMLCanvasElement, game: GameView, eventBus: EventBus, clientID: ClientID): GameRenderer {
@@ -75,18 +76,27 @@ export function createRenderer(canvas: HTMLCanvasElement, game: GameView, eventB
 	playerInfo.game = game
 
 
+	const winModel = document.querySelector('win-modal') as WinModal
+	if (!(playerInfo instanceof WinModal)) {
+		console.error('win modal not found')
+	}
+	winModel.clientID = clientID
+	winModel.game = game
+
+
 	const layers: Layer[] = [
 		new TerrainLayer(game),
 		new TerritoryLayer(game, eventBus),
 		new StructureLayer(game, eventBus),
 		new UnitLayer(game, eventBus, clientID),
 		new NameLayer(game, game.config().theme(), transformHandler, clientID),
-		new UILayer(eventBus, game, clientID, transformHandler),
 		eventsDisplay,
 		new RadialMenu(eventBus, game, transformHandler, clientID, emojiTable as EmojiTable, buildMenu, uiState),
+		new SpawnTimer(game, transformHandler),
 		leaderboard,
 		controlPanel,
-		playerInfo
+		playerInfo,
+		winModel
 	]
 
 	return new GameRenderer(game, eventBus, canvas, transformHandler, uiState, layers)

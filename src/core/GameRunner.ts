@@ -145,7 +145,6 @@ export class GameRunner {
             ),
             alliances: player.alliances().map(a => a.other(player).smallID())
         };
-        console.log(`got relations: ${JSON.stringify(rel)}`)
         return rel
     }
 

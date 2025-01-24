@@ -171,7 +171,7 @@ export class DefaultConfig implements Config {
         return 600 * 10
     }
     percentageTilesOwnedToWin(): number {
-        return 95
+        return 80
     }
     boatMaxNumber(): number {
         return 3

@@ -117,19 +117,28 @@
     <build-menu></build-menu>
     <player-info-overlay></player-info-overlay>
 
-    <script>
-      window.addEventListener("DOMContentLoaded", (event) => {
-        document.body.style.visibility = "visible";
-        document.body.style.opacity = 1;
-      });
-    </script>
+	<single-player-modal></single-player-modal>
+	<host-lobby-modal></host-lobby-modal>
+	<join-private-lobby-modal></join-private-lobby-modal>
+	<emoji-table></emoji-table>
+	<leader-board></leader-board>
+	<control-panel></control-panel>
+	<events-display></events-display>
+	<build-menu></build-menu>
+	<player-info-overlay></player-info-overlay>
+	<win-modal></win-modal>
 
-    <!-- Cloudflare Web Analytics -->
-    <script
-      defer
-      src="https://static.cloudflareinsights.com/beacon.min.js"
-      data-cf-beacon='{"token": "03d93e6fefb349c28ee69b408fa25a13"}'
-    ></script>
-    <!-- End Cloudflare Web Analytics -->
-  </body>
+	<script>
+		window.addEventListener('DOMContentLoaded', (event) => {
+			document.body.style.visibility = 'visible';
+			document.body.style.opacity = 1;
+		});
+	</script>
+
+	<!-- Cloudflare Web Analytics -->
+	<script defer src='https://static.cloudflareinsights.com/beacon.min.js'
+		data-cf-beacon='{"token": "03d93e6fefb349c28ee69b408fa25a13"}'></script>
+	<!-- End Cloudflare Web Analytics -->
+</body>
+
 </html>

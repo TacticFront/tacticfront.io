@@ -325,6 +325,8 @@ export interface Game extends GameMap {
 
     // Nations
     nations(): Nation[]
+
+    numTilesWithFallout(): number
 }
 
 export interface PlayerActions {
