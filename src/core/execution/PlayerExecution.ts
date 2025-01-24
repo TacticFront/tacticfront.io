@@ -156,7 +156,6 @@ export class PlayerExecution implements Execution {
         }
         const mode = getMode(result)
         if (!this.mg.playerBySmallID(mode).isPlayer()) {
-            consolex.warn('mode is not found')
             return
         }
         const firstTile = cluster.values().next().value
@@ -166,6 +165,7 @@ export class PlayerExecution implements Execution {
         const modePlayer = this.mg.playerBySmallID(mode)
         if (!modePlayer.isPlayer()) {
             consolex.warn('mode player is null')
+            return
         }
         for (const tile of tiles) {
             (modePlayer as Player).conquer(tile)
