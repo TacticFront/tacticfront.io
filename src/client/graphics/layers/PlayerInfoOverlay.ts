@@ -8,7 +8,6 @@ import { TransformHandler } from '../TransformHandler';
 import { MouseMoveEvent } from '../../InputHandler';
 import { GameView, PlayerView, UnitView } from '../../../core/game/GameView';
 import { TileRef } from '../../../core/game/GameMap';
-import { PauseGameEvent } from '../../Transport';
 import { renderNumber, renderTroops } from '../../Utils';
 
 function euclideanDistWorld(coord: { x: number, y: number }, tileRef: TileRef, game: GameView): number {
@@ -51,13 +50,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     private unit: UnitView | null = null;
 
     @state()
-    private showPauseButton: boolean = true;
-
-    @state()
     private _isInfoVisible: boolean = false;
-
-    @state()
-    private _isPaused: boolean = false;
 
     private _isActive = false;
 
@@ -66,7 +59,6 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     init() {
         this.eventBus.on(MouseMoveEvent, (e: MouseMoveEvent) => this.onMouseEvent(e));
         this._isActive = true;
-        this.showPauseButton = this.game.config().gameConfig().gameType == GameType.Singleplayer;
     }
 
     private onMouseEvent(event: MouseMoveEvent) {
@@ -107,15 +99,6 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
                 this.setVisible(true);
             }
         }
-    }
-
-    private onExitButtonClick() {
-        window.location.reload();
-    }
-
-    private onPauseButtonClick() {
-        this._isPaused = !this._isPaused;
-        this.eventBus.emit(new PauseGameEvent(this._isPaused));
     }
 
     tick() {
@@ -201,19 +184,17 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
             return html``;
         }
         return html`
-            <div class="container">
-                <div class="controls">
-                    <button class="control-button pause-button ${!this.showPauseButton ? 'hidden' : ''}" @click=${this.onPauseButtonClick}>
-                        ${this._isPaused ? '▶' : '⏸'}
-                    </button>
-                    <button class="control-button exit-button" @click=${this.onExitButtonClick}>×</button>
-                </div>
-                <div class="player-info ${!this._isInfoVisible ? 'hidden' : ''}">
-                    ${this.player != null ? this.renderPlayerInfo(this.player) : ''}
-                    ${this.unit != null ? this.renderUnitInfo(this.unit) : ''}
-                </div>
+        <div class="container">
+            <options-menu
+                .game=${this.game}
+                .eventBus=${this.eventBus}
+            ></options-menu>
+            <div class="player-info ${!this._isInfoVisible ? 'hidden' : ''}">
+                ${this.player != null ? this.renderPlayerInfo(this.player) : ''}
+                ${this.unit != null ? this.renderUnitInfo(this.unit) : ''}
             </div>
-        `;
+        </div>
+    `;
     }
 
     static styles = css`
@@ -223,7 +204,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
 
         .container {
             position: fixed;
-            top: 10px;
+            top: 70px;
             right: 10px;
             z-index: 9999;
             display: flex;

@@ -21,6 +21,7 @@ import { RefreshGraphicsEvent as RedrawGraphicsEvent } from "../InputHandler";
 import { GameView } from "../../core/game/GameView";
 import { WinModal } from "./layers/WinModal";
 import { SpawnTimer } from "./layers/SpawnTimer";
+import { OptionsMenu } from "./layers/OptionsMenu";
 
 
 export function createRenderer(canvas: HTMLCanvasElement, game: GameView, eventBus: EventBus, clientID: ClientID): GameRenderer {
@@ -77,10 +78,17 @@ export function createRenderer(canvas: HTMLCanvasElement, game: GameView, eventB
 
 
 	const winModel = document.querySelector('win-modal') as WinModal
-	if (!(playerInfo instanceof WinModal)) {
+	if (!(winModel instanceof WinModal)) {
 		console.error('win modal not found')
 	}
 	winModel.game = game
+
+	const optionsMenu = document.querySelector('options-menu') as OptionsMenu
+	if (!(optionsMenu instanceof OptionsMenu)) {
+		console.log('options menu not found')
+	}
+	optionsMenu.eventBus = eventBus
+	optionsMenu.game = game
 
 
 	const layers: Layer[] = [
@@ -95,7 +103,8 @@ export function createRenderer(canvas: HTMLCanvasElement, game: GameView, eventB
 		leaderboard,
 		controlPanel,
 		playerInfo,
-		winModel
+		winModel,
+		optionsMenu
 	]
 
 	return new GameRenderer(game, eventBus, canvas, transformHandler, uiState, layers)
@@ -148,16 +157,16 @@ export class GameRenderer {
 		this.transformHandler.handleTransform(this.context)
 
 		this.layers.forEach(l => {
-			if (l.shouldTransform()) {
-				l.renderLayer(this.context)
+			if (l.shouldTransform?.()) {
+				l.renderLayer?.(this.context)
 			}
 		})
 
 		this.context.restore()
 
 		this.layers.forEach(l => {
-			if (!l.shouldTransform()) {
-				l.renderLayer(this.context)
+			if (!l.shouldTransform?.()) {
+				l.renderLayer?.(this.context)
 			}
 		})
 
@@ -170,7 +179,7 @@ export class GameRenderer {
 	}
 
 	tick() {
-		this.layers.forEach(l => l.tick())
+		this.layers.forEach(l => l.tick?.())
 	}
 
 	resize(width: number, height: number): void {
