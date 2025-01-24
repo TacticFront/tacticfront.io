@@ -70,6 +70,10 @@ export class PlayerView {
         return this.game.worker.playerInteraction(this.id(), this.game.x(tile), this.game.y(tile))
     }
 
+    units(): UnitView[] {
+        return this.game.units().filter(u => u.owner().smallID() == this.smallID())
+    }
+
     nameLocation(): NameViewData {
         return this.nameData
     }

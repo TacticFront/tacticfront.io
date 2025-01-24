@@ -1,5 +1,6 @@
 import { Difficulty, GameType, Gold, Player, PlayerInfo, PlayerType, TerrainType, TerraNullius, Tick, UnitInfo, UnitType } from "../game/Game";
 import { GameMap, TileRef } from "../game/GameMap";
+import { PlayerView } from "../GameView";
 import { GameConfig } from "../Schemas";
 import { assertNever, within } from "../Util";
 import { Config, ServerConfig, Theme } from "./Config";
@@ -276,7 +277,7 @@ export class DefaultConfig implements Config {
         return 25000
     }
 
-    maxPopulation(player: Player): number {
+    maxPopulation(player: Player | PlayerView): number {
         let maxPop = Math.pow(player.numTilesOwned(), .6) * 1000 + 50000
         if (player.type() == PlayerType.Bot) {
             return maxPop
