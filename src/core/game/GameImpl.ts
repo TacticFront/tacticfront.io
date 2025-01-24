@@ -43,8 +43,6 @@ export class GameImpl implements Game {
 
     private updates: GameUpdates = createGameUpdatesMap()
 
-    private _numTilesWithFallout = 0
-
     constructor(
         private _map: GameMap,
         private miniGameMap: GameMap,
@@ -62,9 +60,6 @@ export class GameImpl implements Game {
             ))
     }
 
-    numTilesWithFallout(): number {
-        return this._numTilesWithFallout
-    }
 
     owner(ref: TileRef): Player | TerraNullius {
         return this.playerBySmallID(this.ownerID(ref))
@@ -99,7 +94,6 @@ export class GameImpl implements Game {
         if (this._map.hasFallout(tile)) {
             return
         }
-        this._numTilesWithFallout++
         this._map.setFallout(tile, value)
         this.addUpdate({
             type: GameUpdateType.Tile,
@@ -341,10 +335,7 @@ export class GameImpl implements Game {
         owner._tiles.add(tile)
         owner._lastTileChange = this._ticks
         this.updateBorders(tile)
-        if (this._map.hasFallout(tile)) {
-            this._numTilesWithFallout--
-            this._map.setFallout(tile, false)
-        }
+        this._map.setFallout(tile, false)
         this.addUpdate({
             type: GameUpdateType.Tile,
             update: this.toTileUpdate(tile)
@@ -511,6 +502,7 @@ export class GameImpl implements Game {
     bfs(tile: TileRef, filter: (gm: GameMap, tile: TileRef) => boolean): Set<TileRef> { return this._map.bfs(tile, filter) }
     toTileUpdate(tile: TileRef): bigint { return this._map.toTileUpdate(tile) }
     updateTile(tu: TileUpdate): TileRef { return this._map.updateTile(tu) }
+    numTilesWithFallout(): number { return this._map.numTilesWithFallout() }
 }
 
 // Or a more dynamic approach that will catch new enum values:

@@ -299,4 +299,5 @@ export class GameView implements GameMap {
     bfs(tile: TileRef, filter: (gm: GameMap, tile: TileRef) => boolean): Set<TileRef> { return this._map.bfs(tile, filter) }
     toTileUpdate(tile: TileRef): bigint { return this._map.toTileUpdate(tile) }
     updateTile(tu: TileUpdate): TileRef { return this._map.updateTile(tu) }
+    numTilesWithFallout(): number { return this._map.numTilesWithFallout() }
 }

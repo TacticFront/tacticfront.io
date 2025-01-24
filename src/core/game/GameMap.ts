@@ -43,9 +43,13 @@ export interface GameMap {
 
     toTileUpdate(tile: TileRef): bigint
     updateTile(tu: TileUpdate): TileRef
+
+    numTilesWithFallout(): number
 }
 
 export class GameMapImpl implements GameMap {
+    private _numTilesWithFallout = 0
+
     private readonly terrain: Uint8Array;     // Immutable terrain data
     private readonly state: Uint16Array;      // Mutable game state
     private readonly width_: number;
@@ -73,6 +77,9 @@ export class GameMapImpl implements GameMap {
         this.height_ = height;
         this.terrain = terrainData;
         this.state = new Uint16Array(width * height);
+    }
+    numTilesWithFallout(): number {
+        return this._numTilesWithFallout
     }
 
     ref(x: number, y: number): TileRef {
@@ -145,10 +152,17 @@ export class GameMapImpl implements GameMap {
     }
 
     setFallout(ref: TileRef, value: boolean): void {
+        const existingFallout = this.hasFallout(ref)
         if (value) {
-            this.state[ref] |= 1 << GameMapImpl.FALLOUT_BIT;
+            if (!existingFallout) {
+                this._numTilesWithFallout++
+                this.state[ref] |= 1 << GameMapImpl.FALLOUT_BIT;
+            }
         } else {
-            this.state[ref] &= ~(1 << GameMapImpl.FALLOUT_BIT);
+            if (existingFallout) {
+                this._numTilesWithFallout--
+                this.state[ref] &= ~(1 << GameMapImpl.FALLOUT_BIT);
+            }
         }
     }
 
@@ -253,8 +267,15 @@ export class GameMapImpl implements GameMap {
         const tileRef = Number(tu >> 16n);
         const state = Number(tu & 0xFFFFn);
 
-        // Update the state for this tile
+        const existingFallout = this.hasFallout(tileRef)
         this.state[tileRef] = state;
+        const newFallout = this.hasFallout(tileRef)
+        if (existingFallout && !newFallout) {
+            this._numTilesWithFallout--
+        }
+        if (!existingFallout && newFallout) {
+            this._numTilesWithFallout++
+        }
 
         return tileRef;
     }

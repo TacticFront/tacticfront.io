@@ -31,26 +31,22 @@ export class DevConfig extends DefaultConfig {
     }
 
     // percentageTilesOwnedToWin(): number {
-    //     return 1
+    //     return 10
     // }
 
     // populationIncreaseRate(player: Player): number {
     //     return this.maxPopulation(player)
     // }
 
-
-
-    // tradeShipSpawnRate(): number { //     return 10
+    // boatMaxDistance(): number {
+    //     return 5000
     // }
-    boatMaxDistance(): number {
-        return 5000
-    }
 
-    numBots(): number {
-        return 0
-    }
-    spawnNPCs(): boolean {
-        return false
-    }
+    // numBots(): number {
+    //     return 0
+    // }
+    // spawnNPCs(): boolean {
+    //     return false
+    // }
 
 }

@@ -53,12 +53,14 @@ export class Leaderboard extends LitElement implements Layer {
     const sorted = this.game.playerViews()
       .sort((a, b) => b.numTilesOwned() - a.numTilesOwned())
 
+    const numTilesWithoutFallout = this.game.numLandTiles() - this.game.numTilesWithFallout()
+
     this.players = sorted
       .slice(0, 5)
       .map((player, index) => ({
         name: player.displayName(),
         position: index + 1,
-        score: formatPercentage(player.numTilesOwned() / this.game.numLandTiles()),
+        score: formatPercentage(player.numTilesOwned() / numTilesWithoutFallout),
         gold: renderNumber(player.gold()),
         isMyPlayer: player == myPlayer,
         player: player
