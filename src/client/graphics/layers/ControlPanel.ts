@@ -125,7 +125,7 @@ export class ControlPanel extends LitElement implements Layer {
     padding: 15px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     border-radius: 10px;
-    width: 250px;
+    width: 300px;
     backdrop-filter: blur(5px);
     transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
     box-sizing: border-box;
