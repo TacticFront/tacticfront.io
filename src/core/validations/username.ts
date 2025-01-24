@@ -1,7 +1,7 @@
 export const MIN_USERNAME_LENGTH = 3;
-export const MAX_USERNAME_LENGTH = 15;
+export const MAX_USERNAME_LENGTH = 20;
 
-const validPattern = /^[a-zA-Z0-9_]+$/; // Alphanumeric and underscores
+const validPattern = /^[a-zA-Z0-9_ ]+$/;
 
 export function validateUsername(username: string): { isValid: boolean; error?: string } {
 
