@@ -1,5 +1,5 @@
 import { PlayerActions, PlayerID, PlayerInfo, PlayerProfile } from "../game/Game";
-import { GameUpdateViewData } from '../game/GameUpdates';
+import { ErrorUpdate, GameUpdateViewData } from '../game/GameUpdates';
 import { GameConfig, GameID, Turn } from "../Schemas";
 import { generateID } from "../Util";
 import { WorkerMessage } from "./WorkerMessages";
@@ -8,7 +8,7 @@ export class WorkerClient {
     private worker: Worker;
     private isInitialized = false;
     private messageHandlers: Map<string, (message: WorkerMessage) => void>;
-    private gameUpdateCallback?: (update: GameUpdateViewData) => void;
+    private gameUpdateCallback?: (update: GameUpdateViewData | ErrorUpdate) => void;
 
     constructor(private gameID: GameID, private gameConfig: GameConfig) {
         this.worker = new Worker(new URL('./Worker.worker.ts', import.meta.url));
@@ -67,7 +67,7 @@ export class WorkerClient {
         });
     }
 
-    start(gameUpdate: (gu: GameUpdateViewData) => void) {
+    start(gameUpdate: (gu: GameUpdateViewData | ErrorUpdate) => void) {
         if (!this.isInitialized) {
             throw new Error('Failed to initialize pathfinder');
         }

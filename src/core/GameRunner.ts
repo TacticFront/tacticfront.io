@@ -4,8 +4,8 @@ import { getConfig } from "./configuration/Config";
 import { EventBus } from "./EventBus";
 import { Executor } from "./execution/ExecutionManager";
 import { WinCheckExecution } from "./execution/WinCheckExecution";
-import { AllPlayers, Cell, Game, MessageType, Player, PlayerActions, PlayerID, PlayerProfile, PlayerType, UnitType } from "./game/Game";
-import { DisplayMessageUpdate } from "./game/GameUpdates";
+import { AllPlayers, Cell, Game, GameUpdates, MessageType, Player, PlayerActions, PlayerID, PlayerProfile, PlayerType, UnitType } from "./game/Game";
+import { DisplayMessageUpdate, ErrorUpdate } from "./game/GameUpdates";
 import { NameViewData } from './game/Game';
 import { GameUpdateType } from "./game/GameUpdates";
 import { createGame } from "./game/GameImpl";
@@ -35,7 +35,7 @@ export class GameRunner {
     constructor(
         public game: Game,
         private execManager: Executor,
-        private callBack: (gu: GameUpdateViewData) => void
+        private callBack: (gu: GameUpdateViewData | ErrorUpdate) => void
     ) {
     }
 
@@ -64,7 +64,22 @@ export class GameRunner {
 
         this.game.addExecution(...this.execManager.createExecs(this.turns[this.currTurn]))
         this.currTurn++
-        const updates = this.game.executeNextTick()
+
+        let updates: GameUpdates;
+
+        try {
+            updates = this.game.executeNextTick();
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error('Game tick error:', error.message);
+                this.callBack({
+                    errMsg: error.message,
+                    stack: error.stack
+                } as ErrorUpdate)
+                clearInterval(this.tickInterval)
+                return
+            }
+        }
 
         if (this.game.inSpawnPhase() && this.game.ticks() % 2 == 0) {
             this.game.players()

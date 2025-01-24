@@ -10,6 +10,11 @@ export interface GameUpdateViewData {
     playerNameViewData: Record<number, NameViewData>;
 }
 
+export interface ErrorUpdate {
+    errMsg: string
+    stack?: string
+}
+
 export enum GameUpdateType {
     Tile,
     Unit,

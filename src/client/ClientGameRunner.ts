@@ -8,7 +8,7 @@ import { loadTerrainFromFile, loadTerrainMap } from "../core/game/TerrainMapLoad
 import { SendAttackIntentEvent, SendSpawnIntentEvent, Transport } from "./Transport";
 import { createCanvas } from "./Utils";
 import { MessageType } from '../core/game/Game';
-import { DisplayMessageUpdate } from "../core/game/GameUpdates";
+import { DisplayMessageUpdate, ErrorUpdate } from "../core/game/GameUpdates";
 import { WorkerClient } from "../core/worker/WorkerClient";
 import { consolex, initRemoteSender } from "../core/Consolex";
 import { getConfig, getServerConfig } from "../core/configuration/Config";
@@ -121,9 +121,11 @@ export class ClientGameRunner {
 
         this.renderer.initialize()
         this.input.initialize()
-        this.worker.start((gu: GameUpdateViewData) => {
-            const size = gu.packedTileUpdates.length * 4 / 1000
-            // console.log(`game update size: ${size}kb`)
+        this.worker.start((gu: GameUpdateViewData | ErrorUpdate) => {
+            if ('errMsg' in gu) {
+                showErrorModal(gu.errMsg, gu.stack, this.clientID)
+                return
+            }
             this.gameView.update(gu)
             this.renderer.tick()
         })
@@ -209,8 +211,8 @@ export class ClientGameRunner {
     }
 }
 
-function showErrorModal(error: Error, clientID: ClientID) {
-    const errorText = `Error: ${error.message}\nStack: ${error.stack}`;
+function showErrorModal(errMsg: string, stack: string, clientID: ClientID) {
+    const errorText = `Error: ${errMsg}\nStack: ${stack}`;
     consolex.error(errorText);
 
     const modal = document.createElement('div');
