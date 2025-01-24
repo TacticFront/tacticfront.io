@@ -1,14 +1,14 @@
-import { Player, PlayerInfo, PlayerID, PlayerType, TerraNullius, Cell, Execution, AllianceRequest, MutableAlliance, Alliance, Tick, AllPlayers, Gold, UnitType, Unit,  Relation, EmojiMessage } from "./Game";
+import { Player, PlayerInfo, PlayerID, PlayerType, TerraNullius, Cell, Execution, AllianceRequest, MutableAlliance, Alliance, Tick, AllPlayers, Gold, UnitType, Unit, Relation, EmojiMessage, PlayerProfile } from "./Game";
 import { PlayerUpdate } from "./GameUpdates";
 import { GameUpdateType } from "./GameUpdates";
 import { ClientID } from "../Schemas";
-import { assertNever, closestOceanShoreFromPlayer, distSortUnit, simpleHash, sourceDstOceanShore, within } from "../Util";
+import { assertNever, closestOceanShoreFromPlayer, distSortUnit, simpleHash, sourceDstOceanShore, targetTransportTile, within } from "../Util";
 import { CellString, GameImpl } from "./GameImpl";
 import { UnitImpl } from "./UnitImpl";
 import { MessageType } from './Game';
 import { renderTroops } from "../../client/Utils";
 import { TerraNulliusImpl } from "./TerraNulliusImpl";
-import { manhattanDistFN, TileRef } from "./GameMap";
+import { andFN, manhattanDistFN, TileRef } from "./GameMap";
 import { Emoji } from "discord.js";
 
 interface Target {
@@ -547,5 +547,90 @@ export class PlayerImpl implements Player {
     }
     toString(): string {
         return `Player:{name:${this.info().name},clientID:${this.info().clientID},isAlive:${this.isAlive()},troops:${this._troops},numTileOwned:${this.numTilesOwned()}}]`;
+    }
+
+    public playerProfile(): PlayerProfile {
+        const rel = {
+            relations: Object.fromEntries(
+                this.allRelationsSorted()
+                    .map(({ player, relation }) => [player.smallID(), relation])
+            ),
+            alliances: this.alliances().map(a => a.other(this).smallID())
+        };
+        return rel
+    }
+
+    public canBoat(tile: TileRef): boolean {
+        const other = this.mg.owner(tile)
+        if (this.units(UnitType.TransportShip).length >= this.mg.config().boatMaxNumber()) {
+            return false
+        }
+
+        let myPlayerBordersOcean = false
+        for (const bt of this.borderTiles()) {
+            if (this.mg.isOceanShore(bt)) {
+                myPlayerBordersOcean = true
+                break
+            }
+        }
+        let otherPlayerBordersOcean = false
+        if (!this.mg.hasOwner(tile)) {
+            otherPlayerBordersOcean = true
+        } else {
+            for (const bt of (other as Player).borderTiles()) {
+                if (this.mg.isOceanShore(bt)) {
+                    otherPlayerBordersOcean = true
+                    break
+                }
+            }
+        }
+
+        if (other.isPlayer() && this.allianceWith(other)) {
+            return false
+        }
+
+        let nearOcean = false
+        for (const t of this.mg.bfs(tile, andFN((gm, t) => gm.ownerID(t) == gm.ownerID(tile) && gm.isLand(t), manhattanDistFN(tile, 25)))) {
+            if (this.mg.isOceanShore(t)) {
+                nearOcean = true
+                break
+            }
+        }
+        if (!nearOcean) {
+            return false
+        }
+
+        if (myPlayerBordersOcean && otherPlayerBordersOcean) {
+            const dst = targetTransportTile(this.mg, tile)
+            if (dst != null) {
+                if (this.canBuild(UnitType.TransportShip, dst)) {
+                    return true
+                }
+            }
+        }
+    }
+
+    public canAttack(tile: TileRef): boolean {
+        if (this.mg.owner(tile) == this) {
+            return false
+        }
+        if (this.mg.hasOwner(tile) && this.isAlliedWith(this.mg.owner(tile) as Player)) {
+            return false
+        }
+        if (!this.mg.isLand(tile)) {
+            return false
+        }
+        if (this.mg.hasOwner(tile)) {
+            return this.sharesBorderWith(this.mg.owner(tile))
+        } else {
+            for (const t of this.mg.bfs(tile, andFN((gm, t) => !gm.hasOwner(t) && gm.isLand(t), manhattanDistFN(tile, 200)))) {
+                for (const n of this.mg.neighbors(t)) {
+                    if (this.mg.owner(n) == this) {
+                        return true
+                    }
+                }
+            }
+            return false
+        }
     }
 }

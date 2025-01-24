@@ -283,6 +283,9 @@ export interface Player {
     // Misc
     executions(): Execution[]
     toUpdate(): PlayerUpdate
+    playerProfile(): PlayerProfile
+    canBoat(tile: TileRef): boolean
+    canAttack(tile: TileRef)
 }
 
 export interface Game extends GameMap {

@@ -110,8 +110,8 @@ export class GameRunner {
         const player = this.game.player(playerID)
         const tile = this.game.ref(x, y)
         const actions = {
-            canBoat: this.canBoat(player, tile),
-            canAttack: this.canAttack(player, tile),
+            canBoat: player.canBoat(tile),
+            canAttack: player.canAttack(tile),
             buildableUnits: Object.values(UnitType).filter(ut => player.canBuild(ut, tile) != false),
             canSendEmojiAllPlayers: player.canSendEmoji(AllPlayers)
         } as PlayerActions
@@ -130,97 +130,11 @@ export class GameRunner {
 
         return actions
     }
-
-
     public playerProfile(playerID: number): PlayerProfile {
-        const player = this.game.players().filter(p => p.smallID() == playerID)[0];
-        if (!player) {
-            throw new Error(`player with id ${playerID} not found`);
+        const player = this.game.playerBySmallID(playerID)
+        if (!player.isPlayer()) {
+            throw new Error(`player with id ${playerID} not found`)
         }
-
-        const rel = {
-            relations: Object.fromEntries(
-                player.allRelationsSorted()
-                    .map(({ player, relation }) => [player.smallID(), relation])
-            ),
-            alliances: player.alliances().map(a => a.other(player).smallID())
-        };
-        return rel
-    }
-
-    private canBoat(myPlayer: Player, tile: TileRef): boolean {
-        const other = this.game.owner(tile)
-        if (myPlayer.units(UnitType.TransportShip).length >= this.game.config().boatMaxNumber()) {
-            return false
-        }
-
-        let myPlayerBordersOcean = false
-        for (const bt of myPlayer.borderTiles()) {
-            if (this.game.isOceanShore(bt)) {
-                myPlayerBordersOcean = true
-                break
-            }
-        }
-        let otherPlayerBordersOcean = false
-        if (!this.game.hasOwner(tile)) {
-            otherPlayerBordersOcean = true
-        } else {
-            for (const bt of (other as Player).borderTiles()) {
-                if (this.game.isOceanShore(bt)) {
-                    otherPlayerBordersOcean = true
-                    break
-                }
-            }
-        }
-
-        if (other.isPlayer() && myPlayer.allianceWith(other)) {
-            return false
-        }
-
-        let nearOcean = false
-        for (const t of this.game.bfs(tile, andFN((gm, t) => gm.ownerID(t) == gm.ownerID(tile) && gm.isLand(t), manhattanDistFN(tile, 25)))) {
-            if (this.game.isOceanShore(t)) {
-                nearOcean = true
-                break
-            }
-        }
-        if (!nearOcean) {
-            return false
-        }
-
-        if (myPlayerBordersOcean && otherPlayerBordersOcean) {
-            const dst = targetTransportTile(this.game, tile)
-            if (dst != null) {
-                if (myPlayer.canBuild(UnitType.TransportShip, dst)) {
-                    return true
-                }
-            }
-        }
-    }
-
-    private canAttack(myPlayer: Player, tile: TileRef): boolean {
-        if (this.game.owner(tile) == myPlayer) {
-            return false
-        }
-        // TODO: fix event bus
-        if (this.game.hasOwner(tile) && myPlayer.isAlliedWith(this.game.owner(tile) as Player)) {
-            // this.eventBus.emit(new DisplayMessageEvent("Cannot attack ally", MessageType.WARN))
-            return false
-        }
-        if (!this.game.isLand(tile)) {
-            return false
-        }
-        if (this.game.hasOwner(tile)) {
-            return myPlayer.sharesBorderWith(this.game.owner(tile))
-        } else {
-            for (const t of this.game.bfs(tile, andFN((gm, t) => !gm.hasOwner(t) && gm.isLand(t), manhattanDistFN(tile, 200)))) {
-                for (const n of this.game.neighbors(t)) {
-                    if (this.game.owner(n) == myPlayer) {
-                        return true
-                    }
-                }
-            }
-            return false
-        }
+        return player.playerProfile()
     }
 }
