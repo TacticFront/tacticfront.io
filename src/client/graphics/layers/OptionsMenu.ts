@@ -5,6 +5,8 @@ import { PauseGameEvent } from '../../Transport';
 import { GameType } from '../../../core/game/Game';
 import { GameView } from '../../../core/game/GameView';
 import { Layer } from './Layer';
+import { ThreadMemberFlagsBitField } from 'discord.js';
+import { GameUpdateType } from '../../../core/game/GameUpdates';
 
 @customElement('options-menu')
 export class OptionsMenu extends LitElement implements Layer {
@@ -17,7 +19,12 @@ export class OptionsMenu extends LitElement implements Layer {
     @state()
     private isPaused: boolean = false;
 
-    private isVisible = false
+    @state()
+    private timer: number = 0;
+
+    private isVisible = false;
+
+    private hasWinner = false
 
     private onExitButtonClick() {
         window.location.reload();
@@ -31,21 +38,29 @@ export class OptionsMenu extends LitElement implements Layer {
     init() {
         console.log('init called from OptionsMenu')
         this.showPauseButton = this.game.config().gameConfig().gameType == GameType.Singleplayer;
-        this.isVisible = true
-        this.requestUpdate()
+        this.isVisible = true;
+        this.requestUpdate();
     }
 
     tick() {
-        this.isVisible = true
-        this.requestUpdate()
+        this.hasWinner = this.hasWinner || this.game.updatesSinceLastTick()[GameUpdateType.WinUpdate].length > 0
+        if (this.game.inSpawnPhase()) {
+            this.timer = 0
+        } else if (!this.hasWinner && this.game.ticks() % 10 == 0) {
+            this.timer++
+        }
+        this.isVisible = true;
+        this.requestUpdate();
     }
 
     render() {
         if (!this.isVisible) {
-            return html``
+            return html``;
         }
+
         return html`
             <div class="controls">
+                <div class="timer">Day: ${this.timer}</div>
                 <button 
                     class="control-button pause-button ${!this.showPauseButton ? 'hidden' : ''}" 
                     @click=${this.onPauseButtonClick}
@@ -63,18 +78,31 @@ export class OptionsMenu extends LitElement implements Layer {
     }
 
     static styles = css`
-     :host {
-        position: fixed;  /* Make sure it's fixed positioning */
-        top: 20px;       /* Position it where you want */
-        right: 10px;     
-        z-index: 1000;   /* Make sure it's higher than canvas */
-        pointer-events: auto; /* Ensure it can receive clicks */
-    }
+        :host {
+            position: fixed;
+            top: 20px;
+            right: 10px;
+            z-index: 1000;
+            pointer-events: auto;
+        }
+        
         .controls {
             display: flex;
             gap: 8px;
+            align-items: center;
         }
-
+        
+        .timer {
+            background: rgba(30, 30, 30, 0.7);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 20px;
+            backdrop-filter: blur(5px);
+            min-width: 40px;
+            text-align: center;
+        }
+        
         .control-button {
             background: rgba(30, 30, 30, 0.7);
             border: none;
@@ -87,23 +115,23 @@ export class OptionsMenu extends LitElement implements Layer {
             transition: opacity 0.2s, background-color 0.2s;
             backdrop-filter: blur(5px);
         }
-
+        
         .control-button:hover {
             opacity: 1;
             background: rgba(40, 40, 40, 0.8);
         }
-
+        
         .pause-button {
             font-size: 20px;
             padding: 4px 10px;
         }
-
+        
         .hidden {
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
         }
-
+        
         @media (max-width: 768px) {
             .control-button {
                 font-size: 16px;
@@ -113,6 +141,12 @@ export class OptionsMenu extends LitElement implements Layer {
             .pause-button {
                 font-size: 14px;
                 padding: 3px 8px;
+            }
+            
+            .timer {
+                font-size: 16px;
+                padding: 3px 6px;
+                min-width: 32px;
             }
         }
     `;
