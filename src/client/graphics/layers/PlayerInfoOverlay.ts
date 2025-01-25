@@ -204,7 +204,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
 
         .container {
             position: fixed;
-            top: 70px;
+            top: 90px;
             right: 10px;
             z-index: 9999;
             display: flex;

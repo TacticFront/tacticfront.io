@@ -59,20 +59,22 @@ export class OptionsMenu extends LitElement implements Layer {
         }
 
         return html`
-            <div class="controls">
-                <div class="timer">Day: ${this.timer}</div>
-                <button 
-                    class="control-button pause-button ${!this.showPauseButton ? 'hidden' : ''}" 
-                    @click=${this.onPauseButtonClick}
-                    aria-label="${this.isPaused ? 'Resume game' : 'Pause game'}"
-                >
-                    ${this.isPaused ? '▶' : '⏸'}
-                </button>
-                <button 
-                    class="control-button exit-button" 
-                    @click=${this.onExitButtonClick}
-                    aria-label="Exit game"
-                >×</button>
+            <div class="panel">
+                <div class="controls">
+                    <button 
+                        class="control-button ${!this.showPauseButton ? 'hidden' : ''}" 
+                        @click=${this.onPauseButtonClick}
+                        aria-label="${this.isPaused ? 'Resume game' : 'Pause game'}"
+                    >
+                        ${this.isPaused ? '▶' : '⏸'}
+                    </button>
+                    <div class="timer">${this.timer}</div>
+                    <button 
+                        class="control-button" 
+                        @click=${this.onExitButtonClick}
+                        aria-label="Exit game"
+                    >×</button>
+                </div>
             </div>
         `;
     }
@@ -86,6 +88,13 @@ export class OptionsMenu extends LitElement implements Layer {
             pointer-events: auto;
         }
         
+        .panel {
+            background: rgba(20, 20, 20, 0.6);
+            padding: 8px;
+            border-radius: 8px;
+            backdrop-filter: blur(8px);
+        }
+        
         .controls {
             display: flex;
             gap: 8px;
@@ -93,60 +102,62 @@ export class OptionsMenu extends LitElement implements Layer {
         }
         
         .timer {
-            background: rgba(30, 30, 30, 0.7);
-            color: white;
-            padding: 4px 8px;
+            width: 80px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(60, 60, 60, 0.5);
+            color: rgba(255, 255, 255, 0.9);
             border-radius: 4px;
             font-size: 20px;
-            backdrop-filter: blur(5px);
-            min-width: 40px;
-            text-align: center;
         }
         
         .control-button {
-            background: rgba(30, 30, 30, 0.7);
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(60, 60, 60, 0.7);
+            color: rgba(255, 255, 255, 0.9);
             border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 4px 8px;
             border-radius: 4px;
-            opacity: 0.7;
-            transition: opacity 0.2s, background-color 0.2s;
-            backdrop-filter: blur(5px);
+            font-size: 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
         
         .control-button:hover {
-            opacity: 1;
-            background: rgba(40, 40, 40, 0.8);
-        }
-        
-        .pause-button {
-            font-size: 20px;
-            padding: 4px 10px;
+            background: rgba(80, 80, 80, 0.6);
         }
         
         .hidden {
+            display: none;
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
         }
         
         @media (max-width: 768px) {
-            .control-button {
-                font-size: 16px;
-                padding: 3px 6px;
-            }
-            
-            .pause-button {
-                font-size: 14px;
-                padding: 3px 8px;
-            }
-            
             .timer {
+                width: 64px;
+                height: 32px;
                 font-size: 16px;
-                padding: 3px 6px;
-                min-width: 32px;
+            }
+            
+            .control-button {
+                width: 32px;
+                height: 32px;
+                font-size: 16px;
+            }
+            
+            .panel {
+                padding: 6px;
+            }
+            
+            .controls {
+                gap: 6px;
             }
         }
     `;
