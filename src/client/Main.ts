@@ -1,5 +1,5 @@
 import { ClientGameRunner, joinLobby } from "./ClientGameRunner";
-import backgroundImage from '../../resources/images/TerrainMapFrontPage.png';
+import backgroundImage from '../../resources/images/EuropeBackground.png';
 import favicon from '../../resources/images/Favicon.svg';
 
 import './PublicLobby';
