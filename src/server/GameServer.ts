@@ -5,7 +5,6 @@ import WebSocket from 'ws';
 import { slog } from "./StructuredLog";
 import { CreateGameRecord } from "../core/Util";
 import { archive } from "./Archive";
-import { arc } from "d3";
 
 
 export enum GamePhase {
@@ -30,6 +29,8 @@ export class GameServer {
     private endTurnIntervalID
 
     private lastPingUpdate = 0
+
+    private winner: ClientID | null = null
 
     constructor(
         public readonly id: string,
@@ -88,6 +89,9 @@ export class GameServer {
                 if (clientMsg.type == "ping") {
                     this.lastPingUpdate = Date.now()
                     client.lastPing = Date.now()
+                }
+                if (clientMsg.type == "winner") {
+                    this.winner = clientMsg.winner
                 }
             } catch (error) {
                 console.log(`error handline websocket request in game server: ${error}`)
@@ -190,7 +194,8 @@ export class GameServer {
                         playerRecords,
                         this.turns,
                         this._startTime,
-                        Date.now()
+                        Date.now(),
+                        this.winner
                     )
                 )
             } else {

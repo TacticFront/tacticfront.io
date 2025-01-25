@@ -31,13 +31,14 @@ export type BuildUnitIntent = z.infer<typeof BuildUnitIntentSchema>
 export type Turn = z.infer<typeof TurnSchema>
 export type GameConfig = z.infer<typeof GameConfigSchema>
 
-export type ClientMessage = ClientPingMessage | ClientIntentMessage | ClientJoinMessage | ClientLogMessage
+export type ClientMessage = ClientSendWinnerMessage | ClientPingMessage | ClientIntentMessage | ClientJoinMessage | ClientLogMessage
 export type ServerMessage = ServerSyncMessage | ServerStartGameMessage | ServerPingMessage
 
 export type ServerSyncMessage = z.infer<typeof ServerTurnMessageSchema>
 export type ServerStartGameMessage = z.infer<typeof ServerStartGameMessageSchema>
 export type ServerPingMessage = z.infer<typeof ServerPingMessageSchema>
 
+export type ClientSendWinnerMessage = z.infer<typeof ClientSendWinnerSchema>
 export type ClientPingMessage = z.infer<typeof ClientPingMessageSchema>
 export type ClientIntentMessage = z.infer<typeof ClientIntentMessageSchema>
 export type ClientJoinMessage = z.infer<typeof ClientJoinMessageSchema>
@@ -224,9 +225,14 @@ export const ServerMessageSchema = z.union([
 // Client
 
 const ClientBaseMessageSchema = z.object({
-    type: z.enum(['join', 'intent', 'ping', 'log']),
+    type: z.enum(['winner', 'join', 'intent', 'ping', 'log']),
     clientID: ID,
     gameID: ID,
+})
+
+export const ClientSendWinnerSchema = ClientBaseMessageSchema.extend({
+    type: z.literal('winner'),
+    winner: ID,
 })
 
 export const ClientLogMessageSchema = ClientBaseMessageSchema.extend({
@@ -254,6 +260,7 @@ export const ClientJoinMessageSchema = ClientBaseMessageSchema.extend({
 })
 
 export const ClientMessageSchema = z.union([
+    ClientSendWinnerSchema,
     ClientPingMessageSchema,
     ClientIntentMessageSchema,
     ClientJoinMessageSchema,
@@ -276,5 +283,6 @@ export const GameRecordSchema = z.object({
     durationSeconds: z.number(),
     date: SafeString,
     num_turns: z.number(),
-    turns: z.array(TurnSchema)
+    turns: z.array(TurnSchema),
+    winner: ID.nullable()
 })

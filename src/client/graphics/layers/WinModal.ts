@@ -7,6 +7,8 @@ import { Layer } from './Layer';
 import { GameUpdateType } from '../../../core/game/GameUpdates';
 import { PseudoRandom } from '../../../core/PseudoRandom';
 import { simpleHash } from '../../../core/Util';
+import { EventBus } from '../../../core/EventBus';
+import { SendWinnerEvent } from '../../Transport';
 
 
 const lowRadiationVictoryQuotes = [
@@ -147,6 +149,7 @@ export const defeatQuotes = [
 @customElement('win-modal')
 export class WinModal extends LitElement implements Layer {
     public game: GameView
+    public eventBus: EventBus
 
 
     private rand: PseudoRandom;
@@ -300,6 +303,7 @@ export class WinModal extends LitElement implements Layer {
         this.game.updatesSinceLastTick()[GameUpdateType.WinUpdate]
             .forEach(wu => {
                 const winner = this.game.playerBySmallID(wu.winnerID) as PlayerView
+                this.eventBus.emit(new SendWinnerEvent(winner.clientID()))
                 if (winner == this.game.myPlayer()) {
                     this._title = 'You Won!'
                     if (this.game.numTilesWithFallout() / this.game.numLandTiles() > .6) {

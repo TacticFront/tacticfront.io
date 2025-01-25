@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import twemoji from 'twemoji';
 import DOMPurify from 'dompurify';
 import { Cell, Game, Player, Unit } from "./game/Game";
-import { GameConfig, GameID, GameRecord, PlayerRecord, Turn } from './Schemas';
+import { ClientID, GameConfig, GameID, GameRecord, PlayerRecord, Turn } from './Schemas';
 import { customAlphabet, nanoid } from 'nanoid';
 import { andFN, GameMap, manhattanDistFN, TileRef } from './game/GameMap';
 
@@ -207,7 +207,8 @@ export function CreateGameRecord(
     players: PlayerRecord[],
     turns: Turn[],
     start: number,
-    end: number
+    end: number,
+    winner: ClientID | null
 ): GameRecord {
     const record: GameRecord = {
         id: id,
@@ -235,6 +236,7 @@ export function CreateGameRecord(
     record.players = players
     record.durationSeconds = Math.floor((record.endTimestampMS - record.startTimestampMS) / 1000)
     record.num_turns = turns.length
+    record.winner = winner
     return record;
 }
 

@@ -16,6 +16,8 @@ export class LocalServer {
 
     private paused = false
 
+    private winner: ClientID | null = null
+
 
     constructor(
         private serverConfig: ServerConfig,
@@ -58,6 +60,9 @@ export class LocalServer {
             }
             this.intents.push(clientMsg.intent)
         }
+        if (clientMsg.type == "winner") {
+            this.winner = clientMsg.winner
+        }
     }
 
     private endTurn() {
@@ -92,7 +97,8 @@ export class LocalServer {
             players,
             this.turns,
             this.startedAt,
-            Date.now()
+            Date.now(),
+            this.winner
         )
         // Clear turns because beacon only supports up to 64kb
         record.turns = []

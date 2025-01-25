@@ -81,6 +81,7 @@ export function createRenderer(canvas: HTMLCanvasElement, game: GameView, eventB
 	if (!(winModel instanceof WinModal)) {
 		console.error('win modal not found')
 	}
+	winModel.eventBus = eventBus
 	winModel.game = game
 
 	const optionsMenu = document.querySelector('options-menu') as OptionsMenu

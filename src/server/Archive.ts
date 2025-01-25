@@ -79,7 +79,7 @@ async function archiveToBigQuery(gameRecord: GameRecord) {
         duration_seconds: gameRecord.durationSeconds,
         number_turns: gameRecord.num_turns,
         game_mode: gameRecord.gameConfig.gameType,
-        winner: null,
+        winner: gameRecord.winner,
         difficulty: gameRecord.gameConfig.difficulty,
         map: gameRecord.gameConfig.gameMap,
         players: gameRecord.players.map(p => ({

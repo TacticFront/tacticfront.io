@@ -2,7 +2,7 @@ import { Config, ServerConfig } from "../core/configuration/Config"
 import { SendLogEvent } from "../core/Consolex"
 import { EventBus, GameEvent } from "../core/EventBus"
 import { AllianceRequest, AllPlayers, Cell, GameType, Player, PlayerID, PlayerType, UnitType } from "../core/game/Game"
-import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ClientPingMessageSchema, GameConfig, ClientLogMessageSchema } from "../core/Schemas"
+import { ClientID, ClientIntentMessageSchema, ClientJoinMessageSchema, GameID, Intent, ServerMessage, ServerMessageSchema, ClientPingMessageSchema, GameConfig, ClientLogMessageSchema, ClientSendWinnerSchema } from "../core/Schemas"
 import { LobbyConfig } from "./ClientGameRunner"
 import { LocalServer } from "./LocalServer"
 import { UsernameInput } from "./UsernameInput";
@@ -93,6 +93,12 @@ export class SendSetTargetTroopRatioEvent implements GameEvent {
     ) { }
 }
 
+export class SendWinnerEvent implements GameEvent {
+    constructor(
+        public readonly winner: ClientID
+    ) { }
+}
+
 export class Transport {
 
     private socket: WebSocket
@@ -132,6 +138,7 @@ export class Transport {
 
         this.eventBus.on(SendLogEvent, (e) => this.onSendLogEvent(e))
         this.eventBus.on(PauseGameEvent, (e) => this.onPauseGameEvent(e))
+        this.eventBus.on(SendWinnerEvent, (e) => this.onSendWinnerEvent(e))
     }
 
     private startPing() {
@@ -372,6 +379,21 @@ export class Transport {
             this.localServer.pause()
         } else {
             this.localServer.resume()
+        }
+    }
+
+    private onSendWinnerEvent(event: SendWinnerEvent) {
+        if (this.isLocal || this.socket.readyState === WebSocket.OPEN) {
+            const msg = ClientSendWinnerSchema.parse({
+                type: "winner",
+                clientID: this.lobbyConfig.clientID,
+                gameID: this.lobbyConfig.gameID,
+                winner: event.winner,
+            })
+            this.sendMsg(JSON.stringify(msg))
+        } else {
+            console.log('WebSocket is not open. Current state:', this.socket.readyState);
+            console.log('attempting reconnect')
         }
     }
 
