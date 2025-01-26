@@ -232,7 +232,7 @@ const ClientBaseMessageSchema = z.object({
 
 export const ClientSendWinnerSchema = ClientBaseMessageSchema.extend({
     type: z.literal('winner'),
-    winner: ID,
+    winner: ID.nullable(),
 })
 
 export const ClientLogMessageSchema = ClientBaseMessageSchema.extend({
