@@ -14,8 +14,8 @@ export class UsernameInput extends LitElement {
 
     static styles = css`
         input {
-            width: 200px;
-            padding: 0.5rem;
+            width: 15rem;
+            padding: .5rem;
             background-color: white;
             border: 1px solid #d1d5db;
             border-radius: 0.375rem;
@@ -23,6 +23,7 @@ export class UsernameInput extends LitElement {
             font-size: 1rem;
             line-height: 1.5;
             color: #111827;
+            text-align: center;
         }
         input:focus {
             outline: none;

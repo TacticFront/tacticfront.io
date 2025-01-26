@@ -28,9 +28,6 @@ export class WinCheckExecution implements Execution {
         }
         const max = sorted[0]
         const numTilesWithoutFallout = this.mg.numLandTiles() - this.mg.numTilesWithFallout()
-        if (this.mg.ticks() % 10 == 0) {
-            console.log(`player: ${max.name()} owns ${max.numTilesOwned()} tiles, ${numTilesWithoutFallout}`)
-        }
         if (max.numTilesOwned() / numTilesWithoutFallout * 100 > this.mg.config().percentageTilesOwnedToWin()) {
             this.mg.setWinner(max)
             console.log(`${max.name()} has won the game`)

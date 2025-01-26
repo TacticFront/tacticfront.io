@@ -45,6 +45,17 @@ body {
     position: relative;
 }
 
+body {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    background: rgba(45, 45, 51, 0.173);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(8px);
+    min-height: 100vh;
+    margin: 0;
+}
+
 /* Typography */
 h1 {
     font-family: Arial, serif;
@@ -74,6 +85,7 @@ h3 {
     text-align: center;
     color: #000000;
 }
+
 
 .version {
     font-family: Arial, serif;
@@ -106,14 +118,15 @@ h3 {
 .button-container {
     display: flex;
     gap: 1rem;
-    max-width: 400px;
+    max-width: 20rem;
+    max-height: 10rem;
     margin: 0 auto;
 }
 
 .primary-button {
     background-color: #2563eb;
     color: white;
-    padding: 2rem 1.5rem;
+    padding: 1rem 1rem;
     font-weight: bold;
     font-size: 1.25rem;
     border-radius: 0.5rem;
@@ -193,13 +206,27 @@ h3 {
         font-size: 1em;
     }
 
+    .lobby-section {
+        padding: 1rem;
+    }
+
     #username {
         font-size: 24px;
     }
 
+    .lobby-container {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+        width: 100%;
+        padding: 1rem;
+    }
+
     .lobby-button {
-        width: 400px;
-        height: 400px;
+        width: 50rem;
+        display: block;
+        margin: 0 auto;
     }
 
     .lobby-name {

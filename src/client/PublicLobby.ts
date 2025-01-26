@@ -9,47 +9,43 @@ export class PublicLobby extends LitElement {
     @state() private lobbies: Lobby[] = [];
     @state() private isLobbyHighlighted: boolean = false;
     private lobbiesInterval: number | null = null;
-
-    private currLobby: Lobby = null
+    private currLobby: Lobby = null;
 
     static styles = css`
-    /* Add your styles here, based on your existing CSS */
-    .lobby-button {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      max-width: 20rem;
-      margin: 0 auto;
-      padding: .5rem 1rem;
-      background-color: #2563eb;
-      color: white;
-      font-weight: bold;
-      border-radius: 0.5rem;
-      transition: background-color 0.3s ease-in-out;
-    }
-
-    .lobby-button:hover {
-      background-color: #1d4ed8;
-    }
-
-    .lobby-button.highlighted {
-      background-color: #16a34a;
-    }
-
-    .lobby-button.highlighted:hover {
-      background-color: #15803d;
-    }
-
-    .lobby-name { font-size: 1.2rem; }
-    .lobby-timer { font-size: 1rem; }
-    .player-count { font-size: 1rem; }
-  `;
+        .lobby-button {
+            width: 100%;
+            max-width: 25rem;
+            margin: 0 auto;
+            padding: 0.75rem;
+            background: linear-gradient(to right, #2563eb, #3b82f6);
+            color: white;
+            font-weight: 500;
+            border-radius: 0.5rem;
+            transition: opacity 0.2s;
+        }
+        .lobby-button:hover {
+            opacity: 0.9;
+        }
+        .lobby-button.highlighted {
+            background: linear-gradient(to right, #16a34a, #22c55e);
+        }
+        .lobby-name {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .lobby-info {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            color: rgb(219 234 254);
+            font-size: 0.875rem;
+        }
+    `;
 
     connectedCallback() {
         super.connectedCallback();
-        this.fetchAndUpdateLobbies(); // Fetch immediately on start
+        this.fetchAndUpdateLobbies();
         this.lobbiesInterval = window.setInterval(() => this.fetchAndUpdateLobbies(), 1000);
     }
 
@@ -66,17 +62,14 @@ export class PublicLobby extends LitElement {
             const lobbies = await this.fetchLobbies();
             this.lobbies = lobbies;
         } catch (error) {
-            consolex.error('Error fetching and updating lobbies:', error);
+            consolex.error('Error fetching lobbies:', error);
         }
     }
 
     async fetchLobbies(): Promise<Lobby[]> {
-        const url = '/lobbies';
         try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            const response = await fetch('/lobbies');
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
             const data = await response.json();
             return data.lobbies;
         } catch (error) {
@@ -86,32 +79,32 @@ export class PublicLobby extends LitElement {
     }
 
     render() {
-        if (this.lobbies.length === 0) {
-            return html``;
-        }
-
+        if (this.lobbies.length === 0) return html``;
         const lobby = this.lobbies[0];
         const timeRemaining = Math.max(0, Math.floor(lobby.msUntilStart / 1000));
 
         return html`
-      <button
-        @click=${() => this.lobbyClicked(lobby)}
-        class="lobby-button ${this.isLobbyHighlighted ? 'highlighted' : ''}"
-      >
-        <div class="lobby-name">Game ${lobby.id}</div>
-        <div class="lobby-timer">Starts in: ${timeRemaining}s</div>
-        <div class="player-count">Players: ${lobby.numClients}</div>
-      </button>
-    `;
+            <button
+                @click=${() => this.lobbyClicked(lobby)}
+                class="lobby-button ${this.isLobbyHighlighted ? 'highlighted' : ''}"
+            >
+                <div class="lobby-name">Next Public Game</div>
+                <div class="lobby-info">
+                    <div>Starts in: ${timeRemaining}s</div>
+                    <div>Players: ${lobby.numClients}</div>
+                    <div>ID: ${lobby.id}</div>
+                </div>
+            </button>
+        `;
     }
 
     private lobbyClicked(lobby: Lobby) {
         this.isLobbyHighlighted = !this.isLobbyHighlighted;
         if (this.currLobby == null) {
-            this.currLobby = lobby
+            this.currLobby = lobby;
             this.dispatchEvent(new CustomEvent('join-lobby', {
                 detail: {
-                    lobby: lobby,
+                    lobby,
                     gameType: GameType.Public,
                     map: GameMapType.World,
                     difficulty: Difficulty.Medium,
@@ -125,7 +118,7 @@ export class PublicLobby extends LitElement {
                 bubbles: true,
                 composed: true
             }));
-            this.currLobby = null
+            this.currLobby = null;
         }
     }
 }
