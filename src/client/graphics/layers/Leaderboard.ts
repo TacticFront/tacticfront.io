@@ -172,6 +172,11 @@ export class Leaderboard extends LitElement implements Layer {
   private _hidden = true;
 
   render() {
+    // return html`
+    //   <div class="bg-blue-500 p-4 rounded-lg text-white hover:bg-blue-600">
+    //     Test Tailwind
+    //   </div>
+    // `;
     return html`
       <div class="leaderboard ${this._hidden ? 'hidden' : ''}">
         <table>

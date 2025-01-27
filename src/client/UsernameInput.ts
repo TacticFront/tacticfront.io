@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { v4 as uuidv4 } from 'uuid';
 import { MAX_USERNAME_LENGTH, validateUsername } from '../core/validations/username';
@@ -9,37 +9,14 @@ const usernameKey: string = 'username';
 export class UsernameInput extends LitElement {
     @state() private username: string = '';
     @property({ type: String }) validationError: string = '';
+    private _isValid: boolean = true;
 
-    private _isValid: boolean = true
+    // Remove static styles since we're using Tailwind
 
-    static styles = css`
-        input {
-            width: 15rem;
-            padding: .5rem;
-            background-color: white;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            font-size: 1rem;
-            line-height: 1.5;
-            color: #111827;
-            text-align: center;
-        }
-        input:focus {
-            outline: none;
-            ring: 2px;
-            ring-color: #3b82f6;
-            border-color: #3b82f6;
-        }
-        .error {
-            color: #dc2626;
-            background-color: #fff;
-            padding: 4px;
-            font-size: 0.875rem;
-            border: 1px solid #dc2626;
-            margin-top: 0.5rem;
-        }
-    `;
+    createRenderRoot() {
+        // Disable shadow DOM to allow Tailwind classes to work
+        return this;
+    }
 
     public getCurrentUsername(): string {
         return this.username;
@@ -60,9 +37,10 @@ export class UsernameInput extends LitElement {
                 @change=${this.handleChange}
                 placeholder="Enter your username"
                 maxlength="${MAX_USERNAME_LENGTH}"
+                class="w-72 px-4 py-2 bg-white border border-gray-300 rounded-xl shadow-sm text-2xl text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
             ${this.validationError
-                ? html`<div class="error">${this.validationError}</div>`
+                ? html`<div class="mt-2 px-3 py-1 text-lg text-red-600 bg-white border border-red-600 rounded">${this.validationError}</div>`
                 : null}
         `;
     }
@@ -70,8 +48,6 @@ export class UsernameInput extends LitElement {
     private handleChange(e: Event) {
         const input = e.target as HTMLInputElement;
         this.username = input.value.trim();
-
-
         const result = validateUsername(this.username)
         this._isValid = result.isValid
         if (result.isValid) {
@@ -119,7 +95,6 @@ export class UsernameInput extends LitElement {
     }
 
     public isValid(): boolean {
-        return true
-        return this._isValid
+        return this._isValid;
     }
 }

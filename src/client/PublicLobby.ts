@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, html } from 'lit';
 import { customElement, state } from 'lit/decorators.js';
 import { Lobby } from "../core/Schemas";
 import { Difficulty, GameMapType, GameType } from '../core/game/Game';
@@ -11,37 +11,9 @@ export class PublicLobby extends LitElement {
     private lobbiesInterval: number | null = null;
     private currLobby: Lobby = null;
 
-    static styles = css`
-        .lobby-button {
-            width: 100%;
-            max-width: 25rem;
-            margin: 0 auto;
-            padding: 0.75rem;
-            background: linear-gradient(to right, #2563eb, #3b82f6);
-            color: white;
-            font-weight: 500;
-            border-radius: 0.5rem;
-            transition: opacity 0.2s;
-        }
-        .lobby-button:hover {
-            opacity: 0.9;
-        }
-        .lobby-button.highlighted {
-            background: linear-gradient(to right, #16a34a, #22c55e);
-        }
-        .lobby-name {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        .lobby-info {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            color: rgb(219 234 254);
-            font-size: 0.875rem;
-        }
-    `;
+    createRenderRoot() {
+        return this;
+    }
 
     connectedCallback() {
         super.connectedCallback();
@@ -83,19 +55,28 @@ export class PublicLobby extends LitElement {
         const lobby = this.lobbies[0];
         const timeRemaining = Math.max(0, Math.floor(lobby.msUntilStart / 1000));
 
+        //     return html`
+        //   <div class="bg-blue-500 p-4 rounded-lg text-white hover:bg-blue-600">
+        //     Test Tailwind
+        //   </div>
+        // `;
+
         return html`
-            <button
-                @click=${() => this.lobbyClicked(lobby)}
-                class="lobby-button ${this.isLobbyHighlighted ? 'highlighted' : ''}"
-            >
-                <div class="lobby-name">Next Public Game</div>
-                <div class="lobby-info">
-                    <div>Starts in: ${timeRemaining}s</div>
-                    <div>Players: ${lobby.numClients}</div>
-                    <div>ID: ${lobby.id}</div>
-                </div>
-            </button>
-        `;
+    <button
+        @click=${() => this.lobbyClicked(lobby)}
+        class="w-full max-w-3xl mx-auto py-3 px-4 md:py-6 md:px-8 ${this.isLobbyHighlighted
+                ? 'bg-gradient-to-r from-green-600 to-green-500'
+                : 'bg-gradient-to-r from-blue-600 to-blue-500'
+            } text-white font-medium rounded-xl transition-opacity duration-200 hover:opacity-90"
+    >
+        <div class="text-xl md:text-2xl font-semibold mb-4">Next Game</div>
+        <div class="flex justify-center gap-8 text-blue-100 text-m md:text-lg">
+            <div>Starts in: ${timeRemaining}s</div>
+            <div>Players: ${lobby.numClients}</div>
+            <div>ID: ${lobby.id}</div>
+        </div>
+    </button>
+`;
     }
 
     private lobbyClicked(lobby: Lobby) {

@@ -1,21 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>OpenFront (ALPHA)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google tag (gtag.js) -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=AW-16702609763"
-    ></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
+<html lang="en" class="h-full">
 
 <head>
 	<meta charset="UTF-8">
@@ -28,49 +12,64 @@
 		gtag('js', new Date());
 		gtag('config', 'AW-16702609763');
 	</script>
-	<style>
-		body {
-			visibility: hidden;
-			opacity: 0;
-			transition: opacity 0.3s ease;
-		}
-	</style>
 </head>
 
-<body>
-	<div class="content">
-		<h1><img src="../../resources/images/OpenFrontLogo.svg" alt="OpenFront.io"></h1>
-		<h3 class="version">(v0.14.0)</h3>
+<body
+	class="h-full overflow-hidden select-none font-sans min-h-screen bg-opacity-0 bg-cover bg-center bg-fixed transition-opacity duration-300 ease-in-out invisible opacity-0">
+	<!-- Main container with responsive padding -->
+	<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+		<!-- Logo section with responsive scaling -->
+		<img src="../../resources/images/OpenFrontLogo.svg" alt="OpenFront.io"
+			class="h-auto w-1/2 lg:w-1/4 mx-auto transform sm:scale-125 md:scale-150 lg:scale-175">
 
-		<username-input></username-input>
+		<!-- Version text scales with screen size -->
+		<h3 class="font-sans text-center text-black pb-4 text-sm sm:text-base lg:text-lg">(v0.14.0)</h3>
 
-		<div class="lobby-section">
+		<div class="p-2 flex items-center justify-center min-h-full w-full">
+			<username-input></username-input>
+		</div>
+
+		<!-- Public lobby section with responsive spacing -->
+		<div class="w-full pb-4 p-2 flex items-center justify-center min-h-full">
 			<public-lobby></public-lobby>
 		</div>
 
-		<div class="button-container">
-			<button id="single-player" class="primary-button">Single Player</button>
-			<div style="display: flex; flex-direction: column; gap: 1rem; flex: 1;">
-				<button id="host-lobby-button" class="secondary-button">Create Lobby</button>
-				<button id="join-private-lobby-button" class="secondary-button">Join Lobby</button>
+		<!-- Button container with responsive width and spacing -->
+		<div
+			class="flex flex-col sm:flex-row gap-4 sm:gap-6 lg:gap-8 max-w-sm sm:max-w-md lg:max-w-lg xl:max-w-xl mx-auto">
+			<!-- Single Player button -->
+			<button id="single-player" class="bg-blue-600 hover:bg-blue-700 text-white p-3 sm:p-4 lg:p-5 
+                       font-bold text-lg sm:text-xl lg:text-2xl rounded-lg 
+                       flex-1 border-none cursor-pointer transition-colors duration-300">
+				Single Player
+			</button>
+
+			<!-- Secondary buttons container -->
+			<div class="flex flex-col gap-3 sm:gap-4 lg:gap-5 flex-1">
+				<button id="host-lobby-button" class="bg-blue-100 hover:bg-blue-200 text-blue-900 
+                           p-3 sm:p-4 lg:p-5 font-medium 
+                           text-sm sm:text-base lg:text-lg rounded-md w-full 
+                           border-none cursor-pointer transition-colors duration-300">
+					Create Lobby
+				</button>
+				<button id="join-private-lobby-button" class="bg-blue-100 hover:bg-blue-200 text-blue-900 
+                           p-3 sm:p-4 lg:p-5 font-medium 
+                           text-sm sm:text-base lg:text-lg rounded-md w-full 
+                           border-none cursor-pointer transition-colors duration-300">
+					Join Lobby
+				</button>
 			</div>
 		</div>
-		<!-- <a href="https://youtu.be/jvHEvbko3uw?si=znspkP84P76B1w5I" class="link-button green" target="_blank" rel="noopener noreferrer">
-			How to Play
-		</a>
-
-		<a href="https://discord.gg/k22YrnAzGp" class="link-button purple" target="_blank" rel="noopener noreferrer">
-			Join the Discord!
-		</a> -->
-
 	</div>
 
-	<div id="customMenu">
+	<!-- Game components with appropriate spacing -->
+	<div id="customMenu" class="mt-4 sm:mt-6 lg:mt-8">
 		<ul></ul>
 	</div>
 	<div id="app"></div>
 	<div id="radialMenu" class="radial-menu"></div>
 
+	<!-- Game modals and overlays -->
 	<single-player-modal></single-player-modal>
 	<host-lobby-modal></host-lobby-modal>
 	<join-private-lobby-modal></join-private-lobby-modal>
@@ -83,13 +82,12 @@
 	<player-info-overlay></player-info-overlay>
 	<win-modal></win-modal>
 
+	<!-- Scripts -->
 	<script>
 		window.addEventListener('DOMContentLoaded', (event) => {
-			document.body.style.visibility = 'visible';
-			document.body.style.opacity = 1;
+			document.body.classList.remove('invisible', 'opacity-0');
 		});
 	</script>
-
 	<script defer src='https://static.cloudflareinsights.com/beacon.min.js'
 		data-cf-beacon='{"token": "03d93e6fefb349c28ee69b408fa25a13"}'></script>
 </body>
