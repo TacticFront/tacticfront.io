@@ -32,7 +32,26 @@ export default (env, argv) => {
 				},
 				{
 					test: /\.css$/,
-					use: ['style-loader', 'css-loader']
+					use: [
+						'style-loader',
+						{
+							loader: 'css-loader',
+							options: {
+								importLoaders: 1
+							}
+						},
+						{
+							loader: 'postcss-loader',
+							options: {
+								postcssOptions: {
+									plugins: [
+										'tailwindcss',
+										'autoprefixer',
+									],
+								}
+							}
+						}
+					]
 				},
 				{
 					test: /\.(png|jpe?g|gif)$/i,

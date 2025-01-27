@@ -165,6 +165,9 @@ export class Leaderboard extends LitElement implements Layer {
 
   players: Entry[] = [];
 
+  createRenderRoot() {
+    return this;
+  }
   @state()
   private _hidden = true;
 
