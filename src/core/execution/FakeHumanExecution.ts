@@ -1,4 +1,4 @@
-import { AllianceRequest, Cell, Difficulty, Execution, Game, Player, PlayerInfo, PlayerType, Relation, TerrainType, TerraNullius, UnitType } from "../game/Game"
+import { AllianceRequest, Cell, Difficulty, Execution, Game, Player, PlayerInfo, PlayerType, Relation, TerrainType, TerraNullius, Tick, UnitType } from "../game/Game"
 import { PseudoRandom } from "../PseudoRandom"
 import { AttackExecution } from "./AttackExecution";
 import { TransportShipExecution } from "./TransportShipExecution";
