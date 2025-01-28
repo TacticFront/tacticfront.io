@@ -1,11 +1,10 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { EventBus } from '../../../core/EventBus';
 import { PauseGameEvent } from '../../Transport';
 import { GameType } from '../../../core/game/Game';
 import { GameView } from '../../../core/game/GameView';
 import { Layer } from './Layer';
-import { ThreadMemberFlagsBitField } from 'discord.js';
 import { GameUpdateType } from '../../../core/game/GameUpdates';
 
 @customElement('options-menu')
@@ -24,10 +23,14 @@ export class OptionsMenu extends LitElement implements Layer {
 
     private isVisible = false;
 
-    private hasWinner = false
+    private hasWinner = false;
 
     private onExitButtonClick() {
         window.location.reload();
+    }
+
+    createRenderRoot() {
+        return this;
     }
 
     private onPauseButtonClick() {
@@ -36,18 +39,18 @@ export class OptionsMenu extends LitElement implements Layer {
     }
 
     init() {
-        console.log('init called from OptionsMenu')
+        console.log('init called from OptionsMenu');
         this.showPauseButton = this.game.config().gameConfig().gameType == GameType.Singleplayer;
         this.isVisible = true;
         this.requestUpdate();
     }
 
     tick() {
-        this.hasWinner = this.hasWinner || this.game.updatesSinceLastTick()[GameUpdateType.WinUpdate].length > 0
+        this.hasWinner = this.hasWinner || this.game.updatesSinceLastTick()[GameUpdateType.WinUpdate].length > 0;
         if (this.game.inSpawnPhase()) {
-            this.timer = 0
+            this.timer = 0;
         } else if (!this.hasWinner && this.game.ticks() % 10 == 0) {
-            this.timer++
+            this.timer++;
         }
         this.isVisible = true;
         this.requestUpdate();
@@ -57,108 +60,42 @@ export class OptionsMenu extends LitElement implements Layer {
         if (!this.isVisible) {
             return html``;
         }
-
         return html`
-            <div class="panel">
-                <div class="controls">
+        <div class="fixed top-0 md:top-4 right-0 md:right-4 z-50 pointer-events-auto">
+            <div class="bg-opacity-60 bg-gray-900 p-1 md:p-2 rounded-lg backdrop-blur-md">
+                <div class="flex items-center gap-1 md:gap-2">
                     <button 
-                        class="control-button ${!this.showPauseButton ? 'hidden' : ''}" 
+                        class="${!this.showPauseButton ? 'hidden' : ''} 
+                               w-6 h-6 md:w-10 md:h-10 flex items-center justify-center 
+                               bg-opacity-70 bg-gray-700 text-opacity-90 text-white
+                               border-none rounded cursor-pointer
+                               hover:bg-opacity-60 hover:bg-gray-600
+                               transition-colors duration-200
+                               text-sm md:text-xl"
                         @click=${this.onPauseButtonClick}
                         aria-label="${this.isPaused ? 'Resume game' : 'Pause game'}"
                     >
                         ${this.isPaused ? '▶' : '⏸'}
                     </button>
-                    <div class="timer">${this.timer}</div>
+                    <div class="w-14 h-6 md:w-20 md:h-10 flex items-center justify-center 
+                              bg-opacity-50 bg-gray-700 text-opacity-90 text-white 
+                              rounded text-sm md:text-xl">
+                        ${this.timer}
+                    </div>
                     <button 
-                        class="control-button" 
+                        class="w-6 h-6 md:w-10 md:h-10 flex items-center justify-center 
+                               bg-opacity-70 bg-gray-700 text-opacity-90 text-white
+                               border-none rounded cursor-pointer
+                               hover:bg-opacity-60 hover:bg-gray-600
+                               transition-colors duration-200
+                               text-sm md:text-xl"
                         @click=${this.onExitButtonClick}
                         aria-label="Exit game"
                     >×</button>
                 </div>
             </div>
-        `;
+        </div>
+    `;
     }
 
-    static styles = css`
-        :host {
-            position: fixed;
-            top: 20px;
-            right: 10px;
-            z-index: 1000;
-            pointer-events: auto;
-        }
-        
-        .panel {
-            background: rgba(20, 20, 20, 0.6);
-            padding: 8px;
-            border-radius: 8px;
-            backdrop-filter: blur(8px);
-        }
-        
-        .controls {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        
-        .timer {
-            width: 80px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(60, 60, 60, 0.5);
-            color: rgba(255, 255, 255, 0.9);
-            border-radius: 4px;
-            font-size: 20px;
-        }
-        
-        .control-button {
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(60, 60, 60, 0.7);
-            color: rgba(255, 255, 255, 0.9);
-            border: none;
-            border-radius: 4px;
-            font-size: 20px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        
-        .control-button:hover {
-            background: rgba(80, 80, 80, 0.6);
-        }
-        
-        .hidden {
-            display: none;
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-        
-        @media (max-width: 768px) {
-            .timer {
-                width: 64px;
-                height: 32px;
-                font-size: 16px;
-            }
-            
-            .control-button {
-                width: 32px;
-                height: 32px;
-                font-size: 16px;
-            }
-            
-            .panel {
-                padding: 6px;
-            }
-            
-            .controls {
-                gap: 6px;
-            }
-        }
-    `;
 }
