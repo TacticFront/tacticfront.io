@@ -37,7 +37,7 @@ export class UsernameInput extends LitElement {
                 @change=${this.handleChange}
                 placeholder="Enter your username"
                 maxlength="${MAX_USERNAME_LENGTH}"
-                class="w-72 px-4 py-2 bg-white border border-gray-300 rounded-xl shadow-sm text-2xl text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                class="w-full px-4 py-2 bg-white border border-gray-300 rounded-xl shadow-sm text-2xl text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
             ${this.validationError
                 ? html`<div class="mt-2 px-3 py-1 text-lg text-red-600 bg-white border border-red-600 rounded">${this.validationError}</div>`

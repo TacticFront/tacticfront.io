@@ -64,7 +64,7 @@ export class PublicLobby extends LitElement {
         return html`
     <button
         @click=${() => this.lobbyClicked(lobby)}
-        class="w-full max-w-3xl mx-auto py-3 px-4 md:py-6 md:px-8 ${this.isLobbyHighlighted
+        class="w-full mx-auto p-16 md:py-6 md:px-8 ${this.isLobbyHighlighted
                 ? 'bg-gradient-to-r from-green-600 to-green-500'
                 : 'bg-gradient-to-r from-blue-600 to-blue-500'
             } text-white font-medium rounded-xl transition-opacity duration-200 hover:opacity-90"
