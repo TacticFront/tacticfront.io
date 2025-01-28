@@ -357,7 +357,7 @@ export class RadialMenu implements Layer {
         if (this.g.inSpawnPhase()) {
             this.eventBus.emit(new SendSpawnIntentEvent(this.clickedCell))
         } else {
-            const myPlayer = this.g.players().find(p => p.clientID() == this.clientID)
+            const myPlayer = this.g.myPlayer()
             if (myPlayer != null && this.g.owner(clicked) != myPlayer) {
                 this.eventBus.emit(new SendAttackIntentEvent(this.g.owner(clicked).id(), this.uiState.attackRatio * myPlayer.troops()))
             }

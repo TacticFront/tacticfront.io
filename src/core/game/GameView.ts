@@ -260,10 +260,6 @@ export class GameView implements GameMap {
         return Array.from(this._players.values())
     }
 
-    players(): Player[] {
-        return []
-    }
-
     owner(tile: TileRef): PlayerView | TerraNullius {
         return this.playerBySmallID(this.ownerID(tile))
     }
