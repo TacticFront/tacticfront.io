@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { Layer } from './Layer';
 import { Game } from '../../../core/game/Game';
@@ -110,244 +110,25 @@ export class ControlPanel extends LitElement implements Layer {
         return d;
     }
 
-
-    static styles = css`
-    :host {
-    display: block;
-}
-
-.control-panel {
-    position: fixed;
-    bottom: 10px;
-    left: 10px;
-    z-index: 9999;
-    background-color: rgba(30, 30, 30, 0.7);
-    padding: 15px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    border-radius: 10px;
-    width: 300px;
-    backdrop-filter: blur(5px);
-    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-    box-sizing: border-box;
-}
-
-.hidden {
-    opacity: 0;
-    visibility: hidden;
-}
-
-.slider-container {
-    position: relative;
-    margin-bottom: 15px;
-    height: 48px;
-}
-
-.slider-track {
-    position: absolute;
-    width: 100%;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-    top: 20px;
-}
-
-.slider-fill {
-    position: absolute;
-    height: 8px;
-    background: rgba(0, 150, 255, 0.6);
-    border-radius: 4px;
-    top: 20px;
-    transition: width 0.3s ease-out;
-}
-
-.slider-thumb {
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    background: white;
-    border: 2px solid rgb(0, 150, 255);
-    border-radius: 50%;
-    top: 16px;
-    transform: translateX(-50%);
-    cursor: pointer;
-    transition: transform 0.1s ease;
-}
-
-.slider-thumb:hover {
-    transform: translateX(-50%) scale(1.1);
-}
-
-input[type="range"] {
-    position: absolute;
-    width: 100%;
-    top: 12px;
-    margin: 0;
-    opacity: 0;
-    cursor: pointer;
-}
-
-.control-panel-info {
-    color: white;
-    margin-bottom: 15px;
-    padding: 10px;
-    background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 5px;
-}
-
-.info-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 5px;
-}
-
-.info-label {
-    font-weight: bold;
-}
-
-label {
-    display: block;
-    color: white;
-    margin-bottom: 5px;
-}
-
-.slider-value {
-    color: white;
-    text-align: right;
-}
-
-.attack-slider {
-    position: relative;
-    margin-bottom: 15px;
-    height: 48px;
-}
-
-.attack-slider .slider-track {
-    position: absolute;
-    width: 100%;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-    top: 20px;
-}
-
-.attack-slider .slider-fill {
-    position: absolute;
-    height: 8px;
-    background: rgba(255, 0, 0, 0.6);
-    border-radius: 4px;
-    top: 20px;
-    transition: width 0.3s ease-out;
-}
-
-.attack-slider .slider-thumb {
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    background: white;
-    border: 2px solid rgb(255, 0, 0);
-    border-radius: 50%;
-    top: 16px;
-    transform: translateX(-50%);
-    cursor: pointer;
-    transition: transform 0.1s ease;
-}
-
-.attack-slider .slider-thumb:hover {
-    transform: translateX(-50%) scale(1.1);
-}
-
-.attack-slider input[type="range"] {
-    position: absolute;
-    width: 100%;
-    top: 12px;
-    margin: 0;
-    opacity: 0;
-    cursor: pointer;
-}
-
-@media (max-width: 768px) {
-    .control-panel {
-        bottom: 0;
-        left: 0;
-        right: 0;
-        width: 100%;
-        max-width: 100%;
-        padding: 8px;
-        border-radius: 0;
-        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.5);
-        margin: 0;
-        box-sizing: border-box;
-        overflow-x: hidden;
-    }
-
-    .control-panel > * {
-        max-width: 100%;
-    }
-
-    .slider-container {
-        margin-bottom: 8px;
-        height: 40px;
-    }
-
-    .slider-track, .attack-slider .slider-track {
-        height: 6px;
-        top: 18px;
-    }
-
-    .slider-fill, .attack-slider .slider-fill {
-        height: 6px;
-        top: 18px;
-    }
-
-    .slider-thumb, .attack-slider .slider-thumb {
-        width: 14px;
-        height: 14px;
-        top: 14px;
-    }
-
-    .control-panel-info {
-        margin-bottom: 8px;
-        padding: 6px;
-    }
-
-    .info-row {
-        margin-bottom: 2px;
-    }
-
-    label {
-        margin-bottom: 2px;
-        font-size: 0.9em;
-    }
-
-    .info-label {
-        font-size: 0.9em;
-    }
-
-    input[type="range"], .attack-slider input[type="range"] {
-        top: 10px;
-    }
-}
-    `;
-
     render() {
         return html`
-            <div class="control-panel ${this._isVisible ? '' : 'hidden'}">
-                <div class="control-panel-info">
-                    <div class="info-row">
-                        <span class="info-label">Pop:</span>
+            <div class="${this._isVisible ? 'fixed bottom-3 left-3 z-50 bg-gray-800/70 p-4 shadow-lg rounded-lg w-72 backdrop-blur' : 'hidden'}">
+                <div class="bg-black/30 text-white mb-4 p-2 rounded">
+                    <div class="flex justify-between mb-1">
+                        <span class="font-bold">Pop:</span>
                         <span>${renderTroops(this._population)} / ${renderTroops(this._maxPopulation)} (+${renderTroops(this.popRate)})</span>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">Gold:</span>
+                    <div class="flex justify-between">
+                        <span class="font-bold">Gold:</span>
                         <span>${renderNumber(this._gold)} (+${renderNumber(this._goldPerSecond)})</span>
                     </div>
                 </div>
                 
-                <div class="slider-container">
-                    <label>Troops: ${renderTroops(this._troops)} | Workers: ${renderTroops(this._workers)}</label>
-                    <div class="slider-track"></div>
-                    <div class="slider-fill" style="width: ${this.currentTroopRatio * 100}%"></div>
-                    <div class="slider-thumb" style="left: ${this.targetTroopRatio * 100}%"></div>
+                <div class="relative mb-4 h-12">
+                    <label class="block text-white mb-1">Troops: ${renderTroops(this._troops)} | Workers: ${renderTroops(this._workers)}</label>
+                    <div class="absolute w-full h-2 bg-white/20 rounded top-6"></div>
+                    <div class="absolute h-2 bg-blue-500/60 rounded top-6 transition-all duration-300" style="width: ${this.currentTroopRatio * 100}%"></div>
+                    <div class="absolute w-4 h-4 bg-white border-2 border-blue-500 rounded-full top-5 -ml-2 cursor-pointer hover:scale-110 transition-transform" style="left: ${this.targetTroopRatio * 100}%"></div>
                     <input 
                         type="range" 
                         min="1" 
@@ -357,14 +138,15 @@ label {
                 this.targetTroopRatio = parseInt((e.target as HTMLInputElement).value) / 100;
                 this.onTroopChange(this.targetTroopRatio);
             }}
+                        class="absolute w-full top-3 m-0 opacity-0 cursor-pointer"
                     >
                 </div>
                 
-                <div class="attack-slider">
-                    <label>Attack Ratio: ${(this.attackRatio * 100).toFixed(0)}%</label>
-                    <div class="slider-track"></div>
-                    <div class="slider-fill" style="width: ${this.attackRatio * 100}%"></div>
-                    <div class="slider-thumb" style="left: ${this.attackRatio * 100}%"></div>
+                <div class="relative mb-4 h-12">
+                    <label class="block text-white mb-1">Attack Ratio: ${(this.attackRatio * 100).toFixed(0)}%</label>
+                    <div class="absolute w-full h-2 bg-white/20 rounded top-6"></div>
+                    <div class="absolute h-2 bg-red-500/60 rounded top-6 transition-all duration-300" style="width: ${this.attackRatio * 100}%"></div>
+                    <div class="absolute w-4 h-4 bg-white border-2 border-red-500 rounded-full top-5 -ml-2 cursor-pointer hover:scale-110 transition-transform" style="left: ${this.attackRatio * 100}%"></div>
                     <input 
                         type="range" 
                         min="1" 
@@ -374,9 +156,13 @@ label {
                 this.attackRatio = parseInt((e.target as HTMLInputElement).value) / 100;
                 this.onAttackRatioChange(this.attackRatio);
             }}
+                        class="absolute w-full top-3 m-0 opacity-0 cursor-pointer"
                     >
                 </div>
             </div>
         `;
+    }
+    createRenderRoot() {
+        return this; // Disable shadow DOM to allow Tailwind styles
     }
 }
