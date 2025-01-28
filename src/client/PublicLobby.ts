@@ -52,31 +52,27 @@ export class PublicLobby extends LitElement {
 
     render() {
         if (this.lobbies.length === 0) return html``;
+        
         const lobby = this.lobbies[0];
         const timeRemaining = Math.max(0, Math.floor(lobby.msUntilStart / 1000));
 
-        //     return html`
-        //   <div class="bg-blue-500 p-4 rounded-lg text-white hover:bg-blue-600">
-        //     Test Tailwind
-        //   </div>
-        // `;
-
         return html`
-    <button
-        @click=${() => this.lobbyClicked(lobby)}
-        class="w-full mx-auto p-16 md:py-6 md:px-8 ${this.isLobbyHighlighted
-                ? 'bg-gradient-to-r from-green-600 to-green-500'
-                : 'bg-gradient-to-r from-blue-600 to-blue-500'
-            } text-white font-medium rounded-xl transition-opacity duration-200 hover:opacity-90"
-    >
-        <div class="text-xl md:text-2xl font-semibold mb-4">Next Game</div>
-        <div class="flex justify-center gap-8 text-blue-100 text-m md:text-lg">
-            <div>Starts in: ${timeRemaining}s</div>
-            <div>Players: ${lobby.numClients}</div>
-            <div>ID: ${lobby.id}</div>
-        </div>
-    </button>
-`;
+            <button
+                @click=${() => this.lobbyClicked(lobby)}
+                class="w-full mx-auto p-4 md:p-6 ${
+                    this.isLobbyHighlighted
+                        ? 'bg-gradient-to-r from-green-600 to-green-500'
+                        : 'bg-gradient-to-r from-blue-600 to-blue-500'
+                } text-white font-medium rounded-xl transition-opacity duration-200 hover:opacity-90"
+            >
+                <div class="text-lg md:text-2xl font-semibold mb-2">Next Game</div>
+                <div class="flex flex-col gap-1 md:gap-2 text-blue-100 text-sm md:text-base">
+                    <div>Starts in: ${timeRemaining}s</div>
+                    <div>Players: ${lobby.numClients}</div>
+                    <div>ID: ${lobby.id}</div>
+                </div>
+            </button>
+        `;
     }
 
     private lobbyClicked(lobby: Lobby) {
