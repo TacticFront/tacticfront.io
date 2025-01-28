@@ -1,4 +1,4 @@
-import { LitElement, html, css } from 'lit';
+import { LitElement, html } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { Layer } from './Layer';
 import { Game, GameType, Player, PlayerProfile, PlayerType, Relation, Unit, UnitType } from '../../../core/game/Game';
@@ -54,7 +54,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
 
     private _isActive = false;
 
-    private lastMouseUpdate = 0
+    private lastMouseUpdate = 0;
 
     init() {
         this.eventBus.on(MouseMoveEvent, (e: MouseMoveEvent) => this.onMouseEvent(e));
@@ -67,7 +67,6 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
             return
         }
         this.lastMouseUpdate = now
-
 
         this.setVisible(false);
         this.unit = null;
@@ -125,54 +124,58 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
         return this.game.playerByClientID(this.clientID);
     }
 
+    private getRelationClass(relation: Relation): string {
+        switch (relation) {
+            case Relation.Hostile:
+                return 'text-red-500';
+            case Relation.Distrustful:
+                return 'text-red-300';
+            case Relation.Neutral:
+                return 'text-white';
+            case Relation.Friendly:
+                return 'text-green-500';
+            default:
+                return 'text-white';
+        }
+    }
+
     private renderPlayerInfo(player: PlayerView) {
         const myPlayer = this.myPlayer();
-        const isAlly = myPlayer?.isAlliedWith(player)
+        const isAlly = myPlayer?.isAlliedWith(player);
         let relationHtml = null;
+        
         if (player.type() == PlayerType.FakeHuman && myPlayer != null) {
-            let classType = '';
-            let relationName = '';
             const relation = this.playerProfile?.relations[myPlayer.smallID()] ?? Relation.Neutral;
-            switch (relation) {
-                case Relation.Hostile:
-                    classType = 'hostile';
-                    relationName = 'Hostile';
-                    break;
-                case Relation.Distrustful:
-                    classType = 'distrustful';
-                    relationName = 'Distrustful';
-                    break;
-                case Relation.Neutral:
-                    classType = 'neutral';
-                    relationName = 'Neutral';
-                    break;
-                case Relation.Friendly:
-                    classType = 'friendly';
-                    relationName = 'Friendly';
-                    break;
-            }
-
-            relationHtml = html`<div class="type-label">Attitude: <span class="${classType}">${relationName}</span></div>`;
+            const relationClass = this.getRelationClass(relation);
+            const relationName = Relation[relation];
+            
+            relationHtml = html`
+                <div class="text-sm opacity-80">
+                    Attitude: <span class="${relationClass}">${relationName}</span>
+                </div>
+            `;
         }
+
         return html`
-        <div class="info-content">
-            <div class="player-name ${isAlly ? 'ally' : ''}">${player.name()}</div>
-            <div class="type-label">Troops: ${renderTroops(player.troops())}</div>
-            <div class="type-label">Gold: ${renderNumber(player.gold())}</div>
-            ${relationHtml == null ? '' : relationHtml}
-        </div>
+            <div class="p-2">
+                <div class="font-bold mb-1 ${isAlly ? 'text-green-500' : 'text-white'}">${player.name()}</div>
+                <div class="text-sm opacity-80">Troops: ${renderTroops(player.troops())}</div>
+                <div class="text-sm opacity-80">Gold: ${renderNumber(player.gold())}</div>
+                ${relationHtml}
+            </div>
         `;
     }
 
     private renderUnitInfo(unit: UnitView) {
         const isAlly = (unit.owner() == this.myPlayer() || this.myPlayer()?.isAlliedWith(unit.owner())) ?? false;
+        
         return html`
-            <div class="info-content">
-                <div class="player-name ${isAlly ? 'ally' : ''}">${unit.owner().name()}</div>
-                <div class="unit-details">
-                    <div class="type-label">${unit.type()}</div>
+            <div class="p-2">
+                <div class="font-bold mb-1 ${isAlly ? 'text-green-500' : 'text-white'}">${unit.owner().name()}</div>
+                <div class="mt-1">
+                    <div class="text-sm opacity-80">${unit.type()}</div>
                     ${unit.hasHealth() ? html`
-                        <div class="type-label">Health: ${unit.health()}</div>
+                        <div class="text-sm opacity-80">Health: ${unit.health()}</div>
                     ` : ''}
                 </div>
             </div>
@@ -183,144 +186,20 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
         if (!this._isActive) {
             return html``;
         }
+
+        const containerClasses = this._isInfoVisible ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none';
+
         return html`
-        <div class="container">
-            <options-menu
-                .game=${this.game}
-                .eventBus=${this.eventBus}
-            ></options-menu>
-            <div class="player-info ${!this._isInfoVisible ? 'hidden' : ''}">
-                ${this.player != null ? this.renderPlayerInfo(this.player) : ''}
-                ${this.unit != null ? this.renderUnitInfo(this.unit) : ''}
+            <div class="fixed top-24 right-3 z-50 flex flex-col md:top-20 md:right-2">
+                <div class="bg-opacity-70 bg-gray-900 rounded-lg shadow-lg backdrop-blur-sm transition-all duration-300 min-w-[120px] md:min-w-[100px] text-white text-lg md:text-base ${containerClasses}">
+                    ${this.player != null ? this.renderPlayerInfo(this.player) : ''}
+                    ${this.unit != null ? this.renderUnitInfo(this.unit) : ''}
+                </div>
             </div>
-        </div>
-    `;
+        `;
     }
 
-    static styles = css`
-        :host {
-            display: block;
-        }
-
-        .container {
-            position: fixed;
-            top: 90px;
-            right: 10px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .controls {
-            align-self: flex-end;
-            margin-bottom: 4px;
-            z-index: 2;
-            display: flex;
-            gap: 8px;
-        }
-
-        .control-button {
-            background: rgba(30, 30, 30, 0.7);
-            border: none;
-            color: white;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 4px;
-            opacity: 0.7;
-            transition: opacity 0.2s, background-color 0.2s;
-            backdrop-filter: blur(5px);
-        }
-
-        .control-button:hover {
-            opacity: 1;
-            background: rgba(40, 40, 40, 0.8);
-        }
-
-        .pause-button {
-            font-size: 20px;
-            padding: 4px 10px;
-        }
-
-        .player-info {
-            background-color: rgba(30, 30, 30, 0.7);
-            padding: 8px 12px;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(5px);
-            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-            color: white;
-            font-size: 18px;
-            min-width: 120px;
-            text-align: left;
-        }
-
-        .hidden {
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-        }
-
-        .info-content {
-            margin-top: 8px;
-        }
-
-        .player-name {
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-
-        .player-name.ally {
-            color: #4CAF50;
-        }
-
-        .type-label {
-            font-size: 14px;
-            opacity: 0.8;
-        }
-
-        .unit-details {
-            margin-top: 4px;
-        }
-
-        .hostile {
-            color: #ff4444;
-        }
-        .distrustful {
-            color: #ff8888;
-        }
-        .neutral {
-            color: #ffffff;
-        }
-        .friendly {
-            color: #4CAF50;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                top: 5px;
-                right: 5px;
-            }
-            
-            .player-info {
-                padding: 6px 10px;
-                font-size: 12px;
-                min-width: 100px;
-            }
-            
-            .control-button {
-                font-size: 16px;
-                padding: 3px 6px;
-            }
-            
-            .pause-button {
-                font-size: 14px;
-                padding: 3px 8px;
-            }
-            
-            .type-label {
-                font-size: 12px;
-            }
-        }
-    `;
+    createRenderRoot() {
+        return this; // Disable shadow DOM to allow Tailwind styles
+    }
 }
