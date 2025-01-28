@@ -36,10 +36,11 @@ export function getServerConfig(): ServerConfig {
 			consolex.log('using preprod config')
 			return preprodConfig
 		case 'prod':
+		default:
 			consolex.log('using prod config')
 			return prodConfig
-		default:
-			throw Error(`unsupported server configuration: ${process.env.GAME_ENV}`)
+		// default:
+		// 	throw Error(`unsupported server configuration: ${process.env.GAME_ENV}`)
 	}
 }
 
