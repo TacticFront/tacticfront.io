@@ -35,7 +35,6 @@ export async function archive(gameRecord: GameRecord) {
             name: error?.name,
             ...(error && typeof error === 'object' ? error : {})
         });
-        throw error;
     }
 }
 
