@@ -4,49 +4,47 @@ import { ServerConfig } from "./Config";
 import { DefaultConfig, DefaultServerConfig } from "./DefaultConfig";
 
 export class DevServerConfig extends DefaultServerConfig {
-    gameCreationRate(): number {
-        return 10 * 1000
-    }
-    lobbyLifetime(): number {
-        return 10 * 1000
-    }
+  gameCreationRate(): number {
+    return 10 * 1000;
+  }
+  lobbyLifetime(): number {
+    return 10 * 1000;
+  }
 }
 
 export class DevConfig extends DefaultConfig {
+  constructor(sc: ServerConfig, gc: GameConfig) {
+    super(sc, gc);
+  }
 
-    constructor(sc: ServerConfig, gc: GameConfig) {
-        super(sc, gc);
-    }
+  numSpawnPhaseTurns(): number {
+    return this.gameConfig().gameType == GameType.Singleplayer ? 20 : 100;
+    // return 100
+  }
 
-    numSpawnPhaseTurns(): number {
-        return this.gameConfig().gameType == GameType.Singleplayer ? 40 : 100
-        // return 100
-    }
+  unitInfo(type: UnitType): UnitInfo {
+    const info = super.unitInfo(type);
+    const oldCost = info.cost;
+    info.cost = (p: Player) => oldCost(p) / 1000000000;
+    return info;
+  }
 
-    unitInfo(type: UnitType): UnitInfo {
-        const info = super.unitInfo(type)
-        const oldCost = info.cost
-        info.cost = (p: Player) => oldCost(p) / 1000000000
-        return info
-    }
+  // percentageTilesOwnedToWin(): number {
+  //     return 1
+  // }
 
-    // percentageTilesOwnedToWin(): number {
-    //     return 1
-    // }
+  // populationIncreaseRate(player: Player): number {
+  //     return this.maxPopulation(player)
+  // }
 
-    // populationIncreaseRate(player: Player): number {
-    //     return this.maxPopulation(player)
-    // }
+  // boatMaxDistance(): number {
+  //     return 5000
+  // }
 
-    // boatMaxDistance(): number {
-    //     return 5000
-    // }
-
-    // numBots(): number {
-    //     return 0
-    // }
-    // spawnNPCs(): boolean {
-    //     return false
-    // }
-
+  // numBots(): number {
+  //     return 0
+  // }
+  // spawnNPCs(): boolean {
+  //     return false
+  // }
 }
