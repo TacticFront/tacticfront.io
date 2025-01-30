@@ -1,218 +1,204 @@
 import { EventBus, GameEvent } from "../core/EventBus";
 import { Game } from "../core/game/Game";
 
-
 export class MouseUpEvent implements GameEvent {
-    constructor(
-        public readonly x: number,
-        public readonly y: number,
-    ) { }
+  constructor(public readonly x: number, public readonly y: number) {}
 }
 
 export class MouseDownEvent implements GameEvent {
-    constructor(
-        public readonly x: number,
-        public readonly y: number,
-    ) { }
+  constructor(public readonly x: number, public readonly y: number) {}
 }
 
 export class MouseMoveEvent implements GameEvent {
-    constructor(
-        public readonly x: number,
-        public readonly y: number,
-    ) { }
+  constructor(public readonly x: number, public readonly y: number) {}
 }
 
 export class ContextMenuEvent implements GameEvent {
-    constructor(
-        public readonly x: number,
-        public readonly y: number,
-    ) { }
+  constructor(public readonly x: number, public readonly y: number) {}
 }
 
 export class ZoomEvent implements GameEvent {
-    constructor(
-        public readonly x: number,
-        public readonly y: number,
-        public readonly delta: number
-    ) { }
+  constructor(
+    public readonly x: number,
+    public readonly y: number,
+    public readonly delta: number
+  ) {}
 }
 
 export class DragEvent implements GameEvent {
-    constructor(
-        public readonly deltaX: number,
-        public readonly deltaY: number,
-    ) { }
+  constructor(public readonly deltaX: number, public readonly deltaY: number) {}
 }
 
 export class AlternateViewEvent implements GameEvent {
-    constructor(public readonly alternateView: boolean) { }
+  constructor(public readonly alternateView: boolean) {}
 }
 
-export class RefreshGraphicsEvent implements GameEvent { }
+export class RefreshGraphicsEvent implements GameEvent {}
 
 export class ShowBuildMenuEvent implements GameEvent {
-    constructor(public readonly x: number, public readonly y: number) { }
+  constructor(public readonly x: number, public readonly y: number) {}
 }
 
-
-
 export class InputHandler {
+  private lastPointerX: number = 0;
+  private lastPointerY: number = 0;
 
-    private lastPointerX: number = 0;
-    private lastPointerY: number = 0;
+  private lastPointerDownX: number = 0;
+  private lastPointerDownY: number = 0;
 
-    private lastPointerDownX: number = 0;
-    private lastPointerDownY: number = 0;
+  private pointers: Map<number, PointerEvent> = new Map();
 
-    private pointers: Map<number, PointerEvent> = new Map();
+  private lastPinchDistance: number = 0;
 
-    private lastPinchDistance: number = 0;
+  private pointerDown: boolean = false;
 
-    private pointerDown: boolean = false
+  private alternateView = false;
 
-    private alternateView = false
+  constructor(private canvas: HTMLCanvasElement, private eventBus: EventBus) {}
 
-    constructor(private canvas: HTMLCanvasElement, private eventBus: EventBus) { }
+  initialize() {
+    this.canvas.addEventListener("pointerdown", (e) => this.onPointerDown(e));
+    this.canvas.addEventListener("pointerup", (e) => this.onPointerUp(e));
+    this.canvas.addEventListener("wheel", (e) => this.onScroll(e), {
+      passive: false,
+    });
+    this.canvas.addEventListener("pointermove", this.onPointerMove.bind(this));
+    this.canvas.addEventListener("contextmenu", (e: MouseEvent) => {
+      this.onContextMenu(e);
+    });
+    this.canvas.addEventListener("mousemove", (e) => {
+      if (e.movementX == 0 && e.movementY == 0) {
+        return;
+      }
+      this.eventBus.emit(new MouseMoveEvent(e.clientX, e.clientY));
+    });
+    this.pointers.clear();
 
-    initialize() {
-        this.canvas.addEventListener("pointerdown", (e) => this.onPointerDown(e));
-        this.canvas.addEventListener("pointerup", (e) => this.onPointerUp(e));
-        this.canvas.addEventListener("wheel", (e) => this.onScroll(e), { passive: false });
-        this.canvas.addEventListener('pointermove', this.onPointerMove.bind(this));
-        this.canvas.addEventListener('contextmenu', (e: MouseEvent) => {
-            this.onContextMenu(e);
-        });
-        this.canvas.addEventListener('pointermove', (e) => {
-            this.eventBus.emit(new MouseMoveEvent(e.clientX, e.clientY))
-        });
-        this.pointers.clear()
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Space") {
+        e.preventDefault(); // Prevent page scrolling
+        if (!this.alternateView) {
+          this.alternateView = true;
+          this.eventBus.emit(new AlternateViewEvent(true));
+        }
+      }
+    });
 
+    window.addEventListener("keyup", (e) => {
+      if (e.code === "Space") {
+        e.preventDefault();
+        this.alternateView = false;
+        this.eventBus.emit(new AlternateViewEvent(false));
+      }
+      if (e.key.toLowerCase() === "r" && e.altKey && !e.ctrlKey) {
+        e.preventDefault();
+        this.eventBus.emit(new RefreshGraphicsEvent());
+      }
+    });
+  }
 
-        window.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
-                e.preventDefault(); // Prevent page scrolling
-                if (!this.alternateView) {
-                    this.alternateView = true
-                    this.eventBus.emit(new AlternateViewEvent(true))
-                }
-            }
-        });
-
-        window.addEventListener('keyup', (e) => {
-            if (e.code === 'Space') {
-                e.preventDefault();
-                this.alternateView = false
-                this.eventBus.emit(new AlternateViewEvent(false))
-            }
-            if (e.key.toLowerCase() === 'r' && e.altKey && !e.ctrlKey) {
-                e.preventDefault();
-                this.eventBus.emit(new RefreshGraphicsEvent())
-            }
-        });
+  private onPointerDown(event: PointerEvent) {
+    if (event.button > 0) {
+      return;
     }
 
-    private onPointerDown(event: PointerEvent) {
+    this.pointerDown = true;
+    this.pointers.set(event.pointerId, event);
 
-        if (event.button > 0) {
-            return
-        }
+    if (this.pointers.size === 1) {
+      this.lastPointerX = event.clientX;
+      this.lastPointerY = event.clientY;
 
+      this.lastPointerDownX = event.clientX;
+      this.lastPointerDownY = event.clientY;
 
-        this.pointerDown = true
-        this.pointers.set(event.pointerId, event);
+      this.eventBus.emit(new MouseDownEvent(event.clientX, event.clientY));
+    } else if (this.pointers.size === 2) {
+      this.lastPinchDistance = this.getPinchDistance();
+    }
+  }
 
-        if (this.pointers.size === 1) {
-            this.lastPointerX = event.clientX;
-            this.lastPointerY = event.clientY;
+  onPointerUp(event: PointerEvent) {
+    if (event.button > 0) {
+      return;
+    }
+    this.pointerDown = false;
+    this.pointers.clear();
 
-            this.lastPointerDownX = event.clientX
-            this.lastPointerDownY = event.clientY
-
-            this.eventBus.emit(new MouseDownEvent(event.clientX, event.clientY));
-        } else if (this.pointers.size === 2) {
-            this.lastPinchDistance = this.getPinchDistance();
-        }
+    if (event.ctrlKey) {
+      this.eventBus.emit(new ShowBuildMenuEvent(event.clientX, event.clientY));
+      return;
     }
 
-    onPointerUp(event: PointerEvent) {
-        if (event.button > 0) {
-            return
-        }
-        this.pointerDown = false
-        this.pointers.clear()
+    const dist =
+      Math.abs(event.x - this.lastPointerDownX) +
+      Math.abs(event.y - this.lastPointerDownY);
+    if (dist < 10) {
+      if (event.pointerType == "touch") {
+        event.preventDefault();
+        console.log("firing context menu event");
+        this.eventBus.emit(new ContextMenuEvent(event.clientX, event.clientY));
+      } else {
+        this.eventBus.emit(new MouseUpEvent(event.x, event.y));
+      }
+    }
+  }
 
-        if (event.ctrlKey) {
-            this.eventBus.emit(new ShowBuildMenuEvent(event.clientX, event.clientY))
-            return
-        }
+  private onScroll(event: WheelEvent) {
+    this.eventBus.emit(new ZoomEvent(event.x, event.y, event.deltaY));
+  }
 
-        const dist = Math.abs(event.x - this.lastPointerDownX) + Math.abs(event.y - this.lastPointerDownY);
-        if (dist < 10) {
-            if (event.pointerType == "touch") {
-                event.preventDefault()
-                console.log('firing context menu event')
-                this.eventBus.emit(new ContextMenuEvent(event.clientX, event.clientY))
-            } else {
-                this.eventBus.emit(new MouseUpEvent(event.x, event.y))
-            }
-        }
+  private onPointerMove(event: PointerEvent) {
+    if (event.button > 0) {
+      return;
     }
 
-    private onScroll(event: WheelEvent) {
-        this.eventBus.emit(new ZoomEvent(event.x, event.y, event.deltaY))
+    this.pointers.set(event.pointerId, event);
+
+    if (!this.pointerDown) {
+      return;
     }
 
-    private onPointerMove(event: PointerEvent) {
-        if (event.button > 0) {
-            return
-        }
+    if (this.pointers.size === 1) {
+      const deltaX = event.clientX - this.lastPointerX;
+      const deltaY = event.clientY - this.lastPointerY;
 
+      this.eventBus.emit(new DragEvent(deltaX, deltaY));
 
-        this.pointers.set(event.pointerId, event);
+      this.lastPointerX = event.clientX;
+      this.lastPointerY = event.clientY;
+    } else if (this.pointers.size === 2) {
+      const currentPinchDistance = this.getPinchDistance();
+      const pinchDelta = currentPinchDistance - this.lastPinchDistance;
 
-        if (!this.pointerDown) {
-            return
-        }
-
-        if (this.pointers.size === 1) {
-            const deltaX = event.clientX - this.lastPointerX;
-            const deltaY = event.clientY - this.lastPointerY;
-
-            this.eventBus.emit(new DragEvent(deltaX, deltaY));
-
-            this.lastPointerX = event.clientX;
-            this.lastPointerY = event.clientY;
-        } else if (this.pointers.size === 2) {
-            const currentPinchDistance = this.getPinchDistance();
-            const pinchDelta = currentPinchDistance - this.lastPinchDistance;
-
-            if (Math.abs(pinchDelta) > 1) {  // Threshold to avoid tiny zoom adjustments
-                const zoomCenter = this.getPinchCenter();
-                this.eventBus.emit(new ZoomEvent(zoomCenter.x, zoomCenter.y, -pinchDelta * 2));
-                this.lastPinchDistance = currentPinchDistance;
-            }
-        }
+      if (Math.abs(pinchDelta) > 1) {
+        // Threshold to avoid tiny zoom adjustments
+        const zoomCenter = this.getPinchCenter();
+        this.eventBus.emit(
+          new ZoomEvent(zoomCenter.x, zoomCenter.y, -pinchDelta * 2)
+        );
+        this.lastPinchDistance = currentPinchDistance;
+      }
     }
+  }
 
-    private onContextMenu(event: MouseEvent) {
-        event.preventDefault()
-        this.eventBus.emit(new ContextMenuEvent(event.clientX, event.clientY))
-    }
+  private onContextMenu(event: MouseEvent) {
+    event.preventDefault();
+    this.eventBus.emit(new ContextMenuEvent(event.clientX, event.clientY));
+  }
 
-    private getPinchDistance(): number {
-        const pointerEvents = Array.from(this.pointers.values());
-        const dx = pointerEvents[0].clientX - pointerEvents[1].clientX;
-        const dy = pointerEvents[0].clientY - pointerEvents[1].clientY;
-        return Math.sqrt(dx * dx + dy * dy);
-    }
+  private getPinchDistance(): number {
+    const pointerEvents = Array.from(this.pointers.values());
+    const dx = pointerEvents[0].clientX - pointerEvents[1].clientX;
+    const dy = pointerEvents[0].clientY - pointerEvents[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
 
-    private getPinchCenter(): { x: number, y: number } {
-        const pointerEvents = Array.from(this.pointers.values());
-        return {
-            x: (pointerEvents[0].clientX + pointerEvents[1].clientX) / 2,
-            y: (pointerEvents[0].clientY + pointerEvents[1].clientY) / 2
-        };
-    }
-
+  private getPinchCenter(): { x: number; y: number } {
+    const pointerEvents = Array.from(this.pointers.values());
+    return {
+      x: (pointerEvents[0].clientX + pointerEvents[1].clientX) / 2,
+      y: (pointerEvents[0].clientY + pointerEvents[1].clientY) / 2,
+    };
+  }
 }

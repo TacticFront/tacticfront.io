@@ -118,7 +118,8 @@ export function createRenderer(
       clientID,
       emojiTable as EmojiTable,
       buildMenu,
-      uiState
+      uiState,
+      playerInfo
     ),
     new SpawnTimer(game, transformHandler),
     leaderboard,
