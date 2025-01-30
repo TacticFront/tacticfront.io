@@ -299,7 +299,7 @@ export class EventsDisplay extends LitElement implements Layer {
         class="w-full lg:bottom-2.5 lg:right-2.5 z-50 lg:max-w-3xl lg:w-full lg:w-auto"
       >
         <table
-          class="w-full border-collapse bg-black bg-opacity-70 text-white shadow-lg text-sm"
+          class="w-full border-collapse bg-black bg-opacity-60 text-white shadow-lg lg:text-xl text-xs"
         >
           <tbody>
             ${this.events.map(
@@ -309,7 +309,7 @@ export class EventsDisplay extends LitElement implements Layer {
                     event.type
                   )}"
                 >
-                  <td class="p-2 text-left">
+                  <td class="lg:p-3 p-1 text-left">
                     ${event.unsafeDescription
                       ? unsafeHTML(onlyImages(event.description))
                       : event.description}
