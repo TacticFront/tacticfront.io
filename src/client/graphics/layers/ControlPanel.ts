@@ -114,7 +114,7 @@ export class ControlPanel extends LitElement implements Layer {
     return html`
       <div
         class="${this._isVisible
-          ? "w-full lg:w-72 bg-gray-800/70 p-2 pr-3 lg:p-4 shadow-lg rounded-lg backdrop-blur"
+          ? "w-full text-sm lg:text-m lg:w-72 bg-gray-800/70 p-2 pr-3 lg:p-4 shadow-lg rounded-lg backdrop-blur"
           : "hidden"}"
       >
         <div class="hidden lg:block bg-black/30 text-white mb-4 p-2 rounded">
