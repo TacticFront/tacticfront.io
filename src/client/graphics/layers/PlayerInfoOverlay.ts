@@ -228,9 +228,9 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
       : "opacity-0 invisible pointer-events-none";
 
     return html`
-      <div class="fixed top-24 right-3 z-50 flex flex-col md:top-20 md:right-2">
+      <div class="flex w-full  z-50 flex flex-col">
         <div
-          class="bg-opacity-70 bg-gray-900 rounded-lg shadow-lg backdrop-blur-sm transition-all duration-300 min-w-[120px] md:min-w-[100px] text-white text-lg md:text-base ${containerClasses}"
+          class="bg-opacity-70 bg-gray-900 rounded-lg shadow-lg backdrop-blur-sm transition-all duration-300  text-white text-lg md:text-base ${containerClasses}"
         >
           ${this.player != null ? this.renderPlayerInfo(this.player) : ""}
           ${this.unit != null ? this.renderUnitInfo(this.unit) : ""}

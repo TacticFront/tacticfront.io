@@ -36,7 +36,7 @@ export class TopBar extends LitElement implements Layer {
     const goldPerSecond = this.game.config().goldAdditionRate(myPlayer) * 10;
     return html`
       <div
-        class="fixed top-0 z-50 bg-black/90 text-white text-sm p-1 rounded grid grid-cols-1 sm:grid-cols-2 w-2/3 sm:w-2/3 md:w-1/2 lg:hidden"
+        class="fixed top-0 z-50 bg-black/90 text-white text-sm p-1 rounded grid grid-cols-1 sm:grid-cols-2 w-1/2 sm:w-2/3 md:w-1/2 lg:hidden"
       >
         <!-- Pop section (takes 2 columns on desktop) -->
         <div
