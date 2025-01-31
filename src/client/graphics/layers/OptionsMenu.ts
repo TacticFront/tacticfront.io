@@ -71,7 +71,7 @@ export class OptionsMenu extends LitElement implements Layer {
           <div class="flex items-center gap-1 lg:gap-2">
             <button
               class="${!this.showPauseButton ? "hidden" : ""} 
-                               w-6 h-6 lg:w-10 lg:h-10 flex items-center justify-center 
+                               w-8 h-8 lg:w-10 lg:h-10 flex items-center justify-center 
                                bg-opacity-70 bg-gray-700 text-opacity-90 text-white
                                border-none rounded cursor-pointer
                                hover:bg-opacity-60 hover:bg-gray-600
@@ -83,14 +83,14 @@ export class OptionsMenu extends LitElement implements Layer {
               ${this.isPaused ? "▶" : "⏸"}
             </button>
             <div
-              class="w-14 h-6 lg:w-20 lg:h-10 flex items-center justify-center 
+              class="w-14 h-8 lg:w-20 lg:h-10 flex items-center justify-center 
                               bg-opacity-50 bg-gray-700 text-opacity-90 text-white 
                               rounded text-sm lg:text-xl"
             >
               ${this.timer}
             </div>
             <button
-              class="w-6 h-6 lg:w-10 lg:h-10 flex items-center justify-center 
+              class="w-8 h-8 lg:w-10 lg:h-10 flex items-center justify-center 
                                bg-opacity-70 bg-gray-700 text-opacity-90 text-white
                                border-none rounded cursor-pointer
                                hover:bg-opacity-60 hover:bg-gray-600

@@ -181,7 +181,11 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
 
     return html`
       <div class="p-2">
-        <div class="font-bold mb-1 ${isAlly ? "text-green-500" : "text-white"}">
+        <div
+          class="text-bold text-sm lg:text-lg font-bold mb-1 ${isAlly
+            ? "text-green-500"
+            : "text-white"}"
+        >
           ${player.name()}
         </div>
         <div class="text-sm opacity-80">
