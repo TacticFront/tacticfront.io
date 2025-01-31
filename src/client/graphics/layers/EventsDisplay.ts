@@ -125,10 +125,10 @@ export class EventsDisplay extends LitElement implements Layer {
     }
 
     const requestor = this.game.playerBySmallID(
-      update.requestorID
+      update.requestorID,
     ) as PlayerView;
     const recipient = this.game.playerBySmallID(
-      update.recipientID
+      update.recipientID,
     ) as PlayerView;
 
     this.addEvent({
@@ -139,7 +139,7 @@ export class EventsDisplay extends LitElement implements Layer {
           className: "btn",
           action: () =>
             this.eventBus.emit(
-              new SendAllianceReplyIntentEvent(requestor, recipient, true)
+              new SendAllianceReplyIntentEvent(requestor, recipient, true),
             ),
         },
         {
@@ -147,7 +147,7 @@ export class EventsDisplay extends LitElement implements Layer {
           className: "btn-info",
           action: () =>
             this.eventBus.emit(
-              new SendAllianceReplyIntentEvent(requestor, recipient, false)
+              new SendAllianceReplyIntentEvent(requestor, recipient, false),
             ),
         },
       ],
@@ -156,7 +156,7 @@ export class EventsDisplay extends LitElement implements Layer {
       createdAt: this.game.ticks(),
       onDelete: () =>
         this.eventBus.emit(
-          new SendAllianceReplyIntentEvent(requestor, recipient, false)
+          new SendAllianceReplyIntentEvent(requestor, recipient, false),
         ),
     });
   }
@@ -168,7 +168,7 @@ export class EventsDisplay extends LitElement implements Layer {
     }
 
     const recipient = this.game.playerBySmallID(
-      update.request.recipientID
+      update.request.recipientID,
     ) as PlayerView;
 
     this.addEvent({
@@ -213,8 +213,8 @@ export class EventsDisplay extends LitElement implements Layer {
       update.player1ID === myPlayer.smallID()
         ? update.player2ID
         : update.player2ID === myPlayer.smallID()
-        ? update.player1ID
-        : null;
+          ? update.player1ID
+          : null;
     const other = this.game.playerBySmallID(otherID) as PlayerView;
     if (!other || !myPlayer.isAlive() || !other.isAlive()) return;
 
@@ -250,7 +250,7 @@ export class EventsDisplay extends LitElement implements Layer {
         ? AllPlayers
         : this.game.playerBySmallID(update.emoji.recipientID);
     const sender = this.game.playerBySmallID(
-      update.emoji.senderID
+      update.emoji.senderID,
     ) as PlayerView;
 
     if (recipient == myPlayer) {
@@ -306,7 +306,7 @@ export class EventsDisplay extends LitElement implements Layer {
               (event, index) => html`
                 <tr
                   class="border-b border-opacity-0 ${this.getMessageTypeClasses(
-                    event.type
+                    event.type,
                   )}"
                 >
                   <td class="lg:p-3 p-1 text-left">
@@ -331,14 +331,14 @@ export class EventsDisplay extends LitElement implements Layer {
                                 >
                                   ${btn.text}
                                 </button>
-                              `
+                              `,
                             )}
                           </div>
                         `
                       : ""}
                   </td>
                 </tr>
-              `
+              `,
             )}
           </tbody>
         </table>

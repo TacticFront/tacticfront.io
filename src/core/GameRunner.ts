@@ -4,137 +4,173 @@ import { getConfig } from "./configuration/Config";
 import { EventBus } from "./EventBus";
 import { Executor } from "./execution/ExecutionManager";
 import { WinCheckExecution } from "./execution/WinCheckExecution";
-import { AllPlayers, Cell, Game, GameUpdates, MessageType, Player, PlayerActions, PlayerID, PlayerProfile, PlayerType, UnitType } from "./game/Game";
+import {
+  AllPlayers,
+  Cell,
+  Game,
+  GameUpdates,
+  MessageType,
+  Player,
+  PlayerActions,
+  PlayerID,
+  PlayerProfile,
+  PlayerType,
+  UnitType,
+} from "./game/Game";
 import { DisplayMessageUpdate, ErrorUpdate } from "./game/GameUpdates";
-import { NameViewData } from './game/Game';
+import { NameViewData } from "./game/Game";
 import { GameUpdateType } from "./game/GameUpdates";
 import { createGame } from "./game/GameImpl";
 import { loadTerrainMap as loadGameMap } from "./game/TerrainMapLoader";
 import { GameConfig, Turn } from "./Schemas";
-import { GameUpdateViewData } from './game/GameUpdates';
+import { GameUpdateViewData } from "./game/GameUpdates";
 import { andFN, manhattanDistFN, TileRef } from "./game/GameMap";
 import { targetTransportTile } from "./Util";
 
-export async function createGameRunner(gameID: string, gameConfig: GameConfig, callBack: (gu: GameUpdateViewData) => void): Promise<GameRunner> {
-    const config = getConfig(gameConfig)
-    const gameMap = await loadGameMap(gameConfig.gameMap);
-    const game = createGame(gameMap.gameMap, gameMap.miniGameMap, gameMap.nationMap, config)
-    const gr = new GameRunner(game as Game, new Executor(game, gameID), callBack)
-    gr.init()
-    return gr
+export async function createGameRunner(
+  gameID: string,
+  gameConfig: GameConfig,
+  callBack: (gu: GameUpdateViewData) => void,
+): Promise<GameRunner> {
+  const config = getConfig(gameConfig);
+  const gameMap = await loadGameMap(gameConfig.gameMap);
+  const game = createGame(
+    gameMap.gameMap,
+    gameMap.miniGameMap,
+    gameMap.nationMap,
+    config,
+  );
+  const gr = new GameRunner(game as Game, new Executor(game, gameID), callBack);
+  gr.init();
+  return gr;
 }
 
 export class GameRunner {
-    private tickInterval = null
-    private turns: Turn[] = []
-    private currTurn = 0
-    private isExecuting = false
+  private tickInterval = null;
+  private turns: Turn[] = [];
+  private currTurn = 0;
+  private isExecuting = false;
 
-    private playerViewData: Record<PlayerID, NameViewData> = {}
+  private playerViewData: Record<PlayerID, NameViewData> = {};
 
-    constructor(
-        public game: Game,
-        private execManager: Executor,
-        private callBack: (gu: GameUpdateViewData | ErrorUpdate) => void
-    ) {
+  constructor(
+    public game: Game,
+    private execManager: Executor,
+    private callBack: (gu: GameUpdateViewData | ErrorUpdate) => void,
+  ) {}
+
+  init() {
+    this.game.addExecution(
+      ...this.execManager.spawnBots(this.game.config().numBots()),
+    );
+    if (this.game.config().spawnNPCs()) {
+      this.game.addExecution(...this.execManager.fakeHumanExecutions());
     }
+    this.game.addExecution(new WinCheckExecution());
+    this.tickInterval = setInterval(() => this.executeNextTick(), 10);
+  }
 
-    init() {
-        this.game.addExecution(...this.execManager.spawnBots(this.game.config().numBots()))
-        if (this.game.config().spawnNPCs()) {
-            this.game.addExecution(...this.execManager.fakeHumanExecutions())
-        }
-        this.game.addExecution(new WinCheckExecution())
-        this.tickInterval = setInterval(() => this.executeNextTick(), 10)
+  public addTurn(turn: Turn): void {
+    this.turns.push(turn);
+  }
+
+  public executeNextTick() {
+    if (this.isExecuting) {
+      return;
     }
-
-    public addTurn(turn: Turn): void {
-        this.turns.push(turn)
+    if (this.currTurn >= this.turns.length) {
+      return;
     }
+    this.isExecuting = true;
 
-    public executeNextTick() {
-        if (this.isExecuting) {
-            return
-        }
-        if (this.currTurn >= this.turns.length) {
-            return
-        }
-        this.isExecuting = true
+    this.game.addExecution(
+      ...this.execManager.createExecs(this.turns[this.currTurn]),
+    );
+    this.currTurn++;
 
+    let updates: GameUpdates;
 
-        this.game.addExecution(...this.execManager.createExecs(this.turns[this.currTurn]))
-        this.currTurn++
-
-        let updates: GameUpdates;
-
-        try {
-            updates = this.game.executeNextTick();
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-                console.error('Game tick error:', error.message);
-                this.callBack({
-                    errMsg: error.message,
-                    stack: error.stack
-                } as ErrorUpdate)
-                clearInterval(this.tickInterval)
-                return
-            }
-        }
-
-        if (this.game.inSpawnPhase() && this.game.ticks() % 2 == 0) {
-            this.game.players()
-                .filter(p => p.type() == PlayerType.Human || p.type() == PlayerType.FakeHuman)
-                .forEach(p => this.playerViewData[p.id()] = placeName(this.game, p))
-        }
-
-        if (this.game.ticks() < 3 || this.game.ticks() % 30 == 0) {
-            this.game.players().forEach(p => {
-                this.playerViewData[p.id()] = placeName(this.game, p)
-            })
-        }
-
-        // Many tiles are updated to pack it into an array
-        const packedTileUpdates = updates[GameUpdateType.Tile].map(u => u.update)
-        updates[GameUpdateType.Tile] = []
-
+    try {
+      updates = this.game.executeNextTick();
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Game tick error:", error.message);
         this.callBack({
-            tick: this.game.ticks(),
-            packedTileUpdates: new BigUint64Array(packedTileUpdates),
-            updates: updates,
-            playerNameViewData: this.playerViewData
-        })
-        this.isExecuting = false
+          errMsg: error.message,
+          stack: error.stack,
+        } as ErrorUpdate);
+        clearInterval(this.tickInterval);
+        return;
+      }
     }
 
-    public playerActions(playerID: PlayerID, x: number, y: number): PlayerActions {
-        const player = this.game.player(playerID)
-        const tile = this.game.ref(x, y)
-        const actions = {
-            canBoat: player.canBoat(tile),
-            canAttack: player.canAttack(tile),
-            buildableUnits: Object.values(UnitType).filter(ut => player.canBuild(ut, tile) != false),
-            canSendEmojiAllPlayers: player.canSendEmoji(AllPlayers)
-        } as PlayerActions
-
-        if (this.game.hasOwner(tile)) {
-            const other = this.game.owner(tile) as Player
-            actions.interaction = {
-                sharedBorder: player.sharesBorderWith(other),
-                canSendEmoji: player.canSendEmoji(other),
-                canTarget: player.canTarget(other),
-                canSendAllianceRequest: !player.recentOrPendingAllianceRequestWith(other),
-                canBreakAlliance: player.isAlliedWith(other),
-                canDonate: player.canDonate(other)
-            }
-        }
-
-        return actions
+    if (this.game.inSpawnPhase() && this.game.ticks() % 2 == 0) {
+      this.game
+        .players()
+        .filter(
+          (p) =>
+            p.type() == PlayerType.Human || p.type() == PlayerType.FakeHuman,
+        )
+        .forEach(
+          (p) => (this.playerViewData[p.id()] = placeName(this.game, p)),
+        );
     }
-    public playerProfile(playerID: number): PlayerProfile {
-        const player = this.game.playerBySmallID(playerID)
-        if (!player.isPlayer()) {
-            throw new Error(`player with id ${playerID} not found`)
-        }
-        return player.playerProfile()
+
+    if (this.game.ticks() < 3 || this.game.ticks() % 30 == 0) {
+      this.game.players().forEach((p) => {
+        this.playerViewData[p.id()] = placeName(this.game, p);
+      });
     }
+
+    // Many tiles are updated to pack it into an array
+    const packedTileUpdates = updates[GameUpdateType.Tile].map((u) => u.update);
+    updates[GameUpdateType.Tile] = [];
+
+    this.callBack({
+      tick: this.game.ticks(),
+      packedTileUpdates: new BigUint64Array(packedTileUpdates),
+      updates: updates,
+      playerNameViewData: this.playerViewData,
+    });
+    this.isExecuting = false;
+  }
+
+  public playerActions(
+    playerID: PlayerID,
+    x: number,
+    y: number,
+  ): PlayerActions {
+    const player = this.game.player(playerID);
+    const tile = this.game.ref(x, y);
+    const actions = {
+      canBoat: player.canBoat(tile),
+      canAttack: player.canAttack(tile),
+      buildableUnits: Object.values(UnitType).filter(
+        (ut) => player.canBuild(ut, tile) != false,
+      ),
+      canSendEmojiAllPlayers: player.canSendEmoji(AllPlayers),
+    } as PlayerActions;
+
+    if (this.game.hasOwner(tile)) {
+      const other = this.game.owner(tile) as Player;
+      actions.interaction = {
+        sharedBorder: player.sharesBorderWith(other),
+        canSendEmoji: player.canSendEmoji(other),
+        canTarget: player.canTarget(other),
+        canSendAllianceRequest:
+          !player.recentOrPendingAllianceRequestWith(other),
+        canBreakAlliance: player.isAlliedWith(other),
+        canDonate: player.canDonate(other),
+      };
+    }
+
+    return actions;
+  }
+  public playerProfile(playerID: number): PlayerProfile {
+    const player = this.game.playerBySmallID(playerID);
+    if (!player.isPlayer()) {
+      throw new Error(`player with id ${playerID} not found`);
+    }
+    return player.playerProfile();
+  }
 }

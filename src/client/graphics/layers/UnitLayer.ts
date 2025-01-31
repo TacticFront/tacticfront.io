@@ -7,358 +7,404 @@ import { EventBus } from "../../../core/EventBus";
 import { AlternateViewEvent } from "../../InputHandler";
 import { ClientID } from "../../../core/Schemas";
 import { GameView, PlayerView, UnitView } from "../../../core/game/GameView";
-import { euclDistFN, manhattanDistFN, TileRef } from "../../../core/game/GameMap";
+import {
+  euclDistFN,
+  manhattanDistFN,
+  TileRef,
+} from "../../../core/game/GameMap";
 
 enum Relationship {
-    Self,
-    Ally,
-    Enemy
+  Self,
+  Ally,
+  Enemy,
 }
 
 export class UnitLayer implements Layer {
-    private canvas: HTMLCanvasElement;
-    private context: CanvasRenderingContext2D;
+  private canvas: HTMLCanvasElement;
+  private context: CanvasRenderingContext2D;
 
-    private boatToTrail = new Map<UnitView, Set<TileRef>>();
+  private boatToTrail = new Map<UnitView, Set<TileRef>>();
 
-    private theme: Theme = null;
+  private theme: Theme = null;
 
-    private alternateView = false;
+  private alternateView = false;
 
-    private myPlayer: PlayerView | null = null;
+  private myPlayer: PlayerView | null = null;
 
-    private oldShellTile = new Map<UnitView, TileRef>();
+  private oldShellTile = new Map<UnitView, TileRef>();
 
-    constructor(private game: GameView, private eventBus: EventBus, private clientID: ClientID) {
-        this.theme = game.config().theme();
+  constructor(
+    private game: GameView,
+    private eventBus: EventBus,
+    private clientID: ClientID,
+  ) {
+    this.theme = game.config().theme();
+  }
+
+  shouldTransform(): boolean {
+    return true;
+  }
+
+  tick() {
+    if (this.myPlayer == null) {
+      this.myPlayer = this.game.playerByClientID(this.clientID);
+    }
+    for (const unit of this.game.units()) {
+      if (unit.wasUpdated()) this.onUnitEvent(unit);
+    }
+  }
+
+  init() {
+    this.eventBus.on(AlternateViewEvent, (e) => this.onAlternativeViewEvent(e));
+    this.redraw();
+  }
+
+  renderLayer(context: CanvasRenderingContext2D) {
+    context.drawImage(
+      this.canvas,
+      -this.game.width() / 2,
+      -this.game.height() / 2,
+      this.game.width(),
+      this.game.height(),
+    );
+  }
+
+  onAlternativeViewEvent(event: AlternateViewEvent) {
+    this.alternateView = event.alternateView;
+    this.redraw();
+  }
+
+  redraw() {
+    this.canvas = document.createElement("canvas");
+    this.context = this.canvas.getContext("2d");
+
+    this.canvas.width = this.game.width();
+    this.canvas.height = this.game.height();
+    for (const unit of this.game.units()) {
+      // this.onUnitEvent(new UnitEvent(unit, unit.tile()))
+    }
+  }
+
+  private relationship(unit: UnitView): Relationship {
+    if (this.myPlayer == null) {
+      return Relationship.Enemy;
+    }
+    if (this.myPlayer == unit.owner()) {
+      return Relationship.Self;
+    }
+    if (this.myPlayer.isAlliedWith(unit.owner())) {
+      return Relationship.Ally;
+    }
+    return Relationship.Enemy;
+  }
+
+  onUnitEvent(unit: UnitView) {
+    switch (unit.type()) {
+      case UnitType.TransportShip:
+        this.handleBoatEvent(unit);
+        break;
+      case UnitType.Destroyer:
+        this.handleDestroyerEvent(unit);
+        break;
+      case UnitType.Battleship:
+        this.handleBattleshipEvent(unit);
+        break;
+      case UnitType.Shell:
+        this.handleShellEvent(unit);
+        break;
+      case UnitType.TradeShip:
+        this.handleTradeShipEvent(unit);
+        break;
+      case UnitType.AtomBomb:
+      case UnitType.HydrogenBomb:
+        this.handleNuke(unit);
+        break;
+    }
+  }
+
+  private handleDestroyerEvent(unit: UnitView) {
+    const rel = this.relationship(unit);
+
+    // Clear previous area
+    for (const t of this.game.bfs(
+      unit.lastTile(),
+      euclDistFN(unit.lastTile(), 4),
+    )) {
+      this.clearCell(this.game.x(t), this.game.y(t));
     }
 
-    shouldTransform(): boolean {
-        return true;
+    if (!unit.isActive()) {
+      return;
     }
 
-    tick() {
-        if (this.myPlayer == null) {
-            this.myPlayer = this.game.playerByClientID(this.clientID);
-        }
-        for (const unit of this.game.units()) {
-            if (unit.wasUpdated())
-                this.onUnitEvent(unit);
-        }
+    // Paint border
+    for (const t of this.game.bfs(unit.tile(), euclDistFN(unit.tile(), 4))) {
+      this.paintCell(
+        this.game.x(t),
+        this.game.y(t),
+        rel,
+        this.theme.borderColor(unit.owner().info()),
+        255,
+      );
     }
 
-    init() {
-        this.eventBus.on(AlternateViewEvent, e => this.onAlternativeViewEvent(e));
-        this.redraw();
+    // Paint territory
+    for (const t of this.game.bfs(
+      unit.tile(),
+      manhattanDistFN(unit.tile(), 3),
+    )) {
+      this.paintCell(
+        this.game.x(t),
+        this.game.y(t),
+        rel,
+        this.theme.territoryColor(unit.owner().info()),
+        255,
+      );
+    }
+  }
+
+  private handleBattleshipEvent(unit: UnitView) {
+    const rel = this.relationship(unit);
+
+    // Clear previous area
+    for (const t of this.game.bfs(
+      unit.lastTile(),
+      euclDistFN(unit.lastTile(), 6),
+    )) {
+      this.clearCell(this.game.x(t), this.game.y(t));
     }
 
-    renderLayer(context: CanvasRenderingContext2D) {
-        context.drawImage(
-            this.canvas,
-            -this.game.width() / 2,
-            -this.game.height() / 2,
-            this.game.width(),
-            this.game.height()
-        );
+    if (!unit.isActive()) {
+      return;
     }
 
-    onAlternativeViewEvent(event: AlternateViewEvent) {
-        this.alternateView = event.alternateView;
-        this.redraw();
+    // Paint outer territory
+    for (const t of this.game.bfs(unit.tile(), euclDistFN(unit.tile(), 5))) {
+      this.paintCell(
+        this.game.x(t),
+        this.game.y(t),
+        rel,
+        this.theme.territoryColor(unit.owner().info()),
+        255,
+      );
     }
 
-    redraw() {
-        this.canvas = document.createElement('canvas');
-        this.context = this.canvas.getContext("2d");
-
-        this.canvas.width = this.game.width();
-        this.canvas.height = this.game.height();
-        for (const unit of this.game.units()) {
-            // this.onUnitEvent(new UnitEvent(unit, unit.tile()))
-        }
+    // Paint border
+    for (const t of this.game.bfs(
+      unit.tile(),
+      manhattanDistFN(unit.tile(), 4),
+    )) {
+      this.paintCell(
+        this.game.x(t),
+        this.game.y(t),
+        rel,
+        this.theme.borderColor(unit.owner().info()),
+        255,
+      );
     }
 
-    private relationship(unit: UnitView): Relationship {
-        if (this.myPlayer == null) {
-            return Relationship.Enemy;
-        }
-        if (this.myPlayer == unit.owner()) {
-            return Relationship.Self;
-        }
-        if (this.myPlayer.isAlliedWith(unit.owner())) {
-            return Relationship.Ally;
-        }
-        return Relationship.Enemy;
+    // Paint inner territory
+    for (const t of this.game.bfs(unit.tile(), euclDistFN(unit.tile(), 1))) {
+      this.paintCell(
+        this.game.x(t),
+        this.game.y(t),
+        rel,
+        this.theme.territoryColor(unit.owner().info()),
+        255,
+      );
+    }
+  }
+
+  private handleShellEvent(unit: UnitView) {
+    const rel = this.relationship(unit);
+
+    // Clear current and previous positions
+    this.clearCell(this.game.x(unit.lastTile()), this.game.y(unit.lastTile()));
+    if (this.oldShellTile.has(unit)) {
+      const oldTile = this.oldShellTile.get(unit);
+      this.clearCell(this.game.x(oldTile), this.game.y(oldTile));
     }
 
-    onUnitEvent(unit: UnitView) {
-        switch (unit.type()) {
-            case UnitType.TransportShip:
-                this.handleBoatEvent(unit);
-                break;
-            case UnitType.Destroyer:
-                this.handleDestroyerEvent(unit);
-                break;
-            case UnitType.Battleship:
-                this.handleBattleshipEvent(unit);
-                break;
-            case UnitType.Shell:
-                this.handleShellEvent(unit);
-                break;
-            case UnitType.TradeShip:
-                this.handleTradeShipEvent(unit);
-                break;
-            case UnitType.AtomBomb:
-            case UnitType.HydrogenBomb:
-                this.handleNuke(unit);
-                break;
-        }
+    this.oldShellTile.set(unit, unit.lastTile());
+    if (!unit.isActive()) {
+      return;
     }
 
-    private handleDestroyerEvent(unit: UnitView) {
-        const rel = this.relationship(unit);
+    // Paint current and previous positions
+    this.paintCell(
+      this.game.x(unit.tile()),
+      this.game.y(unit.tile()),
+      rel,
+      this.theme.borderColor(unit.owner().info()),
+      255,
+    );
+    this.paintCell(
+      this.game.x(unit.lastTile()),
+      this.game.y(unit.lastTile()),
+      rel,
+      this.theme.borderColor(unit.owner().info()),
+      255,
+    );
+  }
 
-        // Clear previous area
-        for (const t of this.game.bfs(unit.lastTile(), euclDistFN(unit.lastTile(), 4))) {
-            this.clearCell(this.game.x(t), this.game.y(t));
-        }
+  private handleNuke(unit: UnitView) {
+    const rel = this.relationship(unit);
 
-        if (!unit.isActive()) {
-            return;
-        }
-
-        // Paint border
-        for (const t of this.game.bfs(unit.tile(), euclDistFN(unit.tile(), 4))) {
-            this.paintCell(
-                this.game.x(t),
-                this.game.y(t),
-                rel,
-                this.theme.borderColor(unit.owner().info()),
-                255
-            );
-        }
-
-        // Paint territory
-        for (const t of this.game.bfs(unit.tile(), manhattanDistFN(unit.tile(), 3))) {
-            this.paintCell(
-                this.game.x(t),
-                this.game.y(t),
-                rel,
-                this.theme.territoryColor(unit.owner().info()),
-                255
-            );
-        }
+    // Clear previous area
+    for (const t of this.game.bfs(
+      unit.lastTile(),
+      euclDistFN(unit.lastTile(), 2),
+    )) {
+      this.clearCell(this.game.x(t), this.game.y(t));
     }
 
-    private handleBattleshipEvent(unit: UnitView) {
-        const rel = this.relationship(unit);
-
-        // Clear previous area
-        for (const t of this.game.bfs(unit.lastTile(), euclDistFN(unit.lastTile(), 6))) {
-            this.clearCell(this.game.x(t), this.game.y(t));
-        }
-
-        if (!unit.isActive()) {
-            return;
-        }
-
-        // Paint outer territory
-        for (const t of this.game.bfs(unit.tile(), euclDistFN(unit.tile(), 5))) {
-            this.paintCell(
-                this.game.x(t),
-                this.game.y(t),
-                rel,
-                this.theme.territoryColor(unit.owner().info()),
-                255
-            );
-        }
-
-        // Paint border
-        for (const t of this.game.bfs(unit.tile(), manhattanDistFN(unit.tile(), 4))) {
-            this.paintCell(
-                this.game.x(t),
-                this.game.y(t),
-                rel,
-                this.theme.borderColor(unit.owner().info()),
-                255
-            );
-        }
-
-        // Paint inner territory
-        for (const t of this.game.bfs(unit.tile(), euclDistFN(unit.tile(), 1))) {
-            this.paintCell(
-                this.game.x(t),
-                this.game.y(t),
-                rel,
-                this.theme.territoryColor(unit.owner().info()),
-                255
-            );
-        }
-    }
-
-    private handleShellEvent(unit: UnitView) {
-        const rel = this.relationship(unit);
-
-        // Clear current and previous positions
-        this.clearCell(this.game.x(unit.lastTile()), this.game.y(unit.lastTile()));
-        if (this.oldShellTile.has(unit)) {
-            const oldTile = this.oldShellTile.get(unit);
-            this.clearCell(this.game.x(oldTile), this.game.y(oldTile));
-        }
-
-        this.oldShellTile.set(unit, unit.lastTile());
-        if (!unit.isActive()) {
-            return;
-        }
-
-        // Paint current and previous positions
+    if (unit.isActive()) {
+      // Paint area
+      for (const t of this.game.bfs(unit.tile(), euclDistFN(unit.tile(), 2))) {
         this.paintCell(
-            this.game.x(unit.tile()),
-            this.game.y(unit.tile()),
-            rel,
-            this.theme.borderColor(unit.owner().info()),
-            255
+          this.game.x(t),
+          this.game.y(t),
+          rel,
+          this.theme.borderColor(unit.owner().info()),
+          255,
         );
+      }
+    }
+  }
+
+  private handleTradeShipEvent(unit: UnitView) {
+    const rel = this.relationship(unit);
+
+    // Clear previous area
+    for (const t of this.game.bfs(
+      unit.lastTile(),
+      euclDistFN(unit.lastTile(), 3),
+    )) {
+      this.clearCell(this.game.x(t), this.game.y(t));
+    }
+
+    if (unit.isActive()) {
+      // Paint territory
+      for (const t of this.game.bfs(
+        unit.tile(),
+        manhattanDistFN(unit.tile(), 2),
+      )) {
         this.paintCell(
-            this.game.x(unit.lastTile()),
-            this.game.y(unit.lastTile()),
-            rel,
-            this.theme.borderColor(unit.owner().info()),
-            255
+          this.game.x(t),
+          this.game.y(t),
+          rel,
+          this.theme.territoryColor(unit.owner().info()),
+          255,
         );
+      }
+
+      // Paint border
+      for (const t of this.game.bfs(
+        unit.tile(),
+        manhattanDistFN(unit.tile(), 1),
+      )) {
+        this.paintCell(
+          this.game.x(t),
+          this.game.y(t),
+          rel,
+          this.theme.borderColor(unit.owner().info()),
+          255,
+        );
+      }
+    }
+  }
+
+  private handleBoatEvent(unit: UnitView) {
+    const rel = this.relationship(unit);
+
+    if (!this.boatToTrail.has(unit)) {
+      this.boatToTrail.set(unit, new Set<TileRef>());
+    }
+    const trail = this.boatToTrail.get(unit);
+    trail.add(unit.lastTile());
+
+    // Clear previous area
+    for (const t of this.game.bfs(
+      unit.lastTile(),
+      manhattanDistFN(unit.lastTile(), 3),
+    )) {
+      this.clearCell(this.game.x(t), this.game.y(t));
     }
 
-    private handleNuke(unit: UnitView) {
-        const rel = this.relationship(unit);
+    if (unit.isActive()) {
+      // Paint trail
+      for (const t of trail) {
+        this.paintCell(
+          this.game.x(t),
+          this.game.y(t),
+          rel,
+          this.theme.territoryColor(unit.owner().info()),
+          150,
+        );
+      }
 
-        // Clear previous area
-        for (const t of this.game.bfs(unit.lastTile(), euclDistFN(unit.lastTile(), 2))) {
-            this.clearCell(this.game.x(t), this.game.y(t));
-        }
+      // Paint border
+      for (const t of this.game.bfs(
+        unit.tile(),
+        manhattanDistFN(unit.tile(), 2),
+      )) {
+        this.paintCell(
+          this.game.x(t),
+          this.game.y(t),
+          rel,
+          this.theme.borderColor(unit.owner().info()),
+          255,
+        );
+      }
 
-        if (unit.isActive()) {
-            // Paint area
-            for (const t of this.game.bfs(unit.tile(), euclDistFN(unit.tile(), 2))) {
-                this.paintCell(
-                    this.game.x(t),
-                    this.game.y(t),
-                    rel,
-                    this.theme.borderColor(unit.owner().info()),
-                    255
-                );
-            }
-        }
+      // Paint territory
+      for (const t of this.game.bfs(
+        unit.tile(),
+        manhattanDistFN(unit.tile(), 1),
+      )) {
+        this.paintCell(
+          this.game.x(t),
+          this.game.y(t),
+          rel,
+          this.theme.territoryColor(unit.owner().info()),
+          255,
+        );
+      }
+    } else {
+      for (const t of trail) {
+        this.clearCell(this.game.x(t), this.game.y(t));
+      }
+      this.boatToTrail.delete(unit);
     }
+  }
 
-    private handleTradeShipEvent(unit: UnitView) {
-        const rel = this.relationship(unit);
-
-        // Clear previous area
-        for (const t of this.game.bfs(unit.lastTile(), euclDistFN(unit.lastTile(), 3))) {
-            this.clearCell(this.game.x(t), this.game.y(t));
-        }
-
-        if (unit.isActive()) {
-            // Paint territory
-            for (const t of this.game.bfs(unit.tile(), manhattanDistFN(unit.tile(), 2))) {
-                this.paintCell(
-                    this.game.x(t),
-                    this.game.y(t),
-                    rel,
-                    this.theme.territoryColor(unit.owner().info()),
-                    255
-                );
-            }
-
-            // Paint border
-            for (const t of this.game.bfs(unit.tile(), manhattanDistFN(unit.tile(), 1))) {
-                this.paintCell(
-                    this.game.x(t),
-                    this.game.y(t),
-                    rel,
-                    this.theme.borderColor(unit.owner().info()),
-                    255
-                );
-            }
-        }
+  paintCell(
+    x: number,
+    y: number,
+    relationship: Relationship,
+    color: Colord,
+    alpha: number,
+  ) {
+    this.clearCell(x, y);
+    if (this.alternateView) {
+      switch (relationship) {
+        case Relationship.Self:
+          this.context.fillStyle = this.theme.selfColor().toRgbString();
+          break;
+        case Relationship.Ally:
+          this.context.fillStyle = this.theme.allyColor().toRgbString();
+          break;
+        case Relationship.Enemy:
+          this.context.fillStyle = this.theme.enemyColor().toRgbString();
+          break;
+      }
+    } else {
+      this.context.fillStyle = color.alpha(alpha / 255).toRgbString();
     }
+    this.context.fillRect(x, y, 1, 1);
+  }
 
-    private handleBoatEvent(unit: UnitView) {
-        const rel = this.relationship(unit);
-
-        if (!this.boatToTrail.has(unit)) {
-            this.boatToTrail.set(unit, new Set<TileRef>());
-        }
-        const trail = this.boatToTrail.get(unit);
-        trail.add(unit.lastTile());
-
-        // Clear previous area
-        for (const t of this.game.bfs(unit.lastTile(), manhattanDistFN(unit.lastTile(), 3))) {
-            this.clearCell(this.game.x(t), this.game.y(t));
-        }
-
-        if (unit.isActive()) {
-            // Paint trail
-            for (const t of trail) {
-                this.paintCell(
-                    this.game.x(t),
-                    this.game.y(t),
-                    rel,
-                    this.theme.territoryColor(unit.owner().info()),
-                    150
-                );
-            }
-
-            // Paint border
-            for (const t of this.game.bfs(unit.tile(), manhattanDistFN(unit.tile(), 2))) {
-                this.paintCell(
-                    this.game.x(t),
-                    this.game.y(t),
-                    rel,
-                    this.theme.borderColor(unit.owner().info()),
-                    255
-                );
-            }
-
-            // Paint territory
-            for (const t of this.game.bfs(unit.tile(), manhattanDistFN(unit.tile(), 1))) {
-                this.paintCell(
-                    this.game.x(t),
-                    this.game.y(t),
-                    rel,
-                    this.theme.territoryColor(unit.owner().info()),
-                    255
-                );
-            }
-        } else {
-            for (const t of trail) {
-                this.clearCell(this.game.x(t), this.game.y(t));
-            }
-            this.boatToTrail.delete(unit);
-        }
-    }
-
-    paintCell(x: number, y: number, relationship: Relationship, color: Colord, alpha: number) {
-        this.clearCell(x, y);
-        if (this.alternateView) {
-            switch (relationship) {
-                case Relationship.Self:
-                    this.context.fillStyle = this.theme.selfColor().toRgbString();
-                    break;
-                case Relationship.Ally:
-                    this.context.fillStyle = this.theme.allyColor().toRgbString();
-                    break;
-                case Relationship.Enemy:
-                    this.context.fillStyle = this.theme.enemyColor().toRgbString();
-                    break;
-            }
-        } else {
-            this.context.fillStyle = color.alpha(alpha / 255).toRgbString();
-        }
-        this.context.fillRect(x, y, 1, 1);
-    }
-
-    clearCell(x: number, y: number) {
-        this.context.clearRect(x, y, 1, 1);
-    }
+  clearCell(x: number, y: number) {
+    this.context.clearRect(x, y, 1, 1);
+  }
 }

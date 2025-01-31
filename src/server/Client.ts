@@ -1,16 +1,14 @@
-import WebSocket from 'ws';
-import { ClientID } from '../core/Schemas';
-
+import WebSocket from "ws";
+import { ClientID } from "../core/Schemas";
 
 export class Client {
+  public lastPing: number;
 
-    public lastPing: number
-
-    constructor(
-        public readonly clientID: ClientID,
-        public readonly persistentID: string,
-        public readonly ip: string | null,
-        public readonly username: string,
-        public readonly ws: WebSocket,
-    ) { }
+  constructor(
+    public readonly clientID: ClientID,
+    public readonly persistentID: string,
+    public readonly ip: string | null,
+    public readonly username: string,
+    public readonly ws: WebSocket,
+  ) {}
 }

@@ -1,10 +1,10 @@
-import { LitElement, html, css } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
-import { Difficulty, GameMapType, GameType } from '../core/game/Game';
-import { generateID as generateID } from '../core/Util';
-import { consolex } from '../core/Consolex';
+import { LitElement, html, css } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
+import { Difficulty, GameMapType, GameType } from "../core/game/Game";
+import { generateID as generateID } from "../core/Util";
+import { consolex } from "../core/Consolex";
 
-@customElement('single-player-modal')
+@customElement("single-player-modal")
 export class SinglePlayerModal extends LitElement {
   @state() private isModalOpen = false;
   @state() private selectedMap: GameMapType = GameMapType.World;
@@ -74,7 +74,10 @@ export class SinglePlayerModal extends LitElement {
 
   render() {
     return html`
-      <div class="modal-overlay" style="display: ${this.isModalOpen ? 'block' : 'none'}">
+      <div
+        class="modal-overlay"
+        style="display: ${this.isModalOpen ? "block" : "none"}"
+      >
         <div class="modal-content">
           <span class="close" @click=${this.close}>&times;</span>
           <h2>Start Single Player Game</h2>
@@ -82,24 +85,34 @@ export class SinglePlayerModal extends LitElement {
             <label for="map-select">Map: </label>
             <select id="map-select" @change=${this.handleMapChange}>
               ${Object.entries(GameMapType)
-        .filter(([key]) => isNaN(Number(key)))
-        .map(([key, value]) => html`
-                  <option value=${value} ?selected=${this.selectedMap === value}>
-                    ${value}
-                  </option>
-                `)}
+                .filter(([key]) => isNaN(Number(key)))
+                .map(
+                  ([key, value]) => html`
+                    <option
+                      value=${value}
+                      ?selected=${this.selectedMap === value}
+                    >
+                      ${value}
+                    </option>
+                  `,
+                )}
             </select>
           </div>
           <div>
             <label for="map-select">Difficulty: </label>
             <select id="map-select" @change=${this.handleDifficultyChange}>
               ${Object.entries(Difficulty)
-        .filter(([key]) => isNaN(Number(key)))
-        .map(([key, value]) => html`
-                  <option value=${value} ?selected=${this.selectedDifficulty === value}>
-                    ${value}
-                  </option>
-                `)}
+                .filter(([key]) => isNaN(Number(key)))
+                .map(
+                  ([key, value]) => html`
+                    <option
+                      value=${value}
+                      ?selected=${this.selectedDifficulty === value}
+                    >
+                      ${value}
+                    </option>
+                  `,
+                )}
             </select>
           </div>
 
@@ -118,25 +131,33 @@ export class SinglePlayerModal extends LitElement {
   }
 
   private handleMapChange(e: Event) {
-    this.selectedMap = String((e.target as HTMLSelectElement).value) as GameMapType;
+    this.selectedMap = String(
+      (e.target as HTMLSelectElement).value,
+    ) as GameMapType;
   }
   private handleDifficultyChange(e: Event) {
-    this.selectedDifficulty = String((e.target as HTMLSelectElement).value) as Difficulty;
+    this.selectedDifficulty = String(
+      (e.target as HTMLSelectElement).value,
+    ) as Difficulty;
   }
   private startGame() {
-    consolex.log(`Starting single player game with map: ${GameMapType[this.selectedMap]}`);
-    this.dispatchEvent(new CustomEvent('join-lobby', {
-      detail: {
-        gameType: GameType.Singleplayer,
-        lobby: {
-          id: generateID(),
+    consolex.log(
+      `Starting single player game with map: ${GameMapType[this.selectedMap]}`,
+    );
+    this.dispatchEvent(
+      new CustomEvent("join-lobby", {
+        detail: {
+          gameType: GameType.Singleplayer,
+          lobby: {
+            id: generateID(),
+          },
+          map: this.selectedMap,
+          difficulty: this.selectedDifficulty,
         },
-        map: this.selectedMap,
-        difficulty: this.selectedDifficulty
-      },
-      bubbles: true,
-      composed: true
-    }));
+        bubbles: true,
+        composed: true,
+      }),
+    );
     this.close();
   }
 }

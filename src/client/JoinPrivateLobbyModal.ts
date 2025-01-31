@@ -1,14 +1,14 @@
-import { LitElement, html, css } from 'lit';
-import { customElement, property, state, query } from 'lit/decorators.js';
-import { GameMapType, GameType } from '../core/game/Game';
-import { consolex } from '../core/Consolex';
+import { LitElement, html, css } from "lit";
+import { customElement, property, state, query } from "lit/decorators.js";
+import { GameMapType, GameType } from "../core/game/Game";
+import { consolex } from "../core/Consolex";
 
-@customElement('join-private-lobby-modal')
+@customElement("join-private-lobby-modal")
 export class JoinPrivateLobbyModal extends LitElement {
   @state() private isModalOpen = false;
-  @state() private message: string = '';
-  @query('#lobbyIdInput') private lobbyIdInput!: HTMLInputElement;
-  @state() private hasJoined = false
+  @state() private message: string = "";
+  @query("#lobbyIdInput") private lobbyIdInput!: HTMLInputElement;
+  @state() private hasJoined = false;
 
   static styles = css`
     .modal-overlay {
@@ -78,51 +78,58 @@ export class JoinPrivateLobbyModal extends LitElement {
       margin-top: 10px;
     }
 
-  .message-area {
-   margin-top: 10px;
-   padding: 10px;
-   border-radius: 4px;
-   font-size: 14px;
-   transition: opacity 0.3s ease;
-   opacity: 0;
-   height: 0;
-   overflow: hidden;
-  }
+    .message-area {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: opacity 0.3s ease;
+      opacity: 0;
+      height: 0;
+      overflow: hidden;
+    }
 
-  .message-area.show {
-    opacity: 1;
-    height: auto;
-    margin-bottom: 10px;
-  }
+    .message-area.show {
+      opacity: 1;
+      height: auto;
+      margin-bottom: 10px;
+    }
 
-  .message-area.error {
-    background-color: #ffebee;
-    color: #c62828;
-  }
+    .message-area.error {
+      background-color: #ffebee;
+      color: #c62828;
+    }
 
-  .message-area.success {
-    background-color: #e8f5e9;
-    color: #2e7d32;
-  }
+    .message-area.success {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
   `;
 
   render() {
     return html`
-    <div class="modal-overlay" style="display: ${this.isModalOpen ? 'block' : 'none'}">
-      <div class="modal-content">
-        <span class="close" @click=${this.closeAndLeave}>&times;</span>
-        <h2>Join Private Lobby</h2>
-        <div class="lobby-id-container">
-          <input type="text" id="lobbyIdInput" placeholder="Enter Lobby ID">
-          <button @click=${this.pasteFromClipboard}>Paste</button>
+      <div
+        class="modal-overlay"
+        style="display: ${this.isModalOpen ? "block" : "none"}"
+      >
+        <div class="modal-content">
+          <span class="close" @click=${this.closeAndLeave}>&times;</span>
+          <h2>Join Private Lobby</h2>
+          <div class="lobby-id-container">
+            <input type="text" id="lobbyIdInput" placeholder="Enter Lobby ID" />
+            <button @click=${this.pasteFromClipboard}>Paste</button>
+          </div>
+          <div class="message-area ${this.message ? "show" : ""}">
+            ${this.message}
+          </div>
+          ${!this.hasJoined
+            ? html`<button class="join-button" @click=${this.joinLobby}>
+                Join Lobby
+              </button>`
+            : ""}
         </div>
-        <div class="message-area ${this.message ? 'show' : ''}">
-          ${this.message}
-        </div>
-        ${!this.hasJoined ? html`<button class="join-button" @click=${this.joinLobby}>Join Lobby</button>` : ''}
       </div>
-    </div>
-  `;
+    `;
   }
 
   public open() {
@@ -131,18 +138,20 @@ export class JoinPrivateLobbyModal extends LitElement {
 
   public close() {
     this.isModalOpen = false;
-    this.lobbyIdInput.value = null
+    this.lobbyIdInput.value = null;
   }
 
   public closeAndLeave() {
-    this.close()
-    this.hasJoined = false
-    this.message = ""
-    this.dispatchEvent(new CustomEvent('leave-lobby', {
-      detail: { lobby: this.lobbyIdInput.value },
-      bubbles: true,
-      composed: true
-    }));
+    this.close();
+    this.hasJoined = false;
+    this.message = "";
+    this.dispatchEvent(
+      new CustomEvent("leave-lobby", {
+        detail: { lobby: this.lobbyIdInput.value },
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   private async pasteFromClipboard() {
@@ -150,43 +159,44 @@ export class JoinPrivateLobbyModal extends LitElement {
       const clipText = await navigator.clipboard.readText();
       this.lobbyIdInput.value = clipText;
     } catch (err) {
-      consolex.error('Failed to read clipboard contents: ', err);
+      consolex.error("Failed to read clipboard contents: ", err);
     }
   }
 
   private joinLobby() {
     const lobbyId = this.lobbyIdInput.value;
     consolex.log(`Joining lobby with ID: ${lobbyId}`);
-    this.message = 'Checking lobby...'; // Set initial message
+    this.message = "Checking lobby..."; // Set initial message
 
     fetch(`/lobby/${lobbyId}/exists`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
-      }
+        "Content-Type": "application/json",
+      },
     })
-      .then(response => response.json())
-      .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         if (data.exists) {
-          this.message = 'Joined successfully! Waiting for game to start...';
-          this.hasJoined = true
-          this.dispatchEvent(new CustomEvent('join-lobby', {
-            detail: {
-              lobby: { id: lobbyId },
-              gameType: GameType.Private,
-              map: GameMapType.World,
-            },
-            bubbles: true,
-            composed: true
-          }));
+          this.message = "Joined successfully! Waiting for game to start...";
+          this.hasJoined = true;
+          this.dispatchEvent(
+            new CustomEvent("join-lobby", {
+              detail: {
+                lobby: { id: lobbyId },
+                gameType: GameType.Private,
+                map: GameMapType.World,
+              },
+              bubbles: true,
+              composed: true,
+            }),
+          );
         } else {
-          this.message = 'Lobby not found. Please check the ID and try again.';
+          this.message = "Lobby not found. Please check the ID and try again.";
         }
       })
-      .catch(error => {
-        consolex.error('Error checking lobby existence:', error);
-        this.message = 'An error occurred. Please try again.';
+      .catch((error) => {
+        consolex.error("Error checking lobby existence:", error);
+        this.message = "An error occurred. Please try again.";
       });
   }
-
 }
