@@ -1,108 +1,135 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenFront (ALPHA)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=AW-16702609763"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>OpenFront (ALPHA)</title>
-	<script src="https://cdn.tailwindcss.com"></script>
-	<!-- Google tag (gtag.js) -->
-	<script async src="https://www.googletagmanager.com/gtag/js?id=AW-16702609763">
-	</script>
-	<script>
-		window.dataLayer = window.dataLayer || [];
-		function gtag() { dataLayer.push(arguments); }
-		gtag('js', new Date());
+      gtag("config", "AW-16702609763");
+    </script>
 
-		gtag('config', 'AW-16702609763');
-	</script>
+    <style>
+      body {
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+    </style>
+  </head>
 
-	<style>
-		body {
-			visibility: hidden;
-			opacity: 0;
-			transition: opacity 0.3s ease;
-		}
-	</style>
-</head>
+  <body>
+    <div class="content">
+      <h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-2">
+        OpenFront.io
+      </h1>
+      <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-4">
+        (v0.14.0)
+      </h2>
+      <div class="flex justify-center items-start">
+        <div class="w-full max-w-3xl p-4 space-y-4">
+          <username-input></username-input>
+          <div class="flex space-x-2 max-w-xs mx-auto">
+            <a
+              href="https://youtu.be/jvHEvbko3uw?si=znspkP84P76B1w5I"
+              id="how-to-play"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex-1 px-4 py-2 text-lg font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-mg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out text-center"
+            >
+              How to Play
+            </a>
+          </div>
+          <div class="flex space-x-2 max-w-xs mx-auto">
+            <a
+              href="https://discord.gg/k22YrnAzGp"
+              id="how-to-play"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex-1 px-4 py-2 text-lg font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-mg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out text-center"
+            >
+              Join the Discord!
+            </a>
+          </div>
 
-<body>
-	<div class="content">
-		<h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-2">OpenFront.io</h1>
-		<h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl mb-4">(v0.14.1)</h2>
-		<div class="flex justify-center items-start">
-			<div class="w-full max-w-3xl p-4 space-y-4">
-				<username-input></username-input>
-				<div class="flex space-x-2 max-w-xs mx-auto">
-					<a href="https://youtu.be/jvHEvbko3uw?si=znspkP84P76B1w5I" id="how-to-play" target="_blank"
-						rel="noopener noreferrer"
-						class="flex-1 px-4 py-2 text-lg font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-mg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out text-center">
-						How to Play
-					</a>
-				</div>
-				<div class="flex space-x-2 max-w-xs mx-auto">
-					<a href="https://discord.gg/k22YrnAzGp" id="how-to-play" target="_blank" rel="noopener noreferrer"
-						class="flex-1 px-4 py-2 text-lg font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-mg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-300 ease-in-out text-center">
-						Join the Discord!
-					</a>
-				</div>
+          <!-- Button layout -->
+          <div class="flex space-x-4 max-w-xs mx-auto">
+            <!-- Single Player button -->
+            <button
+              id="single-player"
+              class="flex-1 h-31 px-6 py-8 text-xl font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out"
+            >
+              Single Player
+            </button>
 
-				<!-- Button layout -->
-				<div class="flex space-x-4 max-w-xs mx-auto">
-					<!-- Single Player button -->
-					<button id="single-player"
-						class="flex-1 h-31 px-6 py-8 text-xl font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-300 ease-in-out">
-						Single Player
-					</button>
+            <!-- Create and Join Lobby buttons stacked -->
+            <div class="flex-1 space-y-4">
+              <button
+                id="host-lobby-button"
+                class="w-full h-12 px-4 py-4 text-sm font-medium text-blue-700 bg-blue-100 rounded-md hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out"
+              >
+                Create Lobby
+              </button>
+              <button
+                id="join-private-lobby-button"
+                class="w-full h-12 px-4 py-4 text-sm font-medium text-blue-700 bg-blue-100 rounded-md hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out"
+              >
+                Join Lobby
+              </button>
+            </div>
+          </div>
 
-					<!-- Create and Join Lobby buttons stacked -->
-					<div class="flex-1 space-y-4">
-						<button id="host-lobby-button"
-							class="w-full h-12 px-4 py-4 text-sm  font-medium text-blue-700 bg-blue-100 rounded-md hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out">
-							Create Lobby
-						</button>
-						<button id="join-private-lobby-button"
-							class="w-full h-12 px-4 py-4 text-sm font-medium text-blue-700 bg-blue-100 rounded-md hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-300 ease-in-out">
-							Join Lobby
-						</button>
-					</div>
-				</div>
+          <h3
+            class="text-xl sm:text-2xl md:text-3xl lg:text-4xl mt-2 mb-16 tracking-wide pt-2"
+          >
+            Public Games
+          </h3>
+          <public-lobby></public-lobby>
+        </div>
+      </div>
+    </div>
 
-				<h3 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl mt-2 mb-16 tracking-wide pt-2">Public Games</h3>
-				<public-lobby></public-lobby>
-			</div>
-		</div>
-	</div>
+    <div id="customMenu">
+      <ul></ul>
+    </div>
 
-	<div id="customMenu">
-		<ul>
-		</ul>
-	</div>
+    <div id="app"></div>
+    <div id="radialMenu" class="radial-menu"></div>
 
-	<div id="app"></div>
-	<div id="radialMenu" class="radial-menu"></div>
+    <single-player-modal></single-player-modal>
+    <host-lobby-modal></host-lobby-modal>
+    <join-private-lobby-modal></join-private-lobby-modal>
+    <emoji-table></emoji-table>
+    <leader-board></leader-board>
+    <control-panel></control-panel>
+    <events-display></events-display>
+    <build-menu></build-menu>
+    <player-info-overlay></player-info-overlay>
 
-	<single-player-modal></single-player-modal>
-	<host-lobby-modal></host-lobby-modal>
-	<join-private-lobby-modal></join-private-lobby-modal>
-	<emoji-table></emoji-table>
-	<leader-board></leader-board>
-	<control-panel></control-panel>
-	<events-display></events-display>
-	<build-menu></build-menu>
-	<player-info-overlay></player-info-overlay>
+    <script>
+      window.addEventListener("DOMContentLoaded", (event) => {
+        document.body.style.visibility = "visible";
+        document.body.style.opacity = 1;
+      });
+    </script>
 
-	<script>
-		window.addEventListener('DOMContentLoaded', (event) => {
-			document.body.style.visibility = 'visible';
-			document.body.style.opacity = 1;
-		});
-	</script>
-
-	<!-- Cloudflare Web Analytics -->
-	<script defer src='https://static.cloudflareinsights.com/beacon.min.js'
-		data-cf-beacon='{"token": "03d93e6fefb349c28ee69b408fa25a13"}'></script>
-	<!-- End Cloudflare Web Analytics -->
-</body>
-
+    <!-- Cloudflare Web Analytics -->
+    <script
+      defer
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon='{"token": "03d93e6fefb349c28ee69b408fa25a13"}'
+    ></script>
+    <!-- End Cloudflare Web Analytics -->
+  </body>
 </html>
