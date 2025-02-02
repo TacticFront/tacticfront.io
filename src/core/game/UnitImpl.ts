@@ -18,7 +18,7 @@ export class UnitImpl implements Unit {
     private _tile: TileRef,
     private _troops: number,
     private _id: number,
-    public _owner: PlayerImpl,
+    public _owner: PlayerImpl
   ) {
     // default to half health (or 1 is no health specified)
     this._health = (this.mg.unitInfo(_type).maxHealth ?? 2) / 2;
@@ -35,6 +35,7 @@ export class UnitImpl implements Unit {
       isActive: this._active,
       pos: { x: this.mg.x(this._tile), y: this.mg.y(this._tile) },
       lastPos: { x: this.mg.x(this._lastTile), y: this.mg.y(this._lastTile) },
+      health: this.hasHealth() ? this._health : undefined,
     };
   }
 
@@ -85,7 +86,7 @@ export class UnitImpl implements Unit {
     this.mg.displayMessage(
       `Your ${this.type()} was captured by ${newOwner.displayName()}`,
       MessageType.ERROR,
-      oldOwner.id(),
+      oldOwner.id()
     );
   }
 
@@ -104,7 +105,7 @@ export class UnitImpl implements Unit {
       this.mg.displayMessage(
         `Your ${this.type()} was destroyed`,
         MessageType.ERROR,
-        this.owner().id(),
+        this.owner().id()
       );
     }
   }

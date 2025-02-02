@@ -567,8 +567,7 @@ export class PlayerImpl implements Player {
         return this.nukeSpawn(targetTile);
       case UnitType.Port:
         return this.portSpawn(targetTile);
-      case UnitType.Destroyer:
-      case UnitType.Battleship:
+      case UnitType.Warship:
         return this.warshipSpawn(targetTile);
       case UnitType.Shell:
         return targetTile;

@@ -11,15 +11,13 @@ import {
 import { BuildUnitIntentEvent } from "../../../Transport";
 import atomBombIcon from "../../../../../resources/images/NukeIconWhite.svg";
 import hydrogenBombIcon from "../../../../../resources/images/MushroomCloudIconWhite.svg";
-import destroyerIcon from "../../../../../resources/images/DestroyerIconWhite.svg";
-import battleshipIcon from "../../../../../resources/images/BattleshipIconWhite.svg";
+import warshipIcon from "../../../../../resources/images/BattleshipIconWhite.svg";
 import missileSiloIcon from "../../../../../resources/images/MissileSiloIconWhite.svg";
 import goldCoinIcon from "../../../../../resources/images/GoldCoinIcon.svg";
 import portIcon from "../../../../../resources/images/PortIcon.svg";
 import shieldIcon from "../../../../../resources/images/ShieldIconWhite.svg";
 import cityIcon from "../../../../../resources/images/CityIconWhite.svg";
 import { renderNumber } from "../../../Utils";
-import { ContextMenuEvent } from "../../../InputHandler";
 import { GameView, PlayerView } from "../../../../core/game/GameView";
 
 interface BuildItemDisplay {
@@ -31,8 +29,7 @@ const buildTable: BuildItemDisplay[][] = [
   [
     { unitType: UnitType.AtomBomb, icon: atomBombIcon },
     { unitType: UnitType.HydrogenBomb, icon: hydrogenBombIcon },
-    { unitType: UnitType.Destroyer, icon: destroyerIcon },
-    { unitType: UnitType.Battleship, icon: battleshipIcon },
+    { unitType: UnitType.Warship, icon: warshipIcon },
     { unitType: UnitType.Port, icon: portIcon },
     { unitType: UnitType.MissileSilo, icon: missileSiloIcon },
     // { unitType: UnitType.DefensePost, icon: shieldIcon },
@@ -201,7 +198,7 @@ export class BuildMenu extends LitElement {
 
   public onBuildSelected = (item: BuildItemDisplay) => {
     this.eventBus.emit(
-      new BuildUnitIntentEvent(item.unitType, this.clickedCell),
+      new BuildUnitIntentEvent(item.unitType, this.clickedCell)
     );
     this.hideMenu();
   };
@@ -233,7 +230,7 @@ export class BuildMenu extends LitElement {
                           ? this.game
                               .unitInfo(item.unitType)
                               .cost(this.myPlayer)
-                          : 0,
+                          : 0
                       )}
                       <img
                         src=${goldCoinIcon}
@@ -244,10 +241,10 @@ export class BuildMenu extends LitElement {
                       />
                     </span>
                   </button>
-                `,
+                `
               )}
             </div>
-          `,
+          `
         )}
       </div>
     `;

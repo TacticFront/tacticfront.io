@@ -36,7 +36,7 @@ export class UnitLayer implements Layer {
   constructor(
     private game: GameView,
     private eventBus: EventBus,
-    private clientID: ClientID,
+    private clientID: ClientID
   ) {
     this.theme = game.config().theme();
   }
@@ -65,7 +65,7 @@ export class UnitLayer implements Layer {
       -this.game.width() / 2,
       -this.game.height() / 2,
       this.game.width(),
-      this.game.height(),
+      this.game.height()
     );
   }
 
@@ -103,11 +103,8 @@ export class UnitLayer implements Layer {
       case UnitType.TransportShip:
         this.handleBoatEvent(unit);
         break;
-      case UnitType.Destroyer:
-        this.handleDestroyerEvent(unit);
-        break;
-      case UnitType.Battleship:
-        this.handleBattleshipEvent(unit);
+      case UnitType.Warship:
+        this.handleWarShipEvent(unit);
         break;
       case UnitType.Shell:
         this.handleShellEvent(unit);
@@ -122,54 +119,13 @@ export class UnitLayer implements Layer {
     }
   }
 
-  private handleDestroyerEvent(unit: UnitView) {
+  private handleWarShipEvent(unit: UnitView) {
     const rel = this.relationship(unit);
 
     // Clear previous area
     for (const t of this.game.bfs(
       unit.lastTile(),
-      euclDistFN(unit.lastTile(), 4),
-    )) {
-      this.clearCell(this.game.x(t), this.game.y(t));
-    }
-
-    if (!unit.isActive()) {
-      return;
-    }
-
-    // Paint border
-    for (const t of this.game.bfs(unit.tile(), euclDistFN(unit.tile(), 4))) {
-      this.paintCell(
-        this.game.x(t),
-        this.game.y(t),
-        rel,
-        this.theme.borderColor(unit.owner().info()),
-        255,
-      );
-    }
-
-    // Paint territory
-    for (const t of this.game.bfs(
-      unit.tile(),
-      manhattanDistFN(unit.tile(), 3),
-    )) {
-      this.paintCell(
-        this.game.x(t),
-        this.game.y(t),
-        rel,
-        this.theme.territoryColor(unit.owner().info()),
-        255,
-      );
-    }
-  }
-
-  private handleBattleshipEvent(unit: UnitView) {
-    const rel = this.relationship(unit);
-
-    // Clear previous area
-    for (const t of this.game.bfs(
-      unit.lastTile(),
-      euclDistFN(unit.lastTile(), 6),
+      euclDistFN(unit.lastTile(), 6)
     )) {
       this.clearCell(this.game.x(t), this.game.y(t));
     }
@@ -185,21 +141,21 @@ export class UnitLayer implements Layer {
         this.game.y(t),
         rel,
         this.theme.territoryColor(unit.owner().info()),
-        255,
+        255
       );
     }
 
     // Paint border
     for (const t of this.game.bfs(
       unit.tile(),
-      manhattanDistFN(unit.tile(), 4),
+      manhattanDistFN(unit.tile(), 4)
     )) {
       this.paintCell(
         this.game.x(t),
         this.game.y(t),
         rel,
         this.theme.borderColor(unit.owner().info()),
-        255,
+        255
       );
     }
 
@@ -210,7 +166,7 @@ export class UnitLayer implements Layer {
         this.game.y(t),
         rel,
         this.theme.territoryColor(unit.owner().info()),
-        255,
+        255
       );
     }
   }
@@ -236,14 +192,14 @@ export class UnitLayer implements Layer {
       this.game.y(unit.tile()),
       rel,
       this.theme.borderColor(unit.owner().info()),
-      255,
+      255
     );
     this.paintCell(
       this.game.x(unit.lastTile()),
       this.game.y(unit.lastTile()),
       rel,
       this.theme.borderColor(unit.owner().info()),
-      255,
+      255
     );
   }
 
@@ -253,7 +209,7 @@ export class UnitLayer implements Layer {
     // Clear previous area
     for (const t of this.game.bfs(
       unit.lastTile(),
-      euclDistFN(unit.lastTile(), 2),
+      euclDistFN(unit.lastTile(), 2)
     )) {
       this.clearCell(this.game.x(t), this.game.y(t));
     }
@@ -266,7 +222,7 @@ export class UnitLayer implements Layer {
           this.game.y(t),
           rel,
           this.theme.borderColor(unit.owner().info()),
-          255,
+          255
         );
       }
     }
@@ -278,7 +234,7 @@ export class UnitLayer implements Layer {
     // Clear previous area
     for (const t of this.game.bfs(
       unit.lastTile(),
-      euclDistFN(unit.lastTile(), 3),
+      euclDistFN(unit.lastTile(), 3)
     )) {
       this.clearCell(this.game.x(t), this.game.y(t));
     }
@@ -287,28 +243,28 @@ export class UnitLayer implements Layer {
       // Paint territory
       for (const t of this.game.bfs(
         unit.tile(),
-        manhattanDistFN(unit.tile(), 2),
+        manhattanDistFN(unit.tile(), 2)
       )) {
         this.paintCell(
           this.game.x(t),
           this.game.y(t),
           rel,
           this.theme.territoryColor(unit.owner().info()),
-          255,
+          255
         );
       }
 
       // Paint border
       for (const t of this.game.bfs(
         unit.tile(),
-        manhattanDistFN(unit.tile(), 1),
+        manhattanDistFN(unit.tile(), 1)
       )) {
         this.paintCell(
           this.game.x(t),
           this.game.y(t),
           rel,
           this.theme.borderColor(unit.owner().info()),
-          255,
+          255
         );
       }
     }
@@ -326,7 +282,7 @@ export class UnitLayer implements Layer {
     // Clear previous area
     for (const t of this.game.bfs(
       unit.lastTile(),
-      manhattanDistFN(unit.lastTile(), 3),
+      manhattanDistFN(unit.lastTile(), 3)
     )) {
       this.clearCell(this.game.x(t), this.game.y(t));
     }
@@ -339,35 +295,35 @@ export class UnitLayer implements Layer {
           this.game.y(t),
           rel,
           this.theme.territoryColor(unit.owner().info()),
-          150,
+          150
         );
       }
 
       // Paint border
       for (const t of this.game.bfs(
         unit.tile(),
-        manhattanDistFN(unit.tile(), 2),
+        manhattanDistFN(unit.tile(), 2)
       )) {
         this.paintCell(
           this.game.x(t),
           this.game.y(t),
           rel,
           this.theme.borderColor(unit.owner().info()),
-          255,
+          255
         );
       }
 
       // Paint territory
       for (const t of this.game.bfs(
         unit.tile(),
-        manhattanDistFN(unit.tile(), 1),
+        manhattanDistFN(unit.tile(), 1)
       )) {
         this.paintCell(
           this.game.x(t),
           this.game.y(t),
           rel,
           this.theme.territoryColor(unit.owner().info()),
-          255,
+          255
         );
       }
     } else {
@@ -383,7 +339,7 @@ export class UnitLayer implements Layer {
     y: number,
     relationship: Relationship,
     color: Colord,
-    alpha: number,
+    alpha: number
   ) {
     this.clearCell(x, y);
     if (this.alternateView) {

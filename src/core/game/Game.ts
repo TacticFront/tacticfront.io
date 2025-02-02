@@ -62,8 +62,7 @@ export interface UnitInfo {
 
 export enum UnitType {
   TransportShip = "Transport",
-  Destroyer = "Destroyer",
-  Battleship = "Battleship",
+  Warship = "Warship",
   Shell = "Shell",
   Port = "Port",
   AtomBomb = "Atom Bomb",

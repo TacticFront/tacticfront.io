@@ -33,7 +33,7 @@ export abstract class DefaultServerConfig implements ServerConfig {
 export class DefaultConfig implements Config {
   constructor(
     private _serverConfig: ServerConfig,
-    private _gameConfig: GameConfig,
+    private _gameConfig: GameConfig
   ) {}
 
   gameConfig(): GameConfig {
@@ -88,19 +88,11 @@ export class DefaultConfig implements Config {
           cost: () => 0,
           territoryBound: false,
         };
-      case UnitType.Destroyer:
+      case UnitType.Warship:
         return {
-          cost: (p: Player) =>
-            (p.units(UnitType.Destroyer).length + 1) * 250_000,
+          cost: (p: Player) => (p.units(UnitType.Warship).length + 1) * 250_000,
           territoryBound: false,
           maxHealth: 1000,
-        };
-      case UnitType.Battleship:
-        return {
-          cost: (p: Player) =>
-            (p.units(UnitType.Battleship).length + 1) * 500_000,
-          territoryBound: false,
-          maxHealth: 5000,
         };
       case UnitType.Shell:
         return {
@@ -113,7 +105,7 @@ export class DefaultConfig implements Config {
           cost: (p: Player) =>
             Math.min(
               1_000_000,
-              Math.pow(2, p.units(UnitType.Port).length) * 250_000,
+              Math.pow(2, p.units(UnitType.Port).length) * 250_000
             ),
           territoryBound: true,
         };
@@ -142,7 +134,7 @@ export class DefaultConfig implements Config {
           cost: (p: Player) =>
             Math.min(
               250_000,
-              (p.units(UnitType.DefensePost).length + 1) * 50_000,
+              (p.units(UnitType.DefensePost).length + 1) * 50_000
             ),
           territoryBound: true,
         };
@@ -151,7 +143,7 @@ export class DefaultConfig implements Config {
           cost: (p: Player) =>
             Math.min(
               1_000_000,
-              Math.pow(2, p.units(UnitType.City).length) * 125_000,
+              Math.pow(2, p.units(UnitType.City).length) * 125_000
             ),
           territoryBound: true,
         };
@@ -207,7 +199,7 @@ export class DefaultConfig implements Config {
     attackTroops: number,
     attacker: Player,
     defender: Player | TerraNullius,
-    tileToConquer: TileRef,
+    tileToConquer: TileRef
   ): {
     attackerTroopLoss: number;
     defenderTroopLoss: number;
@@ -271,7 +263,7 @@ export class DefaultConfig implements Config {
         tilesPerTickUsed: within(
           (2000 * Math.max(10, speed)) / attackTroops,
           5,
-          100,
+          100
         ),
       };
     }
@@ -281,7 +273,7 @@ export class DefaultConfig implements Config {
     attackTroops: number,
     attacker: Player,
     defender: Player | TerraNullius,
-    numAdjacentTilesWithEnemy: number,
+    numAdjacentTilesWithEnemy: number
   ): number {
     if (defender.isPlayer()) {
       return (

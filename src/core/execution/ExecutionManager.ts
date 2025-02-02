@@ -31,10 +31,9 @@ import { EmojiExecution } from "./EmojiExecution";
 import { DonateExecution } from "./DonateExecution";
 import { NukeExecution } from "./NukeExecution";
 import { SetTargetTroopRatioExecution } from "./SetTargetTroopRatioExecution";
-import { DestroyerExecution } from "./DestroyerExecution";
+import { WarshipExecution } from "./WarshipExecution";
 import { PortExecution } from "./PortExecution";
 import { MissileSiloExecution } from "./MissileSiloExecution";
-import { BattleshipExecution } from "./BattleshipExecution";
 import { DefensePostExecution } from "./DefensePostExecution";
 import { CityExecution } from "./CityExecution";
 import { TileRef } from "../game/GameMap";
@@ -43,10 +42,7 @@ export class Executor {
   // private random = new PseudoRandom(999)
   private random: PseudoRandom = null;
 
-  constructor(
-    private mg: Game,
-    private gameID: GameID,
-  ) {
+  constructor(private mg: Game, private gameID: GameID) {
     // Add one to avoid id collisions with bots.
     this.random = new PseudoRandom(simpleHash(gameID) + 1);
   }
@@ -62,7 +58,7 @@ export class Executor {
           intent.troops,
           intent.attackerID,
           intent.targetID,
-          null,
+          null
         );
       }
       case "spawn":
@@ -71,16 +67,16 @@ export class Executor {
             sanitize(intent.name),
             intent.playerType,
             intent.clientID,
-            intent.playerID,
+            intent.playerID
           ),
-          this.mg.ref(intent.x, intent.y),
+          this.mg.ref(intent.x, intent.y)
         );
       case "boat":
         return new TransportShipExecution(
           intent.attackerID,
           intent.targetID,
           this.mg.ref(intent.x, intent.y),
-          intent.troops,
+          intent.troops
         );
       case "allianceRequest":
         return new AllianceRequestExecution(intent.requestor, intent.recipient);
@@ -88,7 +84,7 @@ export class Executor {
         return new AllianceRequestReplyExecution(
           intent.requestor,
           intent.recipient,
-          intent.accept,
+          intent.accept
         );
       case "breakAlliance":
         return new BreakAllianceExecution(intent.requestor, intent.recipient);
@@ -98,13 +94,13 @@ export class Executor {
         return new EmojiExecution(
           intent.sender,
           intent.recipient,
-          intent.emoji,
+          intent.emoji
         );
       case "donate":
         return new DonateExecution(
           intent.sender,
           intent.recipient,
-          intent.troops,
+          intent.troops
         );
       case "troop_ratio":
         return new SetTargetTroopRatioExecution(intent.player, intent.ratio);
@@ -115,37 +111,32 @@ export class Executor {
             return new NukeExecution(
               intent.unit,
               intent.player,
-              this.mg.ref(intent.x, intent.y),
+              this.mg.ref(intent.x, intent.y)
             );
-          case UnitType.Destroyer:
-            return new DestroyerExecution(
+          case UnitType.Warship:
+            return new WarshipExecution(
               intent.player,
-              this.mg.ref(intent.x, intent.y),
-            );
-          case UnitType.Battleship:
-            return new BattleshipExecution(
-              intent.player,
-              this.mg.ref(intent.x, intent.y),
+              this.mg.ref(intent.x, intent.y)
             );
           case UnitType.Port:
             return new PortExecution(
               intent.player,
-              this.mg.ref(intent.x, intent.y),
+              this.mg.ref(intent.x, intent.y)
             );
           case UnitType.MissileSilo:
             return new MissileSiloExecution(
               intent.player,
-              this.mg.ref(intent.x, intent.y),
+              this.mg.ref(intent.x, intent.y)
             );
           case UnitType.DefensePost:
             return new DefensePostExecution(
               intent.player,
-              this.mg.ref(intent.x, intent.y),
+              this.mg.ref(intent.x, intent.y)
             );
           case UnitType.City:
             return new CityExecution(
               intent.player,
-              this.mg.ref(intent.x, intent.y),
+              this.mg.ref(intent.x, intent.y)
             );
           default:
             throw Error(`unit type ${intent.unit} not supported`);
@@ -171,14 +162,14 @@ export class Executor {
             nation.name,
             PlayerType.FakeHuman,
             null,
-            this.random.nextID(),
+            this.random.nextID()
           ),
           nation.cell,
           nation.strength *
             this.mg
               .config()
-              .difficultyModifier(this.mg.config().gameConfig().difficulty),
-        ),
+              .difficultyModifier(this.mg.config().gameConfig().difficulty)
+        )
       );
     }
     return execs;

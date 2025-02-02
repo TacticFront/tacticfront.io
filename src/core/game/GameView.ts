@@ -42,10 +42,7 @@ export class UnitView {
   public _wasUpdated = true;
   public lastPos: MapPos[] = [];
 
-  constructor(
-    private gameView: GameView,
-    private data: UnitUpdate,
-  ) {
+  constructor(private gameView: GameView, private data: UnitUpdate) {
     this.lastPos.push(data.pos);
   }
 
@@ -101,14 +98,14 @@ export class PlayerView {
   constructor(
     private game: GameView,
     public data: PlayerUpdate,
-    public nameData: NameViewData,
+    public nameData: NameViewData
   ) {}
 
   async actions(tile: TileRef): Promise<PlayerActions> {
     return this.game.worker.playerInteraction(
       this.id(),
       this.game.x(tile),
-      this.game.y(tile),
+      this.game.y(tile)
     );
   }
 
@@ -151,12 +148,12 @@ export class PlayerView {
   }
   allies(): PlayerView[] {
     return this.data.allies.map(
-      (a) => this.game.playerBySmallID(a) as PlayerView,
+      (a) => this.game.playerBySmallID(a) as PlayerView
     );
   }
   targets(): PlayerView[] {
     return this.data.targets.map(
-      (id) => this.game.playerBySmallID(id) as PlayerView,
+      (id) => this.game.playerBySmallID(id) as PlayerView
     );
   }
   gold(): Gold {
@@ -211,7 +208,7 @@ export class GameView implements GameMap {
     public worker: WorkerClient,
     private _config: Config,
     private _map: GameMap,
-    private _myClientID: ClientID,
+    private _myClientID: ClientID
   ) {
     this.lastUpdate = {
       tick: 0,
@@ -242,7 +239,7 @@ export class GameView implements GameMap {
       } else {
         this._players.set(
           pu.id,
-          new PlayerView(this, pu, gu.playerNameViewData[pu.id]),
+          new PlayerView(this, pu, gu.playerNameViewData[pu.id])
         );
       }
     });
@@ -321,7 +318,12 @@ export class GameView implements GameMap {
     return this._config;
   }
   units(...types: UnitType[]): UnitView[] {
-    return Array.from(this._units.values());
+    if (types.length == 0) {
+      return Array.from(this._units.values());
+    }
+    return Array.from(this._units.values()).filter((u) =>
+      types.includes(u.type())
+    );
   }
   unit(id: number): UnitView {
     return this._units.get(id);
@@ -416,7 +418,7 @@ export class GameView implements GameMap {
   }
   bfs(
     tile: TileRef,
-    filter: (gm: GameMap, tile: TileRef) => boolean,
+    filter: (gm: GameMap, tile: TileRef) => boolean
   ): Set<TileRef> {
     return this._map.bfs(tile, filter);
   }

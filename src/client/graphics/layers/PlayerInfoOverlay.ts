@@ -22,7 +22,7 @@ import { renderNumber, renderTroops } from "../../Utils";
 function euclideanDistWorld(
   coord: { x: number; y: number },
   tileRef: TileRef,
-  game: GameView,
+  game: GameView
 ): number {
   const x = game.x(tileRef);
   const y = game.y(tileRef);
@@ -71,7 +71,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
 
   init() {
     this.eventBus.on(MouseMoveEvent, (e: MouseMoveEvent) =>
-      this.onMouseEvent(e),
+      this.onMouseEvent(e)
     );
     this._isActive = true;
   }
@@ -111,7 +111,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
       this.setVisible(true);
     } else if (!this.game.isLand(tile)) {
       const units = this.game
-        .units(UnitType.Destroyer, UnitType.Battleship, UnitType.TradeShip)
+        .units(UnitType.Warship, UnitType.TradeShip, UnitType.TransportShip)
         .filter((u) => euclideanDistWorld(worldCoord, u.tile(), this.game) < 50)
         .sort(distSortUnitWorld(worldCoord, this.game));
 

@@ -14,13 +14,14 @@ import { PseudoRandom } from "../PseudoRandom";
 import { distSort, distSortUnit } from "../Util";
 import { consolex } from "../Consolex";
 import { TileRef } from "../game/GameMap";
+import { ShellExecution } from "./ShellExecution";
 
-export class DestroyerExecution implements Execution {
+export class WarshipExecution implements Execution {
   private random: PseudoRandom;
 
   private _owner: Player;
   private active = true;
-  private destroyer: Unit = null;
+  private warship: Unit = null;
   private mg: Game = null;
 
   private target: Unit = null;
@@ -31,10 +32,12 @@ export class DestroyerExecution implements Execution {
   // TODO: put in config
   private searchRange = 100;
 
-  constructor(
-    private playerID: PlayerID,
-    private patrolCenterTile: TileRef,
-  ) {}
+  private shellAttackRate = 5;
+  private lastShellAttack = 0;
+
+  private alreadySentShell = new Set<Unit>();
+
+  constructor(private playerID: PlayerID, private patrolCenterTile: TileRef) {}
 
   init(mg: Game, ticks: number): void {
     this.pathfinder = PathFinder.Mini(mg, 5000, false);
@@ -45,16 +48,16 @@ export class DestroyerExecution implements Execution {
   }
 
   tick(ticks: number): void {
-    if (this.destroyer == null) {
-      const spawn = this._owner.canBuild(UnitType.Destroyer, this.patrolTile);
+    if (this.warship == null) {
+      const spawn = this._owner.canBuild(UnitType.Warship, this.patrolTile);
       if (spawn == false) {
         this.active = false;
         return;
       }
-      this.destroyer = this._owner.buildUnit(UnitType.Destroyer, 0, spawn);
+      this.warship = this._owner.buildUnit(UnitType.Warship, 0, spawn);
       return;
     }
-    if (!this.destroyer.isActive()) {
+    if (!this.warship.isActive()) {
       this.active = false;
       return;
     }
@@ -63,34 +66,28 @@ export class DestroyerExecution implements Execution {
     }
     if (this.target == null) {
       const ships = this.mg
-        .units(
-          UnitType.TransportShip,
-          UnitType.Destroyer,
-          UnitType.TradeShip,
-          UnitType.Battleship,
-        )
+        .units(UnitType.TransportShip, UnitType.Warship, UnitType.TradeShip)
         .filter(
-          (u) => this.mg.manhattanDist(u.tile(), this.destroyer.tile()) < 100,
+          (u) => this.mg.manhattanDist(u.tile(), this.warship.tile()) < 100
         )
-        .filter(
-          (u) =>
-            u.type() != UnitType.Destroyer ||
-            u.health() < this.destroyer.health(),
-        ) // only attack Destroyers weaker than it.
-        .filter((u) => u.owner() != this.destroyer.owner())
-        .filter((u) => u != this.destroyer)
-        .filter((u) => !u.owner().isAlliedWith(this.destroyer.owner()));
-      if (ships.length == 0) {
+        .filter((u) => u.owner() != this.warship.owner())
+        .filter((u) => u != this.warship)
+        .filter((u) => !u.owner().isAlliedWith(this.warship.owner()))
+        .filter((u) => !this.alreadySentShell.has(u));
+
+      this.target = ships.sort(distSortUnit(this.mg, this.warship))[0] ?? null;
+      if (this.target == null || this.target.type() != UnitType.TradeShip) {
+        // Patrol unless we are hunting down a tradeship
         const result = this.pathfinder.nextTile(
-          this.destroyer.tile(),
-          this.patrolTile,
+          this.warship.tile(),
+          this.patrolTile
         );
         switch (result.type) {
           case PathFindResultType.Completed:
             this.patrolTile = this.randomTile();
             break;
           case PathFindResultType.NextTile:
-            this.destroyer.move(result.tile);
+            this.warship.move(result.tile);
             break;
           case PathFindResultType.Pending:
             return;
@@ -99,42 +96,53 @@ export class DestroyerExecution implements Execution {
             this.patrolTile = this.randomTile();
             break;
         }
-        return;
       }
-      this.target = ships.sort(distSortUnit(this.mg, this.destroyer))[0];
     }
-    if (!this.target.isActive() || this.target.owner() == this._owner) {
-      // Incase another destroyer captured or destroyed target
+    if (
+      this.target == null ||
+      !this.target.isActive() ||
+      this.target.owner() == this._owner
+    ) {
+      // In case another destroyer captured or destroyed target
       this.target = null;
+      return;
+    }
+    if (this.target.type() != UnitType.TradeShip) {
+      if (this.mg.ticks() - this.lastShellAttack > this.shellAttackRate) {
+        this.lastShellAttack = this.mg.ticks();
+        this.mg.addExecution(
+          new ShellExecution(
+            this.warship.tile(),
+            this.warship.owner(),
+            this.warship,
+            this.target
+          )
+        );
+        if (!this.target.hasHealth()) {
+          // Don't send multiple shells to target that can be oneshotted
+          this.alreadySentShell.add(this.target);
+          this.target = null;
+          return;
+        }
+      }
+      // Only hunt down tradeships
       return;
     }
 
     for (let i = 0; i < 2; i++) {
+      // target is trade ship so capture it.
       const result = this.pathfinder.nextTile(
-        this.destroyer.tile(),
+        this.warship.tile(),
         this.target.tile(),
-        5,
+        5
       );
       switch (result.type) {
         case PathFindResultType.Completed:
-          switch (this.target.type()) {
-            case UnitType.TransportShip:
-            case UnitType.Battleship:
-              this.target.delete();
-              break;
-            case UnitType.TradeShip:
-              this.owner().captureUnit(this.target);
-              break;
-            case UnitType.Destroyer:
-              const health = this.target.health();
-              this.target.modifyHealth(-this.destroyer.health());
-              this.destroyer.modifyHealth(-health);
-              break;
-          }
+          this.owner().captureUnit(this.target);
           this.target = null;
           return;
         case PathFindResultType.NextTile:
-          this.destroyer.move(result.tile);
+          this.warship.move(result.tile);
           break;
         case PathFindResultType.Pending:
           break;

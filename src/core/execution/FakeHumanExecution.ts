@@ -18,8 +18,7 @@ import { AttackExecution } from "./AttackExecution";
 import { TransportShipExecution } from "./TransportShipExecution";
 import { SpawnExecution } from "./SpawnExecution";
 import { PortExecution } from "./PortExecution";
-import { DestroyerExecution } from "./DestroyerExecution";
-import { BattleshipExecution } from "./BattleshipExecution";
+import { WarshipExecution } from "./WarshipExecution";
 import { GameID } from "../Schemas";
 import { consolex } from "../Consolex";
 import { CityExecution } from "./CityExecution";
@@ -321,10 +320,7 @@ export class FakeHumanExecution implements Execution {
       2,
       (t) => new CityExecution(this.player.id(), t)
     );
-    if (this.maybeSpawnWarship(UnitType.Destroyer)) {
-      return;
-    }
-    if (this.maybeSpawnWarship(UnitType.Battleship)) {
+    if (this.maybeSpawnWarship()) {
       return;
     }
     this.maybeSpawnStructure(
@@ -359,41 +355,28 @@ export class FakeHumanExecution implements Execution {
     this.mg.addExecution(build(tile));
   }
 
-  private maybeSpawnWarship(
-    shipType: UnitType.Destroyer | UnitType.Battleship
-  ): boolean {
+  private maybeSpawnWarship(): boolean {
     if (!this.random.chance(50)) {
       return false;
     }
     const ports = this.player.units(UnitType.Port);
-    const ships = this.player.units(shipType);
+    const ships = this.player.units(UnitType.Warship);
     if (
       ports.length > 0 &&
       ships.length == 0 &&
-      this.player.gold() > this.cost(shipType)
+      this.player.gold() > this.cost(UnitType.Warship)
     ) {
       const port = this.random.randElement(ports);
       const targetTile = this.warshipSpawnTile(port.tile());
       if (targetTile == null) {
         return false;
       }
-      const canBuild = this.player.canBuild(UnitType.Destroyer, targetTile);
+      const canBuild = this.player.canBuild(UnitType.Warship, targetTile);
       if (canBuild == false) {
         consolex.warn("cannot spawn destroyer");
         return false;
       }
-      switch (shipType) {
-        case UnitType.Destroyer:
-          this.mg.addExecution(
-            new DestroyerExecution(this.player.id(), targetTile)
-          );
-          break;
-        case UnitType.Battleship:
-          this.mg.addExecution(
-            new BattleshipExecution(this.player.id(), targetTile)
-          );
-          break;
-      }
+      this.mg.addExecution(new WarshipExecution(this.player.id(), targetTile));
       return true;
     }
     return false;

@@ -25,10 +25,7 @@ export class PortExecution implements Execution {
   private portPaths = new Map<Unit, TileRef[]>();
   private computingPaths = new Map<Unit, MiniAStar>();
 
-  constructor(
-    private _owner: PlayerID,
-    private tile: TileRef,
-  ) {}
+  constructor(private _owner: PlayerID, private tile: TileRef) {}
 
   init(mg: Game, ticks: number): void {
     this.mg = mg;
@@ -49,7 +46,7 @@ export class PortExecution implements Execution {
         .filter((t) => this.mg.isOceanShore(t) && this.mg.owner(t) == player)
         .sort(
           (a, b) =>
-            this.mg.manhattanDist(a, tile) - this.mg.manhattanDist(b, tile),
+            this.mg.manhattanDist(a, tile) - this.mg.manhattanDist(b, tile)
         );
 
       if (spawns.length == 0) {
@@ -71,7 +68,7 @@ export class PortExecution implements Execution {
     const alliedPortsSet = new Set(alliedPorts);
 
     const allyConnections = new Set(
-      Array.from(this.portPaths.keys()).map((p) => p.owner()),
+      Array.from(this.portPaths.keys()).map((p) => p.owner())
     );
     allyConnections;
 
@@ -103,7 +100,7 @@ export class PortExecution implements Execution {
         port.tile(),
         (tr: TileRef) => this.mg.miniMap().isOcean(tr),
         10_000,
-        25,
+        25
       );
       this.computingPaths.set(port, pf);
     }
@@ -124,9 +121,9 @@ export class PortExecution implements Execution {
       const port = this.random.randElement(portConnections);
       const path = this.portPaths.get(port);
       if (path != null) {
-        const pf = PathFinder.Mini(this.mg, 10, false);
+        const pf = PathFinder.Mini(this.mg, 10000, false);
         this.mg.addExecution(
-          new TradeShipExecution(this.player().id(), this.port, port, pf, path),
+          new TradeShipExecution(this.player().id(), this.port, port, pf, path)
         );
       }
     }
