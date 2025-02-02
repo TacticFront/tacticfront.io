@@ -27,6 +27,7 @@ ctx.addEventListener("message", async (e: MessageEvent<MainThreadMessage>) => {
 
   switch (message.type) {
     case "heartbeat":
+      (await gameRunner).executeNextTick()
       break;
     case "init":
       try {
