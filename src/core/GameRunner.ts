@@ -30,7 +30,7 @@ import { targetTransportTile } from "./Util";
 export async function createGameRunner(
   gameID: string,
   gameConfig: GameConfig,
-  callBack: (gu: GameUpdateViewData) => void,
+  callBack: (gu: GameUpdateViewData) => void
 ): Promise<GameRunner> {
   const config = getConfig(gameConfig);
   const gameMap = await loadGameMap(gameConfig.gameMap);
@@ -38,7 +38,7 @@ export async function createGameRunner(
     gameMap.gameMap,
     gameMap.miniGameMap,
     gameMap.nationMap,
-    config,
+    config
   );
   const gr = new GameRunner(game as Game, new Executor(game, gameID), callBack);
   gr.init();
@@ -46,7 +46,6 @@ export async function createGameRunner(
 }
 
 export class GameRunner {
-  private tickInterval = null;
   private turns: Turn[] = [];
   private currTurn = 0;
   private isExecuting = false;
@@ -56,18 +55,17 @@ export class GameRunner {
   constructor(
     public game: Game,
     private execManager: Executor,
-    private callBack: (gu: GameUpdateViewData | ErrorUpdate) => void,
+    private callBack: (gu: GameUpdateViewData | ErrorUpdate) => void
   ) {}
 
   init() {
     this.game.addExecution(
-      ...this.execManager.spawnBots(this.game.config().numBots()),
+      ...this.execManager.spawnBots(this.game.config().numBots())
     );
     if (this.game.config().spawnNPCs()) {
       this.game.addExecution(...this.execManager.fakeHumanExecutions());
     }
     this.game.addExecution(new WinCheckExecution());
-    this.tickInterval = setInterval(() => this.executeNextTick(), 10);
   }
 
   public addTurn(turn: Turn): void {
@@ -84,7 +82,7 @@ export class GameRunner {
     this.isExecuting = true;
 
     this.game.addExecution(
-      ...this.execManager.createExecs(this.turns[this.currTurn]),
+      ...this.execManager.createExecs(this.turns[this.currTurn])
     );
     this.currTurn++;
 
@@ -99,7 +97,6 @@ export class GameRunner {
           errMsg: error.message,
           stack: error.stack,
         } as ErrorUpdate);
-        clearInterval(this.tickInterval);
         return;
       }
     }
@@ -109,10 +106,10 @@ export class GameRunner {
         .players()
         .filter(
           (p) =>
-            p.type() == PlayerType.Human || p.type() == PlayerType.FakeHuman,
+            p.type() == PlayerType.Human || p.type() == PlayerType.FakeHuman
         )
         .forEach(
-          (p) => (this.playerViewData[p.id()] = placeName(this.game, p)),
+          (p) => (this.playerViewData[p.id()] = placeName(this.game, p))
         );
     }
 
@@ -138,7 +135,7 @@ export class GameRunner {
   public playerActions(
     playerID: PlayerID,
     x: number,
-    y: number,
+    y: number
   ): PlayerActions {
     const player = this.game.player(playerID);
     const tile = this.game.ref(x, y);
@@ -146,7 +143,7 @@ export class GameRunner {
       canBoat: player.canBoat(tile),
       canAttack: player.canAttack(tile),
       buildableUnits: Object.values(UnitType).filter(
-        (ut) => player.canBuild(ut, tile) != false,
+        (ut) => player.canBuild(ut, tile) != false
       ),
       canSendEmojiAllPlayers: player.canSendEmoji(AllPlayers),
     } as PlayerActions;

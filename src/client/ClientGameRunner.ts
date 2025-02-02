@@ -184,7 +184,7 @@ export class ClientGameRunner {
     });
     const worker = this.worker;
     const keepWorkerAlive = () => {
-      worker.sendHeartbeat;
+      worker.sendHeartbeat();
       requestAnimationFrame(keepWorkerAlive);
     };
     requestAnimationFrame(keepWorkerAlive);

@@ -14,20 +14,17 @@ export class WorkerClient {
   private isInitialized = false;
   private messageHandlers: Map<string, (message: WorkerMessage) => void>;
   private gameUpdateCallback?: (
-    update: GameUpdateViewData | ErrorUpdate,
+    update: GameUpdateViewData | ErrorUpdate
   ) => void;
 
-  constructor(
-    private gameID: GameID,
-    private gameConfig: GameConfig,
-  ) {
+  constructor(private gameID: GameID, private gameConfig: GameConfig) {
     this.worker = new Worker(new URL("./Worker.worker.ts", import.meta.url));
     this.messageHandlers = new Map();
 
     // Set up global message handler
     this.worker.addEventListener(
       "message",
-      this.handleWorkerMessage.bind(this),
+      this.handleWorkerMessage.bind(this)
     );
   }
 
@@ -133,7 +130,7 @@ export class WorkerClient {
   playerInteraction(
     playerID: PlayerID,
     x: number,
-    y: number,
+    y: number
   ): Promise<PlayerActions> {
     return new Promise((resolve, reject) => {
       if (!this.isInitialized) {
