@@ -154,8 +154,7 @@ export class GameRunner {
         sharedBorder: player.sharesBorderWith(other),
         canSendEmoji: player.canSendEmoji(other),
         canTarget: player.canTarget(other),
-        canSendAllianceRequest:
-          !player.recentOrPendingAllianceRequestWith(other),
+        canSendAllianceRequest: player.canSendAllianceRequest(other),
         canBreakAlliance: player.isAlliedWith(other),
         canDonate: player.canDonate(other),
       };

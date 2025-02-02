@@ -48,10 +48,10 @@ export class FakeHumanExecution implements Execution {
     gameID: GameID,
     private playerInfo: PlayerInfo,
     private cell: Cell,
-    private strength: number,
+    private strength: number
   ) {
     this.random = new PseudoRandom(
-      simpleHash(playerInfo.id) + simpleHash(gameID),
+      simpleHash(playerInfo.id) + simpleHash(gameID)
     );
   }
 
@@ -110,7 +110,7 @@ export class FakeHumanExecution implements Execution {
     const enemyborder = Array.from(this.player.borderTiles())
       .flatMap((t) => this.mg.neighbors(t))
       .filter(
-        (t) => this.mg.isLand(t) && this.mg.ownerID(t) != this.player.smallID(),
+        (t) => this.mg.isLand(t) && this.mg.ownerID(t) != this.player.smallID()
       );
 
     if (enemyborder.length == 0) {
@@ -125,7 +125,7 @@ export class FakeHumanExecution implements Execution {
     }
 
     const enemiesWithTN = enemyborder.map((t) =>
-      this.mg.playerBySmallID(this.mg.ownerID(t)),
+      this.mg.playerBySmallID(this.mg.ownerID(t))
     );
     if (enemiesWithTN.filter((o) => !o.isPlayer()).length > 0) {
       this.sendAttack(this.mg.terraNullius());
@@ -139,10 +139,7 @@ export class FakeHumanExecution implements Execution {
 
     if (this.random.chance(20)) {
       const toAlly = this.random.randElement(enemies);
-      if (
-        !this.player.isAlliedWith(toAlly) &&
-        !this.player.recentOrPendingAllianceRequestWith(toAlly)
-      ) {
+      if (this.player.canSendAllianceRequest(toAlly)) {
         this.player.createAllianceRequest(toAlly);
         return;
       }
@@ -208,7 +205,7 @@ export class FakeHumanExecution implements Execution {
       this.lastEnemyUpdateTick = this.mg.ticks();
       if (target.ally.type() == PlayerType.Human) {
         this.mg.addExecution(
-          new EmojiExecution(this.player.id(), target.ally.id(), "👍"),
+          new EmojiExecution(this.player.id(), target.ally.id(), "👍")
         );
       }
     }
@@ -229,8 +226,8 @@ export class FakeHumanExecution implements Execution {
               new EmojiExecution(
                 this.player.id(),
                 this.enemy.id(),
-                this.random.randElement(["🤡", "😡"]),
-              ),
+                this.random.randElement(["🤡", "😡"])
+              )
             );
           }
         }
@@ -274,7 +271,7 @@ export class FakeHumanExecution implements Execution {
       }
       if (this.player.canBuild(UnitType.AtomBomb, tile)) {
         this.mg.addExecution(
-          new NukeExecution(UnitType.AtomBomb, this.player.id(), tile),
+          new NukeExecution(UnitType.AtomBomb, this.player.id(), tile)
         );
         return;
       }
@@ -285,9 +282,9 @@ export class FakeHumanExecution implements Execution {
     const closest = closestTwoTiles(
       this.mg,
       Array.from(this.player.borderTiles()).filter((t) =>
-        this.mg.isOceanShore(t),
+        this.mg.isOceanShore(t)
       ),
-      Array.from(other.borderTiles()).filter((t) => this.mg.isOceanShore(t)),
+      Array.from(other.borderTiles()).filter((t) => this.mg.isOceanShore(t))
     );
     if (closest == null) {
       return;
@@ -301,8 +298,8 @@ export class FakeHumanExecution implements Execution {
           this.player.id(),
           other.id(),
           closest.y,
-          this.player.troops() / 5,
-        ),
+          this.player.troops() / 5
+        )
       );
     }
   }
@@ -311,7 +308,7 @@ export class FakeHumanExecution implements Execution {
     const ports = this.player.units(UnitType.Port);
     if (ports.length == 0 && this.player.gold() > this.cost(UnitType.Port)) {
       const oceanTiles = Array.from(this.player.borderTiles()).filter((t) =>
-        this.mg.isOceanShore(t),
+        this.mg.isOceanShore(t)
       );
       if (oceanTiles.length > 0) {
         const buildTile = this.random.randElement(oceanTiles);
@@ -322,7 +319,7 @@ export class FakeHumanExecution implements Execution {
     this.maybeSpawnStructure(
       UnitType.City,
       2,
-      (t) => new CityExecution(this.player.id(), t),
+      (t) => new CityExecution(this.player.id(), t)
     );
     if (this.maybeSpawnWarship(UnitType.Destroyer)) {
       return;
@@ -333,14 +330,14 @@ export class FakeHumanExecution implements Execution {
     this.maybeSpawnStructure(
       UnitType.MissileSilo,
       1,
-      (t) => new MissileSiloExecution(this.player.id(), t),
+      (t) => new MissileSiloExecution(this.player.id(), t)
     );
   }
 
   private maybeSpawnStructure(
     type: UnitType,
     maxNum: number,
-    build: (tile: TileRef) => Execution,
+    build: (tile: TileRef) => Execution
   ) {
     const units = this.player.units(type);
     if (units.length >= maxNum) {
@@ -363,7 +360,7 @@ export class FakeHumanExecution implements Execution {
   }
 
   private maybeSpawnWarship(
-    shipType: UnitType.Destroyer | UnitType.Battleship,
+    shipType: UnitType.Destroyer | UnitType.Battleship
   ): boolean {
     if (!this.random.chance(50)) {
       return false;
@@ -388,12 +385,12 @@ export class FakeHumanExecution implements Execution {
       switch (shipType) {
         case UnitType.Destroyer:
           this.mg.addExecution(
-            new DestroyerExecution(this.player.id(), targetTile),
+            new DestroyerExecution(this.player.id(), targetTile)
           );
           break;
         case UnitType.Battleship:
           this.mg.addExecution(
-            new BattleshipExecution(this.player.id(), targetTile),
+            new BattleshipExecution(this.player.id(), targetTile)
           );
           break;
       }
@@ -424,11 +421,11 @@ export class FakeHumanExecution implements Execution {
     for (let attempts = 0; attempts < 50; attempts++) {
       const randX = this.random.nextInt(
         this.mg.x(portTile) - radius,
-        this.mg.x(portTile) + radius,
+        this.mg.x(portTile) + radius
       );
       const randY = this.random.nextInt(
         this.mg.y(portTile) - radius,
-        this.mg.y(portTile) + radius,
+        this.mg.y(portTile) + radius
       );
       if (!this.mg.isValidCoord(randX, randY)) {
         continue;
@@ -478,8 +475,8 @@ export class FakeHumanExecution implements Execution {
       new AllianceRequestReplyExecution(
         req.requestor().id(),
         this.player.id(),
-        accept,
-      ),
+        accept
+      )
     );
   }
 
@@ -490,7 +487,7 @@ export class FakeHumanExecution implements Execution {
 
     if (oceanShore == null) {
       oceanShore = Array.from(this.player.borderTiles()).filter((t) =>
-        this.mg.isOceanShore(t),
+        this.mg.isOceanShore(t)
       );
     }
     if (oceanShore.length == 0) {
@@ -503,9 +500,9 @@ export class FakeHumanExecution implements Execution {
         src,
         andFN(
           (gm, t) => gm.isOcean(t) || gm.isOceanShore(t),
-          manhattanDistFN(src, 200),
-        ),
-      ),
+          manhattanDistFN(src, 200)
+        )
+      )
     ).filter((t) => this.mg.isOceanShore(t) && this.mg.owner(t) != this.player);
 
     if (otherShore.length == 0) {
@@ -529,8 +526,8 @@ export class FakeHumanExecution implements Execution {
           this.player.id(),
           this.mg.hasOwner(dst) ? this.mg.owner(dst).id() : null,
           dst,
-          this.player.troops() / 5,
-        ),
+          this.player.troops() / 5
+        )
       );
       return;
     }
@@ -568,8 +565,8 @@ export class FakeHumanExecution implements Execution {
         this.player.id(),
         toAttack.isPlayer() ? toAttack.id() : null,
         null,
-        null,
-      ),
+        null
+      )
     );
   }
 
@@ -577,7 +574,7 @@ export class FakeHumanExecution implements Execution {
     return (
       this.mg.bfs(
         tile,
-        andFN((gm, t) => gm.isLand(t), manhattanDistFN(tile, 10)),
+        andFN((gm, t) => gm.isLand(t), manhattanDistFN(tile, 10))
       ).size < 50
     );
   }

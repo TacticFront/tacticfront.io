@@ -85,7 +85,7 @@ export class Nation {
   constructor(
     public readonly name: string,
     public readonly cell: Cell,
-    public readonly strength: number,
+    public readonly strength: number
   ) {}
 }
 
@@ -94,10 +94,7 @@ export class Cell {
 
   private strRepr: string;
 
-  constructor(
-    public readonly x,
-    public readonly y,
-  ) {
+  constructor(public readonly x, public readonly y) {
     this.strRepr = `Cell[${this.x},${this.y}]`;
   }
 
@@ -162,7 +159,7 @@ export class PlayerInfo {
     // null if bot.
     public readonly clientID: ClientID | null,
     // TODO: make player id the small id
-    public readonly id: PlayerID,
+    public readonly id: PlayerID
   ) {}
 }
 
@@ -267,7 +264,7 @@ export interface Player {
   allies(): Player[];
   isAlliedWith(other: Player): boolean;
   allianceWith(other: Player): MutableAlliance | null;
-  recentOrPendingAllianceRequestWith(other: Player): boolean;
+  canSendAllianceRequest(other: Player): boolean;
   breakAlliance(alliance: Alliance): void;
   createAllianceRequest(recipient: Player): AllianceRequest;
 
@@ -333,7 +330,7 @@ export interface Game extends GameMap {
   displayMessage(
     message: string,
     type: MessageType,
-    playerID: PlayerID | null,
+    playerID: PlayerID | null
   ): void;
 
   // Nations

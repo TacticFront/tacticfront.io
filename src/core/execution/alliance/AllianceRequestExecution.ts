@@ -13,10 +13,7 @@ export class AllianceRequestExecution implements Execution {
   private requestor: Player;
   private recipient: Player;
 
-  constructor(
-    private requestorID: PlayerID,
-    private recipientID: PlayerID,
-  ) {}
+  constructor(private requestorID: PlayerID, private recipientID: PlayerID) {}
 
   init(mg: Game, ticks: number): void {
     this.mg = mg;
@@ -27,9 +24,7 @@ export class AllianceRequestExecution implements Execution {
   tick(ticks: number): void {
     if (this.requestor.isAlliedWith(this.recipient)) {
       consolex.warn("already allied");
-    } else if (
-      this.requestor.recentOrPendingAllianceRequestWith(this.recipient)
-    ) {
+    } else if (!this.requestor.canSendAllianceRequest(this.recipient)) {
       consolex.warn("recent or pending alliance request");
     } else {
       this.requestor.createAllianceRequest(this.recipient);
