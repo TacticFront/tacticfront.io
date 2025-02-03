@@ -22,12 +22,12 @@ export class DevConfig extends DefaultConfig {
     // return 100
   }
 
-  // unitInfo(type: UnitType): UnitInfo {
-  //   const info = super.unitInfo(type);
-  //   const oldCost = info.cost;
-  //   info.cost = (p: Player) => oldCost(p) / 1000000000;
-  //   return info;
-  // }
+  unitInfo(type: UnitType): UnitInfo {
+    const info = super.unitInfo(type);
+    const oldCost = info.cost;
+    info.cost = (p: Player) => oldCost(p) / 1000000000;
+    return info;
+  }
 
   // tradeShipSpawnRate(): number {
   //   return 10;
@@ -45,10 +45,10 @@ export class DevConfig extends DefaultConfig {
   //     return 5000
   // }
 
-  // numBots(): number {
-  //     return 0
-  // }
-  // spawnNPCs(): boolean {
-  //     return false
-  // }
+  numBots(): number {
+    return 0;
+  }
+  spawnNPCs(): boolean {
+    return false;
+  }
 }

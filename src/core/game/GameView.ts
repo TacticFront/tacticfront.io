@@ -109,9 +109,9 @@ export class PlayerView {
     );
   }
 
-  units(): UnitView[] {
+  units(...types: UnitType[]): UnitView[] {
     return this.game
-      .units()
+      .units(...types)
       .filter((u) => u.owner().smallID() == this.smallID());
   }
 
