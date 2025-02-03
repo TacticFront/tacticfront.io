@@ -155,6 +155,7 @@ export class Executor {
   fakeHumanExecutions(): Execution[] {
     const execs = [];
     for (const nation of this.mg.nations()) {
+      console.log(`got nation: ${nation.name}`);
       execs.push(
         new FakeHumanExecution(
           this.gameID,
@@ -162,13 +163,9 @@ export class Executor {
             nation.name,
             PlayerType.FakeHuman,
             null,
-            this.random.nextID()
-          ),
-          nation.cell,
-          nation.strength *
-            this.mg
-              .config()
-              .difficultyModifier(this.mg.config().gameConfig().difficulty)
+            this.random.nextID(),
+            nation
+          )
         )
       );
     }

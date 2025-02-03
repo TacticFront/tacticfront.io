@@ -43,12 +43,7 @@ export class FakeHumanExecution implements Execution {
   private lastEnemyUpdateTick: number = 0;
   private lastEmojiSent = new Map<Player, Tick>();
 
-  constructor(
-    gameID: GameID,
-    private playerInfo: PlayerInfo,
-    private cell: Cell,
-    private strength: number
-  ) {
+  constructor(gameID: GameID, private playerInfo: PlayerInfo) {
     this.random = new PseudoRandom(
       simpleHash(playerInfo.id) + simpleHash(gameID)
     );
@@ -77,8 +72,6 @@ export class FakeHumanExecution implements Execution {
       this.player = this.mg.players().find((p) => p.id() == this.playerInfo.id);
       if (this.player == null) {
         return;
-      } else {
-        this.player.setTroops(this.player.troops() * this.strength);
       }
     }
     if (this.firstMove) {
@@ -522,8 +515,9 @@ export class FakeHumanExecution implements Execution {
     let tries = 0;
     while (tries < 50) {
       tries++;
-      const x = this.random.nextInt(this.cell.x - delta, this.cell.x + delta);
-      const y = this.random.nextInt(this.cell.y - delta, this.cell.y + delta);
+      const cell = this.playerInfo.nation.cell;
+      const x = this.random.nextInt(cell.x - delta, cell.x + delta);
+      const y = this.random.nextInt(cell.y - delta, cell.y + delta);
       if (!this.mg.isValidCoord(x, y)) {
         continue;
       }

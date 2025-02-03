@@ -22,16 +22,16 @@ export class DevConfig extends DefaultConfig {
     // return 100
   }
 
-  unitInfo(type: UnitType): UnitInfo {
-    const info = super.unitInfo(type);
-    const oldCost = info.cost;
-    info.cost = (p: Player) => oldCost(p) / 1000000000;
-    return info;
-  }
+  // unitInfo(type: UnitType): UnitInfo {
+  //   const info = super.unitInfo(type);
+  //   const oldCost = info.cost;
+  //   info.cost = (p: Player) => oldCost(p) / 1000000000;
+  //   return info;
+  // }
 
-  tradeShipSpawnRate(): number {
-    return 10;
-  }
+  // tradeShipSpawnRate(): number {
+  //   return 10;
+  // }
 
   // percentageTilesOwnedToWin(): number {
   //     return 1

@@ -158,7 +158,8 @@ export class PlayerInfo {
     // null if bot.
     public readonly clientID: ClientID | null,
     // TODO: make player id the small id
-    public readonly id: PlayerID
+    public readonly id: PlayerID,
+    public readonly nation?: Nation | null
   ) {}
 }
 

@@ -30,7 +30,6 @@ export class TopBar extends LitElement implements Layer {
     if (!myPlayer?.isAlive() || this.game?.inSpawnPhase()) {
       return html``;
     }
-    console.log("rendering top bar");
     const popRate = this.game.config().populationIncreaseRate(myPlayer) * 10;
     const maxPop = this.game.config().maxPopulation(myPlayer);
     const goldPerSecond = this.game.config().goldAdditionRate(myPlayer) * 10;

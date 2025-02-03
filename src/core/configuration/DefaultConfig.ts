@@ -307,10 +307,10 @@ export class DefaultConfig implements Config {
       switch (this._gameConfig.difficulty) {
         case Difficulty.Easy:
         case Difficulty.Medium:
-          return 1000;
+          return 10000 * (playerInfo?.nation?.strength ?? 1);
         case Difficulty.Hard:
         case Difficulty.Impossible:
-          return 2000;
+          return 20000 * (playerInfo?.nation?.strength ?? 1);
       }
     }
     return 25000;
@@ -346,10 +346,10 @@ export class DefaultConfig implements Config {
     let difficultyMultiplier = 1;
     switch (this._gameConfig.difficulty) {
       case Difficulty.Easy:
-        difficultyMultiplier = 1;
+        difficultyMultiplier = 0.5;
         break;
       case Difficulty.Medium:
-        difficultyMultiplier = 1.2;
+        difficultyMultiplier = 0.8;
         break;
       case Difficulty.Hard:
         difficultyMultiplier = 1.5;
