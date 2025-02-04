@@ -71,6 +71,8 @@ export enum UnitType {
   MissileSilo = "Missile Silo",
   DefensePost = "Defense Post",
   City = "City",
+  MIRV = "MIRV",
+  MIRVWarhead = "MIRV Warhead",
 }
 
 export enum Relation {

@@ -1,4 +1,3 @@
-import { nextTick } from "process";
 import {
   Cell,
   Execution,
@@ -9,32 +8,33 @@ import {
   UnitType,
   TerraNullius,
 } from "../game/Game";
-import { PathFinder } from "../pathfinding/PathFinding";
-import { PathFindResultType } from "../pathfinding/AStar";
 import { PseudoRandom } from "../PseudoRandom";
 import { consolex } from "../Consolex";
 import { TileRef } from "../game/GameMap";
 
 export class NukeExecution implements Execution {
   private player: Player;
-
   private active = true;
-
   private mg: Game;
-
   private nuke: Unit;
 
-  private pathFinder: PathFinder;
+  private random: PseudoRandom;
+
   constructor(
-    private type: UnitType.AtomBomb | UnitType.HydrogenBomb,
+    private type:
+      | UnitType.AtomBomb
+      | UnitType.HydrogenBomb
+      | UnitType.MIRVWarhead,
     private senderID: PlayerID,
     private dst: TileRef,
+    private src?: TileRef,
+    private speed: number = 4
   ) {}
 
   init(mg: Game, ticks: number): void {
     this.mg = mg;
-    this.pathFinder = PathFinder.Mini(mg, 10_000, true);
     this.player = mg.player(this.senderID);
+    this.random = new PseudoRandom(ticks);
   }
 
   public target(): Player | TerraNullius {
@@ -43,7 +43,7 @@ export class NukeExecution implements Execution {
 
   tick(ticks: number): void {
     if (this.nuke == null) {
-      const spawn = this.player.canBuild(this.type, this.dst);
+      const spawn = this.src ?? this.player.canBuild(this.type, this.dst);
       if (spawn == false) {
         consolex.warn(`cannot build Nuke`);
         this.active = false;
@@ -52,33 +52,60 @@ export class NukeExecution implements Execution {
       this.nuke = this.player.buildUnit(this.type, 0, spawn);
     }
 
-    for (let i = 0; i < 4; i++) {
-      const result = this.pathFinder.nextTile(this.nuke.tile(), this.dst);
-      switch (result.type) {
-        case PathFindResultType.Completed:
-          this.nuke.move(result.tile);
-          this.detonate();
-          return;
-        case PathFindResultType.NextTile:
-          this.nuke.move(result.tile);
-          break;
-        case PathFindResultType.Pending:
-          break;
-        case PathFindResultType.PathNotFound:
-          consolex.warn(
-            `nuke cannot find path from ${this.nuke.tile()} to ${this.dst}`,
-          );
-          this.active = false;
-          return;
+    for (let i = 0; i < this.speed; i++) {
+      const x = this.mg.x(this.nuke.tile());
+      const y = this.mg.y(this.nuke.tile());
+      const dstX = this.mg.x(this.dst);
+      const dstY = this.mg.y(this.dst);
+
+      // If we've reached the destination, detonate
+      if (x === dstX && y === dstY) {
+        this.detonate();
+        return;
+      }
+
+      // Calculate next position
+      let nextX = x;
+      let nextY = y;
+
+      const ratio = Math.floor(
+        1 + Math.abs(dstY - y) / (Math.abs(dstX - x) + 1)
+      );
+
+      if (this.random.chance(ratio) && x != dstX) {
+        if (x < dstX) nextX++;
+        else if (x > dstX) nextX--;
+      } else {
+        if (y < dstY) nextY++;
+        else if (y > dstY) nextY--;
+      }
+
+      // Move to next tile
+      const nextTile = this.mg.ref(nextX, nextY);
+      if (nextTile !== undefined) {
+        this.nuke.move(nextTile);
+      } else {
+        consolex.warn(`invalid tile position ${nextX},${nextY}`);
+        this.active = false;
+        return;
       }
     }
   }
 
   private detonate() {
-    const magnitude =
-      this.type == UnitType.AtomBomb
-        ? { inner: 15, outer: 40 }
-        : { inner: 140, outer: 160 };
+    let magnitude;
+    switch (this.type) {
+      case UnitType.MIRVWarhead:
+        magnitude = { inner: 10, outer: 14 };
+        break;
+      case UnitType.AtomBomb:
+        magnitude = { inner: 15, outer: 40 };
+        break;
+      case UnitType.HydrogenBomb:
+        magnitude = { inner: 140, outer: 160 };
+        break;
+    }
+
     const rand = new PseudoRandom(this.mg.ticks());
     const toDestroy = this.mg.bfs(this.dst, (_, n: TileRef) => {
       const d = this.mg.euclideanDist(this.dst, n);
@@ -88,7 +115,7 @@ export class NukeExecution implements Execution {
     const ratio = Object.fromEntries(
       this.mg
         .players()
-        .map((p) => [p.id(), (p.troops() + p.workers()) / p.numTilesOwned()]),
+        .map((p) => [p.id(), (p.troops() + p.workers()) / p.numTilesOwned()])
     );
     const attacked = new Map<Player, number>();
     for (const tile of toDestroy) {
@@ -108,7 +135,8 @@ export class NukeExecution implements Execution {
       }
     }
     for (const [other, tilesDestroyed] of attacked) {
-      if (tilesDestroyed > 100) {
+      if (tilesDestroyed > 100 && this.nuke.type() != UnitType.MIRVWarhead) {
+        // Mirv warheads shouldn't break alliances
         const alliance = this.player.allianceWith(other);
         if (alliance != null) {
           this.player.breakAlliance(alliance);
@@ -122,7 +150,9 @@ export class NukeExecution implements Execution {
     for (const unit of this.mg.units()) {
       if (
         unit.type() != UnitType.AtomBomb &&
-        unit.type() != UnitType.HydrogenBomb
+        unit.type() != UnitType.HydrogenBomb &&
+        unit.type() != UnitType.MIRVWarhead &&
+        unit.type() != UnitType.MIRV
       ) {
         if (this.mg.euclideanDist(this.dst, unit.tile()) < magnitude.outer) {
           unit.delete();

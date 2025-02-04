@@ -81,7 +81,7 @@ export class UnitLayer implements Layer {
     this.canvas.width = this.game.width();
     this.canvas.height = this.game.height();
     for (const unit of this.game.units()) {
-      // this.onUnitEvent(new UnitEvent(unit, unit.tile()))
+      this.onUnitEvent(unit);
     }
   }
 
@@ -112,8 +112,12 @@ export class UnitLayer implements Layer {
       case UnitType.TradeShip:
         this.handleTradeShipEvent(unit);
         break;
+      case UnitType.MIRVWarhead:
+        this.handleMIRVWarhead(unit);
+        break;
       case UnitType.AtomBomb:
       case UnitType.HydrogenBomb:
+      case UnitType.MIRV:
         this.handleNuke(unit);
         break;
     }
@@ -225,6 +229,23 @@ export class UnitLayer implements Layer {
           255
         );
       }
+    }
+  }
+
+  private handleMIRVWarhead(unit: UnitView) {
+    const rel = this.relationship(unit);
+
+    this.clearCell(this.game.x(unit.lastTile()), this.game.y(unit.lastTile()));
+
+    if (unit.isActive()) {
+      // Paint area
+      this.paintCell(
+        this.game.x(unit.tile()),
+        this.game.y(unit.tile()),
+        rel,
+        this.theme.borderColor(unit.owner().info()),
+        255
+      );
     }
   }
 

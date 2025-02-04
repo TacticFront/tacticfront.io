@@ -37,6 +37,7 @@ import { MissileSiloExecution } from "./MissileSiloExecution";
 import { DefensePostExecution } from "./DefensePostExecution";
 import { CityExecution } from "./CityExecution";
 import { TileRef } from "../game/GameMap";
+import { MirvExecution } from "./MIRVExecution";
 
 export class Executor {
   // private random = new PseudoRandom(999)
@@ -113,6 +114,11 @@ export class Executor {
               intent.player,
               this.mg.ref(intent.x, intent.y)
             );
+          case UnitType.MIRV:
+            return new MirvExecution(
+              intent.player,
+              this.mg.ref(intent.x, intent.y)
+            );
           case UnitType.Warship:
             return new WarshipExecution(
               intent.player,
@@ -155,7 +161,6 @@ export class Executor {
   fakeHumanExecutions(): Execution[] {
     const execs = [];
     for (const nation of this.mg.nations()) {
-      console.log(`got nation: ${nation.name}`);
       execs.push(
         new FakeHumanExecution(
           this.gameID,

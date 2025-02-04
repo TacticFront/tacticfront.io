@@ -562,9 +562,12 @@ export class PlayerImpl implements Player {
       return false;
     }
     switch (unitType) {
+      case UnitType.MIRV:
       case UnitType.AtomBomb:
       case UnitType.HydrogenBomb:
         return this.nukeSpawn(targetTile);
+      case UnitType.MIRVWarhead:
+        return targetTile;
       case UnitType.Port:
         return this.portSpawn(targetTile);
       case UnitType.Warship:

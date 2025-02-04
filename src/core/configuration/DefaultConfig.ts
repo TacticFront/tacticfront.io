@@ -119,6 +119,16 @@ export class DefaultConfig implements Config {
           cost: () => 5_000_000,
           territoryBound: false,
         };
+      case UnitType.MIRV:
+        return {
+          cost: () => 5_000_000,
+          territoryBound: false,
+        };
+      case UnitType.MIRVWarhead:
+        return {
+          cost: () => 0,
+          territoryBound: false,
+        };
       case UnitType.TradeShip:
         return {
           cost: () => 0,
@@ -330,16 +340,11 @@ export class DefaultConfig implements Config {
   populationIncreaseRate(player: Player): number {
     let max = this.maxPopulation(player);
 
-    // const thing = Math.sqrt(player.population() + player.population() * player.workers())
-
     let toAdd = 10 + Math.pow(player.population(), 0.73) / 4;
 
     const ratio = 1 - player.population() / max;
     toAdd *= ratio;
 
-    if (player.type() == PlayerType.FakeHuman) {
-      toAdd *= 1.0;
-    }
     if (player.type() == PlayerType.Bot) {
       toAdd *= 0.7;
     }

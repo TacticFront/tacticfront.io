@@ -28,7 +28,7 @@ interface BuildItemDisplay {
 const buildTable: BuildItemDisplay[][] = [
   [
     { unitType: UnitType.AtomBomb, icon: atomBombIcon },
-    { unitType: UnitType.HydrogenBomb, icon: hydrogenBombIcon },
+    { unitType: UnitType.MIRV, icon: hydrogenBombIcon },
     { unitType: UnitType.Warship, icon: warshipIcon },
     { unitType: UnitType.Port, icon: portIcon },
     { unitType: UnitType.MissileSilo, icon: missileSiloIcon },

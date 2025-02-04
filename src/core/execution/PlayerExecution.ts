@@ -59,7 +59,9 @@ export class PlayerExecution implements Execution {
       this.player.units().forEach((u) => {
         if (
           u.type() != UnitType.AtomBomb &&
-          u.type() != UnitType.HydrogenBomb
+          u.type() != UnitType.HydrogenBomb &&
+          u.type() != UnitType.MIRVWarhead &&
+          u.type() != UnitType.MIRV
         ) {
           u.delete();
         }
