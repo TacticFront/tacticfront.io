@@ -1,24 +1,23 @@
 import { LitElement, html, css } from "lit";
 import { customElement, state } from "lit/decorators.js";
-import { EventBus } from "../../../../core/EventBus";
+import { EventBus } from "../../../core/EventBus";
 import {
   Cell,
   Game,
   Player,
   PlayerActions,
   UnitType,
-} from "../../../../core/game/Game";
-import { BuildUnitIntentEvent } from "../../../Transport";
-import atomBombIcon from "../../../../../resources/images/NukeIconWhite.svg";
-import hydrogenBombIcon from "../../../../../resources/images/MushroomCloudIconWhite.svg";
-import warshipIcon from "../../../../../resources/images/BattleshipIconWhite.svg";
-import missileSiloIcon from "../../../../../resources/images/MissileSiloIconWhite.svg";
-import goldCoinIcon from "../../../../../resources/images/GoldCoinIcon.svg";
-import portIcon from "../../../../../resources/images/PortIcon.svg";
-import shieldIcon from "../../../../../resources/images/ShieldIconWhite.svg";
-import cityIcon from "../../../../../resources/images/CityIconWhite.svg";
-import { renderNumber } from "../../../Utils";
-import { GameView, PlayerView } from "../../../../core/game/GameView";
+} from "../../../core/game/Game";
+import { BuildUnitIntentEvent } from "../../Transport";
+import atomBombIcon from "../../../../resources/images/NukeIconWhite.svg";
+import hydrogenBombIcon from "../../../../resources/images/MushroomCloudIconWhite.svg";
+import warshipIcon from "../../../../resources/images/BattleshipIconWhite.svg";
+import missileSiloIcon from "../../../../resources/images/MissileSiloIconWhite.svg";
+import goldCoinIcon from "../../../../resources/images/GoldCoinIcon.svg";
+import portIcon from "../../../../resources/images/PortIcon.svg";
+import cityIcon from "../../../../resources/images/CityIconWhite.svg";
+import { renderNumber } from "../../Utils";
+import { GameView, PlayerView } from "../../../core/game/GameView";
 
 interface BuildItemDisplay {
   unitType: UnitType;

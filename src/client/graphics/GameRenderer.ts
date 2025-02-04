@@ -7,12 +7,12 @@ import { EventBus } from "../../core/EventBus";
 import { TransformHandler } from "./TransformHandler";
 import { Layer } from "./layers/Layer";
 import { EventsDisplay } from "./layers/EventsDisplay";
-import { RadialMenu } from "./layers/radial/RadialMenu";
-import { EmojiTable } from "./layers/radial/EmojiTable";
+import { RadialMenu } from "./layers/RadialMenu";
+import { EmojiTable } from "./layers/EmojiTable";
 import { Leaderboard } from "./layers/Leaderboard";
 import { ControlPanel } from "./layers/ControlPanel";
 import { UIState } from "./UIState";
-import { BuildMenu } from "./layers/radial/BuildMenu";
+import { BuildMenu } from "./layers/BuildMenu";
 import { UnitLayer } from "./layers/UnitLayer";
 import { StructureLayer } from "./layers/StructureLayer";
 import { PlayerInfoOverlay } from "./layers/PlayerInfoOverlay";
@@ -28,7 +28,7 @@ export function createRenderer(
   canvas: HTMLCanvasElement,
   game: GameView,
   eventBus: EventBus,
-  clientID: ClientID,
+  clientID: ClientID
 ): GameRenderer {
   const transformHandler = new TransformHandler(game, eventBus, canvas);
 
@@ -64,7 +64,7 @@ export function createRenderer(
   controlPanel.game = game;
 
   const eventsDisplay = document.querySelector(
-    "events-display",
+    "events-display"
   ) as EventsDisplay;
   if (!(eventsDisplay instanceof EventsDisplay)) {
     consolex.error("events display not found");
@@ -74,7 +74,7 @@ export function createRenderer(
   eventsDisplay.clientID = clientID;
 
   const playerInfo = document.querySelector(
-    "player-info-overlay",
+    "player-info-overlay"
   ) as PlayerInfoOverlay;
   if (!(playerInfo instanceof PlayerInfoOverlay)) {
     consolex.error("player info overlay not found");
@@ -119,7 +119,7 @@ export function createRenderer(
       emojiTable as EmojiTable,
       buildMenu,
       uiState,
-      playerInfo,
+      playerInfo
     ),
     new SpawnTimer(game, transformHandler),
     leaderboard,
@@ -136,7 +136,7 @@ export function createRenderer(
     canvas,
     transformHandler,
     uiState,
-    layers,
+    layers
   );
 }
 
@@ -149,7 +149,7 @@ export class GameRenderer {
     private canvas: HTMLCanvasElement,
     public transformHandler: TransformHandler,
     public uiState: UIState,
-    private layers: Layer[],
+    private layers: Layer[]
   ) {
     this.context = canvas.getContext("2d");
   }
@@ -172,7 +172,7 @@ export class GameRenderer {
     this.transformHandler = new TransformHandler(
       this.game,
       this.eventBus,
-      this.canvas,
+      this.canvas
     );
 
     requestAnimationFrame(() => this.renderGame());
@@ -218,7 +218,7 @@ export class GameRenderer {
     const duration = performance.now() - start;
     if (duration > 50) {
       console.warn(
-        `tick ${this.game.ticks()} took ${duration}ms to render frame`,
+        `tick ${this.game.ticks()} took ${duration}ms to render frame`
       );
     }
   }

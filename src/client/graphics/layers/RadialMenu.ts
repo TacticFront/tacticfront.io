@@ -1,17 +1,17 @@
-import { EventBus } from "../../../../core/EventBus";
+import { EventBus } from "../../../core/EventBus";
 import {
   AllPlayers,
   Cell,
   Game,
   Player,
   PlayerActions,
-} from "../../../../core/game/Game";
-import { ClientID } from "../../../../core/Schemas";
+} from "../../../core/game/Game";
+import { ClientID } from "../../../core/Schemas";
 import {
   ContextMenuEvent,
   MouseUpEvent,
   ShowBuildMenuEvent,
-} from "../../../InputHandler";
+} from "../../InputHandler";
 import {
   SendAllianceRequestIntentEvent,
   SendAttackIntentEvent,
@@ -21,26 +21,26 @@ import {
   SendEmojiIntentEvent,
   SendSpawnIntentEvent,
   SendTargetPlayerIntentEvent,
-} from "../../../Transport";
-import { TransformHandler } from "../../TransformHandler";
-import { Layer } from "../Layer";
+} from "../../Transport";
+import { TransformHandler } from "../TransformHandler";
+import { Layer } from "./Layer";
 import * as d3 from "d3";
-import traitorIcon from "../../../../../resources/images/TraitorIconWhite.png";
-import allianceIcon from "../../../../../resources/images/AllianceIconWhite.png";
-import boatIcon from "../../../../../resources/images/BoatIconWhite.png";
-import swordIcon from "../../../../../resources/images/SwordIconWhite.png";
-import targetIcon from "../../../../../resources/images/TargetIconWhite.png";
-import emojiIcon from "../../../../../resources/images/EmojiIconWhite.png";
-import disabledIcon from "../../../../../resources/images/DisabledIcon.png";
-import donateIcon from "../../../../../resources/images/DonateIconWhite.png";
-import buildIcon from "../../../../../resources/images/BuildIconWhite.svg";
+import traitorIcon from "../../../../resources/images/TraitorIconWhite.png";
+import allianceIcon from "../../../../resources/images/AllianceIconWhite.png";
+import boatIcon from "../../../../resources/images/BoatIconWhite.png";
+import swordIcon from "../../../../resources/images/SwordIconWhite.png";
+import targetIcon from "../../../../resources/images/TargetIconWhite.png";
+import emojiIcon from "../../../../resources/images/EmojiIconWhite.png";
+import disabledIcon from "../../../../resources/images/DisabledIcon.png";
+import donateIcon from "../../../../resources/images/DonateIconWhite.png";
+import buildIcon from "../../../../resources/images/BuildIconWhite.svg";
 import { EmojiTable } from "./EmojiTable";
-import { UIState } from "../../UIState";
+import { UIState } from "../UIState";
 import { BuildMenu } from "./BuildMenu";
-import { consolex } from "../../../../core/Consolex";
-import { GameView, PlayerView } from "../../../../core/game/GameView";
-import { TileRef } from "../../../../core/game/GameMap";
-import { PlayerInfoOverlay } from "../PlayerInfoOverlay";
+import { consolex } from "../../../core/Consolex";
+import { GameView, PlayerView } from "../../../core/game/GameView";
+import { TileRef } from "../../../core/game/GameMap";
+import { PlayerInfoOverlay } from "./PlayerInfoOverlay";
 
 enum Slot {
   Alliance,
@@ -97,7 +97,7 @@ export class RadialMenu implements Layer {
     private emojiTable: EmojiTable,
     private buildMenu: BuildMenu,
     private uiState: UIState,
-    private playerInfoOverlay: PlayerInfoOverlay,
+    private playerInfoOverlay: PlayerInfoOverlay
   ) {}
 
   init() {
@@ -106,7 +106,7 @@ export class RadialMenu implements Layer {
     this.eventBus.on(ShowBuildMenuEvent, (e) => {
       const clickedCell = this.transformHandler.screenToWorldCoordinates(
         e.x,
-        e.y,
+        e.y
       );
       if (clickedCell == null) {
         return;
@@ -139,7 +139,7 @@ export class RadialMenu implements Layer {
       .append("g")
       .attr(
         "transform",
-        `translate(${this.menuSize / 2},${this.menuSize / 2})`,
+        `translate(${this.menuSize / 2},${this.menuSize / 2})`
       );
 
     const pie = d3
@@ -162,7 +162,7 @@ export class RadialMenu implements Layer {
       .append("path")
       .attr("d", arc)
       .attr("fill", (d) =>
-        d.data.disabled ? this.disabledColor : d.data.color,
+        d.data.disabled ? this.disabledColor : d.data.color
       )
       .attr("stroke", "#ffffff")
       .attr("stroke-width", "2")
@@ -287,7 +287,7 @@ export class RadialMenu implements Layer {
 
     this.clickedCell = this.transformHandler.screenToWorldCoordinates(
       event.x,
-      event.y,
+      event.y
     );
     if (!this.g.isValidCoord(this.clickedCell.x, this.clickedCell.y)) {
       return;
@@ -316,7 +316,7 @@ export class RadialMenu implements Layer {
   private handlePlayerActions(
     myPlayer: PlayerView,
     actions: PlayerActions,
-    tile: TileRef,
+    tile: TileRef
   ) {
     this.activateMenuElement(Slot.Build, "#ebe250", buildIcon, () => {
       this.buildMenu.showMenu(myPlayer, this.clickedCell);
@@ -348,8 +348,8 @@ export class RadialMenu implements Layer {
           new SendBoatAttackIntentEvent(
             this.g.owner(tile).id(),
             this.clickedCell,
-            this.uiState.attackRatio * myPlayer.troops(),
-          ),
+            this.uiState.attackRatio * myPlayer.troops()
+          )
         );
       });
     }
@@ -426,8 +426,8 @@ export class RadialMenu implements Layer {
         this.eventBus.emit(
           new SendAttackIntentEvent(
             this.g.owner(clicked).id(),
-            this.uiState.attackRatio * myPlayer.troops(),
-          ),
+            this.uiState.attackRatio * myPlayer.troops()
+          )
         );
       }
     }
@@ -438,7 +438,7 @@ export class RadialMenu implements Layer {
     slot: Slot,
     color: string,
     icon: string,
-    action: () => void,
+    action: () => void
   ) {
     const menuItem = this.menuItems.get(slot);
     menuItem.action = action;
