@@ -28,7 +28,8 @@ export class NukeExecution implements Execution {
     private senderID: PlayerID,
     private dst: TileRef,
     private src?: TileRef,
-    private speed: number = 4
+    private speed: number = 4,
+    private waitTicks = 0
   ) {}
 
   init(mg: Game, ticks: number): void {
@@ -51,6 +52,13 @@ export class NukeExecution implements Execution {
       }
       this.nuke = this.player.buildUnit(this.type, 0, spawn);
     }
+    if (this.waitTicks > 0) {
+      this.waitTicks--;
+      return;
+    }
+
+    const r = (this.mg.y(this.dst) * this.mg.x(this.dst)) % 10;
+    const s = this.speed + (this.mg.ticks() % r);
 
     for (let i = 0; i < this.speed; i++) {
       const x = this.mg.x(this.nuke.tile());

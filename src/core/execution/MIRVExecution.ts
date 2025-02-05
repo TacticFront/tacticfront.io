@@ -26,7 +26,7 @@ export class MirvExecution implements Execution {
 
   private nuke: Unit;
 
-  private mirvRange = 350;
+  private mirvRange = 500;
   private warheadCount = 1000;
   //   private warheadRange = 5;
 
@@ -35,6 +35,8 @@ export class MirvExecution implements Execution {
   private pathFinder: PathFinder;
 
   private targetPlayer: Player | TerraNullius;
+
+  private separateDst: TileRef;
 
   constructor(private senderID: PlayerID, private dst: TileRef) {}
 
@@ -55,10 +57,18 @@ export class MirvExecution implements Execution {
         return;
       }
       this.nuke = this.player.buildUnit(UnitType.MIRV, 0, spawn);
+      const x = Math.floor(
+        (this.mg.x(this.dst) + this.mg.x(this.mg.x(this.nuke.tile()))) / 2
+      );
+      const y = Math.max(0, this.mg.y(this.dst) - 500) + 50;
+      this.separateDst = this.mg.ref(x, y);
     }
 
     for (let i = 0; i < 4; i++) {
-      const result = this.pathFinder.nextTile(this.nuke.tile(), this.dst);
+      const result = this.pathFinder.nextTile(
+        this.nuke.tile(),
+        this.separateDst
+      );
       switch (result.type) {
         case PathFindResultType.Completed:
           this.nuke.move(result.tile);
@@ -92,15 +102,21 @@ export class MirvExecution implements Execution {
       dsts.push(potential);
     }
     console.log(`dsts: ${dsts.length}`);
+    dsts.sort(
+      (a, b) =>
+        this.mg.manhattanDist(b, this.dst) - this.mg.manhattanDist(a, this.dst)
+    );
 
-    for (const dst of dsts) {
+    for (const [i, dst] of dsts.entries()) {
       this.mg.addExecution(
         new NukeExecution(
           UnitType.MIRVWarhead,
           this.senderID,
           dst,
           this.nuke.tile(),
-          this.random.nextInt(5, 9)
+          15 + Math.floor((i / this.warheadCount) * 5),
+          //   this.random.nextInt(5, 9),
+          this.random.nextInt(0, 15)
         )
       );
     }
