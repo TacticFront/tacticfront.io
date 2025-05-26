@@ -248,6 +248,10 @@ export class PlayerView {
     return this.data.techLevel;
   }
 
+  reserveRatio(): number {
+    return this.data.reserveTroopRatio;
+  }
+
   isAlliedWith(other: PlayerView): boolean {
     return this.data.allies.some((n) => other.smallID() === n);
   }

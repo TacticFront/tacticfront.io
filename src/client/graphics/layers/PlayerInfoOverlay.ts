@@ -274,6 +274,10 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
           ${translateText("player_info_overlay.tech_level")}:
           ${player.techLevel()}
         </div>
+        <div class="text-sm opacity-80" translate="no">
+          ${translateText("player_info_overlay.reserveRatio")}:
+          ${player.reserveRatio()}
+        </div>
         ${relationHtml}
       </div>
     `;

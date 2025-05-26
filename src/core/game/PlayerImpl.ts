@@ -74,6 +74,7 @@ export class PlayerImpl implements Player {
 
   // 0 to 100
   private _targetTroopRatio: bigint;
+  private _reserveTroopRatio: bigint;
 
   markedTraitorTick = -1;
 
@@ -148,6 +149,7 @@ export class PlayerImpl implements Player {
       workers: this.workers(),
       troops: this.troops(),
       targetTroopRatio: this.targetTroopRatio(),
+      reserveTroopRatio: this.reserveTroopRatio(),
       allies: this.alliances().map((a) => a.other(this).smallID()),
       embargoes: new Set([...this.embargoes.keys()].map((p) => p.toString())),
       isTraitor: this.isTraitor(),
@@ -694,6 +696,19 @@ export class PlayerImpl implements Player {
       );
     }
     this._targetTroopRatio = toInt(target * 100);
+  }
+
+  reserveTroopRatio(): number {
+    return Number(this._reserveTroopRatio) / 100;
+  }
+
+  setReserveTroopRatio(target: number): void {
+    if (target < 0 || target > 1) {
+      throw new Error(
+        `invalid reserveTroopRatio ${target} set on player ${PlayerImpl}`,
+      );
+    }
+    this._reserveTroopRatio = toInt(target * 100);
   }
 
   troops(): number {

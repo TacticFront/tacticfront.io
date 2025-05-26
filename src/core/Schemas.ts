@@ -1,3 +1,5 @@
+// src/core/Schemas.ts
+
 import { z } from "zod";
 import quickChatData from "../../resources/QuickChat.json" with { type: "json" };
 import {
@@ -251,7 +253,8 @@ export const DonateTroopIntentSchema = BaseIntentSchema.extend({
 
 export const TargetTroopRatioIntentSchema = BaseIntentSchema.extend({
   type: z.literal("troop_ratio"),
-  ratio: z.number().min(0).max(1),
+  troopRatio: z.number().min(0).max(1),
+  reserveRatio: z.number().min(0).max(1),
 });
 
 export const BuildUnitIntentSchema = BaseIntentSchema.extend({

@@ -1,3 +1,5 @@
+// src/client/graphics/layers/ControlPanel.ts
+
 import { LitElement, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { translateText } from "../../../client/Utils";
@@ -5,7 +7,7 @@ import { EventBus } from "../../../core/EventBus";
 import { GameView } from "../../../core/game/GameView";
 import { ClientID } from "../../../core/Schemas";
 import { AttackRatioEvent } from "../../InputHandler";
-import { SendSetTargetTroopRatioEvent } from "../../Transport";
+import { SendSetTroopRatiosEvent } from "../../Transport";
 import { renderNumber, renderTroops } from "../../Utils";
 import { UIState } from "../UIState";
 import { Layer } from "./Layer";
@@ -22,6 +24,9 @@ export class ControlPanel extends LitElement implements Layer {
 
   @state()
   private targetTroopRatio = 0.95;
+
+  @state()
+  private reserveTroopRatio = 0.5;
 
   @state()
   private currentTroopRatio = 0.95;
@@ -98,7 +103,10 @@ export class ControlPanel extends LitElement implements Layer {
   tick() {
     if (this.init_) {
       this.eventBus.emit(
-        new SendSetTargetTroopRatioEvent(this.targetTroopRatio),
+        new SendSetTroopRatiosEvent(
+          this.targetTroopRatio,
+          this.reserveTroopRatio,
+        ),
       );
       this.init_ = false;
     }
@@ -153,8 +161,13 @@ export class ControlPanel extends LitElement implements Layer {
     return this._manpower * this.targetTroopRatio;
   }
 
-  onTroopChange(newRatio: number) {
-    this.eventBus.emit(new SendSetTargetTroopRatioEvent(newRatio));
+  onTroopChange(troopRatio: number, reserveRatio: number) {
+    this.eventBus.emit(new SendSetTroopRatiosEvent(troopRatio, reserveRatio));
+  }
+
+  onTroopRatioChange(troopRatio: number) {
+    this.targetTroopRatio = troopRatio;
+    this.requestUpdate();
   }
 
   delta(): number {
@@ -263,7 +276,10 @@ export class ControlPanel extends LitElement implements Layer {
               @input=${(e: Event) => {
                 this.targetTroopRatio =
                   parseInt((e.target as HTMLInputElement).value) / 100;
-                this.onTroopChange(this.targetTroopRatio);
+                this.onTroopChange(
+                  this.targetTroopRatio,
+                  this.reserveTroopRatio,
+                );
               }}
               class="absolute left-0 right-0 top-2 m-0 h-4 cursor-pointer targetTroopRatio"
             />
@@ -301,6 +317,40 @@ export class ControlPanel extends LitElement implements Layer {
                 this.onAttackRatioChange(this.attackRatio);
               }}
               class="absolute left-0 right-0 top-2 m-0 h-4 cursor-pointer attackRatio"
+            />
+          </div>
+        </div>
+
+        <div class="relative mb-0 lg:mb-4">
+          <label class="block text-white mb-1" translate="no"
+            >Reserve Troop Ratio: ${(this.reserveTroopRatio * 100).toFixed(0)}%
+          </label>
+          <div class="relative h-8">
+            <!-- Background track -->
+            <div
+              class="absolute left-0 right-0 top-3 h-2 bg-white/20 rounded"
+            ></div>
+            <!-- Fill track -->
+            <div
+              class="absolute left-0 top-3 h-2 bg-green-500/60 rounded transition-all duration-300"
+              style="width: ${this.reserveTroopRatio * 100}%"
+            ></div>
+            <!-- Range input - exactly overlaying the visual elements -->
+            <input
+              id="reserve-troop-ratio"
+              type="range"
+              min="1"
+              max="100"
+              .value=${(this.reserveTroopRatio * 100).toString()}
+              @input=${(e: Event) => {
+                this.reserveTroopRatio =
+                  parseInt((e.target as HTMLInputElement).value) / 100;
+                this.onTroopChange(
+                  this.targetTroopRatio,
+                  this.reserveTroopRatio,
+                );
+              }}
+              class="absolute left-0 right-0 top-2 m-0 h-4 cursor-pointer"
             />
           </div>
         </div>

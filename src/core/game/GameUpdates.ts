@@ -111,6 +111,7 @@ export interface PlayerUpdate {
   workers: number;
   troops: number;
   targetTroopRatio: number;
+  reserveTroopRatio: number;
   allies: number[];
   embargoes: Set<PlayerID>;
   isTraitor: boolean;

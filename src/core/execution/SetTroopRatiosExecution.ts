@@ -1,14 +1,17 @@
+// src/core/execution/SetTroopRatiosExecution.ts
+
 import { consolex } from "../Consolex";
 import { Execution, Game, Player, PlayerID } from "../game/Game";
 
-export class SetTargetTroopRatioExecution implements Execution {
+export class SetTroopRatiosExecution implements Execution {
   private player: Player;
 
   private active = true;
 
   constructor(
     private playerID: PlayerID,
-    private targetTroopsRatio: number,
+    private troopRatio: number,
+    private reserveRatio: number,
   ) {}
 
   init(mg: Game, ticks: number): void {
@@ -21,12 +24,13 @@ export class SetTargetTroopRatioExecution implements Execution {
   }
 
   tick(ticks: number): void {
-    if (this.targetTroopsRatio < 0 || this.targetTroopsRatio > 1) {
+    if (this.troopRatio < 0 || this.troopRatio > 1) {
       consolex.warn(
-        `target troop ratio of ${this.targetTroopsRatio} for player ${this.player} invalid`,
+        `target troop ratio of ${this.troopRatio} for player ${this.player} invalid`,
       );
     } else {
-      this.player.setTargetTroopRatio(this.targetTroopsRatio);
+      this.player.setTargetTroopRatio(this.troopRatio);
+      this.player.setReserveTroopRatio(this.reserveRatio);
     }
     this.active = false;
   }

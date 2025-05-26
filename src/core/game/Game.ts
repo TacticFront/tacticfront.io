@@ -461,11 +461,13 @@ export interface Player {
   workers(): number;
   troops(): number;
   targetTroopRatio(): number;
+  reserveTroopRatio(): number;
   addGold(toAdd: Gold): void;
   removeGold(toRemove: Gold): void;
   addWorkers(toAdd: number): void;
   removeWorkers(toRemove: number): void;
   setTargetTroopRatio(target: number): void;
+  setReserveTroopRatio(target: number): void;
   setTroops(troops: number): void;
   addTroops(troops: number): void;
   removeTroops(troops: number): number;

@@ -1,3 +1,5 @@
+// src/client/Transport.ts
+
 import { SendLogEvent } from "../core/Consolex";
 import { EventBus, GameEvent } from "../core/EventBus";
 import {
@@ -135,8 +137,11 @@ export class CancelBoatIntentEvent implements GameEvent {
   constructor(public readonly unitID: number) {}
 }
 
-export class SendSetTargetTroopRatioEvent implements GameEvent {
-  constructor(public readonly ratio: number) {}
+export class SendSetTroopRatiosEvent implements GameEvent {
+  constructor(
+    public readonly troopRatio: number,
+    public readonly reserveRatio: number,
+  ) {}
 }
 
 export class SendWinnerEvent implements GameEvent {
@@ -211,8 +216,8 @@ export class Transport {
     this.eventBus.on(SendEmbargoIntentEvent, (e) =>
       this.onSendEmbargoIntent(e),
     );
-    this.eventBus.on(SendSetTargetTroopRatioEvent, (e) =>
-      this.onSendSetTargetTroopRatioEvent(e),
+    this.eventBus.on(SendSetTroopRatiosEvent, (e) =>
+      this.onSendSetTroopRatiosEvent(e),
     );
     this.eventBus.on(BuildUnitIntentEvent, (e) => this.onBuildUnitIntent(e));
 
@@ -499,11 +504,12 @@ export class Transport {
     });
   }
 
-  private onSendSetTargetTroopRatioEvent(event: SendSetTargetTroopRatioEvent) {
+  private onSendSetTroopRatiosEvent(event: SendSetTroopRatiosEvent) {
     this.sendIntent({
       type: "troop_ratio",
       clientID: this.lobbyConfig.clientID,
-      ratio: event.ratio,
+      troopRatio: event.troopRatio,
+      reserveRatio: event.reserveRatio,
     });
   }
 

@@ -1,3 +1,5 @@
+// src/core/execution/ExecutionManager.ts
+
 import { Execution, Game } from "../game/Game";
 import { TileRef } from "../game/GameMap";
 import { PseudoRandom } from "../PseudoRandom";
@@ -19,7 +21,7 @@ import { MoveWarshipExecution } from "./MoveWarshipExecution";
 import { NoOpExecution } from "./NoOpExecution";
 import { QuickChatExecution } from "./QuickChatExecution";
 import { RetreatExecution } from "./RetreatExecution";
-import { SetTargetTroopRatioExecution } from "./SetTargetTroopRatioExecution";
+import { SetTroopRatiosExecution } from "./SetTroopRatiosExecution";
 import { SpawnExecution } from "./SpawnExecution";
 import { TargetPlayerExecution } from "./TargetPlayerExecution";
 import { TransportShipExecution } from "./TransportShipExecution";
@@ -104,7 +106,11 @@ export class Executor {
       case "donate_gold":
         return new DonateGoldExecution(playerID, intent.recipient, intent.gold);
       case "troop_ratio":
-        return new SetTargetTroopRatioExecution(playerID, intent.ratio);
+        return new SetTroopRatiosExecution(
+          playerID,
+          intent.troopRatio,
+          intent.reserveRatio,
+        );
       case "embargo":
         return new EmbargoExecution(player, intent.targetID, intent.action);
       case "build_unit":
