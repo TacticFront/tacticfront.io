@@ -376,7 +376,7 @@ export class DefaultConfig implements Config {
                   250_000,
                   (p.unitsIncludingConstruction(UnitType.DefensePost).length +
                     1) *
-                    50_000,
+                    25_000,
                 ),
           territoryBound: true,
           constructionDuration: this.instantBuild() ? 0 : 5 * 10,
@@ -391,7 +391,7 @@ export class DefaultConfig implements Config {
                   Math.pow(
                     2,
                     p.unitsIncludingConstruction(UnitType.ResearchLab).length,
-                  ) * 10_000,
+                  ) * 50_000,
                 ),
           territoryBound: true,
           constructionDuration: this.instantBuild() ? 0 : 5 * 10,
@@ -403,10 +403,10 @@ export class DefaultConfig implements Config {
             p.type() === PlayerType.Human && this.infiniteGold()
               ? 0
               : Math.min(
-                  3_000_000,
+                  2_000_000,
                   (p.unitsIncludingConstruction(UnitType.SAMLauncher).length +
                     1) *
-                    1_500_000,
+                    500_000,
                 ),
           territoryBound: true,
           constructionDuration: this.instantBuild() ? 0 : 30 * 10,
@@ -421,7 +421,7 @@ export class DefaultConfig implements Config {
                   Math.pow(
                     2,
                     p.unitsIncludingConstruction(UnitType.City).length,
-                  ) * 125_000,
+                  ) * 100_000,
                 ),
           territoryBound: true,
           constructionDuration: this.instantBuild() ? 0 : 2 * 10,

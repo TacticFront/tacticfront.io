@@ -1,3 +1,5 @@
+// src/core/execution/FakeHumanExecution.ts
+
 import { consolex } from "../Consolex";
 import {
   Cell,
@@ -55,7 +57,7 @@ export class FakeHumanExecution implements Execution {
     this.attackRate = this.random.nextInt(40, 80);
     this.attackTick = this.random.nextInt(0, this.attackRate);
     this.triggerRatio = this.random.nextInt(60, 90) / 100;
-    this.reserveRatio = this.random.nextInt(30, 60) / 100;
+    this.reserveRatio = this.random.nextInt(40, 70) / 100;
     this.heckleEmoji = ["🤡", "😡"].map((e) => flattenedEmojiTable.indexOf(e));
   }
 
@@ -440,7 +442,7 @@ export class FakeHumanExecution implements Execution {
       }
       return;
     }
-    this.maybeSpawnStructure(UnitType.City, 2);
+    this.maybeSpawnStructure(UnitType.City, 5);
     if (this.maybeSpawnWarship()) {
       return;
     }
