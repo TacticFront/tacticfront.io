@@ -17,6 +17,7 @@ import { MirvExecution } from "./MIRVExecution";
 import { MissileSiloExecution } from "./MissileSiloExecution";
 import { NukeExecution } from "./NukeExecution";
 import { PortExecution } from "./PortExecution";
+import { PowerPlantExecution } from "./PowerPlantExecution";
 import { ResearchLabExecution } from "./ResearchLabExecution";
 import { SAMLauncherExecution } from "./SAMLauncherExecution";
 import { WarshipExecution } from "./WarshipExecution";
@@ -97,6 +98,7 @@ export class ConstructionExecution implements Execution {
   private completeConstruction() {
     const player = this.player;
     switch (this.constructionType) {
+      case UnitType.CruiseMissile:
       case UnitType.AtomBomb:
       case UnitType.HydrogenBomb:
         this.mg.addExecution(
@@ -127,7 +129,7 @@ export class ConstructionExecution implements Execution {
         this.mg.addExecution(new ResearchLabExecution(player.id(), this.tile));
         break;
       case UnitType.PowerPlant:
-        // this.mg.addExecution(new ResearchLabExecution(player.id(), this.tile));
+        this.mg.addExecution(new PowerPlantExecution(player.id(), this.tile));
         break;
       case UnitType.City:
         this.mg.addExecution(new CityExecution(player.id(), this.tile));

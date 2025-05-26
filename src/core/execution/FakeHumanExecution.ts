@@ -297,7 +297,7 @@ export class FakeHumanExecution implements Execution {
     const silos = this.player.units(UnitType.MissileSilo);
     if (
       silos.length === 0 ||
-      this.player.gold() < this.cost(UnitType.AtomBomb) ||
+      this.player.gold() < this.cost(UnitType.CruiseMissile) ||
       other.type() === PlayerType.Bot ||
       this.player.isOnSameTeam(other)
     ) {
@@ -442,6 +442,10 @@ export class FakeHumanExecution implements Execution {
       }
       return;
     }
+    this.maybeSpawnStructure(UnitType.City, 2);
+    this.maybeSpawnStructure(UnitType.SAMLauncher, 1);
+    this.maybeSpawnStructure(UnitType.DefensePost, 2);
+    this.maybeSpawnStructure(UnitType.ResearchLab, 1);
     this.maybeSpawnStructure(UnitType.City, 5);
     if (this.maybeSpawnWarship()) {
       return;

@@ -1,3 +1,5 @@
+// src/core/execution/PlayerExecution.ts
+
 import { renderNumber } from "../../client/Utils";
 import { Config } from "../configuration/Config";
 import { consolex } from "../Consolex";
@@ -63,6 +65,7 @@ export class PlayerExecution implements Execution {
       // Player has no tiles, delete any remaining units
       this.player.units().forEach((u) => {
         if (
+          u.type() !== UnitType.CruiseMissile &&
           u.type() !== UnitType.AtomBomb &&
           u.type() !== UnitType.HydrogenBomb &&
           u.type() !== UnitType.MIRVWarhead &&

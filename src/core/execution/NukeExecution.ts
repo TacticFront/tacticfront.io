@@ -1,3 +1,5 @@
+// src/core/execution/NukeExecution.ts
+
 import { consolex } from "../Consolex";
 import {
   Execution,
@@ -125,6 +127,14 @@ export class NukeExecution implements Execution {
         const target = this.mg.owner(this.dst);
         if (!target.isPlayer()) {
           // Ignore terra nullius
+        } else if (this.type === UnitType.CruiseMissile) {
+          this.mg.displayIncomingUnit(
+            this.nuke.id(),
+            `${this.player.name()} - cruise missile inbound`,
+            MessageType.ERROR,
+            target.id(),
+          );
+          this.breakAlliances(this.tilesToDestroy());
         } else if (this.type === UnitType.AtomBomb) {
           this.mg.displayIncomingUnit(
             this.nuke.id(),
@@ -228,6 +238,7 @@ export class NukeExecution implements Execution {
     const outer2 = magnitude.outer * magnitude.outer;
     for (const unit of this.mg.units()) {
       if (
+        unit.type() !== UnitType.CruiseMissile &&
         unit.type() !== UnitType.AtomBomb &&
         unit.type() !== UnitType.HydrogenBomb &&
         unit.type() !== UnitType.MIRVWarhead &&

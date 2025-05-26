@@ -36,6 +36,14 @@ interface BuildItemDisplay {
 const buildTable: BuildItemDisplay[][] = [
   [
     {
+      unitType: UnitType.CruiseMissile,
+      icon: atomBombIcon,
+      description: "build_menu.desc.cruise_missile",
+      key: "unit_type.cruise_missile",
+      countable: false,
+      minTechLevel: 1,
+    },
+    {
       unitType: UnitType.AtomBomb,
       icon: atomBombIcon,
       description: "build_menu.desc.atom_bomb",
@@ -361,7 +369,8 @@ export class BuildMenu extends LitElement implements Layer {
 
     if (
       item?.nuclear &&
-      !this.game?.myPlayer()?.units[UnitType.PowerPlant].length
+      (!this.game?.myPlayer()?.units ||
+        !this.game?.myPlayer()?.units(UnitType.PowerPlant)?.length)
     ) {
       return false;
     }
@@ -433,6 +442,11 @@ export class BuildMenu extends LitElement implements Layer {
                     <span class="build-description"
                       >${item.description &&
                       translateText(item.description)}</span
+                    >
+                    <span
+                      >${this.game?.myPlayer()?.units[UnitType.PowerPlant]
+                        ?.length}
+                      Power Plants</span
                     >
                     <span class="build-cost" translate="no">
                       ${renderNumber(

@@ -1,7 +1,10 @@
+// src/core/StatsSchemas.ts
+
 import { z } from "zod";
 import { UnitType } from "./game/Game";
 
 export const BombUnitSchema = z.union([
+  z.literal("cruise"),
   z.literal("abomb"),
   z.literal("hbomb"),
   z.literal("mirv"),
@@ -9,12 +12,14 @@ export const BombUnitSchema = z.union([
 ]);
 export type BombUnit = z.infer<typeof BombUnitSchema>;
 export type NukeType =
+  | UnitType.CruiseMissile
   | UnitType.AtomBomb
   | UnitType.HydrogenBomb
   | UnitType.MIRV
   | UnitType.MIRVWarhead;
 
 export const unitTypeToBombUnit = {
+  [UnitType.CruiseMissile]: "cruise",
   [UnitType.AtomBomb]: "abomb",
   [UnitType.HydrogenBomb]: "hbomb",
   [UnitType.MIRV]: "mirv",

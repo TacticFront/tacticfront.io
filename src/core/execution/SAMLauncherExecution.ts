@@ -1,3 +1,5 @@
+// src/core/execution/SAMLauncherExecution.ts
+
 import { consolex } from "../Consolex";
 import {
   Execution,
@@ -17,7 +19,7 @@ export class SAMLauncherExecution implements Execution {
   private mg: Game;
   private active: boolean = true;
 
-  private searchRangeRadius = 80;
+  private searchRangeRadius = 100;
   // As MIRV go very fast we have to detect them very early but we only
   // shoot the one targeting very close (MIRVWarheadProtectionRadius)
   private MIRVWarheadSearchRadius = 400;
@@ -49,6 +51,7 @@ export class SAMLauncherExecution implements Execution {
     if (this.sam === null) return null;
     const nukes = this.mg
       .nearbyUnits(this.sam.tile(), this.searchRangeRadius, [
+        UnitType.CruiseMissile,
         UnitType.AtomBomb,
         UnitType.HydrogenBomb,
       ])
@@ -81,7 +84,7 @@ export class SAMLauncherExecution implements Execution {
   }
 
   private isHit(type: UnitType, random: number): boolean {
-    if (type === UnitType.AtomBomb) {
+    if (type === UnitType.AtomBomb || type === UnitType.CruiseMissile) {
       return true;
     }
 

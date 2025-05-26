@@ -234,10 +234,10 @@ export class DefaultConfig implements Config {
     return 3 - falloutRatio * 2;
   }
   SAMCooldown(): number {
-    return 75;
+    return 45;
   }
   SiloCooldown(): number {
-    return 75;
+    return 100;
   }
 
   defensePostRange(): number {
@@ -326,10 +326,18 @@ export class DefaultConfig implements Config {
           territoryBound: true,
           constructionDuration: this.instantBuild() ? 0 : 2 * 10,
         };
+      case UnitType.CruiseMissile:
+        return {
+          cost: (p: Player) =>
+            p.type() === PlayerType.Human && this.infiniteGold() ? 0 : 300_000,
+          territoryBound: false,
+        };
       case UnitType.AtomBomb:
         return {
           cost: (p: Player) =>
-            p.type() === PlayerType.Human && this.infiniteGold() ? 0 : 750_000,
+            p.type() === PlayerType.Human && this.infiniteGold()
+              ? 0
+              : 1_250_000,
           territoryBound: false,
         };
       case UnitType.HydrogenBomb:
@@ -361,11 +369,9 @@ export class DefaultConfig implements Config {
       case UnitType.MissileSilo:
         return {
           cost: (p: Player) =>
-            p.type() === PlayerType.Human && this.infiniteGold()
-              ? 0
-              : 1_000_000,
+            p.type() === PlayerType.Human && this.infiniteGold() ? 0 : 500_000,
           territoryBound: true,
-          constructionDuration: this.instantBuild() ? 0 : 10 * 10,
+          constructionDuration: this.instantBuild() ? 0 : 20 * 10,
         };
       case UnitType.DefensePost:
         return {
@@ -373,10 +379,10 @@ export class DefaultConfig implements Config {
             p.type() === PlayerType.Human && this.infiniteGold()
               ? 0
               : Math.min(
-                  250_000,
+                  200_000,
                   (p.unitsIncludingConstruction(UnitType.DefensePost).length +
                     1) *
-                    25_000,
+                    40_000,
                 ),
           territoryBound: true,
           constructionDuration: this.instantBuild() ? 0 : 5 * 10,
@@ -391,7 +397,7 @@ export class DefaultConfig implements Config {
                   Math.pow(
                     2,
                     p.unitsIncludingConstruction(UnitType.ResearchLab).length,
-                  ) * 50_000,
+                  ) * 125_000,
                 ),
           territoryBound: true,
           constructionDuration: this.instantBuild() ? 0 : 5 * 10,
@@ -402,7 +408,7 @@ export class DefaultConfig implements Config {
             p.type() === PlayerType.Human && this.infiniteGold()
               ? 0
               : Math.min(
-                  5_000_000,
+                  2_000_000,
                   Math.pow(
                     2,
                     p.unitsIncludingConstruction(UnitType.PowerPlant).length,
@@ -417,10 +423,10 @@ export class DefaultConfig implements Config {
             p.type() === PlayerType.Human && this.infiniteGold()
               ? 0
               : Math.min(
-                  2_000_000,
+                  1_500_000,
                   (p.unitsIncludingConstruction(UnitType.SAMLauncher).length +
                     1) *
-                    500_000,
+                    300_000,
                 ),
           territoryBound: true,
           constructionDuration: this.instantBuild() ? 0 : 30 * 10,
@@ -703,7 +709,7 @@ export class DefaultConfig implements Config {
     // smaller countries recieve a boost to pop growth to speed up early game
     const baseAdditionRate = 10;
     const basePopGrowthRate = 1300 / max + 1 / 140;
-    const reproductionPop = 0.8 * player.troops() + 1.2 * player.workers();
+    const reproductionPop = 0.8 * player.troops() + 1.25 * player.workers();
     let toAdd = baseAdditionRate + basePopGrowthRate * reproductionPop;
     const totalPop = player.totalPopulation();
     const ratio = 1 - totalPop / max;
@@ -761,6 +767,8 @@ export class DefaultConfig implements Config {
     switch (unitType) {
       case UnitType.MIRVWarhead:
         return { inner: 25, outer: 30 };
+      case UnitType.CruiseMissile:
+        return { inner: 5, outer: 10 };
       case UnitType.AtomBomb:
         return { inner: 12, outer: 30 };
       case UnitType.HydrogenBomb:

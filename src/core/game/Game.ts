@@ -142,6 +142,7 @@ export enum UnitType {
   Shell = "Shell",
   SAMMissile = "SAMMissile",
   Port = "Port",
+  CruiseMissile = "Cruise Missile",
   AtomBomb = "Atom Bomb",
   HydrogenBomb = "Hydrogen Bomb",
   TradeShip = "Trade Ship",
@@ -175,6 +176,10 @@ export interface UnitParamsMap {
   [UnitType.SAMMissile]: {};
 
   [UnitType.Port]: {};
+
+  [UnitType.CruiseMissile]: {
+    targetTile?: number;
+  };
 
   [UnitType.AtomBomb]: {
     targetTile?: number;
@@ -218,6 +223,7 @@ export type UnitParams<T extends UnitType> = UnitParamsMap[T];
 export type AllUnitParams = UnitParamsMap[keyof UnitParamsMap];
 
 export const nukeTypes = [
+  UnitType.CruiseMissile,
   UnitType.AtomBomb,
   UnitType.HydrogenBomb,
   UnitType.MIRVWarhead,

@@ -1,3 +1,5 @@
+// src/client/graphics/SpriteLoader.ts
+
 import { Colord } from "colord";
 import atomBombSprite from "../../../resources/sprites/atombomb.png";
 import hydrogenBombSprite from "../../../resources/sprites/hydrogenbomb.png";
@@ -14,6 +16,7 @@ const SPRITE_CONFIG: Partial<Record<UnitType, string>> = {
   [UnitType.TransportShip]: transportShipSprite,
   [UnitType.Warship]: warshipSprite,
   [UnitType.SAMMissile]: samMissileSprite,
+  [UnitType.CruiseMissile]: samMissileSprite,
   [UnitType.AtomBomb]: atomBombSprite,
   [UnitType.HydrogenBomb]: hydrogenBombSprite,
   [UnitType.TradeShip]: tradeShipSprite,

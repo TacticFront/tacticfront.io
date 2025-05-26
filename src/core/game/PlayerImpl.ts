@@ -799,6 +799,7 @@ export class PlayerImpl implements Player {
           return false;
         }
         return this.nukeSpawn(targetTile);
+      case UnitType.CruiseMissile:
       case UnitType.AtomBomb:
       case UnitType.HydrogenBomb:
         return this.nukeSpawn(targetTile);
