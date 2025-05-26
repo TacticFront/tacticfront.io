@@ -126,6 +126,9 @@ export class ConstructionExecution implements Execution {
       case UnitType.ResearchLab:
         this.mg.addExecution(new ResearchLabExecution(player.id(), this.tile));
         break;
+      case UnitType.PowerPlant:
+        // this.mg.addExecution(new ResearchLabExecution(player.id(), this.tile));
+        break;
       case UnitType.City:
         this.mg.addExecution(new CityExecution(player.id(), this.tile));
         break;

@@ -8,6 +8,7 @@ import { Layer } from "./Layer";
 import cityIcon from "../../../../resources/images/buildings/cityAlt1.png";
 import shieldIcon from "../../../../resources/images/buildings/fortAlt2.png";
 import anchorIcon from "../../../../resources/images/buildings/port1.png";
+import powerPlantIcon from "../../../../resources/images/buildings/PowerPlant.png";
 import researchLabIcon from "../../../../resources/images/buildings/researchLab.png";
 import MissileSiloReloadingIcon from "../../../../resources/images/buildings/silo1-reloading.png";
 import missileSiloIcon from "../../../../resources/images/buildings/silo1.png";
@@ -82,6 +83,12 @@ export class StructureLayer implements Layer {
     },
     [UnitType.ResearchLab]: {
       icon: researchLabIcon,
+      borderRadius: 8.525,
+      territoryRadius: 6.525,
+      borderType: UnitBorderType.Round, // Assuming a round shape for now, can be adjusted
+    },
+    [UnitType.PowerPlant]: {
+      icon: powerPlantIcon,
       borderRadius: 8.525,
       territoryRadius: 6.525,
       borderType: UnitBorderType.Round, // Assuming a round shape for now, can be adjusted

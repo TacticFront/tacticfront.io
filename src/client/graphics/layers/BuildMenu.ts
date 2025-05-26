@@ -10,6 +10,7 @@ import missileSiloIcon from "../../../../resources/images/MissileSiloIconWhite.s
 import hydrogenBombIcon from "../../../../resources/images/MushroomCloudIconWhite.svg";
 import atomBombIcon from "../../../../resources/images/NukeIconWhite.svg";
 import portIcon from "../../../../resources/images/PortIcon.svg";
+import powerPlantIcon from "../../../../resources/images/PowerPlantIcon.svg";
 import researchLabIcon from "../../../../resources/images/ResearchLabIconWhite.svg";
 import samlauncherIcon from "../../../../resources/images/SamLauncherIconWhite.svg";
 import shieldIcon from "../../../../resources/images/ShieldIconWhite.svg";
@@ -29,6 +30,7 @@ interface BuildItemDisplay {
   key?: string;
   countable?: boolean;
   minTechLevel?: number;
+  nuclear?: boolean;
 }
 
 const buildTable: BuildItemDisplay[][] = [
@@ -40,6 +42,7 @@ const buildTable: BuildItemDisplay[][] = [
       key: "unit_type.atom_bomb",
       countable: false,
       minTechLevel: 3,
+      nuclear: true,
     },
     {
       unitType: UnitType.MIRV,
@@ -48,6 +51,7 @@ const buildTable: BuildItemDisplay[][] = [
       key: "unit_type.mirv",
       countable: false,
       minTechLevel: 5,
+      nuclear: true,
     },
     {
       unitType: UnitType.HydrogenBomb,
@@ -56,6 +60,7 @@ const buildTable: BuildItemDisplay[][] = [
       key: "unit_type.hydrogen_bomb",
       countable: false,
       minTechLevel: 4,
+      nuclear: true,
     },
     {
       unitType: UnitType.Warship,
@@ -109,6 +114,14 @@ const buildTable: BuildItemDisplay[][] = [
       description: "build_menu.desc.research_lab",
       key: "unit_type.research_lab",
       countable: true,
+    },
+    {
+      unitType: UnitType.PowerPlant,
+      icon: powerPlantIcon,
+      description: "build_menu.desc.power_plant",
+      key: "unit_type.power_plant",
+      countable: true,
+      minTechLevel: 2,
     },
   ],
 ];
@@ -342,6 +355,13 @@ export class BuildMenu extends LitElement implements Layer {
     if (
       item?.minTechLevel &&
       (this.game?.myPlayer()?.techLevel() ?? 0) < item.minTechLevel
+    ) {
+      return false;
+    }
+
+    if (
+      item?.nuclear &&
+      !this.game?.myPlayer()?.units[UnitType.PowerPlant].length
     ) {
       return false;
     }

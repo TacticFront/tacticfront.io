@@ -190,7 +190,7 @@ export class DefaultConfig implements Config {
     return 0.5;
   }
   traitorDuration(): number {
-    return 30 * 10; // 30 seconds
+    return 60 * 10; // 30 seconds
   }
   spawnImmunityDuration(): Tick {
     return 5 * 10;
@@ -241,7 +241,7 @@ export class DefaultConfig implements Config {
   }
 
   defensePostRange(): number {
-    return 40;
+    return 30;
   }
   defensePostLossMultiplier(): number {
     return 6;
@@ -396,7 +396,21 @@ export class DefaultConfig implements Config {
           territoryBound: true,
           constructionDuration: this.instantBuild() ? 0 : 5 * 10,
         };
-
+      case UnitType.PowerPlant:
+        return {
+          cost: (p: Player) =>
+            p.type() === PlayerType.Human && this.infiniteGold()
+              ? 0
+              : Math.min(
+                  5_000_000,
+                  Math.pow(
+                    2,
+                    p.unitsIncludingConstruction(UnitType.PowerPlant).length,
+                  ) * 500_000,
+                ),
+          territoryBound: true,
+          constructionDuration: this.instantBuild() ? 0 : 5 * 10,
+        };
       case UnitType.SAMLauncher:
         return {
           cost: (p: Player) =>
@@ -720,7 +734,12 @@ export class DefaultConfig implements Config {
   }
 
   goldAdditionRate(player: Player): number {
-    return 0.045 * player.workers() ** 0.7;
+    const populationGold = 0.025 * player.workers() ** 0.7; // .045
+    const cityGold = player.units(UnitType.City).length * 50;
+    const portGold = player.units(UnitType.Port).length * 30;
+    const powerPlantGold = player.units(UnitType.PowerPlant).length * 80;
+
+    return populationGold + cityGold + portGold + powerPlantGold;
   }
 
   troopAdjustmentRate(player: Player): number {

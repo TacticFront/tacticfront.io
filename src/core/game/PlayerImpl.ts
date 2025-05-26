@@ -820,6 +820,7 @@ export class PlayerImpl implements Player {
       case UnitType.SAMLauncher:
       case UnitType.City:
       case UnitType.ResearchLab:
+      case UnitType.PowerPlant:
       case UnitType.Construction:
         return this.landBasedStructureSpawn(targetTile, validTiles);
       default:

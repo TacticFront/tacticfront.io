@@ -153,6 +153,7 @@ export enum UnitType {
   MIRVWarhead = "MIRV Warhead",
   Construction = "Construction",
   ResearchLab = "Research Lab",
+  PowerPlant = "Power Plant",
 }
 
 export interface OwnerComp {
@@ -195,6 +196,8 @@ export interface UnitParamsMap {
   [UnitType.DefensePost]: {};
 
   [UnitType.ResearchLab]: {};
+
+  [UnitType.PowerPlant]: {};
 
   [UnitType.SAMLauncher]: {};
 
