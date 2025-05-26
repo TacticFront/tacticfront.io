@@ -1,3 +1,5 @@
+// src/core/execution/BotExecution.ts
+
 import { Execution, Game, Player } from "../game/Game";
 import { PseudoRandom } from "../PseudoRandom";
 import { simpleHash } from "../Util";
@@ -20,7 +22,7 @@ export class BotExecution implements Execution {
     this.attackRate = this.random.nextInt(40, 80);
     this.attackTick = this.random.nextInt(0, this.attackRate);
     this.triggerRatio = this.random.nextInt(60, 90) / 100;
-    this.reserveRatio = this.random.nextInt(30, 60) / 100;
+    this.reserveRatio = this.random.nextInt(50, 70) / 100;
   }
 
   activeDuringSpawnPhase(): boolean {

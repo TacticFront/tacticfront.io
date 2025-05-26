@@ -543,10 +543,17 @@ export class DefaultConfig implements Config {
       speed *= 4; // slow bot attacks
     }
     if (defenderIsPlayer) {
+      let defenderAttackingTroops = 0;
+      for (const incoming of defender.incomingAttacks()) {
+        if (incoming.attacker() === attacker) {
+          defenderAttackingTroops += incoming.troops();
+        }
+      }
       const defenderTroops = defender.troops();
+      const totalDefensiveTroops = defenderTroops + defenderAttackingTroops;
       const defenderTiles = defender.numTilesOwned();
-      const defenderDensity = defenderTroops / defenderTiles;
-      const attackRatio = defenderTroops / attackTroops;
+      const defenderDensity = totalDefensiveTroops / defenderTiles;
+      const attackRatio = totalDefensiveTroops / attackTroops;
       const traitorDebuff = defender.isTraitor()
         ? this.traitorDefenseDebuff()
         : 1;
@@ -579,10 +586,30 @@ export class DefaultConfig implements Config {
     defender: Player | TerraNullius,
     numAdjacentTilesWithEnemy: number,
   ): number {
+    // check troop ratios to determine attack speed
+    let densityModifier = 1;
+    let defenderTroops = 0;
     if (defender.isPlayer()) {
-      return 10 * numAdjacentTilesWithEnemy;
+      defenderTroops = defender.troops();
+    }
+    if (defenderTroops > 0) {
+      const attackerTroops = attacker.troops();
+      const ratio = defenderTroops / attackerTroops;
+      if (ratio < 0.5) {
+        densityModifier = 1.5;
+      } else if (ratio < 1) {
+        densityModifier = 1.2;
+      } else if (ratio < 2) {
+        densityModifier = 0.8;
+      } else {
+        densityModifier = 0.5;
+      }
+    }
+
+    if (defender.isPlayer()) {
+      return Math.floor(7 * numAdjacentTilesWithEnemy * densityModifier);
     } else {
-      return 12 * numAdjacentTilesWithEnemy;
+      return Math.floor(8 * numAdjacentTilesWithEnemy * densityModifier);
     }
   }
 
@@ -604,9 +631,9 @@ export class DefaultConfig implements Config {
 
   attackAmount(attacker: Player, defender: Player | TerraNullius) {
     if (attacker.type() === PlayerType.Bot) {
-      return attacker.troops() / 20;
+      return attacker.troops() / 40;
     } else {
-      return attacker.troops() / 5;
+      return attacker.troops() / 20;
     }
   }
 

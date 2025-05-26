@@ -1,3 +1,5 @@
+// src/core/execution/AttackExecution.ts
+
 import { renderNumber, renderTroops } from "../../client/Utils";
 import {
   Attack,
@@ -129,20 +131,20 @@ export class AttackExecution implements Execution {
     // Record stats
     this.mg.stats().attack(this._owner, this.target, this.startTroops);
 
-    for (const incoming of this._owner.incomingAttacks()) {
-      if (incoming.attacker() === this.target) {
-        // Target has opposing attack, cancel them out
-        if (incoming.troops() > this.attack.troops()) {
-          incoming.setTroops(incoming.troops() - this.attack.troops());
-          this.attack.delete();
-          this.active = false;
-          return;
-        } else {
-          this.attack.setTroops(this.attack.troops() - incoming.troops());
-          incoming.delete();
-        }
-      }
-    }
+    // for (const incoming of this._owner.incomingAttacks()) {
+    //   if (incoming.attacker() === this.target) {
+    //     // Target has opposing attack, cancel them out
+    //     if (incoming.troops() > this.attack.troops()) {
+    //       incoming.setTroops(incoming.troops() - this.attack.troops());
+    //       this.attack.delete();
+    //       this.active = false;
+    //       return;
+    //     } else {
+    //       this.attack.setTroops(this.attack.troops() - incoming.troops());
+    //       incoming.delete();
+    //     }
+    //   }
+    // }
     for (const outgoing of this._owner.outgoingAttacks()) {
       if (
         outgoing !== this.attack &&
@@ -204,9 +206,29 @@ export class AttackExecution implements Execution {
     if (this.attack === null) {
       throw new Error("Attack not initialized");
     }
-    let troopCount = this.attack.troops(); // cache troop count
+
     const targetIsPlayer = this.target.isPlayer(); // cache target type
     const targetPlayer = targetIsPlayer ? (this.target as Player) : null; // cache target player
+
+    if (
+      ticks % 10 === 0 &&
+      targetPlayer !== null &&
+      this.attack.troops() < targetPlayer.troops() * 3
+    ) {
+      //this.initialTroopCount * 3) {
+      const totalTroops = this._owner.troops() + this.attack.troops();
+      const troopsToAdd = Math.floor(
+        (totalTroops * (1 - this._owner.reserveTroopRatio()) -
+          this.attack.troops()) /
+          20,
+      ); // 5% of total troops
+      if (troopsToAdd > 0) {
+        this._owner.removeTroops(troopsToAdd);
+        this.attack.setTroops(this.attack.troops() + troopsToAdd);
+      }
+    }
+
+    let troopCount = this.attack.troops(); // cache troop count
 
     if (this.attack.retreated()) {
       if (targetIsPlayer) {
