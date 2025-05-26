@@ -1,3 +1,5 @@
+// src/core/execution/ConstructionExecution.ts
+
 import { consolex } from "../Consolex";
 import {
   Execution,
@@ -15,6 +17,7 @@ import { MirvExecution } from "./MIRVExecution";
 import { MissileSiloExecution } from "./MissileSiloExecution";
 import { NukeExecution } from "./NukeExecution";
 import { PortExecution } from "./PortExecution";
+import { ResearchLabExecution } from "./ResearchLabExecution";
 import { SAMLauncherExecution } from "./SAMLauncherExecution";
 import { WarshipExecution } from "./WarshipExecution";
 
@@ -119,6 +122,9 @@ export class ConstructionExecution implements Execution {
         break;
       case UnitType.SAMLauncher:
         this.mg.addExecution(new SAMLauncherExecution(player.id(), this.tile));
+        break;
+      case UnitType.ResearchLab:
+        this.mg.addExecution(new ResearchLabExecution(player.id(), this.tile));
         break;
       case UnitType.City:
         this.mg.addExecution(new CityExecution(player.id(), this.tile));

@@ -95,6 +95,8 @@
     "build_hydrogen_desc": "Large explosive bomb. Spawns from the nearest Missile Silo and lands in the area you first clicked to build it.",
     "build_mirv": "MIRV",
     "build_mirv_desc": "The most powerful bomb in the game. Splits up into smaller bombs that will cover a huge range of territory. Only damages the player that you first clicked on to build it. Spawns from the nearest Missile Silo and lands in the area you first clicked to build it.",
+    "build_lab": "Research Lab",
+    "build_lab_desc": "Increases unlocked technologies.",
     "player_icons": "Player icons",
     "icon_desc": "Examples of some of the ingame icons you will encounter and what they mean:",
     "icon_crown": "Crown - Number 1. This is the top player in the leaderboard.",
@@ -219,7 +221,8 @@
     "sam_launcher": "SAM Launcher",
     "atom_bomb": "Atom Bomb",
     "hydrogen_bomb": "Hydrogen Bomb",
-    "mirv": "MIRV"
+    "mirv": "MIRV",
+    "research_lab": "Research Lab"
   },
   "user_setting": {
     "title": "User Settings",
@@ -385,7 +388,8 @@
     "sams": "SAMs",
     "warships": "Warships",
     "health": "Health",
-    "attitude": "Attitude"
+    "attitude": "Attitude",
+    "tech_level": "Tech Level"
   },
   "relation": {
     "hostile": "Hostile",

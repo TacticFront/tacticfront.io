@@ -1,3 +1,5 @@
+// src/client/graphics/layers/PlayerInfoOverlay.ts
+
 import { LitElement, TemplateResult, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { translateText } from "../../../client/Utils";
@@ -267,6 +269,10 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
         <div class="text-sm opacity-80" translate="no">
           ${translateText("player_info_overlay.warships")}:
           ${player.units(UnitType.Warship).length}
+        </div>
+        <div class="text-sm opacity-80" translate="no">
+          ${translateText("player_info_overlay.tech_level")}:
+          ${player.techLevel()}
         </div>
         ${relationHtml}
       </div>

@@ -1,3 +1,5 @@
+// src/client/graphics/layers/BuildMenu.ts
+
 import { LitElement, css, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import warshipIcon from "../../../../resources/images/BattleshipIconWhite.svg";
@@ -8,6 +10,7 @@ import missileSiloIcon from "../../../../resources/images/MissileSiloIconWhite.s
 import hydrogenBombIcon from "../../../../resources/images/MushroomCloudIconWhite.svg";
 import atomBombIcon from "../../../../resources/images/NukeIconWhite.svg";
 import portIcon from "../../../../resources/images/PortIcon.svg";
+import researchLabIcon from "../../../../resources/images/ResearchLabIconWhite.svg";
 import samlauncherIcon from "../../../../resources/images/SamLauncherIconWhite.svg";
 import shieldIcon from "../../../../resources/images/ShieldIconWhite.svg";
 import { translateText } from "../../../client/Utils";
@@ -25,6 +28,7 @@ interface BuildItemDisplay {
   description?: string;
   key?: string;
   countable?: boolean;
+  minTechLevel?: number;
 }
 
 const buildTable: BuildItemDisplay[][] = [
@@ -35,6 +39,7 @@ const buildTable: BuildItemDisplay[][] = [
       description: "build_menu.desc.atom_bomb",
       key: "unit_type.atom_bomb",
       countable: false,
+      minTechLevel: 3,
     },
     {
       unitType: UnitType.MIRV,
@@ -42,6 +47,7 @@ const buildTable: BuildItemDisplay[][] = [
       description: "build_menu.desc.mirv",
       key: "unit_type.mirv",
       countable: false,
+      minTechLevel: 5,
     },
     {
       unitType: UnitType.HydrogenBomb,
@@ -49,6 +55,7 @@ const buildTable: BuildItemDisplay[][] = [
       description: "build_menu.desc.hydrogen_bomb",
       key: "unit_type.hydrogen_bomb",
       countable: false,
+      minTechLevel: 4,
     },
     {
       unitType: UnitType.Warship,
@@ -56,6 +63,7 @@ const buildTable: BuildItemDisplay[][] = [
       description: "build_menu.desc.warship",
       key: "unit_type.warship",
       countable: true,
+      minTechLevel: 2,
     },
     {
       unitType: UnitType.Port,
@@ -70,6 +78,7 @@ const buildTable: BuildItemDisplay[][] = [
       description: "build_menu.desc.missile_silo",
       key: "unit_type.missile_silo",
       countable: true,
+      minTechLevel: 1,
     },
     // needs new icon
     {
@@ -78,6 +87,7 @@ const buildTable: BuildItemDisplay[][] = [
       description: "build_menu.desc.sam_launcher",
       key: "unit_type.sam_launcher",
       countable: true,
+      minTechLevel: 2,
     },
     {
       unitType: UnitType.DefensePost,
@@ -91,6 +101,13 @@ const buildTable: BuildItemDisplay[][] = [
       icon: cityIcon,
       description: "build_menu.desc.city",
       key: "unit_type.city",
+      countable: true,
+    },
+    {
+      unitType: UnitType.ResearchLab,
+      icon: researchLabIcon,
+      description: "build_menu.desc.research_lab",
+      key: "unit_type.research_lab",
       countable: true,
     },
   ],
@@ -210,6 +227,21 @@ export class BuildMenu extends LitElement implements Layer {
       align-content: center;
       border: 1px solid #444;
     }
+    .tech-level-chip {
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      background-color: #2c2c2c;
+      color: white;
+      padding: 2px 10px;
+      border-radius: 10000px;
+      transition: all 0.3s ease;
+      font-size: 12px;
+      display: flex;
+      justify-content: center;
+      align-content: center;
+      border: 1px solid #444;
+    }
     .build-button:not(:disabled):hover > .build-count-chip {
       background-color: #3a3a3a;
       border-color: #666;
@@ -306,6 +338,14 @@ export class BuildMenu extends LitElement implements Layer {
     if (this.game?.myPlayer() === null || this.playerActions === null) {
       return false;
     }
+
+    if (
+      item?.minTechLevel &&
+      (this.game?.myPlayer()?.techLevel() ?? 0) < item.minTechLevel
+    ) {
+      return false;
+    }
+
     const buildableUnits = this.playerActions?.buildableUnits ?? [];
     const unit = buildableUnits.filter((u) => u.type === item.unitType);
     if (unit.length === 0) {
@@ -389,6 +429,11 @@ export class BuildMenu extends LitElement implements Layer {
                     ${item.countable
                       ? html`<div class="build-count-chip">
                           <span class="build-count">${this.count(item)}</span>
+                        </div>`
+                      : ""}
+                    ${item.minTechLevel
+                      ? html`<div class="tech-level-chip">
+                          <span class="build-count">${item.minTechLevel}</span>
                         </div>`
                       : ""}
                   </button>

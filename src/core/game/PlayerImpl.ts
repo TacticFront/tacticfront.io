@@ -1,3 +1,5 @@
+// src/core/game/PlayerImpl.ts
+
 import { renderNumber, renderTroops } from "../../client/Utils";
 import { consolex } from "../Consolex";
 import { PseudoRandom } from "../PseudoRandom";
@@ -68,6 +70,8 @@ export class PlayerImpl implements Player {
   private _troops: bigint;
   private _workers: bigint;
 
+  private _techLevel: number;
+
   // 0 to 100
   private _targetTroopRatio: bigint;
 
@@ -113,6 +117,7 @@ export class PlayerImpl implements Player {
     this._troops = toInt(startTroops);
     this._workers = 0n;
     this._gold = 0n;
+    this._techLevel = 0;
     this._displayName = this._name; // processName(this._name)
     this._pseudo_random = new PseudoRandom(simpleHash(this.playerInfo.id));
   }
@@ -169,6 +174,7 @@ export class PlayerImpl implements Player {
       outgoingAllianceRequests: outgoingAllianceRequests,
       hasSpawned: this.hasSpawned(),
       betrayals: stats?.betrayals,
+      techLevel: this._techLevel,
     };
   }
 
@@ -798,6 +804,7 @@ export class PlayerImpl implements Player {
       case UnitType.DefensePost:
       case UnitType.SAMLauncher:
       case UnitType.City:
+      case UnitType.ResearchLab:
       case UnitType.Construction:
         return this.landBasedStructureSpawn(targetTile, validTiles);
       default:
@@ -937,6 +944,10 @@ export class PlayerImpl implements Player {
     },isAlive:${this.isAlive()},troops:${
       this._troops
     },numTileOwned:${this.numTilesOwned()}}]`;
+  }
+
+  techLevel(): number {
+    return this._techLevel;
   }
 
   public playerProfile(): PlayerProfile {

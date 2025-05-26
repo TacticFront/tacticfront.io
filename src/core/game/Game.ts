@@ -1,3 +1,5 @@
+// src/core/game/Game.ts
+
 import { Config } from "../configuration/Config";
 import { AllPlayersStats, ClientID } from "../Schemas";
 import { GameMap, TileRef } from "./GameMap";
@@ -150,6 +152,7 @@ export enum UnitType {
   MIRV = "MIRV",
   MIRVWarhead = "MIRV Warhead",
   Construction = "Construction",
+  ResearchLab = "Research Lab",
 }
 
 export interface OwnerComp {
@@ -190,6 +193,8 @@ export interface UnitParamsMap {
   };
 
   [UnitType.DefensePost]: {};
+
+  [UnitType.ResearchLab]: {};
 
   [UnitType.SAMLauncher]: {};
 
@@ -464,6 +469,8 @@ export interface Player {
   setTroops(troops: number): void;
   addTroops(troops: number): void;
   removeTroops(troops: number): number;
+
+  techLevel(): number;
 
   // Units
   units(...types: UnitType[]): Unit[];

@@ -1,3 +1,5 @@
+// src/core/game/GameUpdates.ts
+
 import { AllPlayersStats, ClientID } from "../Schemas";
 import {
   EmojiMessage,
@@ -118,6 +120,7 @@ export interface PlayerUpdate {
   incomingAttacks: AttackUpdate[];
   outgoingAllianceRequests: PlayerID[];
   hasSpawned: boolean;
+  techLevel: number;
   betrayals?: number;
 }
 

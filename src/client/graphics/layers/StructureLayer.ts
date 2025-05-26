@@ -1,3 +1,5 @@
+// src/client/graphics/layers/StructureLayer.ts
+
 import { colord, Colord } from "colord";
 import { Theme } from "../../../core/configuration/Config";
 import { EventBus } from "../../../core/EventBus";
@@ -6,6 +8,7 @@ import { Layer } from "./Layer";
 import cityIcon from "../../../../resources/images/buildings/cityAlt1.png";
 import shieldIcon from "../../../../resources/images/buildings/fortAlt2.png";
 import anchorIcon from "../../../../resources/images/buildings/port1.png";
+import researchLabIcon from "../../../../resources/images/buildings/researchLab.png";
 import MissileSiloReloadingIcon from "../../../../resources/images/buildings/silo1-reloading.png";
 import missileSiloIcon from "../../../../resources/images/buildings/silo1.png";
 import SAMMissileReloadingIcon from "../../../../resources/images/buildings/silo4-reloading.png";
@@ -76,6 +79,12 @@ export class StructureLayer implements Layer {
       borderRadius: 8.525,
       territoryRadius: 6.525,
       borderType: UnitBorderType.Square,
+    },
+    [UnitType.ResearchLab]: {
+      icon: researchLabIcon,
+      borderRadius: 8.525,
+      territoryRadius: 6.525,
+      borderType: UnitBorderType.Round, // Assuming a round shape for now, can be adjusted
     },
   };
 

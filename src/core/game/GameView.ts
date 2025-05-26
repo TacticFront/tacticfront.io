@@ -1,3 +1,5 @@
+// src/core/game/GameView.ts
+
 import { Config } from "../configuration/Config";
 import { ClientID, GameID } from "../Schemas";
 import { createRandomName } from "../Util";
@@ -240,6 +242,10 @@ export class PlayerView {
   }
   troops(): number {
     return this.data.troops;
+  }
+
+  techLevel(): number {
+    return this.data.techLevel;
   }
 
   isAlliedWith(other: PlayerView): boolean {
