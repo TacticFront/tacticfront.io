@@ -8,7 +8,7 @@ import { Layer } from "./Layer";
 import cityIcon from "../../../../resources/images/buildings/cityAlt1.png";
 import shieldIcon from "../../../../resources/images/buildings/fortAlt2.png";
 import anchorIcon from "../../../../resources/images/buildings/port1.png";
-import powerPlantIcon from "../../../../resources/images/buildings/PowerPlant.png";
+import powerPlantIcon from "../../../../resources/images/buildings/powerPlant.png";
 import researchLabIcon from "../../../../resources/images/buildings/researchLab.png";
 import MissileSiloReloadingIcon from "../../../../resources/images/buildings/silo1-reloading.png";
 import missileSiloIcon from "../../../../resources/images/buildings/silo1.png";

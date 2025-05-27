@@ -1,3 +1,5 @@
+// src/client/graphics/fx/UnitExplosionFx.ts
+
 import { GameView } from "../../../core/game/GameView";
 import { AnimatedSpriteLoader } from "../AnimatedSpriteLoader";
 import { Fx, FxType } from "./Fx";
