@@ -1,3 +1,5 @@
+// webpack.config.js
+
 import CopyPlugin from "copy-webpack-plugin";
 import ESLintPlugin from "eslint-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
@@ -150,6 +152,7 @@ export default async (env, argv) => {
     devServer: isProduction
       ? {}
       : {
+          allowedHosts: "all",
           devMiddleware: { writeToDisk: true },
           static: {
             directory: path.join(__dirname, "static"),
