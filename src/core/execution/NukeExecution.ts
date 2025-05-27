@@ -250,6 +250,7 @@ export class NukeExecution implements Execution {
       }
     }
     this.active = false;
+    this.nuke.setReachedTarget();
     this.nuke.delete(false);
 
     // Record stats
