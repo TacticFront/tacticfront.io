@@ -25,8 +25,8 @@ import { UserSettings } from "../game/UserSettings";
 import { GameConfig, GameID } from "../Schemas";
 import { assertNever, simpleHash, within } from "../Util";
 import { Config, GameEnv, NukeMagnitude, ServerConfig, Theme } from "./Config";
-import { pastelTheme } from "./PastelTheme";
-import { pastelThemeDark } from "./PastelThemeDark";
+import { PastelTheme } from "./PastelTheme";
+import { PastelThemeDark } from "./PastelThemeDark";
 
 const JwksSchema = z.object({
   keys: z
@@ -64,14 +64,13 @@ const numPlayersConfig = {
   [GameMapType.Pangaea]: [40, 20, 30],
   [GameMapType.World]: [150, 80, 50],
   [GameMapType.WorldMapGiant]: [150, 100, 60],
-  [GameMapType.KnownWorld]: [50, 40, 30],
   [GameMapType.Halkidiki]: [50, 40, 30],
 } as const satisfies Record<GameMapType, [number, number, number]>;
 
 const TERRAIN_EFFECTS = {
-  [TerrainType.Plains]: { mag: 0.85, speed: 0.8 },
-  [TerrainType.Highland]: { mag: 1, speed: 1 },
-  [TerrainType.Mountain]: { mag: 1.2, speed: 1.3 },
+  [TerrainType.Plains]: { mag: 1.1, speed: 0.8 }, // higher speed, lower damage
+  [TerrainType.Highland]: { mag: 1.2, speed: 1 },
+  [TerrainType.Mountain]: { mag: 1.3, speed: 1.25 },
 } as const;
 
 export abstract class DefaultServerConfig implements ServerConfig {
@@ -150,7 +149,7 @@ export abstract class DefaultServerConfig implements ServerConfig {
     const [l, m, s] = numPlayersConfig[map] ?? [50, 30, 20];
     const r = Math.random();
     const base = r < 0.3 ? l : r < 0.6 ? m : s;
-    return mode === GameMode.Team ? Math.ceil(base * 1.5) : base;
+    return Math.min(mode === GameMode.Team ? Math.ceil(base * 1.5) : base, 150);
   }
 
   workerIndex(gameID: GameID): number {
@@ -168,6 +167,8 @@ export abstract class DefaultServerConfig implements ServerConfig {
 }
 
 export class DefaultConfig implements Config {
+  private pastelTheme: PastelTheme = new PastelTheme();
+  private pastelThemeDark: PastelThemeDark = new PastelThemeDark();
   constructor(
     private _serverConfig: ServerConfig,
     private _gameConfig: GameConfig,
@@ -231,7 +232,7 @@ export class DefaultConfig implements Config {
   falloutDefenseModifier(falloutRatio: number): number {
     // falloutRatio is between 0 and 1
     // So defense modifier is between [3, 1]
-    return 3 - falloutRatio * 2;
+    return 2 - falloutRatio;
   }
   SAMCooldown(): number {
     return 45;
@@ -277,7 +278,7 @@ export class DefaultConfig implements Config {
     return 10000 + 150 * Math.pow(dist, 1.1);
   }
   tradeShipSpawnRate(numberOfPorts: number): number {
-    return Math.round(10 * Math.pow(numberOfPorts, 0.6));
+    return Math.round(10 * Math.pow(numberOfPorts, 0.4));
   }
 
   unitInfo(type: UnitType): UnitInfo {
@@ -518,7 +519,9 @@ export class DefaultConfig implements Config {
     return this.bots();
   }
   theme(): Theme {
-    return this.userSettings()?.darkMode() ? pastelThemeDark : pastelTheme;
+    return this.userSettings()?.darkMode()
+      ? this.pastelThemeDark
+      : this.pastelTheme;
   }
 
   attackLogic(
@@ -566,16 +569,12 @@ export class DefaultConfig implements Config {
 
     if (attacker.isPlayer() && defenderIsPlayer) {
       if (
-        attackerType === PlayerType.Human &&
+        (attackerType === PlayerType.Human ||
+          attackerType === PlayerType.FakeHuman) &&
         defenderType === PlayerType.Bot
       ) {
-        mag *= 0.8;
-      }
-      if (
-        attackerType === PlayerType.FakeHuman &&
-        defenderType === PlayerType.Bot
-      ) {
-        mag *= 0.8;
+        mag *= 0.6;
+        speed *= 0.6;
       }
     }
     if (attackerType === PlayerType.Bot) {
@@ -597,7 +596,7 @@ export class DefaultConfig implements Config {
         ? this.traitorDefenseDebuff()
         : 1;
       const baseTroopLoss = 16;
-      const baseTileCost = 23;
+      const baseTileCost = 30;
       const attackStandardSize = 10_000;
       return {
         attackerTroopLoss:
@@ -608,13 +607,13 @@ export class DefaultConfig implements Config {
           within(defenderDensity, 3, 100) ** 0.2 *
           (attackStandardSize / attackTroops) ** 0.1 *
           speed *
-          within(attackRatio, 0.1, 20) ** 0.4,
+          within(attackRatio, 0.1, 20) ** 0.35,
       };
     } else {
       return {
         attackerTroopLoss: 16 * mag,
         defenderTroopLoss: 0,
-        tilesPerTickUsed: 31 * speed,
+        tilesPerTickUsed: 492 * speed * within(attackTroops, 1, 10000) ** -0.3,
       };
     }
   }

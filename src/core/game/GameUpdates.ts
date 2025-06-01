@@ -122,7 +122,7 @@ export interface PlayerUpdate {
   outgoingAllianceRequests: PlayerID[];
   hasSpawned: boolean;
   techLevel: number;
-  betrayals?: number;
+  betrayals?: bigint;
 }
 
 export interface AllianceRequestUpdate {

@@ -13,7 +13,6 @@ import {
 } from "../../../core/game/Game";
 import { TileRef } from "../../../core/game/GameMap";
 import { GameView, PlayerView, UnitView } from "../../../core/game/GameView";
-import { ClientID } from "../../../core/Schemas";
 import { MouseMoveEvent } from "../../InputHandler";
 import { renderNumber, renderTroops } from "../../Utils";
 import { TransformHandler } from "../TransformHandler";
@@ -43,9 +42,6 @@ function distSortUnitWorld(coord: { x: number; y: number }, game: GameView) {
 export class PlayerInfoOverlay extends LitElement implements Layer {
   @property({ type: Object })
   public game!: GameView;
-
-  @property({ type: String })
-  public clientID!: ClientID;
 
   @property({ type: Object })
   public eventBus!: EventBus;
@@ -139,13 +135,6 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
     this.requestUpdate();
   }
 
-  private myPlayer(): PlayerView | null {
-    if (!this.game) {
-      return null;
-    }
-    return this.game.playerByClientID(this.clientID);
-  }
-
   private getRelationClass(relation: Relation): string {
     switch (relation) {
       case Relation.Hostile:
@@ -177,7 +166,7 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
   }
 
   private renderPlayerInfo(player: PlayerView) {
-    const myPlayer = this.myPlayer();
+    const myPlayer = this.game.myPlayer();
     const isFriendly = myPlayer?.isFriendly(player);
     let relationHtml: TemplateResult | null = null;
     const attackingTroops = player
@@ -289,8 +278,8 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
 
   private renderUnitInfo(unit: UnitView) {
     const isAlly =
-      (unit.owner() === this.myPlayer() ||
-        this.myPlayer()?.isFriendly(unit.owner())) ??
+      (unit.owner() === this.game.myPlayer() ||
+        this.game.myPlayer()?.isFriendly(unit.owner())) ??
       false;
 
     return html`

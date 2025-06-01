@@ -77,7 +77,7 @@ class Client {
     }
 
     // Comment out to show news button.
-    newsButton.hidden = true;
+    // newsButton.hidden = true;
 
     const langSelector = document.querySelector(
       "lang-selector",

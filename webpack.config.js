@@ -1,5 +1,6 @@
 // webpack.config.js
 
+import { execSync } from "child_process";
 import CopyPlugin from "copy-webpack-plugin";
 import ESLintPlugin from "eslint-webpack-plugin";
 import HtmlWebpackPlugin from "html-webpack-plugin";
@@ -9,6 +10,9 @@ import webpack from "webpack";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const gitCommit =
+  process.env.GIT_COMMIT ?? execSync("git rev-parse HEAD").toString().trim();
 
 export default async (env, argv) => {
   const isProduction = argv.mode === "production";
@@ -118,9 +122,8 @@ export default async (env, argv) => {
         "process.env.WEBSOCKET_URL": JSON.stringify(
           isProduction ? "" : "localhost:3000",
         ),
-      }),
-      new webpack.DefinePlugin({
         "process.env.GAME_ENV": JSON.stringify(isProduction ? "prod" : "dev"),
+        "process.env.GIT_COMMIT": JSON.stringify(gitCommit),
       }),
       new CopyPlugin({
         patterns: [
