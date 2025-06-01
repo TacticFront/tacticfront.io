@@ -1,3 +1,5 @@
+// src/client/Main.ts
+
 import page from "page";
 import favicon from "../../resources/images/Favicon.svg";
 import { consolex } from "../core/Consolex";
@@ -158,40 +160,54 @@ class Client {
       hlpModal.open();
     });
 
-    if (isLoggedIn() === false) {
-      // Not logged in
-      loginDiscordButton.disable = false;
-      loginDiscordButton.translationKey = "main.login_discord";
-      loginDiscordButton.addEventListener("click", discordLogin);
+    const hasNerdToken = !!localStorage.getItem("nerd-token");
+
+    if (hasNerdToken) {
+      loginDiscordButton.hidden = true;
       logoutDiscordButton.hidden = true;
     } else {
-      // JWT appears to be valid
-      loginDiscordButton.disable = true;
-      loginDiscordButton.translationKey = "main.checking_login";
-      logoutDiscordButton.hidden = false;
-      logoutDiscordButton.addEventListener("click", () => {
-        // Log out
-        logOut();
+      if (isLoggedIn() === false || !hasNerdToken) {
+        // Not logged in
         loginDiscordButton.disable = false;
         loginDiscordButton.translationKey = "main.login_discord";
+        loginDiscordButton.hidden = false;
         loginDiscordButton.addEventListener("click", discordLogin);
         logoutDiscordButton.hidden = true;
-      });
-      // Look up the discord user object.
-      // TODO: Add caching
-      getUserMe().then((userMeResponse) => {
-        if (userMeResponse === false) {
-          // Not logged in
+      } else {
+        // JWT appears to be valid and nerd-token is set
+        loginDiscordButton.disable = true;
+        loginDiscordButton.translationKey = "main.checking_login";
+        loginDiscordButton.hidden = true;
+        logoutDiscordButton.hidden = true;
+
+        // Look up the discord user object.
+        // TODO: Add caching
+        getUserMe().then((userMeResponse) => {
+          if (userMeResponse === false) {
+            // Not logged in
+            loginDiscordButton.disable = false;
+            loginDiscordButton.hidden = false;
+            loginDiscordButton.translationKey = "main.login_discord";
+            loginDiscordButton.addEventListener("click", discordLogin);
+            logoutDiscordButton.hidden = true;
+            return;
+          }
+
+          // TODO: Update the page for logged in user
+          loginDiscordButton.translationKey = "main.logged_in";
+          const { user, player } = userMeResponse;
+        });
+
+        // Add logout handler even though hidden (optional safety)
+        logoutDiscordButton.addEventListener("click", () => {
+          logOut();
           loginDiscordButton.disable = false;
+          loginDiscordButton.hidden = false;
           loginDiscordButton.translationKey = "main.login_discord";
           loginDiscordButton.addEventListener("click", discordLogin);
           logoutDiscordButton.hidden = true;
-          return;
-        }
-        // TODO: Update the page for logged in user
-        loginDiscordButton.translationKey = "main.logged_in";
-        const { user, player } = userMeResponse;
-      });
+        });
+      }
     }
 
     const settingsModal = document.querySelector(

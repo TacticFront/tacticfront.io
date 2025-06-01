@@ -1,3 +1,5 @@
+// src/client/graphics/layers/FxLayer.ts
+
 import { Theme } from "../../../core/configuration/Config";
 import { UnitType } from "../../../core/game/Game";
 import { GameUpdateType } from "../../../core/game/GameUpdates";
@@ -41,6 +43,9 @@ export class FxLayer implements Layer {
 
   onUnitEvent(unit: UnitView) {
     switch (unit.type()) {
+      case UnitType.CruiseMissile:
+        this.onCruiseEvent(unit);
+        break;
       case UnitType.AtomBomb:
       case UnitType.MIRVWarhead:
         this.onNukeEvent(unit, 70);
@@ -69,6 +74,23 @@ export class FxLayer implements Layer {
           FxType.MiniExplosion,
         );
         this.allFx.push(shipExplosion);
+      }
+    }
+  }
+
+  onCruiseEvent(unit: UnitView) {
+    if (!unit.isActive()) {
+      if (unit.reachedTarget()) {
+        const x = this.game.x(unit.lastTile());
+        const y = this.game.y(unit.lastTile());
+        const missileExplosion = new SpriteFx(
+          this.animatedSpriteLoader,
+          x,
+          y,
+          FxType.MiniExplosion,
+          30 * 10,
+        );
+        this.allFx.push(missileExplosion);
       }
     }
   }

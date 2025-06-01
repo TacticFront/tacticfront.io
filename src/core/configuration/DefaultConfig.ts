@@ -455,6 +455,25 @@ export class DefaultConfig implements Config {
         assertNever(type);
     }
   }
+
+  unitDamageCooldown(unitType: UnitType): Tick {
+    switch (unitType) {
+      case UnitType.City:
+        return 60 * 10;
+      case UnitType.DefensePost:
+        return 30 * 10;
+      case UnitType.Port:
+        return 30 * 10;
+      case UnitType.PowerPlant:
+        return 30 * 10;
+      case UnitType.ResearchLab:
+        return 30 * 10;
+      case UnitType.SAMLauncher:
+        return 30 * 10;
+      default:
+        return 10 * 10; // Default cooldown for other units.
+    }
+  }
   defaultDonationAmount(sender: Player): number {
     return Math.floor(sender.troops() / 3);
   }
