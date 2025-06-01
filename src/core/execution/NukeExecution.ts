@@ -203,7 +203,10 @@ export class NukeExecution implements Execution {
     for (const tile of toDestroy) {
       const owner = this.mg.owner(tile);
       if (owner.isPlayer()) {
-        owner.relinquish(tile);
+        if (this.nuke.type() !== UnitType.CruiseMissile) {
+          owner.relinquish(tile);
+        }
+
         owner.removeTroops(
           this.mg
             .config()
@@ -230,25 +233,55 @@ export class NukeExecution implements Execution {
         });
       }
 
-      if (this.mg.isLand(tile)) {
+      if (this.mg.isLand(tile) && this.nuke.type() !== UnitType.CruiseMissile) {
         this.mg.setFallout(tile, true);
       }
     }
 
+    console.log(`Nuke detonated at ${this.dst}`, this.nuke.type());
+
     const outer2 = magnitude.outer * magnitude.outer;
-    for (const unit of this.mg.units()) {
-      if (
-        unit.type() !== UnitType.CruiseMissile &&
-        unit.type() !== UnitType.AtomBomb &&
-        unit.type() !== UnitType.HydrogenBomb &&
-        unit.type() !== UnitType.MIRVWarhead &&
-        unit.type() !== UnitType.MIRV
-      ) {
-        if (this.mg.euclideanDistSquared(this.dst, unit.tile()) < outer2) {
-          unit.delete(true, this.player);
+    if (this.nuke.type() === UnitType.CruiseMissile) {
+      for (const unit of this.mg.units()) {
+        if (
+          unit.type() !== UnitType.CruiseMissile &&
+          unit.type() !== UnitType.AtomBomb &&
+          unit.type() !== UnitType.HydrogenBomb &&
+          unit.type() !== UnitType.MIRVWarhead &&
+          unit.type() !== UnitType.MIRV
+        ) {
+          if (this.mg.euclideanDistSquared(this.dst, unit.tile()) < outer2) {
+            if (
+              unit.type() === UnitType.SAMLauncher ||
+              unit.type() === UnitType.DefensePost
+            ) {
+              if (unit.isDamaged()) {
+                unit.delete(true, this.player);
+              } else {
+                unit.setRepairCooldown(
+                  this.mg.config().unitRepairCooldown(unit.type()),
+                );
+              }
+            }
+          }
+        }
+      }
+    } else {
+      for (const unit of this.mg.units()) {
+        if (
+          unit.type() !== UnitType.CruiseMissile &&
+          unit.type() !== UnitType.AtomBomb &&
+          unit.type() !== UnitType.HydrogenBomb &&
+          unit.type() !== UnitType.MIRVWarhead &&
+          unit.type() !== UnitType.MIRV
+        ) {
+          if (this.mg.euclideanDistSquared(this.dst, unit.tile()) < outer2) {
+            unit.delete(true, this.player);
+          }
         }
       }
     }
+
     this.active = false;
     this.nuke.setReachedTarget();
     this.nuke.delete(false);

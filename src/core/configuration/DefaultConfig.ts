@@ -457,12 +457,12 @@ export class DefaultConfig implements Config {
     }
   }
 
-  unitDamageCooldown(unitType: UnitType): Tick {
+  unitRepairCooldown(unitType: UnitType): number {
     switch (unitType) {
       case UnitType.City:
         return 60 * 10;
       case UnitType.DefensePost:
-        return 30 * 10;
+        return 45 * 10;
       case UnitType.Port:
         return 30 * 10;
       case UnitType.PowerPlant:
@@ -470,7 +470,7 @@ export class DefaultConfig implements Config {
       case UnitType.ResearchLab:
         return 30 * 10;
       case UnitType.SAMLauncher:
-        return 30 * 10;
+        return 45 * 10;
       default:
         return 10 * 10; // Default cooldown for other units.
     }
@@ -553,7 +553,7 @@ export class DefaultConfig implements Config {
         gm.config().defensePostRange(),
         UnitType.DefensePost,
       )) {
-        if (dp.unit.owner() === defender) {
+        if (dp.unit.owner() === defender && !dp.unit.isDamaged()) {
           mag *= this.defensePostLossMultiplier();
           speed *= this.defensePostSpeedMultiplier();
           break;
@@ -761,7 +761,12 @@ export class DefaultConfig implements Config {
   }
 
   goldAdditionRate(player: Player): number {
-    return 0.045 * player.workers() ** 0.7;
+    const populationGold = 0.055 * player.workers() ** 0.8; // .045
+    const cityGold = player.units(UnitType.City).length * 50;
+    const portGold = player.units(UnitType.Port).length * 30;
+    const powerPlantGold = player.units(UnitType.PowerPlant).length * 80;
+
+    return populationGold + cityGold + portGold + powerPlantGold;
   }
 
   troopAdjustmentRate(player: Player): number {
@@ -782,7 +787,7 @@ export class DefaultConfig implements Config {
   nukeMagnitudes(unitType: UnitType): NukeMagnitude {
     switch (unitType) {
       case UnitType.MIRVWarhead:
-        return { inner: 25, outer: 30 };
+        return { inner: 8, outer: 20 };
       case UnitType.CruiseMissile:
         return { inner: 5, outer: 10 };
       case UnitType.AtomBomb:

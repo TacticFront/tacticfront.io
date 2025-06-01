@@ -1,3 +1,5 @@
+// src/core/execution/DefensePostExecution.ts
+
 import { consolex } from "../Consolex";
 import {
   Execution,
@@ -76,6 +78,14 @@ export class DefensePostExecution implements Execution {
 
     if (this.player !== this.post.owner()) {
       this.player = this.post.owner();
+    }
+
+    if (this.post.isDamaged()) {
+      this.post.checkRepairs();
+
+      if (this.post.isDamaged()) {
+        return;
+      }
     }
 
     if (this.target !== null && !this.target.isActive()) {

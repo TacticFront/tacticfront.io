@@ -1,3 +1,5 @@
+// src/core/game/UnitImpl.ts
+
 import { simpleHash, toInt, withinInt } from "../Util";
 import {
   AllUnitParams,
@@ -15,6 +17,8 @@ import { PlayerImpl } from "./PlayerImpl";
 
 export class UnitImpl implements Unit {
   private _active = true;
+  private _isDamaged: boolean = false;
+  private _repairCooldown: Tick = 0;
   private _targetTile: TileRef | undefined;
   private _targetUnit: Unit | undefined;
   private _health: bigint;
@@ -105,6 +109,8 @@ export class UnitImpl implements Unit {
       targetUnitId: this._targetUnit?.id() ?? undefined,
       targetTile: this.targetTile() ?? undefined,
       ticksLeftInCooldown: this.ticksLeftInCooldown() ?? undefined,
+      isDamaged: this.isDamaged(),
+      repairCooldown: this.repairCooldown(),
     };
   }
 
@@ -187,6 +193,32 @@ export class UnitImpl implements Unit {
     if (this._health === 0n) {
       this.delete(true, attacker);
     }
+  }
+
+  isDamaged(): boolean {
+    return this._isDamaged;
+  }
+
+  checkRepairs(): void {
+    if (this._isDamaged && this._repairCooldown < this.mg.ticks()) {
+      this._isDamaged = false;
+      this.mg.addUpdate(this.toUpdate());
+      this.mg.displayMessage(
+        `Your ${this._type} was repaired`,
+        MessageType.SUCCESS,
+        this.owner().id(),
+      );
+    }
+  }
+
+  repairCooldown(): number {
+    return this._repairCooldown;
+  }
+
+  setRepairCooldown(repairCooldown: Tick): void {
+    this._repairCooldown = this.mg.ticks() + repairCooldown;
+    this._isDamaged = true;
+    this.mg.addUpdate(this.toUpdate());
   }
 
   delete(displayMessage?: boolean, destroyer?: Player): void {

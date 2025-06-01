@@ -21,6 +21,7 @@ export class PlayerExecution implements Execution {
   private player: Player | null = null;
   private config: Config | null = null;
   private lastCalc = 0;
+  private checkRepairs = 0;
   private mg: Game | null = null;
   private active = true;
 
@@ -122,6 +123,13 @@ export class PlayerExecution implements Execution {
           consolex.log(`player ${this.player.name()}, took ${end - start}ms`);
         }
       }
+    }
+
+    if (this.checkRepairs > ticks) {
+      this.player.units().forEach((unit) => {
+        unit.checkRepairs();
+      });
+      this.checkRepairs = ticks + 10;
     }
   }
 

@@ -1,3 +1,5 @@
+// src/core/configuration/Config.ts
+
 import { Colord } from "colord";
 import { JWK } from "jose";
 import { GameConfig, GameID } from "../Schemas";
@@ -142,6 +144,7 @@ export interface Config {
   nukeDeathFactor(humans: number, tilesOwned: number): number;
   structureMinDist(): number;
   isReplay(): boolean;
+  unitRepairCooldown(unitType: UnitType): number;
 }
 
 export interface Theme {

@@ -82,6 +82,8 @@ export interface UnitUpdate {
   health?: number;
   constructionType?: UnitType;
   ticksLeftInCooldown?: Tick;
+  isDamaged?: boolean;
+  repairCooldown?: number;
 }
 
 export interface AttackUpdate {

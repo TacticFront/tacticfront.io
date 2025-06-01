@@ -300,6 +300,10 @@ export class StructureLayer implements Layer {
       borderColor = selectedUnitColor;
     }
 
+    if (unit.isDamaged()) {
+      borderColor = colord(underConstructionColor).alpha(0.5);
+    }
+
     this.drawBorder(unit, borderColor, config, drawFunction);
 
     const startX = this.game.x(unit.tile()) - Math.floor(icon.width / 2);

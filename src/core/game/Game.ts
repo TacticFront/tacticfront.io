@@ -390,6 +390,10 @@ export interface Unit {
   orderBoatRetreat(): void;
   health(): number;
   modifyHealth(delta: number, attacker?: Player): void;
+  isDamaged(): boolean;
+  repairCooldown(): number;
+  setRepairCooldown(ticks: number): void;
+  checkRepairs(): void;
 
   // Troops
   setTroops(troops: number): void;

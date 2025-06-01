@@ -122,6 +122,19 @@ export class SAMLauncherExecution implements Execution {
       this.player = this.sam.owner();
     }
 
+    const cooldown = this.sam.ticksLeftInCooldown();
+    if (typeof cooldown === "number" && cooldown >= 0) {
+      this.sam.touch();
+    }
+
+    if (this.sam.isDamaged()) {
+      this.sam.checkRepairs();
+
+      if (this.sam.isDamaged()) {
+        return;
+      }
+    }
+
     if (this.pseudoRandom === undefined) {
       this.pseudoRandom = new PseudoRandom(this.sam.id());
     }
@@ -150,11 +163,6 @@ export class SAMLauncherExecution implements Execution {
     let target: Unit | null = null;
     if (mirvWarheadTargets.length === 0) {
       target = this.getSingleTarget();
-    }
-
-    const cooldown = this.sam.ticksLeftInCooldown();
-    if (typeof cooldown === "number" && cooldown >= 0) {
-      this.sam.touch();
     }
 
     const isSingleTarget = target && !target.targetedBySAM();
