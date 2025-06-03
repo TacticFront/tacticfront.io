@@ -409,7 +409,7 @@ export class DefaultConfig implements Config {
                     Math.pow(
                       2,
                       p.unitsIncludingConstruction(UnitType.ResearchLab).length,
-                    ) * 125_000n,
+                    ) * 125_000,
                   ),
                 ),
           territoryBound: true,
@@ -786,12 +786,16 @@ export class DefaultConfig implements Config {
   }
 
   goldAdditionRate(player: Player): Gold {
-    const populationGold = 0.085 * player.workers() ** 0.8; // .045
+    const populationGold = 0.025 * player.workers() ** 0.8; // .045
     const cityGold = player.units(UnitType.City).length * 50;
     const portGold = player.units(UnitType.Port).length * 30;
     const powerPlantGold = player.units(UnitType.PowerPlant).length * 80;
 
-    return BigInt(populationGold + cityGold + portGold + powerPlantGold);
+    const totalGold = Math.floor(
+      populationGold + cityGold + portGold + powerPlantGold,
+    );
+
+    return BigInt(totalGold);
   }
 
   troopAdjustmentRate(player: Player): number {

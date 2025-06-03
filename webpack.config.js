@@ -162,6 +162,8 @@ export default async (env, argv) => {
           historyApiFallback: true,
           compress: true,
           port: 9000,
+          allowedHosts: "all", // <--- Add this line
+          host: "0.0.0.0", // <--- And this line
           proxy: [
             // WebSocket proxies
             {
