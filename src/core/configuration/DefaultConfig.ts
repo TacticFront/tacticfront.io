@@ -309,7 +309,7 @@ export class DefaultConfig implements Config {
         };
       case UnitType.SAMMissile:
         return {
-          cost: () => 0,
+          cost: () => 50_000,
           territoryBound: false,
         };
       case UnitType.Port:
@@ -330,7 +330,7 @@ export class DefaultConfig implements Config {
       case UnitType.CruiseMissile:
         return {
           cost: (p: Player) =>
-            p.type() === PlayerType.Human && this.infiniteGold() ? 0 : 300_000,
+            p.type() === PlayerType.Human && this.infiniteGold() ? 0 : 100_000,
           territoryBound: false,
         };
       case UnitType.AtomBomb:
@@ -338,7 +338,7 @@ export class DefaultConfig implements Config {
           cost: (p: Player) =>
             p.type() === PlayerType.Human && this.infiniteGold()
               ? 0
-              : 1_250_000,
+              : 1_000_000,
           territoryBound: false,
         };
       case UnitType.HydrogenBomb:
@@ -370,7 +370,7 @@ export class DefaultConfig implements Config {
       case UnitType.MissileSilo:
         return {
           cost: (p: Player) =>
-            p.type() === PlayerType.Human && this.infiniteGold() ? 0 : 500_000,
+            p.type() === PlayerType.Human && this.infiniteGold() ? 0 : 250_000,
           territoryBound: true,
           constructionDuration: this.instantBuild() ? 0 : 20 * 10,
         };
@@ -694,14 +694,14 @@ export class DefaultConfig implements Config {
           return 50_000 + 8000 * (playerInfo?.nation?.strength ?? 1);
       }
     }
-    return this.infiniteTroops() ? 1_000_000 : 20_000;
+    return this.infiniteTroops() ? 1_000_000 : 300_000;
   }
 
   maxPopulation(player: Player | PlayerView): number {
     const maxPop =
       player.type() === PlayerType.Human && this.infiniteTroops()
         ? 1_000_000_000
-        : 1 * (player.numTilesOwned() * 30 + 50000) +
+        : 1 * (player.numTilesOwned() * 30 + 300000) +
           player.units(UnitType.City).length * this.cityPopulationIncrease();
 
     if (player.type() === PlayerType.Bot) {
@@ -761,7 +761,7 @@ export class DefaultConfig implements Config {
   }
 
   goldAdditionRate(player: Player): number {
-    const populationGold = 0.055 * player.workers() ** 0.8; // .045
+    const populationGold = 0.085 * player.workers() ** 0.8; // .045
     const cityGold = player.units(UnitType.City).length * 50;
     const portGold = player.units(UnitType.Port).length * 30;
     const powerPlantGold = player.units(UnitType.PowerPlant).length * 80;

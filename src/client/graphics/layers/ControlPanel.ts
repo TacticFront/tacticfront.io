@@ -353,6 +353,7 @@ export class ControlPanel extends LitElement implements Layer {
           </div>
         </div>
       </div>
+      <nuke-launch-menu></nuke-launch-menu>
     `;
   }
 

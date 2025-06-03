@@ -18,6 +18,7 @@ import { NukeType } from "../StatsSchemas";
 
 export class NukeExecution implements Execution {
   private active = true;
+  private launched = false;
   private player: Player | null = null;
   private mg: Game | null = null;
   private nuke: Unit | null = null;
@@ -25,6 +26,7 @@ export class NukeExecution implements Execution {
 
   private random: PseudoRandom;
   private pathFinder: ParabolaPathFinder;
+  private delayTicks: number = 2; // Add delayTicks property
 
   constructor(
     private type: NukeType,
@@ -32,11 +34,13 @@ export class NukeExecution implements Execution {
     private dst: TileRef,
     private src?: TileRef | null,
     private speed: number = -1,
-    private waitTicks = 0,
+    private waitTicks = 0, // Keep waitTicks property but remove its usage in tick
   ) {}
 
   init(mg: Game, ticks: number): void {
+    console.log("Nuke Init");
     if (!mg.hasPlayer(this.senderID)) {
+      console.log("Sender not found error");
       console.warn(`NukeExecution: sender ${this.senderID} not found`);
       this.active = false;
       return;
@@ -104,13 +108,22 @@ export class NukeExecution implements Execution {
   }
 
   tick(ticks: number): void {
+    console.log("Nuke Tick");
     if (this.mg === null || this.player === null) {
       throw new Error("Not initialized");
     }
 
+    if (this.delayTicks > 0) {
+      // Check delayTicks
+      this.delayTicks--;
+      return;
+    }
+
     if (this.nuke === null) {
       const spawn = this.src ?? this.player.canBuild(this.type, this.dst);
+      console.log("Spawn determined:", spawn);
       if (spawn === false) {
+        console.log("No Silo Spawn");
         consolex.warn(`cannot build Nuke`);
         this.active = false;
         return;
@@ -123,6 +136,8 @@ export class NukeExecution implements Execution {
       this.nuke = this.player.buildUnit(this.type, spawn, {
         targetTile: this.dst,
       });
+      console.log("Nuke unit created:", this.nuke);
+      console.log("Nuke should have fired here");
       if (this.mg.hasOwner(this.dst)) {
         const target = this.mg.owner(this.dst);
         if (!target.isPlayer()) {
@@ -164,8 +179,13 @@ export class NukeExecution implements Execution {
         .units(UnitType.MissileSilo)
         .find((silo) => silo.tile() === spawn);
       if (silo) {
+        console.log("Missile silo found at spawn:", spawn);
         silo.launch();
+        console.log("Missile silo launch invoked at spawn:", spawn);
+      } else {
+        console.warn("No missile silo found at spawn:", spawn);
       }
+      // Removed waitTicks logic here
       return;
     }
 
@@ -176,6 +196,7 @@ export class NukeExecution implements Execution {
       return;
     }
 
+    // Removed waitTicks check here
     if (this.waitTicks > 0) {
       this.waitTicks--;
       return;
@@ -253,7 +274,8 @@ export class NukeExecution implements Execution {
           if (this.mg.euclideanDistSquared(this.dst, unit.tile()) < outer2) {
             if (
               unit.type() === UnitType.SAMLauncher ||
-              unit.type() === UnitType.DefensePost
+              unit.type() === UnitType.DefensePost ||
+              unit.type() === UnitType.MissileSilo
             ) {
               if (unit.isDamaged()) {
                 unit.delete(true, this.player);

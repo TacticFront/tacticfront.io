@@ -1,3 +1,5 @@
+// src/client/graphics/GameRenderer.ts
+
 import { consolex } from "../../core/Consolex";
 import { EventBus } from "../../core/EventBus";
 import { GameView } from "../../core/game/GameView";
@@ -23,6 +25,7 @@ import { PlayerPanel } from "./layers/PlayerPanel";
 import { PlayerTeamLabel } from "./layers/PlayerTeamLabel";
 import { RadialMenu } from "./layers/RadialMenu";
 import { SpawnTimer } from "./layers/SpawnTimer";
+import { StrikePackageMenu } from "./layers/StrikePackageMenu";
 import { StructureLayer } from "./layers/StructureLayer";
 import { TeamStats } from "./layers/TeamStats";
 import { TerrainLayer } from "./layers/TerrainLayer";
@@ -64,6 +67,15 @@ export function createRenderer(
   }
   buildMenu.game = game;
   buildMenu.eventBus = eventBus;
+
+  const strikePackageMenu = document.querySelector(
+    "strike-package-menu",
+  ) as StrikePackageMenu;
+  if (!strikePackageMenu || !(strikePackageMenu instanceof StrikePackageMenu)) {
+    consolex.error("StrikePackageMenu element not found in the DOM");
+  }
+  strikePackageMenu.game = game;
+  strikePackageMenu.eventBus = eventBus;
 
   const leaderboard = document.querySelector("leader-board") as Leaderboard;
   if (!emojiTable || !(leaderboard instanceof Leaderboard)) {
@@ -209,6 +221,7 @@ export function createRenderer(
       uiState,
       playerInfo,
       playerPanel,
+      strikePackageMenu,
     ),
     new SpawnTimer(game, transformHandler),
     leaderboard,

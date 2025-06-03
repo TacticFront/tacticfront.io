@@ -2,6 +2,7 @@
 
 import { Execution, Game } from "../game/Game";
 import { TileRef } from "../game/GameMap";
+import { StrikePackageType } from "../game/StrikePackageType";
 import { PseudoRandom } from "../PseudoRandom";
 import { ClientID, GameID, Intent, Turn } from "../Schemas";
 import { simpleHash } from "../Util";
@@ -23,6 +24,7 @@ import { QuickChatExecution } from "./QuickChatExecution";
 import { RetreatExecution } from "./RetreatExecution";
 import { SetTroopRatiosExecution } from "./SetTroopRatiosExecution";
 import { SpawnExecution } from "./SpawnExecution";
+import { StrikePackageExecution } from "./StrikePackageExecution";
 import { TargetPlayerExecution } from "./TargetPlayerExecution";
 import { TransportShipExecution } from "./TransportShipExecution";
 
@@ -95,6 +97,13 @@ export class Executor {
         return new BreakAllianceExecution(playerID, intent.recipient);
       case "targetPlayer":
         return new TargetPlayerExecution(playerID, intent.target);
+      case "strike_package":
+        console.log("Creating strike package execution");
+        return new StrikePackageExecution(
+          playerID,
+          intent.target,
+          intent.packageType as StrikePackageType,
+        );
       case "emoji":
         return new EmojiExecution(playerID, intent.recipient, intent.emoji);
       case "donate_troops":

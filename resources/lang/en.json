@@ -228,7 +228,9 @@
     "atom_bomb": "Atom Bomb",
     "hydrogen_bomb": "Hydrogen Bomb",
     "mirv": "MIRV",
-    "research_lab": "Research Lab"
+    "research_lab": "Research Lab",
+    "power_plant": "Power Plant",
+    "cruise_missile": "Cruise Missile"
   },
   "user_setting": {
     "title": "User Settings",
@@ -349,15 +351,18 @@
   },
   "build_menu": {
     "desc": {
+      "cruise_missile": "Damages then destroys military buildings",
       "atom_bomb": "Small explosion",
       "hydrogen_bomb": "Large explosion",
       "mirv": "Huge explosion, only targets selected player",
       "missile_silo": "Used to launch nukes",
       "sam_launcher": "Defends against incoming nukes",
       "warship": "Captures trade ships, destroys ships and boats",
-      "port": "Sends trade ships to generate gold",
+      "port": "Active trade ships and passive gold production",
       "defense_post": "Increase defenses of nearby borders",
-      "city": "Increase max population"
+      "city": "Increase max population and passive gold",
+      "research_lab": "Unlocks new tech levels",
+      "power_plant": "Unlocks Nukes and passive gold production"
     },
     "not_enough_money": "Not enough money"
   },
@@ -396,7 +401,8 @@
     "warships": "Warships",
     "health": "Health",
     "attitude": "Attitude",
-    "tech_level": "Tech Level"
+    "tech_level": "Tech Level",
+    "power_plants": "Power Plants"
   },
   "relation": {
     "hostile": "Hostile",

@@ -1,9 +1,12 @@
+// src/client/graphics/layers/RadialMenu.ts
+
 import * as d3 from "d3";
 import allianceIcon from "../../../../resources/images/AllianceIconWhite.svg";
 import boatIcon from "../../../../resources/images/BoatIconWhite.svg";
 import buildIcon from "../../../../resources/images/BuildIconWhite.svg";
 import disabledIcon from "../../../../resources/images/DisabledIcon.svg";
 import infoIcon from "../../../../resources/images/InfoIcon.svg";
+import atomBombIcon from "../../../../resources/images/NukeIconWhite.svg";
 import swordIcon from "../../../../resources/images/SwordIconWhite.svg";
 import traitorIcon from "../../../../resources/images/TraitorIconWhite.svg";
 import { consolex } from "../../../core/Consolex";
@@ -36,12 +39,14 @@ import { EmojiTable } from "./EmojiTable";
 import { Layer } from "./Layer";
 import { PlayerInfoOverlay } from "./PlayerInfoOverlay";
 import { PlayerPanel } from "./PlayerPanel";
+import { StrikePackageMenu } from "./StrikePackageMenu";
 
 enum Slot {
   Info,
   Boat,
   Build,
   Ally,
+  Strike,
 }
 
 export class RadialMenu implements Layer {
@@ -83,6 +88,16 @@ export class RadialMenu implements Layer {
         icon: null,
       },
     ],
+    [
+      Slot.Strike,
+      {
+        name: "strike",
+        disabled: true,
+        action: () => {},
+        color: "#b91c1c",
+        icon: atomBombIcon, // Use a suitable icon!
+      },
+    ],
   ]);
 
   private readonly menuSize = 190;
@@ -102,6 +117,7 @@ export class RadialMenu implements Layer {
     private uiState: UIState,
     private playerInfoOverlay: PlayerInfoOverlay,
     private playerPanel: PlayerPanel,
+    private strikePackageMenu: StrikePackageMenu,
   ) {}
 
   init() {
@@ -138,6 +154,10 @@ export class RadialMenu implements Layer {
 
     if (this.buildMenu.isVisible) {
       this.buildMenu.hideMenu();
+    }
+
+    if (this.strikePackageMenu.isVisible) {
+      this.strikePackageMenu.hideMenu();
     }
   }
 
@@ -389,6 +409,10 @@ export class RadialMenu implements Layer {
         );
       });
     }
+    this.activateMenuElement(Slot.Strike, "#b91c1c", atomBombIcon, () => {
+      this.strikePackageMenu.showMenu(tile);
+    });
+
     if (
       actions.buildableUnits.find((bu) => bu.type === UnitType.TransportShip)
         ?.canBuild

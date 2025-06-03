@@ -12,6 +12,7 @@ import {
   PlayerType,
   UnitType,
 } from "./game/Game";
+import { StrikePackageType } from "./game/StrikePackageType";
 import { PlayerStatsSchema } from "./StatsSchemas";
 import { flattenedEmojiTable } from "./Util";
 
@@ -28,6 +29,7 @@ export type Intent =
   | AllianceRequestReplyIntent
   | BreakAllianceIntent
   | TargetPlayerIntent
+  | SendStrikePackageIntent
   | EmojiIntent
   | DonateGoldIntent
   | DonateTroopsIntent
@@ -48,6 +50,9 @@ export type AllianceRequestReplyIntent = z.infer<
 >;
 export type BreakAllianceIntent = z.infer<typeof BreakAllianceIntentSchema>;
 export type TargetPlayerIntent = z.infer<typeof TargetPlayerIntentSchema>;
+export type SendStrikePackageIntent = z.infer<
+  typeof SendStrikePackageIntentSchema
+>;
 export type EmojiIntent = z.infer<typeof EmojiIntentSchema>;
 export type DonateGoldIntent = z.infer<typeof DonateGoldIntentSchema>;
 export type DonateTroopsIntent = z.infer<typeof DonateTroopIntentSchema>;
@@ -172,6 +177,7 @@ const BaseIntentSchema = z.object({
     "cancel_boat",
     "name",
     "targetPlayer",
+    "strike_package",
     "emoji",
     "troop_ratio",
     "build_unit",
@@ -225,6 +231,12 @@ export const BreakAllianceIntentSchema = BaseIntentSchema.extend({
 export const TargetPlayerIntentSchema = BaseIntentSchema.extend({
   type: z.literal("targetPlayer"),
   target: ID,
+});
+
+export const SendStrikePackageIntentSchema = BaseIntentSchema.extend({
+  type: z.literal("strike_package"),
+  target: ID,
+  packageType: z.nativeEnum(StrikePackageType), // Assuming UnitType includes strike package types
 });
 
 export const EmojiIntentSchema = BaseIntentSchema.extend({
@@ -303,6 +315,7 @@ const IntentSchema = z.union([
   AllianceRequestReplyIntentSchema,
   BreakAllianceIntentSchema,
   TargetPlayerIntentSchema,
+  SendStrikePackageIntentSchema,
   EmojiIntentSchema,
   DonateGoldIntentSchema,
   DonateTroopIntentSchema,

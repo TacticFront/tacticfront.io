@@ -355,6 +355,48 @@ export class BuildMenu extends LitElement implements Layer {
   @state()
   private _hidden = true;
 
+  private getBuildError(item: BuildItemDisplay): string | null {
+    if (!this.game?.myPlayer() || !this.playerActions) {
+      return "Player not initialized";
+    }
+    // Tech level requirement
+    if (
+      item?.minTechLevel &&
+      (this.game.myPlayer()?.techLevel() ?? 0) < item.minTechLevel
+    ) {
+      return `Requires Tech Level ${item.minTechLevel}`;
+    }
+    // Nuclear dependency: must have at least one power plant
+    if (
+      item?.nuclear &&
+      (!this.game?.myPlayer()?.units ||
+        !this.game?.myPlayer()?.units(UnitType.PowerPlant)?.length)
+    ) {
+      return "Requires at least one Power Plant";
+    }
+    // Unit type is disabled by game config
+    if (this.game?.config()?.isUnitDisabled(item.unitType)) {
+      return "Unit currently disabled";
+    }
+    // Check buildable units for specific feedback
+    const buildableUnits = this.playerActions.buildableUnits ?? [];
+    const unit = buildableUnits.find((u) => u.type === item.unitType);
+    if (!unit) {
+      return "Cannot build this unit now";
+    }
+    // if (unit.canBuild === false) {
+    //   // Try to provide a specific reason if available
+    //   if (unit.reason) return unit.reason;
+    //   // Fallbacks
+    //   if (unit.locked) return "Locked by other requirements";
+    //   return "Requirements not met";
+    // }
+    // Not enough money/resources
+    if ((unit.cost ?? 0) > (this.game.myPlayer()?.gold() ?? 0)) {
+      return "Not enough gold";
+    }
+    return null;
+  }
   private canBuild(item: BuildItemDisplay): boolean {
     if (this.game?.myPlayer() === null || this.playerActions === null) {
       return false;
@@ -422,14 +464,12 @@ export class BuildMenu extends LitElement implements Layer {
             <div class="build-row">
               ${row.map(
                 (item) => html`
-                  <button
-                    class="build-button"
-                    @click=${() => this.onBuildSelected(item)}
-                    ?disabled=${!this.canBuild(item)}
-                    title=${!this.canBuild(item)
-                      ? translateText("build_menu.not_enough_money")
-                      : ""}
-                  >
+                    <button
+                      class="build-button"
+                      @click=${() => this.onBuildSelected(item)}
+                      ?disabled=${!this.canBuild(item)}
+                      title=${this.getBuildError(item) || ""}
+                    />
                     <img
                       src=${item.icon}
                       alt="${item.unitType}"
@@ -440,13 +480,9 @@ export class BuildMenu extends LitElement implements Layer {
                       >${item.key && translateText(item.key)}</span
                     >
                     <span class="build-description"
-                      >${item.description &&
-                      translateText(item.description)}</span
-                    >
-                    <span
-                      >${this.game?.myPlayer()?.units[UnitType.PowerPlant]
-                        ?.length}
-                      Power Plants</span
+                      >${
+                        item.description && translateText(item.description)
+                      }</span
                     >
                     <span class="build-cost" translate="no">
                       ${renderNumber(
@@ -460,16 +496,22 @@ export class BuildMenu extends LitElement implements Layer {
                         style="vertical-align: middle;"
                       />
                     </span>
-                    ${item.countable
-                      ? html`<div class="build-count-chip">
-                          <span class="build-count">${this.count(item)}</span>
-                        </div>`
-                      : ""}
-                    ${item.minTechLevel
-                      ? html`<div class="tech-level-chip">
-                          <span class="build-count">${item.minTechLevel}</span>
-                        </div>`
-                      : ""}
+                    ${
+                      item.countable
+                        ? html`<div class="build-count-chip">
+                            <span class="build-count">${this.count(item)}</span>
+                          </div>`
+                        : ""
+                    }
+                    ${
+                      item.minTechLevel
+                        ? html`<div class="tech-level-chip">
+                            <span class="build-count"
+                              >${item.minTechLevel}</span
+                            >
+                          </div>`
+                        : ""
+                    }
                   </button>
                 `,
               )}

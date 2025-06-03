@@ -12,6 +12,7 @@ import {
   UnitType,
 } from "../core/game/Game";
 import { PlayerView } from "../core/game/GameView";
+import { StrikePackageType } from "../core/game/StrikePackageType";
 import {
   AllPlayersStats,
   ClientHashMessage,
@@ -64,6 +65,13 @@ export class SendAttackIntentEvent implements GameEvent {
   constructor(
     public readonly targetID: PlayerID | null,
     public readonly troops: number,
+  ) {}
+}
+
+export class SendStrikePackageIntentEvent {
+  constructor(
+    public readonly target: PlayerID,
+    public readonly packageType: StrikePackageType,
   ) {}
 }
 
@@ -220,6 +228,15 @@ export class Transport {
     this.eventBus.on(SendSetTroopRatiosEvent, (e) =>
       this.onSendSetTroopRatiosEvent(e),
     );
+
+    this.eventBus.on(SendStrikePackageIntentEvent, (e) => {
+      this.sendIntent({
+        type: "strike_package",
+        clientID: this.lobbyConfig.clientID,
+        target: e.target,
+        packageType: e.packageType,
+      });
+    });
     this.eventBus.on(BuildUnitIntentEvent, (e) => this.onBuildUnitIntent(e));
 
     this.eventBus.on(SendLogEvent, (e) => this.onSendLogEvent(e));

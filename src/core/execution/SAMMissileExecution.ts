@@ -24,7 +24,7 @@ export class SAMMissileExecution implements Execution {
     private _owner: Player,
     private ownerUnit: Unit,
     private target: Unit,
-    private speed: number = 12,
+    private speed: number = 16,
   ) {}
 
   init(mg: Game, ticks: number): void {
