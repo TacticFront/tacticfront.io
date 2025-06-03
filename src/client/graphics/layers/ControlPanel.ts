@@ -4,6 +4,7 @@ import { LitElement, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { translateText } from "../../../client/Utils";
 import { EventBus } from "../../../core/EventBus";
+import { Gold } from "../../../core/game/Game";
 import { GameView } from "../../../core/game/GameView";
 import { AttackRatioEvent } from "../../InputHandler";
 import { SendSetTroopRatiosEvent } from "../../Transport";
@@ -18,16 +19,16 @@ export class ControlPanel extends LitElement implements Layer {
   public uiState: UIState;
 
   @state()
-  private attackRatio: number = 0.3;
+  private attackRatio: number = 0.2;
 
   @state()
-  private targetTroopRatio = 0.95;
+  private targetTroopRatio = 0.8;
 
   @state()
-  private reserveTroopRatio = 0.5;
+  private reserveTroopRatio = 0.75;
 
   @state()
-  private currentTroopRatio = 0.6;
+  private currentTroopRatio = 0.8;
 
   @state()
   private _population: number;
@@ -51,10 +52,10 @@ export class ControlPanel extends LitElement implements Layer {
   private _manpower: number = 0;
 
   @state()
-  private _gold: number;
+  private _gold: Gold;
 
   @state()
-  private _goldPerSecond: number;
+  private _goldPerSecond: Gold;
 
   private _lastPopulationIncreaseRate: number;
 
@@ -64,10 +65,10 @@ export class ControlPanel extends LitElement implements Layer {
 
   init() {
     this.attackRatio = Number(
-      localStorage.getItem("settings.attackRatio") ?? "0.3",
+      localStorage.getItem("settings.attackRatio") ?? "0.2",
     );
     this.targetTroopRatio = Number(
-      localStorage.getItem("settings.troopRatio") ?? "0.6",
+      localStorage.getItem("settings.troopRatio") ?? "0.95",
     );
     this.init_ = true;
     this.uiState.attackRatio = this.attackRatio;
@@ -132,7 +133,7 @@ export class ControlPanel extends LitElement implements Layer {
     this._troops = player.troops();
     this._workers = player.workers();
     this.popRate = this.game.config().populationIncreaseRate(player) * 10;
-    this._goldPerSecond = this.game.config().goldAdditionRate(player) * 10;
+    this._goldPerSecond = this.game.config().goldAdditionRate(player) * 10n;
 
     this.currentTroopRatio = player.troops() / player.population();
     this.requestUpdate();

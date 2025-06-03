@@ -284,9 +284,7 @@ async function schedulePublicGame(playlist: MapPlaylist) {
           "Content-Type": "application/json",
           [config.adminHeader()]: config.adminToken(),
         },
-        body: JSON.stringify({
-          gameConfig: playlist.gameConfig(),
-        }),
+        body: JSON.stringify(playlist.gameConfig()),
       },
     );
 

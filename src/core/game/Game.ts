@@ -14,7 +14,7 @@ import { Stats } from "./Stats";
 
 export type PlayerID = string;
 export type Tick = number;
-export type Gold = number;
+export type Gold = bigint;
 
 export const AllPlayers = "AllPlayers" as const;
 
@@ -464,13 +464,12 @@ export interface Player {
   // Resources & Population
   gold(): Gold;
   population(): number;
-  totalPopulation(): number;
   workers(): number;
   troops(): number;
   targetTroopRatio(): number;
   reserveTroopRatio(): number;
   addGold(toAdd: Gold): void;
-  removeGold(toRemove: Gold): void;
+  removeGold(toRemove: Gold): Gold;
   addWorkers(toAdd: number): void;
   removeWorkers(toRemove: number): void;
   setTargetTroopRatio(target: number): void;
@@ -529,8 +528,8 @@ export interface Player {
 
   // Donation
   canDonate(recipient: Player): boolean;
-  donateTroops(recipient: Player, troops: number): void;
-  donateGold(recipient: Player, gold: number): void;
+  donateTroops(recipient: Player, troops: number): boolean;
+  donateGold(recipient: Player, gold: Gold): boolean;
 
   // Embargo
   hasEmbargoAgainst(other: Player): boolean;
@@ -642,7 +641,7 @@ export interface PlayerActions {
 export interface BuildableUnit {
   canBuild: TileRef | false;
   type: UnitType;
-  cost: number;
+  cost: Gold;
 }
 
 export interface PlayerProfile {

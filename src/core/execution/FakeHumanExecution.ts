@@ -6,6 +6,7 @@ import {
   Difficulty,
   Execution,
   Game,
+  Gold,
   Nation,
   Player,
   PlayerID,
@@ -549,7 +550,7 @@ export class FakeHumanExecution implements Execution {
     return null;
   }
 
-  private cost(type: UnitType): number {
+  private cost(type: UnitType): Gold {
     if (this.player === null) throw new Error("not initialized");
     return this.mg.unitInfo(type).cost(this.player);
   }
