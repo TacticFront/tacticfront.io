@@ -99,7 +99,7 @@ export class UsernameInput extends LitElement {
 
   private redirectToAuth() {
     const username = this.username;
-    const url = `http://localhost:4200/appauth?appid=openfront-expanded`;
+    const url = `https://openlynerd.com/appauth?appid=openfront-expanded`;
     window.location.href = url;
   }
 
