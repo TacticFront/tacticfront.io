@@ -42,7 +42,7 @@ export class UsernameInput extends LitElement {
     const token = localStorage.getItem("nerd-token");
 
     if (token) {
-      // User is logged in — display the username
+      // User is logged in — display the username and a logout button
       return html`
         <div class="text-center mt-2">
           <div
@@ -51,6 +51,12 @@ export class UsernameInput extends LitElement {
             <span class="font-semibold">Player:</span>
             <span class="font-mono text-lg">${this.username}</span>
           </div>
+          <button
+            @click=${this.logout}
+            class="mt-3 px-4 py-2 bg-red-600 text-white rounded-xl text-lg hover:bg-red-700 transition"
+          >
+            Log Out
+          </button>
         </div>
       `;
     }
@@ -78,14 +84,22 @@ export class UsernameInput extends LitElement {
         @click=${this.redirectToAuth}
         class="mt-4 w-full px-4 py-2 bg-blue-600 text-white rounded-xl text-xl hover:bg-blue-700 transition"
       >
-        Log In
+        Log In with OpenlyNerd.com
       </button>
     `;
   }
 
+  private logout() {
+    localStorage.removeItem("nerd-token");
+    localStorage.removeItem("username");
+    this.username = this.generateNewUsername(); // Optionally reset username to guest
+    this.requestUpdate(); // Lit: forces rerender if needed
+    window.location.reload(); // Optional: hard reload (if you want to fully reset app state)
+  }
+
   private redirectToAuth() {
     const username = this.username;
-    const url = `http://localhost:4200/appauth`;
+    const url = `http://localhost:4200/appauth?appid=openfront-expanded`;
     window.location.href = url;
   }
 

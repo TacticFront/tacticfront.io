@@ -1,3 +1,5 @@
+// src/client/graphics/layers/TerrainLayer.ts
+
 import { Theme } from "../../../core/configuration/Config";
 import { GameView } from "../../../core/game/GameView";
 import { TransformHandler } from "../TransformHandler";
@@ -17,6 +19,10 @@ export class TerrainLayer implements Layer {
     return true;
   }
   tick() {
+    const now = new Date();
+    const min = now.getMinutes().toString().padStart(2, "0");
+    const sec = now.getSeconds().toString().padStart(2, "0");
+    console.log(`[${min}:${sec}] TerrainLayer tick`);
     if (this.game.config().theme() !== this.theme) {
       this.redraw();
     }

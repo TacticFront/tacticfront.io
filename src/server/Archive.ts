@@ -1,3 +1,5 @@
+// src/server/Archive.ts
+
 import { S3 } from "@aws-sdk/client-s3";
 import { getServerConfigFromServer } from "../core/configuration/ConfigLoader";
 import { AnalyticsRecord, GameID, GameRecord } from "../core/Schemas";
@@ -16,6 +18,7 @@ const r2 = new S3({
     accessKeyId: config.r2AccessKey(),
     secretAccessKey: config.r2SecretKey(),
   },
+  forcePathStyle: true,
 });
 
 const bucket = config.r2Bucket();
