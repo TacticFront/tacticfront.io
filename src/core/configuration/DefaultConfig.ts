@@ -440,10 +440,10 @@ export class DefaultConfig implements Config {
               ? 0n
               : BigInt(
                   Math.min(
-                    3_000_000,
+                    2_000_000,
                     (p.unitsIncludingConstruction(UnitType.SAMLauncher).length +
                       1) *
-                      1_500_000,
+                      1_000_000,
                   ),
                 ),
           territoryBound: true,
@@ -838,7 +838,7 @@ export class DefaultConfig implements Config {
 
   structureMinDist(): number {
     // TODO: Increase this to ~15 once upgradable structures are implemented.
-    return 1;
+    return 10;
   }
 
   shellLifetime(): number {
