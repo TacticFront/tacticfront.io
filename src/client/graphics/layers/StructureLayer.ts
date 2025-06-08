@@ -50,7 +50,7 @@ interface UnitRenderConfig {
 export class StructureLayer implements Layer {
   private canvas: HTMLCanvasElement;
   private context: CanvasRenderingContext2D;
-  private unitIcons: Map<string, ImageData> = new Map();
+  private unitIcons: Map<string, HTMLImageElement> = new Map();
   private theme: Theme;
   private selectedStructureUnit: UnitView | null = null;
   private previouslySelected: UnitView | null = null;
@@ -129,29 +129,38 @@ export class StructureLayer implements Layer {
     });
   }
 
+  // private loadIcon(unitType: string, config: UnitRenderConfig) {
+  //   const image = new Image();
+  //   image.src = config.icon;
+  //   image.onload = () => {
+  //     // Create temporary canvas for icon processing
+  //     const tempCanvas = document.createElement("canvas");
+  //     const tempContext = tempCanvas.getContext("2d");
+  //     if (tempContext === null) throw new Error("2d context not supported");
+  //     tempCanvas.width = image.width;
+  //     tempCanvas.height = image.height;
+
+  //     // Draw the unit icon
+  //     tempContext.drawImage(image, 0, 0);
+  //     const iconData = tempContext.getImageData(
+  //       0,
+  //       0,
+  //       tempCanvas.width,
+  //       tempCanvas.height,
+  //     );
+  //     this.unitIcons.set(unitType, iconData);
+  //     console.log(
+  //       `icon data width height: ${iconData.width}, ${iconData.height}`,
+  //     );
+  //   };
+  // }
+
   private loadIcon(unitType: string, config: UnitRenderConfig) {
     const image = new Image();
     image.src = config.icon;
     image.onload = () => {
-      // Create temporary canvas for icon processing
-      const tempCanvas = document.createElement("canvas");
-      const tempContext = tempCanvas.getContext("2d");
-      if (tempContext === null) throw new Error("2d context not supported");
-      tempCanvas.width = image.width;
-      tempCanvas.height = image.height;
-
-      // Draw the unit icon
-      tempContext.drawImage(image, 0, 0);
-      const iconData = tempContext.getImageData(
-        0,
-        0,
-        tempCanvas.width,
-        tempCanvas.height,
-      );
-      this.unitIcons.set(unitType, iconData);
-      console.log(
-        `icon data width height: ${iconData.width}, ${iconData.height}`,
-      );
+      this.unitIcons.set(unitType, image);
+      // Optional: maybe trigger a redraw when all images loaded
     };
   }
 
@@ -256,7 +265,7 @@ export class StructureLayer implements Layer {
     if (!this.isUnitTypeSupported(unitType)) return;
 
     const config = this.unitConfigs[unitType];
-    let icon: ImageData | undefined;
+    let icon: CanvasImageSource | undefined;
 
     if (unitType === UnitType.SAMLauncher && unit.isCooldown()) {
       icon = this.unitIcons.get("reloadingSam");
@@ -306,10 +315,14 @@ export class StructureLayer implements Layer {
 
     this.drawBorder(unit, borderColor, config, drawFunction);
 
+    icon = this.unitIcons.get(iconType);
+    if (!icon) return;
+
     const startX = this.game.x(unit.tile()) - Math.floor(icon.width / 2);
     const startY = this.game.y(unit.tile()) - Math.floor(icon.height / 2);
     // Draw the icon
-    this.renderIcon(icon, startX, startY, icon.width, icon.height, unit);
+    this.context.drawImage(icon, startX, startY);
+    //this.renderIcon(icon, startX, startY, icon.width, icon.height, unit);
   }
 
   private renderIcon(
@@ -347,7 +360,7 @@ export class StructureLayer implements Layer {
   }
 
   paintCell(cell: Cell, color: Colord, alpha: number) {
-    this.clearCell(cell);
+    // this.clearCell(cell);
     this.context.fillStyle = color.alpha(alpha / 255).toRgbString();
     this.context.fillRect(cell.x, cell.y, 1, 1);
   }

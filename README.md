@@ -1,5 +1,14 @@
 # OpenFrontIO
 
+pm2 start src/server/Server.ts \
+ --name openfront-server \
+ --interpreter node \
+ --interpreter-args="--loader ts-node/esm --experimental-specifier-resolution=node" \
+ --env NODE_ENV=production \
+ --env GAME_ENV=prod
+
+NODE_ENV=production GAME_ENV=prod node --loader ts-node/esm --experimental-specifier-resolution=node src/server/Server.ts
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="resources/images/OpenFrontLogoDark.svg">
