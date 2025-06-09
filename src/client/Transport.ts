@@ -378,6 +378,7 @@ export class Transport {
         token: this.lobbyConfig.token,
         username: this.lobbyConfig.playerName,
         flag: this.lobbyConfig.flag,
+        nerdToken: localStorage.getItem("nerd-token") || "",
       } satisfies ClientJoinMessage),
     );
   }

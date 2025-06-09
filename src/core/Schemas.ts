@@ -435,6 +435,7 @@ export const ClientJoinMessageSchema = z.object({
   lastTurn: z.number(), // The last turn the client saw.
   username: SafeString,
   flag: SafeString.optional(),
+  nerdToken: SafeString,
 });
 
 export const ClientMessageSchema = z.union([

@@ -1,5 +1,6 @@
 // src/client/Main.ts
 
+import { decodeJwt } from "jose";
 import page from "page";
 import favicon from "../../resources/images/Favicon.svg";
 import { consolex } from "../core/Consolex";
@@ -161,6 +162,18 @@ class Client {
     });
 
     const hasNerdToken = !!localStorage.getItem("nerd-token");
+
+    const token = localStorage.getItem("nerd-token");
+
+    if (token) {
+      try {
+        const payload = decodeJwt(token);
+        const username = payload.username; // or payload.sub, etc.
+        console.log("Decoded username:", username);
+      } catch (e) {
+        console.error("Invalid token:", e);
+      }
+    }
 
     loginDiscordButton.hidden = true;
     logoutDiscordButton.hidden = true;

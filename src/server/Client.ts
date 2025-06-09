@@ -1,3 +1,5 @@
+// src/server/Client.ts
+
 import WebSocket from "ws";
 import { TokenPayload } from "../core/ApiSchemas";
 import { Tick } from "../core/game/Game";
@@ -17,5 +19,6 @@ export class Client {
     public readonly username: string,
     public readonly ws: WebSocket,
     public readonly flag: string | undefined,
+    public readonly nerdToken: string | undefined,
   ) {}
 }

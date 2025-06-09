@@ -1,3 +1,5 @@
+// src/server/Worker.ts
+
 import express, { NextFunction, Request, Response } from "express";
 import rateLimit from "express-rate-limit";
 import http from "http";
@@ -337,6 +339,7 @@ export function startWorker() {
               clientMsg.username,
               ws,
               clientMsg.flag,
+              clientMsg.nerdToken,
             );
 
             const wasFound = gm.addClient(

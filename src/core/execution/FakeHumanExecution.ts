@@ -58,7 +58,7 @@ export class FakeHumanExecution implements Execution {
     this.attackRate = this.random.nextInt(40, 80);
     this.attackTick = this.random.nextInt(0, this.attackRate);
     this.triggerRatio = this.random.nextInt(60, 90) / 100;
-    this.reserveRatio = this.random.nextInt(40, 70) / 100;
+    this.reserveRatio = this.random.nextInt(60, 80) / 100;
     this.heckleEmoji = ["🤡", "😡"].map((e) => flattenedEmojiTable.indexOf(e));
   }
 
@@ -297,20 +297,28 @@ export class FakeHumanExecution implements Execution {
     const silos = this.player.units(UnitType.MissileSilo);
     if (
       silos.length === 0 ||
-      this.player.gold() < this.cost(UnitType.CruiseMissile) ||
+      this.player.gold() < this.cost(UnitType.AtomBomb) ||
       other.type() === PlayerType.Bot ||
       this.player.isOnSameTeam(other)
     ) {
       return;
     }
 
-    const structures = other.units(
-      UnitType.City,
+    let structures = other.units(
       UnitType.DefensePost,
       UnitType.MissileSilo,
-      UnitType.Port,
       UnitType.SAMLauncher,
     );
+
+    if (silos.length > 1) {
+      const targetTiles = structures.map((u) => u.tile());
+      if (targetTiles.length) {
+        return this.sendCruise(targetTiles[0]);
+      }
+    }
+
+    structures = other.units(UnitType.City, UnitType.Port, UnitType.PowerPlant);
+
     const structureTiles = structures.map((u) => u.tile());
     const randomTiles: (TileRef | null)[] = new Array(10);
     for (let i = 0; i < randomTiles.length; i++) {
@@ -356,6 +364,18 @@ export class FakeHumanExecution implements Execution {
     if (this.player === null) throw new Error("not initialized");
     const tick = this.mg.ticks();
     this.lastNukeSent.push([tick, tile]);
+    this.mg.addExecution(
+      new NukeExecution(UnitType.AtomBomb, this.player.id(), tile),
+    );
+  }
+
+  private sendCruise(tile: TileRef) {
+    if (this.player === null) throw new Error("not initialized");
+    const tick = this.mg.ticks();
+    this.lastNukeSent.push([tick, tile]);
+    this.mg.addExecution(
+      new NukeExecution(UnitType.AtomBomb, this.player.id(), tile),
+    );
     this.mg.addExecution(
       new NukeExecution(UnitType.AtomBomb, this.player.id(), tile),
     );

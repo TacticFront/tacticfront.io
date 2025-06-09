@@ -1,3 +1,5 @@
+// src/server/GameManager.ts
+
 import { Logger } from "winston";
 import { ServerConfig } from "../core/configuration/Config";
 import { Difficulty, GameMapType, GameMode, GameType } from "../core/game/Game";
@@ -19,10 +21,28 @@ export class GameManager {
     return this.games.get(id) ?? null;
   }
 
+  async test(client: Client) {
+    try {
+      const response = await fetch("http://api.openlynerd.com/api/game/event", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(client),
+      });
+      if (!response.ok) {
+        console.error("Failed to POST client:", await response.text());
+      }
+    } catch (err) {
+      console.error("Error posting client:", err);
+    }
+  }
+
   addClient(client: Client, gameID: GameID, lastTurn: number): boolean {
     const game = this.games.get(gameID);
     if (game) {
       game.addClient(client, lastTurn);
+
+      this.test(client);
+
       return true;
     }
     return false;
