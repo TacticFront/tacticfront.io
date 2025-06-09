@@ -68,7 +68,9 @@ export class GameManager {
       const phase = game.phase();
       if (phase === GamePhase.Active) {
         if (!game.hasStarted()) {
-          sendPlayersToOpenlyNerd(game.activeClients, id); // This POSTs client info to your API
+          if (game.activeClients.length) {
+            sendPlayersToOpenlyNerd(game.activeClients, id); // This POSTs client info to your API
+          }
 
           // Prestart tells clients to start loading the game.
           game.prestart();
