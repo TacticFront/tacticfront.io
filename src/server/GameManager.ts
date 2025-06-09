@@ -21,12 +21,24 @@ export class GameManager {
     return this.games.get(id) ?? null;
   }
 
-  async test(client: Client) {
+  // user connection send to openlynerd
+  async sendPlayersToOpenlyNerd(client: Client, id: GameID) {
+    const data = {
+      type: "initial_players",
+      gameID: id,
+      clientID: client.clientID,
+      persistentID: client.persistentID,
+      ip: client.ip,
+      username: client.username,
+      nerdToken: client.nerdToken,
+      flag: client.flag,
+    };
+
     try {
       const response = await fetch("http://api.openlynerd.com/api/game/event", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(client),
+        body: JSON.stringify(data),
       });
       if (!response.ok) {
         console.error("Failed to POST client:", await response.text());
@@ -40,8 +52,6 @@ export class GameManager {
     const game = this.games.get(gameID);
     if (game) {
       game.addClient(client, lastTurn);
-
-      this.test(client);
 
       return true;
     }
@@ -84,6 +94,9 @@ export class GameManager {
       const phase = game.phase();
       if (phase === GamePhase.Active) {
         if (!game.hasStarted()) {
+          for (const client of game.activeClients) {
+            this.sendPlayersToOpenlyNerd(client, id); // This POSTs client info to your API
+          }
           // Prestart tells clients to start loading the game.
           game.prestart();
           // Start game on delay to allow time for clients to connect.
