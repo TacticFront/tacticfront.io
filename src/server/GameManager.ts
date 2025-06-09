@@ -6,6 +6,7 @@ import { Difficulty, GameMapType, GameMode, GameType } from "../core/game/Game";
 import { GameConfig, GameID } from "../core/Schemas";
 import { Client } from "./Client";
 import { GamePhase, GameServer } from "./GameServer";
+import { sendPlayersToOpenlyNerd } from "./OpenlyNerd";
 
 export class GameManager {
   private games: Map<GameID, GameServer> = new Map();
@@ -19,33 +20,6 @@ export class GameManager {
 
   public game(id: GameID): GameServer | null {
     return this.games.get(id) ?? null;
-  }
-
-  // user connection send to openlynerd
-  async sendPlayersToOpenlyNerd(client: Client, id: GameID) {
-    const data = {
-      type: "initial_players",
-      gameID: id,
-      clientID: client.clientID,
-      persistentID: client.persistentID,
-      ip: client.ip,
-      username: client.username,
-      nerdToken: client.nerdToken,
-      flag: client.flag,
-    };
-
-    try {
-      const response = await fetch("http://api.openlynerd.com/api/game/event", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        console.error("Failed to POST client:", await response.text());
-      }
-    } catch (err) {
-      console.error("Error posting client:", err);
-    }
   }
 
   addClient(client: Client, gameID: GameID, lastTurn: number): boolean {
@@ -94,9 +68,8 @@ export class GameManager {
       const phase = game.phase();
       if (phase === GamePhase.Active) {
         if (!game.hasStarted()) {
-          for (const client of game.activeClients) {
-            this.sendPlayersToOpenlyNerd(client, id); // This POSTs client info to your API
-          }
+          sendPlayersToOpenlyNerd(game.activeClients, id); // This POSTs client info to your API
+
           // Prestart tells clients to start loading the game.
           game.prestart();
           // Start game on delay to allow time for clients to connect.
