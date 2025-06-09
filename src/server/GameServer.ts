@@ -535,34 +535,6 @@ export class GameServer {
     }
   }
 
-  async sendWinInfotoOpenlyNerd(
-    winner: string,
-    gameID: string,
-    config: GameConfig,
-    playerRecords: PlayerRecord[],
-  ) {
-    const data = {
-      type: "game_stats",
-      gameID,
-      winner,
-      config: JSON.stringify(config),
-      playerRecords: JSON.stringify(config),
-    };
-
-    try {
-      const response = await fetch("http://api.openlynerd.com/api/game/event", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) {
-        console.error("Failed to POST client:", await response.text());
-      }
-    } catch (err) {
-      console.error("Error posting client:", err);
-    }
-  }
-
   private archiveGame() {
     this.log.info("archiving game", {
       gameID: this.id,
@@ -584,12 +556,7 @@ export class GameServer {
         stats,
       } satisfies PlayerRecord;
     });
-    this.sendWinInfotoOpenlyNerd(
-      this.winner?.[1] ?? "",
-      this.id,
-      this.gameStartInfo.config,
-      playerRecords,
-    );
+
     archive(
       createGameRecord(
         this.id,

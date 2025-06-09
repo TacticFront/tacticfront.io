@@ -5,6 +5,7 @@ import { getServerConfigFromServer } from "../core/configuration/ConfigLoader";
 import { AnalyticsRecord, GameID, GameRecord } from "../core/Schemas";
 import { replacer } from "../core/Util";
 import { logger } from "./Logger";
+import { sendWinInfotoOpenlyNerd } from "./OpenlyNerd";
 
 const config = getServerConfigFromServer();
 
@@ -27,6 +28,8 @@ const analyticsFolder = "analytics";
 
 export async function archive(gameRecord: GameRecord) {
   try {
+    sendWinInfotoOpenlyNerd(gameRecord);
+
     gameRecord.gitCommit = config.gitCommit();
     // Archive to R2
     await archiveAnalyticsToR2(gameRecord);
