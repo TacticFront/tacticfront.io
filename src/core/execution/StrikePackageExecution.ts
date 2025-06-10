@@ -2,9 +2,9 @@
 
 import { consolex } from "../Consolex";
 import { Execution, Game, PlayerID, Unit, UnitType } from "../game/Game";
-import { strikePackagePhases } from "../game/StrikePackagePhases";
-import { StrikePackageType } from "../game/StrikePackageType";
 import { NukeType } from "../StatsSchemas";
+import { strikePackagePhases } from "../types/StrikePackagePhases";
+import { StrikePackageType } from "../types/StrikePackageType";
 import { NukeExecution } from "./NukeExecution";
 
 // Helper to map package type

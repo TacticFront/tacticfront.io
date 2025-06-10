@@ -2,9 +2,9 @@
 
 import { Execution, Game } from "../game/Game";
 import { TileRef } from "../game/GameMap";
-import { StrikePackageType } from "../game/StrikePackageType";
 import { PseudoRandom } from "../PseudoRandom";
 import { ClientID, GameID, Intent, Turn } from "../Schemas";
+import { StrikePackageType } from "../types/StrikePackageType";
 import { simpleHash } from "../Util";
 import { AllianceRequestExecution } from "./alliance/AllianceRequestExecution";
 import { AllianceRequestReplyExecution } from "./alliance/AllianceRequestReplyExecution";

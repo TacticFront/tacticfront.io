@@ -13,7 +13,6 @@ import {
   UnitType,
 } from "../core/game/Game";
 import { PlayerView } from "../core/game/GameView";
-import { StrikePackageType } from "../core/game/StrikePackageType";
 import {
   AllPlayersStats,
   ClientHashMessage,
@@ -27,6 +26,7 @@ import {
   ServerMessageSchema,
   Winner,
 } from "../core/Schemas";
+import { StrikePackageType } from "../core/types/StrikePackageType";
 import { replacer } from "../core/Util";
 import { LobbyConfig } from "./ClientGameRunner";
 import { LocalServer } from "./LocalServer";

@@ -1,7 +1,9 @@
+// src/core/types/StrikePackagePhases.ts
+
 // src/core/game/StrikePackagePhases.ts
 
 import { NukeType } from "../StatsSchemas";
-import { UnitType } from "./Game";
+import { UnitType } from "../game/Game";
 import { StrikePackageType } from "./StrikePackageType";
 
 export const strikePackagePhases: {
@@ -41,18 +43,6 @@ export const strikePackagePhases: {
       overkill: 3,
     },
     {
-      name: "Silo Strike",
-      missileType: UnitType.CruiseMissile,
-      targetTypes: [UnitType.MissileSilo],
-      overkill: 2,
-    },
-    {
-      name: "Defense Post Strike",
-      missileType: UnitType.CruiseMissile,
-      targetTypes: [UnitType.DefensePost],
-      overkill: 2,
-    },
-    {
       name: "City Annihilation",
       missileType: UnitType.AtomBomb,
       targetTypes: [UnitType.City],
@@ -78,3 +68,5 @@ export const strikePackagePhases: {
     },
   ],
 };
+
+export default strikePackagePhases;

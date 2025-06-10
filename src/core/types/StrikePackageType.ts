@@ -1,3 +1,5 @@
+// src/core/types/StrikePackageType.ts
+
 // src/core/game/StrikePackageType.ts
 
 export enum StrikePackageType {

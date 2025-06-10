@@ -12,8 +12,8 @@ import {
   PlayerType,
   UnitType,
 } from "./game/Game";
-import { StrikePackageType } from "./game/StrikePackageType";
 import { PlayerStatsSchema } from "./StatsSchemas";
+import { StrikePackageType } from "./types/StrikePackageType";
 import { flattenedEmojiTable } from "./Util";
 
 export type GameID = string;

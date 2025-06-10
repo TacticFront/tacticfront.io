@@ -311,7 +311,7 @@ export class DefaultConfig implements Config {
         };
       case UnitType.SAMMissile:
         return {
-          cost: () => 50_000n,
+          cost: () => 25_000n,
           territoryBound: false,
         };
       case UnitType.Port:
@@ -378,7 +378,15 @@ export class DefaultConfig implements Config {
           cost: (p: Player) =>
             p.type() === PlayerType.Human && this.infiniteGold()
               ? 0n
-              : 250_000n,
+              : BigInt(
+                  Math.min(
+                    800_000,
+                    200_000 +
+                      p.unitsIncludingConstruction(UnitType.MissileSilo)
+                        .length *
+                        100_000,
+                  ),
+                ),
           territoryBound: true,
           constructionDuration: this.instantBuild() ? 0 : 20 * 10,
         };
@@ -440,10 +448,12 @@ export class DefaultConfig implements Config {
               ? 0n
               : BigInt(
                   Math.min(
-                    2_000_000,
-                    (p.unitsIncludingConstruction(UnitType.SAMLauncher).length +
-                      1) *
-                      1_000_000,
+                    4_000_000,
+                    750_000 +
+                      (p.unitsIncludingConstruction(UnitType.SAMLauncher)
+                        .length +
+                        1) *
+                        250_000,
                   ),
                 ),
           territoryBound: true,

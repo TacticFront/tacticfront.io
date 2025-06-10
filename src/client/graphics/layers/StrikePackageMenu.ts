@@ -7,7 +7,7 @@ import { customElement, state } from "lit/decorators.js";
 import { EventBus } from "../../../core/EventBus";
 import { TileRef } from "../../../core/game/GameMap";
 import { GameView, PlayerView } from "../../../core/game/GameView";
-import { StrikePackageType } from "../../../core/game/StrikePackageType";
+import { StrikePackageType } from "../../../core/types/StrikePackageType";
 import { SendStrikePackageIntentEvent } from "../../Transport";
 import { Layer } from "./Layer";
 
@@ -25,25 +25,25 @@ export const strikePackages: {
     type: StrikePackageType.CruiseMissile,
     icon: atomBombIcon, // Use your real icon here
     name: "Cruise Missile",
-    description: "Long-range precision missile.",
+    description: "Strike enemy defense posts with one missile each.",
   },
   {
     type: StrikePackageType.AtomBomb,
     icon: atomBombIcon, // Use your real icon here
     name: "Atom Bomb",
-    description: "Devastating nuclear strike.",
+    description: "Send an Atom bomb and decoy missile at each enemy cities.",
   },
   {
     type: StrikePackageType.MilitaryStrike,
     icon: atomBombIcon, // Use your real icon here
     name: "Military Strike",
-    description: "Military target elimination.",
+    description: "Target Sams, Silos and Defense Posts of enemy.",
   },
   {
     type: StrikePackageType.ScorchedEarth,
     icon: atomBombIcon, // Use your real icon here
     name: "Scorched Earth",
-    description: "Military and civilian target elimination.",
+    description: "Target Sams then target enemy cities.",
   },
 ];
 
@@ -158,6 +158,10 @@ export class StrikePackageMenu extends LitElement implements Layer {
     .strike-option:not(.selected) div {
       color: #ccc;
     }
+
+    .white-text {
+      color: white;
+    }
   `;
 
   showMenu(clickedTile: TileRef) {
@@ -212,7 +216,7 @@ export class StrikePackageMenu extends LitElement implements Layer {
         >
           &times;
         </button>
-        <h2>Select Strike Package</h2>
+        <h2 class="white-text">Select Strike Package</h2>
         ${strikePackages.map(
           (sp) => html`
             <div

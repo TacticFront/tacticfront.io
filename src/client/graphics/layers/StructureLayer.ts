@@ -388,6 +388,10 @@ export class StructureLayer implements Layer {
     return null;
   }
 
+  isStructureOwner(unit: UnitView): boolean {
+    return unit.owner().id() === this.game.myPlayer()?.id();
+  }
+
   private onMouseUp(event: MouseUpEvent) {
     const cell = this.transformHandler.screenToWorldCoordinates(
       event.x,
@@ -400,7 +404,7 @@ export class StructureLayer implements Layer {
     const clickedUnit = this.findStructureUnitAtCell(cell);
     this.previouslySelected = this.selectedStructureUnit;
 
-    if (clickedUnit) {
+    if (clickedUnit && this.isStructureOwner(clickedUnit)) {
       const wasSelected = this.previouslySelected === clickedUnit;
       if (wasSelected) {
         this.selectedStructureUnit = null;
