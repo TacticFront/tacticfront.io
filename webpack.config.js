@@ -167,7 +167,7 @@ export default async (env, argv) => {
           proxy: [
             // WebSocket proxies
             {
-              context: ["/socket"],
+              context: ["/ws"],
               target: "ws://localhost:3000",
               ws: true,
               changeOrigin: true,
