@@ -471,21 +471,21 @@ export class FakeHumanExecution implements Execution {
       return;
     }
 
-    if (this.player?.gold() || 0 > 10000000) {
-      this.maybeSpawnStructure(
-        UnitType.SAMLauncher,
-        (this.player?.population() || 1) / 100000,
-      );
-      this.maybeSpawnStructure(
-        UnitType.DefensePost,
-        (this.player?.population() || 1) / 150000,
-      );
-      this.maybeSpawnStructure(UnitType.ResearchLab, 6);
-      this.maybeSpawnStructure(
-        UnitType.City,
-        (this.player?.population() || 1) / 30000,
-      );
-    }
+    // if (this.player?.gold() || 0 > 10000000) {
+    //   this.maybeSpawnStructure(
+    //     UnitType.SAMLauncher,
+    //     (this.player?.population() || 1) / 100000,
+    //   );
+    //   this.maybeSpawnStructure(
+    //     UnitType.DefensePost,
+    //     (this.player?.population() || 1) / 150000,
+    //   );
+    //   this.maybeSpawnStructure(UnitType.ResearchLab, 6);
+    //   this.maybeSpawnStructure(
+    //     UnitType.City,
+    //     (this.player?.population() || 1) / 30000,
+    //   );
+    // }
   }
 
   private maybeSpawnStructure(type: UnitType, maxNum: number) {
