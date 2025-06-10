@@ -416,7 +416,8 @@
     "gold": "Gold",
     "troops": "Troops",
     "workers": "Workers",
-    "attack_ratio": "Attack Ratio"
+    "attack_ratio": "Attack Ratio",
+    "research": "Research Tree"
   },
   "player_panel": {
     "gold": "Gold",

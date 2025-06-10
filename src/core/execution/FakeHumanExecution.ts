@@ -310,7 +310,7 @@ export class FakeHumanExecution implements Execution {
       UnitType.SAMLauncher,
     );
 
-    if (silos.length > 1) {
+    if (silos.length > 0) {
       const targetTiles = structures.map((u) => u.tile());
       if (targetTiles.length) {
         return this.sendCruise(targetTiles[0]);
@@ -374,10 +374,10 @@ export class FakeHumanExecution implements Execution {
     const tick = this.mg.ticks();
     this.lastNukeSent.push([tick, tile]);
     this.mg.addExecution(
-      new NukeExecution(UnitType.AtomBomb, this.player.id(), tile),
+      new NukeExecution(UnitType.CruiseMissile, this.player.id(), tile),
     );
     this.mg.addExecution(
-      new NukeExecution(UnitType.AtomBomb, this.player.id(), tile),
+      new NukeExecution(UnitType.CruiseMissile, this.player.id(), tile),
     );
   }
 
@@ -470,7 +470,22 @@ export class FakeHumanExecution implements Execution {
     if (this.maybeSpawnWarship()) {
       return;
     }
-    this.maybeSpawnStructure(UnitType.MissileSilo, 1);
+
+    if (this.player?.gold() || 0 > 10000000) {
+      this.maybeSpawnStructure(
+        UnitType.SAMLauncher,
+        (this.player?.population() || 1) / 100000,
+      );
+      this.maybeSpawnStructure(
+        UnitType.DefensePost,
+        (this.player?.population() || 1) / 150000,
+      );
+      this.maybeSpawnStructure(UnitType.ResearchLab, 6);
+      this.maybeSpawnStructure(
+        UnitType.City,
+        (this.player?.population() || 1) / 30000,
+      );
+    }
   }
 
   private maybeSpawnStructure(type: UnitType, maxNum: number) {

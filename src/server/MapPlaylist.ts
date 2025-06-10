@@ -1,3 +1,5 @@
+// src/server/MapPlaylist.ts
+
 import { getServerConfigFromServer } from "../core/configuration/ConfigLoader";
 import { Difficulty, GameMapType, GameMode, GameType } from "../core/game/Game";
 import { PseudoRandom } from "../core/PseudoRandom";
@@ -8,8 +10,11 @@ const log = logger.child({});
 
 const config = getServerConfigFromServer();
 
+const TEAM_FREQUENCY_DIVISOR = 4;
+
 const frequency = {
-  World: 3,
+  World: 8,
+  WorldMapGiant: 3,
   Europe: 2,
   Africa: 2,
   Australia: 1,
@@ -18,7 +23,6 @@ const frequency = {
   GatewayToTheAtlantic: 1,
   Iceland: 1,
   SouthAmerica: 1,
-  KnownWorld: 1,
   DeglaciatedAntarctica: 1,
   EuropeClassic: 1,
   Mena: 1,
@@ -30,7 +34,7 @@ const frequency = {
   BlackSea: 1,
   FaroeIslands: 1,
   FalklandIslands: 1,
-  Baikal: 1,
+  Baikal: 2,
   Halkidiki: 1,
 };
 
@@ -46,7 +50,7 @@ export class MapPlaylist {
     const { map, mode } = this.getNextMap();
 
     const numPlayerTeams =
-      mode === GameMode.Team ? 2 + Math.floor(Math.random() * 5) : undefined;
+      mode === GameMode.Team ? 2 + Math.floor(Math.random() * 4) : undefined;
 
     // Create the default public game config (from your GameManager)
     return {
@@ -105,8 +109,9 @@ export class MapPlaylist {
       if (!this.addNextMap(this.mapsPlaylist, ffa3, GameMode.FFA)) {
         return false;
       }
-      if (!this.addNextMap(this.mapsPlaylist, team, GameMode.Team)) {
-        return false;
+      if (i % TEAM_FREQUENCY_DIVISOR === 0) {
+        if (!this.addNextMap(this.mapsPlaylist, team, GameMode.Team))
+          return false;
       }
     }
     return true;

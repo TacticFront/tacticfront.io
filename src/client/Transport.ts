@@ -147,6 +147,10 @@ export class SendSetTroopRatiosEvent implements GameEvent {
   ) {}
 }
 
+export class SendUnlockTechIntentEvent implements GameEvent {
+  constructor(public readonly techId: string) {}
+}
+
 export class SendWinnerEvent implements GameEvent {
   constructor(
     public readonly winner: Winner,
@@ -222,6 +226,14 @@ export class Transport {
     this.eventBus.on(SendSetTroopRatiosEvent, (e) =>
       this.onSendSetTroopRatiosEvent(e),
     );
+
+    this.eventBus.on(SendUnlockTechIntentEvent, (e) => {
+      this.sendIntent({
+        type: "unlock_tech",
+        clientID: this.lobbyConfig.clientID,
+        techId: e.techId,
+      });
+    });
 
     this.eventBus.on(SendStrikePackageIntentEvent, (e) => {
       this.sendIntent({

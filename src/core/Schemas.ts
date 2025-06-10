@@ -37,7 +37,8 @@ export type Intent =
   | BuildUnitIntent
   | EmbargoIntent
   | QuickChatIntent
-  | MoveWarshipIntent;
+  | MoveWarshipIntent
+  | UnlockTechIntent;
 
 export type AttackIntent = z.infer<typeof AttackIntentSchema>;
 export type CancelAttackIntent = z.infer<typeof CancelAttackIntentSchema>;
@@ -63,6 +64,7 @@ export type TargetTroopRatioIntent = z.infer<
 export type BuildUnitIntent = z.infer<typeof BuildUnitIntentSchema>;
 export type MoveWarshipIntent = z.infer<typeof MoveWarshipIntentSchema>;
 export type QuickChatIntent = z.infer<typeof QuickChatIntentSchema>;
+export type UnlockTechIntent = z.infer<typeof UnlockTechIntentSchema>;
 
 export type Turn = z.infer<typeof TurnSchema>;
 export type GameConfig = z.infer<typeof GameConfigSchema>;
@@ -183,6 +185,7 @@ const BaseIntentSchema = z.object({
     "build_unit",
     "embargo",
     "move_warship",
+    "unlock_tech",
   ]),
   clientID: ID,
 });
@@ -305,6 +308,11 @@ export const QuickChatIntentSchema = BaseIntentSchema.extend({
   variables: z.record(SafeString).optional(),
 });
 
+export const UnlockTechIntentSchema = BaseIntentSchema.extend({
+  type: z.literal("unlock_tech"),
+  techId: z.string(),
+});
+
 const IntentSchema = z.union([
   AttackIntentSchema,
   CancelAttackIntentSchema,
@@ -324,6 +332,7 @@ const IntentSchema = z.union([
   EmbargoIntentSchema,
   MoveWarshipIntentSchema,
   QuickChatIntentSchema,
+  UnlockTechIntentSchema,
 ]);
 
 export const TurnSchema = z.object({

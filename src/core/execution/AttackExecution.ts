@@ -228,6 +228,10 @@ export class AttackExecution implements Execution {
       }
     }
 
+    if (ticks % 100 === 0) {
+      this.refreshToConquer();
+    }
+
     let troopCount = this.attack.troops(); // cache troop count
 
     if (this.attack.retreated()) {

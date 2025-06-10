@@ -11,7 +11,7 @@ import { StrikePackageType } from "../../../core/game/StrikePackageType";
 import { SendStrikePackageIntentEvent } from "../../Transport";
 import { Layer } from "./Layer";
 
-import atomBombIcon from "../../../../static/images/MissileSiloIconWhite.svg";
+import atomBombIcon from "../../../../resources/images/MissileSiloIconWhite.svg";
 
 // src/client/graphics/layers/StrikePackageMenu.ts
 

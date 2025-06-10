@@ -27,6 +27,7 @@ import { SpawnExecution } from "./SpawnExecution";
 import { StrikePackageExecution } from "./StrikePackageExecution";
 import { TargetPlayerExecution } from "./TargetPlayerExecution";
 import { TransportShipExecution } from "./TransportShipExecution";
+import { UnlockTechExecution } from "./UnlockTechExecution"; // Import UnlockTechExecution
 
 export class Executor {
   // private random = new PseudoRandom(999)
@@ -128,6 +129,8 @@ export class Executor {
           this.mg.ref(intent.x, intent.y),
           intent.unit,
         );
+      case "unlock_tech": // Handle unlock_tech intent
+        return new UnlockTechExecution(player, intent.techId);
       case "quick_chat":
         return new QuickChatExecution(
           playerID,

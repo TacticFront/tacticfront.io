@@ -24,6 +24,7 @@ import { PlayerInfoOverlay } from "./layers/PlayerInfoOverlay";
 import { PlayerPanel } from "./layers/PlayerPanel";
 import { PlayerTeamLabel } from "./layers/PlayerTeamLabel";
 import { RadialMenu } from "./layers/RadialMenu";
+import { ResearchMenu } from "./layers/ResearchMenu";
 import { SpawnTimer } from "./layers/SpawnTimer";
 import { StrikePackageMenu } from "./layers/StrikePackageMenu";
 import { StructureLayer } from "./layers/StructureLayer";
@@ -76,6 +77,13 @@ export function createRenderer(
   }
   strikePackageMenu.game = game;
   strikePackageMenu.eventBus = eventBus;
+
+  const researchMenu = document.querySelector("research-menu") as ResearchMenu;
+  if (!researchMenu || !(researchMenu instanceof ResearchMenu)) {
+    consolex.error("ResearchMenu element not found in the DOM");
+  }
+  researchMenu.game = game;
+  researchMenu.eventBus = eventBus;
 
   const leaderboard = document.querySelector("leader-board") as Leaderboard;
   if (!emojiTable || !(leaderboard instanceof Leaderboard)) {

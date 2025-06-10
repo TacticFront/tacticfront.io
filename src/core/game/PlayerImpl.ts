@@ -72,6 +72,8 @@ export class PlayerImpl implements Player {
 
   private _techLevel: number;
 
+  private _unlockedTechnologies: Set<string> = new Set(); // Add techTree property
+
   // 0 to 100
   private _targetTroopRatio: bigint;
   private _reserveTroopRatio: bigint;
@@ -176,6 +178,7 @@ export class PlayerImpl implements Player {
       hasSpawned: this.hasSpawned(),
       betrayals: stats?.betrayals,
       techLevel: this._techLevel,
+      unlockedTechnologies: this._unlockedTechnologies,
     };
   }
 
@@ -960,6 +963,14 @@ export class PlayerImpl implements Player {
 
   techLevel(): number {
     return this._techLevel;
+  }
+
+  hasTech(techId: string): boolean {
+    return this._unlockedTechnologies.has(techId);
+  }
+
+  unlockTech(techId: string): void {
+    this._unlockedTechnologies.add(techId);
   }
 
   public playerProfile(): PlayerProfile {

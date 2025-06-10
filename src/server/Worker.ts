@@ -43,7 +43,8 @@ export function startWorker() {
 
   const gm = new GameManager(config, log);
 
-  if (config.env() === GameEnv.Prod && config.otelEnabled()) {
+  // if (config.env() === GameEnv.Prod && config.otelEnabled()) {
+  if (config.otelEnabled()) {
     initWorkerMetrics(gm);
   }
 
@@ -283,6 +284,30 @@ export function startWorker() {
       res.status(200).send("Player kicked successfully");
     }),
   );
+
+  // --- Worker Status Endpoint ---
+  app.get("/api/worker_status", (req, res) => {
+    const memoryUsage = process.memoryUsage();
+    const activeGames = gm ? gm.activeGames() : 0;
+    const activeClients = gm ? gm.activeClients() : 0; // if you track clients on GameManager
+
+    res.json({
+      workerId,
+      status: "ok",
+      env: config.env(),
+      uptimeSeconds: Math.floor(process.uptime()),
+      memory: {
+        rss: memoryUsage.rss,
+        heapUsed: memoryUsage.heapUsed,
+        heapTotal: memoryUsage.heapTotal,
+        external: memoryUsage.external,
+      },
+      activeGames,
+      activeClients,
+      gitCommit: config.gitCommit(),
+      now: new Date().toISOString(),
+    });
+  });
 
   // WebSocket handling
   wss.on("connection", (ws: WebSocket, req) => {

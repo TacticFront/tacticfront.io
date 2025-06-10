@@ -11,6 +11,8 @@ import { SendSetTroopRatiosEvent } from "../../Transport";
 import { renderNumber, renderTroops } from "../../Utils";
 import { UIState } from "../UIState";
 import { Layer } from "./Layer";
+import "./ResearchMenu"; // Import the ResearchMenu
+import { ResearchMenu } from "./ResearchMenu"; // Import the ResearchMenu class
 
 @customElement("control-panel")
 export class ControlPanel extends LitElement implements Layer {
@@ -353,12 +355,34 @@ export class ControlPanel extends LitElement implements Layer {
             />
           </div>
         </div>
+
+        <!-- Research Menu Button -->
+        <button
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
+          @click=${this.toggleResearchMenu}
+        >
+          🔬 ${translateText("control_panel.research")}
+        </button>
       </div>
       <nuke-launch-menu></nuke-launch-menu>
+      <research-menu></research-menu>
     `;
   }
 
   createRenderRoot() {
     return this; // Disable shadow DOM to allow Tailwind styles
+  }
+
+  toggleResearchMenu() {
+    const researchMenu = this.renderRoot.querySelector(
+      "research-menu",
+    ) as ResearchMenu;
+    if (researchMenu) {
+      if (researchMenu.isVisible) {
+        researchMenu.hideMenu();
+      } else {
+        researchMenu.showMenu();
+      }
+    }
   }
 }

@@ -269,7 +269,7 @@ class Client {
     page("/join/:lobbyId", (ctx) => {
       if (ctx.init && sessionStorage.getItem("inLobby")) {
         // On page reload, go back home
-        page.redirect("/");
+        page("/");
         return;
       }
       const lobbyId = ctx.params.lobbyId;

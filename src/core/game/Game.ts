@@ -480,6 +480,9 @@ export interface Player {
 
   techLevel(): number;
 
+  hasTech(techId: string): boolean;
+  unlockTech(techId: string): void;
+
   // Units
   units(...types: UnitType[]): Unit[];
   unitsIncludingConstruction(type: UnitType): Unit[];

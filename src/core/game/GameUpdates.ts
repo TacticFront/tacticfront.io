@@ -124,6 +124,7 @@ export interface PlayerUpdate {
   outgoingAllianceRequests: PlayerID[];
   hasSpawned: boolean;
   techLevel: number;
+  unlockedTechnologies: Set<string>;
   betrayals?: bigint;
 }
 

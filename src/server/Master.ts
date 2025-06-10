@@ -195,6 +195,22 @@ app.post(
   }),
 );
 
+app.get("/api/worker_status", async (req, res) => {
+  const statuses: any[] = [];
+  for (let i = 0; i <= config.numWorkers(); i++) {
+    try {
+      const resp = await fetch(
+        `http://localhost:${config.workerPortByIndex(i)}/api/worker_status`,
+      );
+      const json = await resp.json();
+      statuses.push(json);
+    } catch (err) {
+      statuses.push({ workerId: i, error: (err as Error).message });
+    }
+  }
+  res.json({ workers: statuses });
+});
+
 async function fetchLobbies(): Promise<number> {
   const fetchPromises: Promise<GameInfo | null>[] = [];
 

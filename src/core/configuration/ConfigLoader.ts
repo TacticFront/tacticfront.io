@@ -1,3 +1,5 @@
+// src/core/configuration/ConfigLoader.ts
+
 import { consolex } from "../Consolex";
 import { UserSettings } from "../game/UserSettings";
 import { GameConfig } from "../Schemas";

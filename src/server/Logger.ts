@@ -1,3 +1,5 @@
+// src/server/Logger.ts
+
 import * as logsAPI from "@opentelemetry/api-logs";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import {
@@ -7,7 +9,6 @@ import {
 import { OpenTelemetryTransportV3 } from "@opentelemetry/winston-transport";
 import * as dotenv from "dotenv";
 import winston from "winston";
-import { GameEnv } from "../core/configuration/Config";
 import { getServerConfigFromServer } from "../core/configuration/ConfigLoader";
 import { getOtelResource } from "./OtelResource";
 dotenv.config();
@@ -20,9 +21,10 @@ const resource = getOtelResource();
 const loggerProvider = new LoggerProvider({
   resource,
 });
-
-if (config.env() === GameEnv.Prod && config.otelEnabled()) {
+//if (config.env() === GameEnv.Prod && config.otelEnabled()) {
+if (config.otelEnabled()) {
   console.log("OTEL enabled");
+  console.log(config.otelEndpoint());
   // Configure OpenTelemetry endpoint with basic auth (if provided)
   const headers = {};
   if (config.otelUsername() && config.otelPassword()) {

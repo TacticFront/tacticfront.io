@@ -11,6 +11,7 @@ import { getOtelResource } from "./OtelResource";
 dotenv.config();
 
 export function initWorkerMetrics(gameManager: GameManager): void {
+  console.log("metric server setup");
   // Get server configuration
   const config = getServerConfigFromServer();
 
