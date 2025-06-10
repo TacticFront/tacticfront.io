@@ -140,10 +140,7 @@ export const TeamSchema = z.string();
 
 const SafeString = z
   .string()
-  .regex(
-    /^([a-zA-Z0-9\s.,!?@#$%&*()\-_+=\[\]{}|;:"'\/\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff]|üÜ])*$/,
-  )
-  .max(1000);
+  .regex(/^\p{L}[\p{L}\p{N}\p{P}\s]{0,999}$/u, "Invalid");
 
 const PersistentIdSchema = z.string().uuid();
 const JwtTokenSchema = z.string().jwt();
