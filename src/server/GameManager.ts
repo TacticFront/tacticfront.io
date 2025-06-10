@@ -54,6 +54,14 @@ export class GameManager {
     return this.games.size;
   }
 
+  gameIDs(): string[] {
+    const ids: string[] = [];
+    for (const id of this.games.keys()) {
+      ids.push(id);
+    }
+    return ids;
+  }
+
   activeClients(): number {
     let totalClients = 0;
     this.games.forEach((game: GameServer) => {

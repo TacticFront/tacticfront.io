@@ -304,6 +304,7 @@ export function startWorker() {
       },
       activeGames,
       activeClients,
+      gameIDs: gm.gameIDs(),
       gitCommit: config.gitCommit(),
       now: new Date().toISOString(),
     });
