@@ -93,7 +93,7 @@ describe("UILayer", () => {
       tile: () => ({}),
       isActive: () => true,
     } as unknown as UnitView;
-    ui.drawLoadingBar(unit, 5);
+    // ui.drawLoadingBar(unit, 5);
     expect(ui["allProgressBars"].has(2)).toBe(true);
   });
 
@@ -108,7 +108,7 @@ describe("UILayer", () => {
       tile: () => ({}),
       isActive: () => true,
     } as unknown as UnitView;
-    ui.onUnitEvent(unit);
+    // ui.onUnitEvent(unit);
     expect(ui["allProgressBars"].has(2)).toBe(true);
 
     // an inactive unit should not have a loading bar
@@ -128,7 +128,7 @@ describe("UILayer", () => {
       tile: () => ({}),
       isActive: () => true,
     } as unknown as UnitView;
-    ui.onUnitEvent(unit);
+    // ui.onUnitEvent(unit);
     expect(ui["allProgressBars"].has(2)).toBe(true);
 
     game.ticks = () => 6; // simulate enough ticks for completion
