@@ -7,6 +7,10 @@ import { replacer } from "../core/Util";
 import { logger } from "./Logger";
 import { sendWinInfotoOpenlyNerd } from "./OpenlyNerd";
 
+(BigInt.prototype as any).toJSON = function () {
+  return this.toString();
+};
+
 const config = getServerConfigFromServer();
 
 const log = logger.child({ component: "Archive" });
