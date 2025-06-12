@@ -122,7 +122,7 @@ export class MapPlaylist {
     nextEls: GameMapType[],
     mode: GameMode,
   ): boolean {
-    const nonConsecutiveNum = 5;
+    const nonConsecutiveNum = 3;
     const lastEls = playlist
       .slice(playlist.length - nonConsecutiveNum)
       .map((m) => m.map);
@@ -135,6 +135,13 @@ export class MapPlaylist {
       playlist.push({ map: next, mode: mode });
       return true;
     }
+
+    if (nextEls.length) {
+      const fallback = nextEls.shift()!;
+      playlist.push({ map: fallback, mode });
+      return true;
+    }
+
     return false;
   }
 }
