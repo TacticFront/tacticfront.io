@@ -30,8 +30,11 @@ export class UnitImpl implements Unit {
   private _constructionType: UnitType | undefined;
   private _lastOwner: PlayerImpl | null = null;
   private _troops: number;
+  private _cooldown: number;
   private _cooldownStartTick: Tick | null = null;
+  private _cooldownEndTick: Tick = 0;
   private _patrolTile: TileRef | undefined;
+  private _stockpile: Map<string, number> = new Map<string, number>();
   constructor(
     private _type: UnitType,
     private mg: GameImpl,
@@ -64,6 +67,59 @@ export class UnitImpl implements Unit {
         this.mg.stats().unitBuild(_owner, this._type);
     }
   }
+
+  getStockpile(): Map<string, number> {
+    return this._stockpile;
+  }
+
+  getStock(resource: string): number {
+    return this._stockpile.get(resource) ?? 0;
+  }
+
+  setStock(resource: string, amount: number): void {
+    if (amount > 0) {
+      this._stockpile.set(resource, amount);
+    } else {
+      this._stockpile.delete(resource);
+    }
+  }
+
+  adjustStock(resource: string, delta: number): void {
+    const current = this.getStock(resource);
+    this.setStock(resource, current + delta);
+  }
+
+  /** Convenience: add stock */
+  addStock(resource: string, amount: number): void {
+    if (amount < 0) throw new Error("amount must be positive");
+    this.adjustStock(resource, amount);
+  }
+
+  /** Convenience: remove stock, returns actual amount removed */
+  removeStock(resource: string, amount: number): number {
+    if (amount < 0) throw new Error("amount must be positive");
+    const current = this.getStock(resource);
+    const removed = Math.min(current, amount);
+    this.setStock(resource, current - removed);
+    return removed;
+  }
+
+  hasStock(resource: string): boolean {
+    return this._stockpile.has(resource) && this.getStock(resource) > 0;
+  }
+
+  cooldown(): number {
+    return this._cooldown;
+  }
+
+  tickCooldown(): number {
+    return this._cooldown--;
+  }
+
+  // setCooldown(cooldown: number) {
+  //   this._cooldown = cooldown;
+  //   this.mg.addUpdate(this.toUpdate());
+  // }
 
   setPatrolTile(tile: TileRef): void {
     this._patrolTile = tile;
@@ -111,6 +167,7 @@ export class UnitImpl implements Unit {
       ticksLeftInCooldown: this.ticksLeftInCooldown() ?? undefined,
       isDamaged: this.isDamaged(),
       repairCooldown: this.repairCooldown(),
+      stockpile: this.getStockpile(),
     };
   }
 
@@ -298,31 +355,50 @@ export class UnitImpl implements Unit {
   }
 
   launch(): void {
-    this._cooldownStartTick = this.mg.ticks();
+    //this._cooldownStartTick = this.mg.ticks();
+    this._cooldownEndTick;
     this.mg.addUpdate(this.toUpdate());
   }
 
-  ticksLeftInCooldown(): Tick | undefined {
-    let cooldownDuration = 0;
-    if (this.type() === UnitType.SAMLauncher) {
-      cooldownDuration = this.mg.config().SAMCooldown();
-    } else if (this.type() === UnitType.MissileSilo) {
-      cooldownDuration = this.mg.config().SiloCooldown();
-    } else {
-      return undefined;
-    }
+  setCooldown(ticks: number): void {
+    //this._cooldownStartTick = this.mg.ticks();
+    this._cooldownEndTick = this.mg.ticks() + ticks;
+    this.mg.addUpdate(this.toUpdate());
+  }
 
-    if (!this._cooldownStartTick) {
-      return undefined;
-    }
+  // ticksLeftInCooldown(): Tick | undefined {
 
-    return cooldownDuration - (this.mg.ticks() - this._cooldownStartTick);
+  //   let cooldownDuration = 0;
+  //   if (this.type() === UnitType.SAMLauncher) {
+  //     cooldownDuration = this.mg.config().SAMCooldown();
+  //   } else if (this.type() === UnitType.MissileSilo) {
+  //     cooldownDuration = this.mg.config().SiloCooldown();
+  //   } else {
+  //     return undefined;
+  //   }
+
+  //   if (!this._cooldownStartTick) {
+  //     return undefined;
+  //   }
+
+  //   return cooldownDuration - (this.mg.ticks() - this._cooldownStartTick);
+  // }
+
+  public ticksLeftInCooldown(): Tick {
+    const now = this.mg.ticks();
+    const remaining = this._cooldownEndTick - now;
+    // Never return negative
+    return remaining > 0 ? remaining : 0;
   }
 
   isInCooldown(): boolean {
-    const ticksLeft = this.ticksLeftInCooldown();
-    return ticksLeft !== undefined && ticksLeft > 0;
+    return this.mg.ticks() < this._cooldownEndTick;
   }
+
+  // isInCooldown(): boolean {
+  //   const ticksLeft = this.ticksLeftInCooldown();
+  //   return ticksLeft !== undefined && ticksLeft > 0;
+  // }
 
   setTargetTile(targetTile: TileRef | undefined) {
     this._targetTile = targetTile;

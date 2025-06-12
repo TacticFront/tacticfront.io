@@ -1,21 +1,12 @@
 // src/client/graphics/layers/ResearchMenu.ts
 
-import { LitElement, css, html } from "lit";
+import { css, html, LitElement } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { EventBus } from "../../../core/EventBus";
 import { GameView } from "../../../core/game/GameView";
-import { researchTree } from "../../../core/types/Techs";
+import { researchTree, Tech } from "../../../core/types/Techs";
 import { SendUnlockTechIntentEvent } from "../../Transport";
 import { Layer } from "./Layer";
-
-export type Tech = {
-  id: string;
-  name: string;
-  description: string;
-  icon: string; // SVG path or emoji for now
-  unlocked?: boolean;
-  category: string;
-};
 
 @customElement("research-menu")
 export class ResearchMenu extends LitElement implements Layer {
@@ -134,6 +125,13 @@ export class ResearchMenu extends LitElement implements Layer {
     super();
   }
 
+  private canAfford(tech: Tech): boolean {
+    const player = this.game.myPlayer();
+    if (!player) return false;
+    // player.gold() is bigint, so convert cost to bigint
+    return player.gold() >= BigInt(tech.cost);
+  }
+
   private getUnlockedSet(): Set<string> {
     return this.game?.myPlayer()?.data?.unlockedTechnologies ?? new Set();
   }
@@ -149,6 +147,7 @@ export class ResearchMenu extends LitElement implements Layer {
 
   // Returns true if this tech is RESEARCHABLE (not already unlocked, and previous in row is unlocked)
   private canUnlock(row: Tech[], techIdx: number): boolean {
+    const tech = row[techIdx];
     console.log(
       this.isUnlocked(row[techIdx].id),
       this.getTechLevel(),
@@ -160,6 +159,8 @@ export class ResearchMenu extends LitElement implements Layer {
 
     // Must have sufficient techLevel to unlock this tier
     if (techLevel <= techIdx) return false;
+
+    if (!this.canAfford(tech)) return false;
 
     // First tech in row: only techLevel check is needed
     if (techIdx === 0) return true;

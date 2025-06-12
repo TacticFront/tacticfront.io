@@ -4,9 +4,10 @@ import { GameID, GameRecord } from "../core/Schemas";
 import { Client } from "./Client";
 
 export async function sendWinInfotoOpenlyNerd(gameRecord: GameRecord) {
+  const { turns, ...recordWithoutTurns } = gameRecord;
   const data = {
     type: "game_stats",
-    gameRecord: JSON.stringify(gameRecord),
+    gameRecord: JSON.stringify(recordWithoutTurns),
   };
 
   try {

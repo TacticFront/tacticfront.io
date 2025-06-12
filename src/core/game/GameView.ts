@@ -125,6 +125,10 @@ export class UnitView {
     if (this.data.ticksLeftInCooldown === undefined) return false;
     return this.data.ticksLeftInCooldown > 0;
   }
+
+  stockpile(): Map<string, number> {
+    return this.data.stockpile;
+  }
 }
 
 export class PlayerView {

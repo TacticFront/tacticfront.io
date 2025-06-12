@@ -85,6 +85,7 @@ export interface UnitUpdate {
   ticksLeftInCooldown?: Tick;
   isDamaged?: boolean;
   repairCooldown?: number;
+  stockpile: Map<string, number>;
 }
 
 export interface AttackUpdate {

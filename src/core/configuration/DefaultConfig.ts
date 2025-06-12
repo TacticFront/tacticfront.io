@@ -23,6 +23,7 @@ import { TileRef } from "../game/GameMap";
 import { PlayerView } from "../game/GameView";
 import { UserSettings } from "../game/UserSettings";
 import { GameConfig, GameID } from "../Schemas";
+import { NukeType } from "../StatsSchemas";
 import { assertNever, simpleHash, within } from "../Util";
 import { Config, GameEnv, NukeMagnitude, ServerConfig, Theme } from "./Config";
 import { PastelTheme } from "./PastelTheme";
@@ -384,7 +385,7 @@ export class DefaultConfig implements Config {
                     200_000 +
                       p.unitsIncludingConstruction(UnitType.MissileSilo)
                         .length *
-                        100_000,
+                        200_000,
                   ),
                 ),
           territoryBound: true,
@@ -413,7 +414,7 @@ export class DefaultConfig implements Config {
               ? 0n
               : BigInt(
                   Math.min(
-                    1_000_000,
+                    2_000_000,
                     Math.pow(
                       2,
                       p.unitsIncludingConstruction(UnitType.ResearchLab).length,
@@ -448,12 +449,10 @@ export class DefaultConfig implements Config {
               ? 0n
               : BigInt(
                   Math.min(
-                    4_000_000,
-                    750_000 +
-                      (p.unitsIncludingConstruction(UnitType.SAMLauncher)
-                        .length +
-                        1) *
-                        250_000,
+                    5_000_000,
+                    (p.unitsIncludingConstruction(UnitType.SAMLauncher).length +
+                      1) *
+                      500_000,
                   ),
                 ),
           territoryBound: true,
@@ -530,6 +529,20 @@ export class DefaultConfig implements Config {
   }
   temporaryEmbargoDuration(): Tick {
     return 300 * 10; // 5 minutes.
+  }
+
+  missileBaseEvasion(missileType: NukeType): number {
+    switch (missileType) {
+      case UnitType.CruiseMissile:
+        return 0;
+        break;
+      default:
+        return 0;
+        break;
+    }
+  }
+  samBaseTargeting(): number {
+    return 50;
   }
 
   percentageTilesOwnedToWin(): number {
@@ -733,7 +746,7 @@ export class DefaultConfig implements Config {
           return 50_000 * (playerInfo?.nation?.strength ?? 1);
       }
     }
-    return this.infiniteTroops() ? 1_000_000 : 25_000;
+    return this.infiniteTroops() ? 1_000_000 : 30_000;
   }
 
   maxPopulation(player: Player | PlayerView): number {
@@ -796,7 +809,7 @@ export class DefaultConfig implements Config {
   }
 
   goldAdditionRate(player: Player): Gold {
-    const populationGold = 0.025 * player.workers() ** 0.8; // .045
+    const populationGold = 0.035 * player.workers() ** 0.65; // .045
     const cityGold = player.units(UnitType.City).length * 50;
     const portGold = player.units(UnitType.Port).length * 30;
     const powerPlantGold = player.units(UnitType.PowerPlant).length * 80;

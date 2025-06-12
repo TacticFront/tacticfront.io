@@ -24,7 +24,6 @@ export class SAMMissileExecution implements Execution {
     private _owner: Player,
     private ownerUnit: Unit,
     private target: Unit,
-    private speed: number = 16,
   ) {}
 
   init(mg: Game, ticks: number): void {
@@ -60,7 +59,7 @@ export class SAMMissileExecution implements Execution {
       this.active = false;
       return;
     }
-    for (let i = 0; i < this.speed; i++) {
+    for (let i = 0; i < this._owner.getVar("samMissileSpeed"); i++) {
       const result = this.pathFinder.nextTile(
         this.SAMMissile.tile(),
         this.target.tile(),

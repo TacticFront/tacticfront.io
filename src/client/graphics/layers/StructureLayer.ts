@@ -392,6 +392,16 @@ export class StructureLayer implements Layer {
     return unit.owner().id() === this.game.myPlayer()?.id();
   }
 
+  isLocalhost(): boolean {
+    const host = window.location.hostname;
+    return (
+      host === "localhost" ||
+      host === "127.0.0.1" ||
+      // in case you’re using the IPv6 loopback
+      host === "[::1]"
+    );
+  }
+
   private onMouseUp(event: MouseUpEvent) {
     const cell = this.transformHandler.screenToWorldCoordinates(
       event.x,
@@ -404,7 +414,8 @@ export class StructureLayer implements Layer {
     const clickedUnit = this.findStructureUnitAtCell(cell);
     this.previouslySelected = this.selectedStructureUnit;
 
-    if (clickedUnit && this.isStructureOwner(clickedUnit)) {
+    //&& (this.isStructureOwner(clickedUnit) || this.isLocalhost())
+    if (clickedUnit) {
       const wasSelected = this.previouslySelected === clickedUnit;
       if (wasSelected) {
         this.selectedStructureUnit = null;

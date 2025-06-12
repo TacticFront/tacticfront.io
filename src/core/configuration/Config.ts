@@ -2,7 +2,6 @@
 
 import { Colord } from "colord";
 import { JWK } from "jose";
-import { GameConfig, GameID } from "../Schemas";
 import {
   Difficulty,
   Duos,
@@ -21,6 +20,8 @@ import {
 import { GameMap, TileRef } from "../game/GameMap";
 import { PlayerView } from "../game/GameView";
 import { UserSettings } from "../game/UserSettings";
+import { GameConfig, GameID } from "../Schemas";
+import { NukeType } from "../StatsSchemas";
 
 export enum GameEnv {
   Dev,
@@ -68,6 +69,8 @@ export interface NukeMagnitude {
 export interface Config {
   samHittingChance(): number;
   samWarheadHittingChance(): number;
+  missileBaseEvasion(missileType: NukeType): number;
+  samBaseTargeting(): number;
   spawnImmunityDuration(): Tick;
   serverConfig(): ServerConfig;
   gameConfig(): GameConfig;

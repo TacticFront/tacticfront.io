@@ -180,7 +180,9 @@ export class NukeExecution implements Execution {
         .find((silo) => silo.tile() === spawn);
       if (silo) {
         console.log("Missile silo found at spawn:", spawn);
-        silo.launch();
+
+        // CooldownProject
+        silo.setCooldown(300);
         console.log("Missile silo launch invoked at spawn:", spawn);
       } else {
         console.warn("No missile silo found at spawn:", spawn);

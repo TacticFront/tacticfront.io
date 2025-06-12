@@ -281,8 +281,16 @@ export enum PlayerType {
   FakeHuman = "FAKEHUMAN",
 }
 
+export enum ExecutionPhase {
+  INIT = "init",
+  CONSTRUCTING = "constructing",
+  WORKING = "working",
+}
+
 export interface Execution {
   isActive(): boolean;
+  phase?(): ExecutionPhase;
+  constructing?(): void;
   activeDuringSpawnPhase(): boolean;
   init(mg: Game, ticks: number): void;
   tick(ticks: number): void;
@@ -395,11 +403,36 @@ export interface Unit {
   setRepairCooldown(ticks: number): void;
   checkRepairs(): void;
 
+  /** Return the entire stock map */
+  getStockpile(): Map<string, number>;
+
+  /** Get the quantity for a given resource (0 if missing) */
+  getStock(resource: string): number;
+
+  /** Set the exact quantity for a resource (deletes if ≤ 0) */
+  setStock(resource: string, amount: number): void;
+
+  /** Change the quantity by a delta (can be negative) */
+  adjustStock(resource: string, delta: number): void;
+
+  /** Add to the stockpile (must be positive) */
+  addStock(resource: string, amount: number): void;
+
+  /** Remove from the stockpile (must be positive), returns actual removed */
+  removeStock(resource: string, amount: number): number;
+
+  /** True if there’s any of that resource in stock */
+  hasStock(resource: string): boolean;
+
   // Troops
   setTroops(troops: number): void;
   troops(): number;
 
   // --- UNIT SPECIFIC ---
+  cooldown(): number;
+  tickCooldown(): number;
+  setCooldown(cooldown: number): void;
+  isInCooldown(): boolean;
 
   // SAMs & Missile Silos
   launch(): void;
@@ -443,6 +476,9 @@ export interface Player {
   type(): PlayerType;
   isPlayer(): this is Player;
   toString(): string;
+
+  getVar(name: string): number;
+  setVar(name: string, value: number): void;
 
   // State & Properties
   isAlive(): boolean;

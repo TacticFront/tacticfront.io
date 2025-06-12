@@ -49,6 +49,7 @@ import {
   canBuildTransportShip,
 } from "./TransportShipUtils";
 import { UnitImpl } from "./UnitImpl";
+import { SAMLauncherUnit } from "./Units/SAMLauncherUnit";
 
 interface Target {
   tick: Tick;
@@ -106,6 +107,7 @@ export class PlayerImpl implements Player {
   public _outgoingLandAttacks: Attack[] = [];
 
   private _hasSpawned = false;
+  private _vars: Map<string, number> = new Map<string, number>();
 
   constructor(
     private mg: GameImpl,
@@ -123,6 +125,14 @@ export class PlayerImpl implements Player {
     this._techLevel = 0;
     this._displayName = this._name; // processName(this._name)
     this._pseudo_random = new PseudoRandom(simpleHash(this.playerInfo.id));
+
+    this._vars.set("samMissileSpeed", 12);
+    this._vars.set("samSearchRange", 100);
+    this._vars.set("samInterceptors", 1);
+    this._vars.set("samReloadTime", 300);
+    this._vars.set("cruiseEvasion", 40);
+    this._vars.set("atomEvasion", 30);
+    this._vars.set("hydrogenEvasion", 25);
   }
 
   largestClusterBoundingBox: { min: Cell; max: Cell } | null;
@@ -180,6 +190,14 @@ export class PlayerImpl implements Player {
       techLevel: this._techLevel,
       unlockedTechnologies: this._unlockedTechnologies,
     };
+  }
+
+  getVar(name: string): number {
+    return this._vars.get(name)!;
+  }
+
+  setVar(name: string, value: number): void {
+    this._vars.set(name, value)!;
   }
 
   smallID(): number {
@@ -747,22 +765,27 @@ export class PlayerImpl implements Player {
       );
     }
 
+    let unit: Unit;
+    const nextId = this.mg.nextUnitID();
+    switch (type) {
+      case UnitType.SAMLauncher:
+        unit = new SAMLauncherUnit(this.mg, spawnTile, nextId, this, {
+          cooldownDuration: (params as any).cooldownDuration,
+        });
+        break;
+      default:
+        // fallback to the generic implementation
+        unit = new UnitImpl(type, this.mg, spawnTile, nextId, this, params);
+    }
+
     const cost = this.mg.unitInfo(type).cost(this);
-    const b = new UnitImpl(
-      type,
-      this.mg,
-      spawnTile,
-      this.mg.nextUnitID(),
-      this,
-      params,
-    );
-    this._units.push(b);
+    this._units.push(unit);
     this.removeGold(cost);
     this.removeTroops("troops" in params ? (params.troops ?? 0) : 0);
-    this.mg.addUpdate(b.toUpdate());
-    this.mg.addUnit(b);
+    this.mg.addUpdate(unit.toUpdate());
+    this.mg.addUnit(unit);
 
-    return b;
+    return unit;
   }
 
   public buildableUnits(tile: TileRef): BuildableUnit[] {
@@ -837,7 +860,7 @@ export class PlayerImpl implements Player {
     // only get missilesilos that are not on cooldown
     const spawns = this.units(UnitType.MissileSilo)
       .filter((silo) => {
-        return !silo.isInCooldown();
+        return !silo?.isInCooldown();
       })
       .sort(distSortUnit(this.mg, tile));
     if (spawns.length === 0) {

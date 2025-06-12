@@ -1,3 +1,5 @@
+// src/client/graphics/layers/NameLayer.ts
+
 import allianceIcon from "../../../../resources/images/AllianceIcon.svg";
 import allianceRequestBlackIcon from "../../../../resources/images/AllianceRequestBlackIcon.svg";
 import allianceRequestWhiteIcon from "../../../../resources/images/AllianceRequestWhiteIcon.svg";
@@ -11,7 +13,13 @@ import targetIcon from "../../../../resources/images/TargetIcon.svg";
 import traitorIcon from "../../../../resources/images/TraitorIcon.svg";
 import { PseudoRandom } from "../../../core/PseudoRandom";
 import { Theme } from "../../../core/configuration/Config";
-import { AllPlayers, Cell, nukeTypes, UnitType } from "../../../core/game/Game";
+import {
+  AllPlayers,
+  Cell,
+  nukeTypes,
+  PlayerType,
+  UnitType,
+} from "../../../core/game/Game";
 import { GameView, PlayerView } from "../../../core/game/GameView";
 import { UserSettings } from "../../../core/game/UserSettings";
 import { createCanvas, renderNumber, renderTroops } from "../../Utils";
@@ -222,8 +230,8 @@ export class NameLayer implements Layer {
     element.appendChild(troopsDiv);
 
     // TODO: Remove the shield icon.
-    /* eslint-disable no-constant-condition */
-    if (false) {
+
+    if (player.type() !== PlayerType.Bot) {
       const shieldDiv = document.createElement("div");
       shieldDiv.classList.add("player-shield");
       shieldDiv.style.zIndex = "3";
@@ -246,7 +254,6 @@ export class NameLayer implements Layer {
       shieldDiv.appendChild(shieldSpan);
       element.appendChild(shieldDiv);
     }
-    /* eslint-enable no-constant-condition */
 
     // Start off invisible so it doesn't flash at 0,0
     element.style.display = "none";

@@ -361,7 +361,7 @@ export class ControlPanel extends LitElement implements Layer {
           class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
           @click=${this.toggleResearchMenu}
         >
-          🔬 ${translateText("control_panel.research")} Coming Soon
+          🔬 ${translateText("control_panel.research")}
         </button>
       </div>
       <nuke-launch-menu></nuke-launch-menu>

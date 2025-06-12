@@ -1,3 +1,5 @@
+// src/client/graphics/layers/UnitInfoModal.ts
+
 import { LitElement, css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { UnitType } from "../../../core/game/Game";
@@ -125,6 +127,7 @@ export class UnitInfoModal extends LitElement implements Layer {
 
     const cooldown = this.unit.ticksLeftInCooldown() ?? 0;
     const secondsLeft = Math.ceil(cooldown / 10);
+    const stock = this.unit.stockpile();
 
     return html`
       <div
@@ -143,6 +146,18 @@ export class UnitInfoModal extends LitElement implements Layer {
               <strong>Cooldown:</strong> ${secondsLeft}s
             </div>`
           : ""}
+
+        <div style="margin-top: 8px;">
+          <strong>Stockpile:</strong>
+          ${Array.from(stock.entries()).map(
+            ([resource, amount]) => html`
+              <div style="margin-left: 12px;">
+                <em>${resource}</em>: ${amount}
+              </div>
+            `,
+          )}
+        </div>
+
         <div style="margin-top: 14px; display: flex; justify-content: center;">
           <button
             @click=${() => {
