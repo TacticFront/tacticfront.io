@@ -1,6 +1,10 @@
 // src/server/Archive.ts
 
 import { S3 } from "@aws-sdk/client-s3";
+import {
+  RetryStrategy,
+  StandardRetryStrategy,
+} from "@aws-sdk/middleware-retry";
 import { getServerConfigFromServer } from "../core/configuration/ConfigLoader";
 import { AnalyticsRecord, GameID, GameRecord } from "../core/Schemas";
 import { replacer } from "../core/Util";
@@ -10,6 +14,8 @@ import { sendWinInfotoOpenlyNerd } from "./OpenlyNerd";
 (BigInt.prototype as any).toJSON = function () {
   return this.toString();
 };
+
+const retryStrategy: RetryStrategy = new StandardRetryStrategy(async () => 5);
 
 const config = getServerConfigFromServer();
 
@@ -24,6 +30,7 @@ const r2 = new S3({
     secretAccessKey: config.r2SecretKey(),
   },
   forcePathStyle: true,
+  retryStrategy,
 });
 
 const bucket = config.r2Bucket();
@@ -68,14 +75,22 @@ async function archiveAnalyticsToR2(gameRecord: GameRecord) {
     // Store analytics data using just the game ID as the key
     const analyticsKey = `${info.gameID}.json`;
 
-    await r2.putObject({
+    const putResponse = await r2.putObject({
       Bucket: bucket,
       Key: `${analyticsFolder}/${analyticsKey}`,
       Body: JSON.stringify(analyticsData, replacer),
       ContentType: "application/json",
     });
 
-    log.info(`${info.gameID}: successfully wrote game analytics to R2`);
+    log.info(`${info.gameID}: wrote analytics to R2`, {
+      key: analyticsKey,
+      etag: putResponse.ETag,
+      requestId: putResponse.$metadata?.requestId,
+      attempts: putResponse.$metadata?.attempts,
+      httpStatus: putResponse.$metadata?.httpStatusCode,
+    });
+
+    //log.info(`${info.gameID}: successfully wrote game analytics to R2`);
   } catch (error) {
     log.error(`${info.gameID}: Error writing game analytics to R2: ${error}`, {
       message: error?.message || error,
@@ -97,11 +112,19 @@ async function archiveFullGameToR2(gameRecord: GameRecord) {
   });
 
   try {
-    await r2.putObject({
+    const putResponse = await r2.putObject({
       Bucket: bucket,
       Key: `${gameFolder}/${recordCopy.info.gameID}.json`,
       Body: JSON.stringify(recordCopy, replacer),
       ContentType: "application/json",
+    });
+
+    log.info(`${recordCopy.info.gameID}: wrote analytics to R2`, {
+      key: `${gameFolder}/${recordCopy.info.gameID}.json`,
+      etag: putResponse.ETag,
+      requestId: putResponse.$metadata?.requestId,
+      attempts: putResponse.$metadata?.attempts,
+      httpStatus: putResponse.$metadata?.httpStatusCode,
     });
   } catch (error) {
     log.error(`error saving game ${gameRecord.info.gameID}`);
