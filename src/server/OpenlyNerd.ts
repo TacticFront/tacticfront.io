@@ -1,10 +1,12 @@
 // src/server/OpenlyNerd.ts
 
 import { GameID, GameRecord } from "../core/Schemas";
+import { replacer } from "../core/Util";
 import { Client } from "./Client";
 
 export async function sendWinInfotoOpenlyNerd(gameRecord: GameRecord) {
   const { turns, ...recordWithoutTurns } = gameRecord;
+
   const data = {
     type: "game_stats",
     gameRecord: JSON.stringify(recordWithoutTurns),
@@ -14,7 +16,7 @@ export async function sendWinInfotoOpenlyNerd(gameRecord: GameRecord) {
     const response = await fetch("http://api.openlynerd.com/api/game/event", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify(data, replacer),
     });
     if (!response.ok) {
       console.error("Failed to POST client:", await response.text());
