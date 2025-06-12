@@ -99,7 +99,7 @@ async function archiveFullGameToR2(gameRecord: GameRecord) {
   try {
     await r2.putObject({
       Bucket: bucket,
-      Key: `${gameFolder}/${recordCopy.info.gameID}`,
+      Key: `${gameFolder}/${recordCopy.info.gameID}.json`,
       Body: JSON.stringify(recordCopy, replacer),
       ContentType: "application/json",
     });
@@ -118,7 +118,7 @@ export async function readGameRecord(
     // Check if file exists and download in one operation
     const response = await r2.getObject({
       Bucket: bucket,
-      Key: `${gameFolder}/${gameId}`, // Fixed - needed to include gameFolder
+      Key: `${gameFolder}/${gameId}.json`, // Fixed - needed to include gameFolder
     });
     // Parse the response body
     if (response.Body === undefined) return null;
@@ -142,7 +142,7 @@ export async function gameRecordExists(gameId: GameID): Promise<boolean> {
   try {
     await r2.headObject({
       Bucket: bucket,
-      Key: `${gameFolder}/${gameId}`, // Fixed - needed to include gameFolder
+      Key: `${gameFolder}/${gameId}.json`, // Fixed - needed to include gameFolder
     });
     return true;
   } catch (error) {
