@@ -1,10 +1,6 @@
 // src/server/Archive.ts
 
 import { S3 } from "@aws-sdk/client-s3";
-import {
-  RetryStrategy,
-  StandardRetryStrategy,
-} from "@aws-sdk/middleware-retry";
 import { getServerConfigFromServer } from "../core/configuration/ConfigLoader";
 import { AnalyticsRecord, GameID, GameRecord } from "../core/Schemas";
 import { replacer } from "../core/Util";
@@ -14,8 +10,6 @@ import { sendWinInfotoOpenlyNerd } from "./OpenlyNerd";
 (BigInt.prototype as any).toJSON = function () {
   return this.toString();
 };
-
-const retryStrategy: RetryStrategy = new StandardRetryStrategy(async () => 5);
 
 const config = getServerConfigFromServer();
 
@@ -30,7 +24,8 @@ const r2 = new S3({
     secretAccessKey: config.r2SecretKey(),
   },
   forcePathStyle: true,
-  retryStrategy,
+  maxAttempts: 5, // initial try + 4 retries
+  retryMode: "standard", // or "adaptive"
 });
 
 const bucket = config.r2Bucket();
