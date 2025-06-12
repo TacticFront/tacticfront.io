@@ -809,7 +809,7 @@ export class DefaultConfig implements Config {
   }
 
   goldAdditionRate(player: Player): Gold {
-    const populationGold = 0.035 * player.workers() ** 0.65; // .045
+    const populationGold = 0.035 * player.workers() ** 0.75; // .045
     const cityGold = player.units(UnitType.City).length * 50;
     const portGold = player.units(UnitType.Port).length * 30;
     const powerPlantGold = player.units(UnitType.PowerPlant).length * 80;
