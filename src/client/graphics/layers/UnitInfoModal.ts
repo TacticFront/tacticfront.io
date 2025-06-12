@@ -128,6 +128,7 @@ export class UnitInfoModal extends LitElement implements Layer {
     const cooldown = this.unit.ticksLeftInCooldown() ?? 0;
     const secondsLeft = Math.ceil(cooldown / 10);
     const stock = this.unit.stockpile();
+    const owner = this.unit.owner().name();
 
     return html`
       <div
@@ -141,6 +142,7 @@ export class UnitInfoModal extends LitElement implements Layer {
         <div style="margin-bottom: 4px;">
           <strong>Type:</strong> ${this.unit.type?.() ?? "Unknown"}
         </div>
+        <div style="margin-bottom: 4px;"><strong>Type:</strong> ${owner}</div>
         ${secondsLeft > 0
           ? html`<div style="margin-bottom: 4px;">
               <strong>Cooldown:</strong> ${secondsLeft}s

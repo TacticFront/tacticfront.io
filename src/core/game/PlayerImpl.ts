@@ -126,6 +126,8 @@ export class PlayerImpl implements Player {
     this._displayName = this._name; // processName(this._name)
     this._pseudo_random = new PseudoRandom(simpleHash(this.playerInfo.id));
 
+    this._vars.set("hospitalBonusPopulationGrowth", 2);
+    this._vars.set("hospitalBonusTroopTrickleback", 1);
     this._vars.set("samMissileSpeed", 12);
     this._vars.set("samSearchRange", 100);
     this._vars.set("samInterceptors", 1);
@@ -843,6 +845,7 @@ export class PlayerImpl implements Player {
       case UnitType.City:
       case UnitType.ResearchLab:
       case UnitType.PowerPlant:
+      case UnitType.Hospital:
       case UnitType.Construction:
         return this.landBasedStructureSpawn(targetTile, validTiles);
       default:

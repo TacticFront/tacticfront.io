@@ -10,6 +10,7 @@ import { UnitInfoModal } from "./UnitInfoModal";
 
 import cityIcon from "../../../../resources/images/buildings/cityAlt1.png";
 import shieldIcon from "../../../../resources/images/buildings/fortAlt2.png";
+import hospitalIcon from "../../../../resources/images/buildings/hospital.png";
 import anchorIcon from "../../../../resources/images/buildings/port1.png";
 import powerPlantIcon from "../../../../resources/images/buildings/powerPlant.png";
 import researchLabIcon from "../../../../resources/images/buildings/researchLab.png";
@@ -89,6 +90,12 @@ export class StructureLayer implements Layer {
     },
     [UnitType.ResearchLab]: {
       icon: researchLabIcon,
+      borderRadius: 8.525,
+      territoryRadius: 6.525,
+      borderType: UnitBorderType.Round, // Assuming a round shape for now, can be adjusted
+    },
+    [UnitType.Hospital]: {
+      icon: hospitalIcon,
       borderRadius: 8.525,
       territoryRadius: 6.525,
       borderType: UnitBorderType.Round, // Assuming a round shape for now, can be adjusted

@@ -11,6 +11,7 @@ import {
   PlayerType,
   TerrainType,
   TerraNullius,
+  UnitType,
 } from "../game/Game";
 import { TileRef } from "../game/GameMap";
 import { PseudoRandom } from "../PseudoRandom";
@@ -302,17 +303,27 @@ export class AttackExecution implements Execution {
         continue;
       }
       this.addNeighbors(tileToConquer);
+      const attackerDensity = Math.floor(troopCount / this.attack.borderSize());
       const { attackerTroopLoss, defenderTroopLoss, tilesPerTickUsed } = this.mg
         .config()
         .attackLogic(
           this.mg,
           troopCount,
           this._owner,
+          attackerDensity,
           this.target,
           tileToConquer,
         );
       numTilesPerTick -= tilesPerTickUsed;
-      troopCount -= attackerTroopLoss;
+      const hospitalTrickleback =
+        (Math.max(
+          this._owner.units(UnitType.Hospital).length *
+            this._owner.getVar("hospitalBonusTroopTrickleback"),
+          20,
+        ) /
+          100) *
+        attackerTroopLoss;
+      troopCount -= attackerTroopLoss - hospitalTrickleback;
       this.attack.setTroops(troopCount);
       if (targetPlayer) {
         targetPlayer.removeTroops(defenderTroopLoss);

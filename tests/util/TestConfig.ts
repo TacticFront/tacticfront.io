@@ -1,3 +1,5 @@
+// tests/util/TestConfig.ts
+
 import { NukeMagnitude } from "../../src/core/configuration/Config";
 import { DefaultConfig } from "../../src/core/configuration/DefaultConfig";
 import {
@@ -50,6 +52,7 @@ export class TestConfig extends DefaultConfig {
     gm: Game,
     attackTroops: number,
     attacker: Player,
+    attackerDensity: number,
     defender: Player | TerraNullius,
     tileToConquer: TileRef,
   ): {

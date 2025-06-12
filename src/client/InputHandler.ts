@@ -4,8 +4,6 @@ import { EventBus, GameEvent } from "../core/EventBus";
 import { UnitView } from "../core/game/GameView";
 import { UserSettings } from "../core/game/UserSettings";
 
-import { isLocalhost } from "../core/util/helper";
-
 export class MouseUpEvent implements GameEvent {
   constructor(
     public readonly x: number,
@@ -316,24 +314,23 @@ export class InputHandler {
         this.eventBus.emit(new ContextMenuEvent(event.clientX, event.clientY));
       }
 
-      if (isLocalhost()) {
-        if (event.button === 2) {
-          this.eventBus.emit(
-            new ContextMenuEvent(event.clientX, event.clientY),
-          );
-        } else {
-          // Always treat left-click (button 0) as MouseUpEvent
-          this.eventBus.emit(new MouseUpEvent(event.x, event.y));
-        }
+      if (!this.userSettings.leftClickOpensMenu() || event.shiftKey) {
+        this.eventBus.emit(new MouseUpEvent(event.x, event.y));
       } else {
-        if (!this.userSettings.leftClickOpensMenu() || event.shiftKey) {
-          this.eventBus.emit(new MouseUpEvent(event.x, event.y));
-        } else {
-          this.eventBus.emit(
-            new ContextMenuEvent(event.clientX, event.clientY),
-          );
-        }
+        this.eventBus.emit(new ContextMenuEvent(event.clientX, event.clientY));
       }
+      // if (isLocalhost()) {
+      //   if (event.button === 2) {
+      //     this.eventBus.emit(
+      //       new ContextMenuEvent(event.clientX, event.clientY),
+      //     );
+      //   } else {
+      //     // Always treat left-click (button 0) as MouseUpEvent
+      //     this.eventBus.emit(new MouseUpEvent(event.x, event.y));
+      //   }
+      // } else {
+
+      // }
     }
   }
 

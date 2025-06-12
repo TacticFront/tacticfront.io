@@ -442,6 +442,24 @@ export class DefaultConfig implements Config {
           territoryBound: true,
           constructionDuration: this.instantBuild() ? 0 : 5 * 10,
         };
+      case UnitType.Hospital:
+        return {
+          cost: (p: Player) =>
+            p.type() === PlayerType.Human && this.infiniteGold()
+              ? 0n
+              : BigInt(
+                  Math.min(
+                    4_000_000,
+                    Math.pow(
+                      2,
+                      p.unitsIncludingConstruction(UnitType.Hospital).length,
+                    ) * 500_000,
+                  ),
+                ),
+
+          territoryBound: true,
+          constructionDuration: this.instantBuild() ? 0 : 5 * 10,
+        };
       case UnitType.SAMLauncher:
         return {
           cost: (p: Player) =>
@@ -570,6 +588,7 @@ export class DefaultConfig implements Config {
     gm: Game,
     attackTroops: number,
     attacker: Player,
+    attackerDensity: number,
     defender: Player | TerraNullius,
     tileToConquer: TileRef,
   ): {
@@ -579,6 +598,9 @@ export class DefaultConfig implements Config {
   } {
     let mag = 0;
     let speed = 0;
+
+    let defenderDensity = 0;
+
     const type = gm.terrainType(tileToConquer);
     switch (type) {
       case TerrainType.Plains:
@@ -597,6 +619,7 @@ export class DefaultConfig implements Config {
         throw new Error(`terrain type ${type} not supported`);
     }
     if (defender.isPlayer()) {
+      defenderDensity = defender.troops() / defender.numTilesOwned();
       for (const dp of gm.nearbyUnits(
         tileToConquer,
         gm.config().defensePostRange(),
@@ -676,31 +699,22 @@ export class DefaultConfig implements Config {
     numAdjacentTilesWithEnemy: number,
   ): number {
     // check troop ratios to determine attack speed
-    let densityModifier = 1;
+    const densityModifier = 1;
     let defenderTroops = 0;
+    let defenderDensity = 0;
+    const attackerDensity = Math.floor(
+      attackTroops / numAdjacentTilesWithEnemy,
+    );
     if (defender.isPlayer()) {
       defenderTroops = defender.troops();
-    }
-    if (defenderTroops > 0) {
-      const attackerTroops = attacker.troops();
-      const ratio = defenderTroops / attackerTroops;
-      if (ratio < 0.5) {
-        densityModifier = 1.5;
-      } else if (ratio < 1) {
-        densityModifier = 1.2;
-      } else if (ratio < 2) {
-        densityModifier = 0.8;
-      } else {
-        densityModifier = 0.5;
-      }
+      defenderDensity = defender.troops() / defender.numTilesOwned();
     }
 
+    let troopRatio = attackerDensity / defenderDensity;
+    troopRatio = within(troopRatio, 0.5, 3);
+
     if (defender.isPlayer()) {
-      return (
-        within(((5 * attackTroops) / defender.troops()) * 2, 0.01, 0.5) *
-        numAdjacentTilesWithEnemy *
-        3
-      );
+      return troopRatio * numAdjacentTilesWithEnemy;
     } else {
       return numAdjacentTilesWithEnemy * 2;
     }
@@ -822,7 +836,7 @@ export class DefaultConfig implements Config {
   }
 
   troopAdjustmentRate(player: Player): number {
-    const maxDiff = this.maxPopulation(player) / 1000;
+    const maxDiff = this.maxPopulation(player) / 500;
     const target = player.population() * player.targetTroopRatio();
     const diff = target - player.troops();
     if (Math.abs(diff) < maxDiff) {

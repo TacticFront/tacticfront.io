@@ -1,3 +1,5 @@
+// src/core/Consolex.ts
+
 import { EventBus, GameEvent } from "./EventBus";
 import { LogSeverity } from "./Schemas";
 

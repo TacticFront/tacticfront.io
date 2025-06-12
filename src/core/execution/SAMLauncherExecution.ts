@@ -98,10 +98,6 @@ export class SAMLauncherExecution implements Execution {
 
     this.sam!.handleReloads();
 
-    if (this.player !== this.sam!.owner()) {
-      this.player = this.sam!.owner();
-    }
-
     if (this.sam!.isDamaged()) {
       this.sam!.checkRepairs();
 

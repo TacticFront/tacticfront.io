@@ -3,6 +3,7 @@
 import { LitElement, css, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import warshipIcon from "../../../../resources/images/BattleshipIconWhite.svg";
+import hospitalIcon from "../../../../resources/images/buildings/hospital.png";
 import cityIcon from "../../../../resources/images/CityIconWhite.svg";
 import goldCoinIcon from "../../../../resources/images/GoldCoinIcon.svg";
 import mirvIcon from "../../../../resources/images/MIRVIcon.svg";
@@ -121,6 +122,13 @@ const buildTable: BuildItemDisplay[][] = [
       icon: researchLabIcon,
       description: "build_menu.desc.research_lab",
       key: "unit_type.research_lab",
+      countable: true,
+    },
+    {
+      unitType: UnitType.Hospital,
+      icon: hospitalIcon,
+      description: "build_menu.desc.hospital",
+      key: "unit_type.hospital",
       countable: true,
     },
     {

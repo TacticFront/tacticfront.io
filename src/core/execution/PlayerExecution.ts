@@ -79,9 +79,17 @@ export class PlayerExecution implements Execution {
       return;
     }
 
-    const popInc = this.config.populationIncreaseRate(this.player);
-    this.player.addWorkers(popInc * (1 - this.player.targetTroopRatio()));
-    this.player.addTroops(popInc * this.player.targetTroopRatio());
+    let popInc = this.config.populationIncreaseRate(this.player);
+
+    popInc *=
+      (100 +
+        (this.player.getVar("hospitalBonusPopulationGrowth") || 1) *
+          this.player.units(UnitType.Hospital).length) /
+      100;
+    this.player.addWorkers(popInc);
+
+    // this.player.addWorkers(popInc * (1 - this.player.targetTroopRatio()));
+    // this.player.addTroops(popInc * this.player.targetTroopRatio());
     const goldFromWorkers = this.config.goldAdditionRate(this.player);
     this.player.addGold(goldFromWorkers);
 

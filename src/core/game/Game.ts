@@ -153,6 +153,7 @@ export enum UnitType {
   Construction = "Construction",
   ResearchLab = "Research Lab",
   PowerPlant = "Power Plant",
+  Hospital = "Hospital",
 }
 
 export interface OwnerComp {
@@ -199,6 +200,8 @@ export interface UnitParamsMap {
   [UnitType.DefensePost]: {};
 
   [UnitType.ResearchLab]: {};
+
+  [UnitType.Hospital]: {};
 
   [UnitType.PowerPlant]: {};
 

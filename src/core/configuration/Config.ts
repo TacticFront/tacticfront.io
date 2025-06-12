@@ -101,6 +101,7 @@ export interface Config {
     gm: Game,
     attackTroops: number,
     attacker: Player,
+    attackerDensity: number,
     defender: Player | TerraNullius,
     tileToConquer: TileRef,
   ): {
