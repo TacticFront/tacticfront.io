@@ -26,7 +26,7 @@ export class MirvExecution implements Execution {
 
   private nuke: Unit | null = null;
 
-  private mirvRange = 400;
+  private mirvRange = 350;
   private warheadCount = 50;
 
   private random: PseudoRandom;

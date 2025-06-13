@@ -20,11 +20,13 @@ import {
 import { euclDistFN, manhattanDistFN, TileRef } from "../game/GameMap";
 import { PseudoRandom } from "../PseudoRandom";
 import { GameID } from "../Schemas";
+import { StrikePackageType } from "../types/StrikePackageType";
 import { calculateBoundingBox, flattenedEmojiTable, simpleHash } from "../Util";
 import { ConstructionExecution } from "./ConstructionExecution";
 import { EmojiExecution } from "./EmojiExecution";
 import { NukeExecution } from "./NukeExecution";
 import { SpawnExecution } from "./SpawnExecution";
+import { StrikePackageExecution } from "./StrikePackageExecution";
 import { TransportShipExecution } from "./TransportShipExecution";
 import { closestTwoTiles } from "./Util";
 import { BotBehavior } from "./utils/BotBehavior";
@@ -319,11 +321,21 @@ export class FakeHumanExecution implements Execution {
       UnitType.SAMLauncher,
     );
 
-    if (silos.length > 0) {
+    const sams = other.units(UnitType.SAMLauncher);
+
+    if (silos.length > 0 && sams.length > 2) {
       const targetTiles = structures.map((u) => u.tile());
-      if (targetTiles.length) {
-        return this.sendCruise(targetTiles[0]);
+      if (targetTiles) {
+        return new StrikePackageExecution(
+          this.player.id(),
+          other.id(),
+          StrikePackageType.MilitaryStrike,
+        );
       }
+
+      // if (targetTiles.length) {
+      //   return this.sendCruise(targetTiles[0]);
+      // }
     }
 
     structures = other.units(UnitType.City, UnitType.Port, UnitType.PowerPlant);
