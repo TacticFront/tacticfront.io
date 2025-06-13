@@ -248,7 +248,7 @@ export class DefaultConfig implements Config {
     return 30;
   }
   defensePostDefenseBonus(): number {
-    return 5;
+    return 8;
   }
   playerTeams(): number | typeof Duos {
     return this._gameConfig.playerTeams ?? 0;
@@ -667,7 +667,7 @@ export class DefaultConfig implements Config {
     if (defender.isPlayer()) {
       return {
         attackerTroopLoss:
-          within(defender.troops() / attackTroops, 0.6, 2) *
+          within(defenderDensity / attackerDensity, 0.7, 2) *
           mag *
           0.8 *
           largeLossModifier *
@@ -711,7 +711,7 @@ export class DefaultConfig implements Config {
     }
 
     let troopRatio = attackerDensity / defenderDensity;
-    troopRatio = within(troopRatio, 0.5, 3);
+    troopRatio = within(troopRatio, 0.5, 2);
 
     if (defender.isPlayer()) {
       return troopRatio * numAdjacentTilesWithEnemy;
