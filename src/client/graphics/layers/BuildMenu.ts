@@ -130,6 +130,7 @@ const buildTable: BuildItemDisplay[][] = [
       description: "build_menu.desc.hospital",
       key: "unit_type.hospital",
       countable: true,
+      minTechLevel: 2,
     },
     {
       unitType: UnitType.PowerPlant,

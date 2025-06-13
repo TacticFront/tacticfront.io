@@ -27,7 +27,7 @@ export class HospitalExecution implements Execution {
   init(mg: Game, ticks: number): void {
     this.mg = mg;
     if (!mg.hasPlayer(this.ownerId)) {
-      console.warn(`CityExecution: player ${this.ownerId} not found`);
+      console.warn(`HospitalExecution: player ${this.ownerId} not found`);
       this.active = false;
       return;
     }
@@ -38,7 +38,7 @@ export class HospitalExecution implements Execution {
     if (this.hospital === null) {
       const spawnTile = this.player.canBuild(UnitType.Hospital, this.tile);
       if (spawnTile === false) {
-        consolex.warn("cannot build city");
+        consolex.warn("cannot build hospital");
         this.active = false;
         return;
       }

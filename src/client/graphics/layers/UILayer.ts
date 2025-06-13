@@ -1,3 +1,5 @@
+// src/client/graphics/layers/UILayer.ts
+
 import { Colord } from "colord";
 import { EventBus } from "../../../core/EventBus";
 import { Theme } from "../../../core/configuration/Config";
