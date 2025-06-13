@@ -84,7 +84,10 @@ export class PlayerExecution implements Execution {
     popInc *=
       (100 +
         (this.player.getVar("hospitalBonusPopulationGrowth") || 1) *
-          this.player.units(UnitType.Hospital).length) /
+          Math.max(
+            this.player.units(UnitType.Hospital).length,
+            this.player.getVar("hospitalMaxNumber"),
+          )) /
       100;
     this.player.addWorkers(popInc);
 

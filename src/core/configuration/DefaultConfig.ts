@@ -760,7 +760,7 @@ export class DefaultConfig implements Config {
           return 50_000 * (playerInfo?.nation?.strength ?? 1);
       }
     }
-    return this.infiniteTroops() ? 1_000_000 : 30_000;
+    return this.infiniteTroops() ? 1_000_000 : 20_000;
   }
 
   maxPopulation(player: Player | PlayerView): number {
@@ -823,7 +823,7 @@ export class DefaultConfig implements Config {
   }
 
   goldAdditionRate(player: Player): Gold {
-    const populationGold = 0.035 * player.workers() ** 0.75; // .045
+    const populationGold = 0.0325 * player.workers() ** 0.75; // .045
     const cityGold = player.units(UnitType.City).length * 50;
     const portGold = player.units(UnitType.Port).length * 30;
     const powerPlantGold = player.units(UnitType.PowerPlant).length * 80;
@@ -836,7 +836,7 @@ export class DefaultConfig implements Config {
   }
 
   troopAdjustmentRate(player: Player): number {
-    const maxDiff = this.maxPopulation(player) / 500;
+    const maxDiff = this.maxPopulation(player) / 700;
     const target = player.population() * player.targetTroopRatio();
     const diff = target - player.troops();
     if (Math.abs(diff) < maxDiff) {

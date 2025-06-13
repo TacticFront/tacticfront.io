@@ -230,7 +230,8 @@
     "mirv": "MIRV",
     "research_lab": "Research Lab",
     "power_plant": "Power Plant",
-    "cruise_missile": "Cruise Missile"
+    "cruise_missile": "Cruise Missile",
+    "hospital": "Hospital"
   },
   "user_setting": {
     "title": "User Settings",
@@ -351,7 +352,6 @@
   },
   "build_menu": {
     "desc": {
-      "cruise_missile": "Damages then destroys military buildings",
       "atom_bomb": "Small explosion",
       "hydrogen_bomb": "Large explosion",
       "mirv": "Huge explosion, only targets selected player",
@@ -361,8 +361,10 @@
       "port": "Active trade ships and passive gold production",
       "defense_post": "Increase defenses of nearby borders",
       "city": "Increase max population and passive gold",
+      "cruise_missile": "Damages then destroys military buildings",
       "research_lab": "Unlocks new tech levels",
-      "power_plant": "Unlocks Nukes and passive gold production"
+      "power_plant": "Unlocks Nukes and passive gold production",
+      "hospital": "Increase Pop Growth and Troop Healing"
     },
     "not_enough_money": "Not enough money"
   },
@@ -402,7 +404,8 @@
     "health": "Health",
     "attitude": "Attitude",
     "tech_level": "Tech Level",
-    "power_plants": "Power Plants"
+    "power_plants": "Power Plants",
+    "hospitals": "Hospitals"
   },
   "relation": {
     "hostile": "Hostile",

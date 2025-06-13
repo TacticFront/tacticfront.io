@@ -217,7 +217,11 @@
     "sam_launcher": "Lanceur de SAM",
     "atom_bomb": "Bombe atomique",
     "hydrogen_bomb": "Bombe à hydrogène",
-    "mirv": "MIRV"
+    "mirv": "MIRV",
+    "research_lab": "Laboratoire de recherche",
+    "power_plant": "Centrale électrique",
+    "cruise_missile": "Missile de croisière",
+    "hospital": "Hôpital"
   },
   "user_setting": {
     "title": "Paramètres utilisateur",
@@ -346,7 +350,11 @@
       "warship": "Capture les navires commerciaux, détruit les navires de guerre et les bateaux",
       "port": "Envoie des navires commerciaux pour produire de l'or",
       "defense_post": "Augmente les défenses des frontières voisines",
-      "city": "Augmente la population maximale"
+      "city": "Augmente la population maximale",
+      "cruise_missile": "Inflige des dégâts puis détruit les bâtiments militaires",
+      "research_lab": "Débloque de nouveaux niveaux de recherche",
+      "power_plant": "Débloque les armes nucléaires et la production d’or passive",
+      "hospital": "Augmente la croissance démographique et la guérison des troupes"
     },
     "not_enough_money": "Pas assez d'argent"
   },
@@ -383,7 +391,10 @@
     "sams": "SAMs",
     "warships": "Navires de guerre",
     "health": "Santé",
-    "attitude": "Attitude"
+    "attitude": "Attitude",
+    "tech_level": "Niveau technologique",
+    "power_plants": "Centrales électriques",
+    "hospitals": "Hôpitaux"
   },
   "relation": {
     "hostile": "Hostile",

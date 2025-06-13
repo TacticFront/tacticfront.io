@@ -47,6 +47,7 @@ export class FakeHumanExecution implements Execution {
   private lastNukeSent: [Tick, TileRef][] = [];
   private embargoMalusApplied = new Set<PlayerID>();
   private heckleEmoji: number[];
+  private neighborsTerraNullius: boolean = true;
 
   constructor(
     gameID: GameID,
@@ -175,6 +176,14 @@ export class FakeHumanExecution implements Execution {
   private maybeAttack() {
     if (this.player === null || this.behavior === null) {
       throw new Error("not initialized");
+    }
+
+    if (this.neighborsTerraNullius) {
+      if (this.player.sharesBorderWith(this.mg.terraNullius())) {
+        this.behavior.sendAttack(this.mg.terraNullius());
+        return;
+      }
+      this.neighborsTerraNullius = false;
     }
     const enemyborder = Array.from(this.player.borderTiles())
       .flatMap((t) => this.mg.neighbors(t))
@@ -459,8 +468,8 @@ export class FakeHumanExecution implements Execution {
         this.mg.addExecution(
           new ConstructionExecution(player.id(), buildTile, UnitType.Port),
         );
+        return;
       }
-      return;
     }
     this.maybeSpawnStructure(UnitType.City, 2);
     this.maybeSpawnStructure(UnitType.SAMLauncher, 1);

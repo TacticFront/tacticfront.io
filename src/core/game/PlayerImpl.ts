@@ -49,7 +49,6 @@ import {
   canBuildTransportShip,
 } from "./TransportShipUtils";
 import { UnitImpl } from "./UnitImpl";
-import { SAMLauncherUnit } from "./Units/SAMLauncherUnit";
 
 interface Target {
   tick: Tick;
@@ -128,6 +127,7 @@ export class PlayerImpl implements Player {
 
     this._vars.set("hospitalBonusPopulationGrowth", 2);
     this._vars.set("hospitalBonusTroopTrickleback", 1);
+    this._vars.set("hospitalMaxNumber", 3);
     this._vars.set("samMissileSpeed", 12);
     this._vars.set("samSearchRange", 100);
     this._vars.set("samInterceptors", 1);
@@ -767,20 +767,17 @@ export class PlayerImpl implements Player {
       );
     }
 
-    let unit: Unit;
     const nextId = this.mg.nextUnitID();
-    switch (type) {
-      case UnitType.SAMLauncher:
-        unit = new SAMLauncherUnit(this.mg, spawnTile, nextId, this, {
-          cooldownDuration: (params as any).cooldownDuration,
-        });
-        break;
-      default:
-        // fallback to the generic implementation
-        unit = new UnitImpl(type, this.mg, spawnTile, nextId, this, params);
-    }
-
+    const unit: Unit = new UnitImpl(
+      type,
+      this.mg,
+      spawnTile,
+      nextId,
+      this,
+      params,
+    );
     const cost = this.mg.unitInfo(type).cost(this);
+
     this._units.push(unit);
     this.removeGold(cost);
     this.removeTroops("troops" in params ? (params.troops ?? 0) : 0);

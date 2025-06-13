@@ -1,3 +1,5 @@
+// src/core/execution/MIRVExecution.ts
+
 import { consolex } from "../Consolex";
 import {
   Execution,
@@ -24,8 +26,8 @@ export class MirvExecution implements Execution {
 
   private nuke: Unit | null = null;
 
-  private mirvRange = 1500;
-  private warheadCount = 350;
+  private mirvRange = 400;
+  private warheadCount = 50;
 
   private random: PseudoRandom;
 

@@ -264,6 +264,10 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
           ${player.units(UnitType.PowerPlant).length}
         </div>
         <div class="text-sm opacity-80" translate="no">
+          ${translateText("player_info_overlay.hospitals")}:
+          ${player.units(UnitType.Hospital).length}
+        </div>
+        <div class="text-sm opacity-80" translate="no">
           ${translateText("player_info_overlay.tech_level")}:
           ${player.techLevel()}
         </div>

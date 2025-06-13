@@ -316,11 +316,11 @@ export class AttackExecution implements Execution {
         );
       numTilesPerTick -= tilesPerTickUsed;
       const hospitalTrickleback =
-        (Math.max(
-          this._owner.units(UnitType.Hospital).length *
-            this._owner.getVar("hospitalBonusTroopTrickleback"),
-          20,
-        ) /
+        ((Math.max(
+          this._owner.units(UnitType.Hospital).length,
+          this._owner.getVar("hospitalMaxNumber"),
+        ) *
+          this._owner.getVar("hospitalBonusTroopTrickleback")) /
           100) *
         attackerTroopLoss;
       troopCount -= attackerTroopLoss - hospitalTrickleback;

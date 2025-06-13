@@ -1,5 +1,7 @@
 // src/core/types/Techs.ts
 
+import { Player } from "../game/Game";
+
 export type Tech = {
   id: string;
   name: string;
@@ -8,6 +10,7 @@ export type Tech = {
   unlocked?: boolean;
   category: string;
   cost: number; // Add cost field (in gold)
+  apply: (player: Player) => void;
 };
 
 // this._vars.set("samMissileSpeed", 12);
@@ -21,104 +24,107 @@ export type Tech = {
 export const techList: Tech[] = [
   {
     id: "samReload1",
-    name: "Crew Drills",
-    description: "Decrease Reload Time by 5 seconds.",
-    icon: "⏱️", // stopwatch
+    name: "Rapid Reload Protocol",
+    description: "Crew drills cut reload time by 5 seconds.",
+    icon: "⏱️",
     category: "Sams",
     cost: 300_000,
+    apply: (p) => {
+      p.setVar("samReloadTime", p.getVar("samReloadTime") - 50);
+    },
   },
   {
     id: "samRange1",
-    name: "Chemical Reformulation",
-    description: "Increases Missile Interceptor Range by 25%",
-    icon: "📡", // satellite antenna
+    name: "Extended Tracking Array",
+    description: "Chemical reformulation boosts interceptor range by 25%.",
+    icon: "📡",
     category: "Sams",
     cost: 800_000,
+    apply: (p) => {
+      p.setVar("samSearchRange", Math.floor(p.getVar("samSearchRange") * 1.25));
+    },
   },
   {
     id: "samSpeed1",
-    name: "Solid Fuel Additives",
-    description: "Increases Interceptor Speed by 33%",
-    icon: "⚡", // high voltage
+    name: "Hyper-Combustion Fuel",
+    description: "Solid additives increase interceptor speed by 33%.",
+    icon: "⚡",
     category: "Sams",
     cost: 1_250_000,
+    apply: (p) => {
+      p.setVar(
+        "samMissileSpeed",
+        Math.floor(p.getVar("samMissileSpeed") * 1.33),
+      );
+    },
   },
   {
     id: "samInterceptor1",
-    name: "More is Better",
-    description: "Increase Interceptors by one.",
-    icon: "➕", // plus sign
+    name: "Mass Interceptor Production",
+    description: "Factory upgrades allow +1 interceptor per launcher.",
+    icon: "➕",
     category: "Sams",
     cost: 4_000_000,
+    apply: (p) => {
+      p.setVar("samInterceptors", p.getVar("samInterceptors") + 1);
+    },
   },
-  // Missile Techs
+  // Hospital Techs
   {
-    id: "missile1",
-    name: "Basic Missiles",
-    description: "Unlocks basic missile units.",
-    icon: "🚀",
-    category: "Missile",
-    cost: 0,
-  },
-  {
-    id: "missile2",
-    name: "Faster Missiles",
-    description: "Missiles travel 25% faster.",
-    icon: "💨",
-    category: "Missile",
-    cost: 0,
-  },
-  {
-    id: "missile3",
-    name: "Guided Missiles",
-    description: "Missiles are more accurate.",
-    icon: "🎯",
-    category: "Missile",
-    cost: 0,
-  },
-
-  // Economy Techs
-  {
-    id: "eco1",
-    name: "Basic Economy",
-    description: "Boosts gold generation by 5%.",
-    icon: "💰",
-    category: "Economy",
-    cost: 0,
+    id: "hospitalBonus1",
+    name: "Advanced Care Protocols",
+    description:
+      "Increase pop-growth bonus to 2.5% and troop trickleback to 2% per hospital.",
+    icon: "🏥",
+    category: "Hospitals",
+    cost: 500_000,
+    apply: (p) => {
+      p.setVar("hospitalBonusPopulationGrowth", 2.5);
+      p.setVar("hospitalBonusTroopTrickleback", 2);
+      // hospitalMaxNumber remains at base (4)
+    },
   },
   {
-    id: "eco2",
-    name: "Tax Reform",
-    description: "Gold generation +10%.",
-    icon: "🪙",
-    category: "Economy",
-    cost: 0,
+    id: "hospitalBonus2",
+    name: "Medical Supply Innovations",
+    description:
+      "Increase pop-growth bonus to 3% and troop trickleback to 2.5% per hospital; expand hospital cap to 4.",
+    icon: "💊",
+    category: "Hospitals",
+    cost: 1_200_000,
+    apply: (p) => {
+      p.setVar("hospitalBonusPopulationGrowth", 3);
+      p.setVar("hospitalBonusTroopTrickleback", 2.5);
+      p.setVar("hospitalMaxNumber", 4);
+    },
   },
   {
-    id: "eco3",
-    name: "Trade Agreements",
-    description: "Gold generation +15%.",
-    icon: "🤝",
-    category: "Economy",
-    cost: 0,
-  },
-
-  // Radar Techs
-  {
-    id: "radar1",
-    name: "Improved Radar",
-    description: "See incoming attacks sooner.",
-    icon: "📡",
-    category: "Radar",
-    cost: 0,
+    id: "hospitalBonus3",
+    name: "Mobile Field Units",
+    description:
+      "Increase pop-growth bonus to 3.5% and troop trickleback to 3% per hospital.",
+    icon: "🚑",
+    category: "Hospitals",
+    cost: 2_000_000,
+    apply: (p) => {
+      p.setVar("hospitalBonusPopulationGrowth", 3.5);
+      p.setVar("hospitalBonusTroopTrickleback", 3);
+      // hospitalMaxNumber remains at 4
+    },
   },
   {
-    id: "radar2",
-    name: "Advanced Radar",
-    description: "Detect missile types.",
-    icon: "🔍",
-    category: "Radar",
-    cost: 0,
+    id: "hospitalBonus4",
+    name: "Advanced Bio-Engineering",
+    description:
+      "Increase pop-growth bonus to 4% and troop trickleback to 4% per hospital; expand hospital cap to 5.",
+    icon: "🧬",
+    category: "Hospitals",
+    cost: 4_000_000,
+    apply: (p) => {
+      p.setVar("hospitalBonusPopulationGrowth", 4);
+      p.setVar("hospitalBonusTroopTrickleback", 4);
+      p.setVar("hospitalMaxNumber", 5);
+    },
   },
 ];
 

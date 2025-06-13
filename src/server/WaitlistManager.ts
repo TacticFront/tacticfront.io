@@ -1,3 +1,5 @@
+// src/server/WaitlistManager.ts
+
 import { EventEmitter } from "events";
 import { GameType } from "../core/game/Game";
 import { GameManager } from "./GameManager";

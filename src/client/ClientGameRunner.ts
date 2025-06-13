@@ -1,3 +1,5 @@
+// src/client/ClientGameRunner.ts
+
 import { translateText } from "../client/Utils";
 import { consolex, initRemoteSender } from "../core/Consolex";
 import { EventBus } from "../core/EventBus";

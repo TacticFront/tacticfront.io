@@ -422,7 +422,7 @@ export class StructureLayer implements Layer {
     this.previouslySelected = this.selectedStructureUnit;
 
     //&& (this.isStructureOwner(clickedUnit) || this.isLocalhost())
-    if (clickedUnit) {
+    if (clickedUnit && this.isStructureOwner(clickedUnit)) {
       const wasSelected = this.previouslySelected === clickedUnit;
       if (wasSelected) {
         this.selectedStructureUnit = null;
