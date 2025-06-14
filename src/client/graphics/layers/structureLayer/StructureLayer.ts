@@ -215,13 +215,16 @@ export class StructureLayer implements Layer {
   }
 
   private handleUnitRendering(unit: UnitView) {
-    const newState = this.getUnitRenderState(unit);
     const oldState = this.unitRenderCache.get(unit.id());
-
-    if (newState !== oldState) {
+    const newState = this.getUnitRenderState(unit);
+    if (!oldState) {
       this.unitRenderCache.set(unit.id(), newState);
     } else {
-      return;
+      if (newState !== oldState) {
+        this.unitRenderCache.set(unit.id(), newState);
+      } else {
+        return;
+      }
     }
 
     const unitType = unit.constructionType() ?? unit.type();
