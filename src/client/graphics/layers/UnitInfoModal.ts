@@ -5,7 +5,7 @@ import { customElement, property } from "lit/decorators.js";
 import { UnitType } from "../../../core/game/Game";
 import { GameView, UnitView } from "../../../core/game/GameView";
 import { Layer } from "./Layer";
-import { StructureLayer } from "./StructureLayer";
+import { StructureLayer } from "./structureLayer/StructureLayer";
 
 @customElement("unit-info-modal")
 export class UnitInfoModal extends LitElement implements Layer {

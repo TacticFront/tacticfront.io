@@ -1,53 +1,37 @@
+// src/client/graphics/layers/structureLayer/StructureLayer.ts
+
 // src/client/graphics/layers/StructureLayer.ts
 
 import { colord, Colord } from "colord";
-import { Theme } from "../../../core/configuration/Config";
-import { EventBus } from "../../../core/EventBus";
-import { MouseUpEvent } from "../../InputHandler";
-import { TransformHandler } from "../TransformHandler";
-import { Layer } from "./Layer";
-import { UnitInfoModal } from "./UnitInfoModal";
+import { Theme } from "../../../../core/configuration/Config";
+import { EventBus } from "../../../../core/EventBus";
+import { MouseUpEvent } from "../../../InputHandler";
+import { TransformHandler } from "../../TransformHandler";
+import { Layer } from "../Layer";
+import { UnitInfoModal } from "../UnitInfoModal";
 
-import barracksIcon from "../../../../resources/images/buildings/barracks.webp";
-import cityIcon from "../../../../resources/images/buildings/cityAlt1.png";
-import shieldIcon from "../../../../resources/images/buildings/fortAlt2.png";
-import hospitalIcon from "../../../../resources/images/buildings/hospital.png";
-import anchorIcon from "../../../../resources/images/buildings/port1.png";
-import powerPlantIcon from "../../../../resources/images/buildings/powerPlant.webp";
-import researchLabIcon from "../../../../resources/images/buildings/researchLab.webp";
-import MissileSiloReloadingIcon from "../../../../resources/images/buildings/silo1-reloading.png";
-import missileSiloIcon from "../../../../resources/images/buildings/silo1.png";
-import SAMMissileReloadingIcon from "../../../../resources/images/buildings/silo4-reloading.png";
-import SAMMissileIcon from "../../../../resources/images/buildings/silo4.png";
-import { Cell, UnitType } from "../../../core/game/Game";
+import { Cell, UnitType } from "../../../../core/game/Game";
 import {
   euclDistFN,
   hexDistFN,
   manhattanDistFN,
   rectDistFN,
-} from "../../../core/game/GameMap";
-import { GameUpdateType } from "../../../core/game/GameUpdates";
-import { GameView, UnitView } from "../../../core/game/GameView";
+} from "../../../../core/game/GameMap";
+import { GameUpdateType } from "../../../../core/game/GameUpdates";
+import { GameView, UnitView } from "../../../../core/game/GameView";
+
+import {
+  reloadingIcons,
+  UnitBorderType,
+  unitConfigs,
+  UnitRenderConfig,
+} from "./UnitRenderConfigs";
 
 const underConstructionColor = colord({ r: 150, g: 150, b: 150 });
 const reloadingColor = colord({ r: 255, g: 0, b: 0 });
 const selectedUnitColor = colord({ r: 0, g: 255, b: 255 });
 
 type DistanceFunction = typeof euclDistFN;
-
-enum UnitBorderType {
-  Round,
-  Diamond,
-  Square,
-  Hexagon,
-}
-
-interface UnitRenderConfig {
-  icon: string;
-  borderRadius: number;
-  territoryRadius: number;
-  borderType: UnitBorderType;
-}
 
 export class StructureLayer implements Layer {
   private canvas: HTMLCanvasElement;
@@ -56,68 +40,7 @@ export class StructureLayer implements Layer {
   private theme: Theme;
   private selectedStructureUnit: UnitView | null = null;
   private previouslySelected: UnitView | null = null;
-
-  private unitRenderState: Map<number, string> = new Map();
-  private unitRedrawQueue: number[] = [];
-  private redrawIndex: number = 0;
-
-  // Configuration for supported unit types only
-  private readonly unitConfigs: Partial<Record<UnitType, UnitRenderConfig>> = {
-    [UnitType.Port]: {
-      icon: anchorIcon,
-      borderRadius: 8.525,
-      territoryRadius: 6.525,
-      borderType: UnitBorderType.Round,
-    },
-    [UnitType.City]: {
-      icon: cityIcon,
-      borderRadius: 8.525,
-      territoryRadius: 6.525,
-      borderType: UnitBorderType.Round,
-    },
-    [UnitType.MissileSilo]: {
-      icon: missileSiloIcon,
-      borderRadius: 8.525,
-      territoryRadius: 6.525,
-      borderType: UnitBorderType.Square,
-    },
-    [UnitType.DefensePost]: {
-      icon: shieldIcon,
-      borderRadius: 8.525,
-      territoryRadius: 6.525,
-      borderType: UnitBorderType.Hexagon,
-    },
-    [UnitType.Barracks]: {
-      icon: barracksIcon,
-      borderRadius: 8.525,
-      territoryRadius: 6.525,
-      borderType: UnitBorderType.Hexagon,
-    },
-    [UnitType.SAMLauncher]: {
-      icon: SAMMissileIcon,
-      borderRadius: 8.525,
-      territoryRadius: 6.525,
-      borderType: UnitBorderType.Square,
-    },
-    [UnitType.ResearchLab]: {
-      icon: researchLabIcon,
-      borderRadius: 8.525,
-      territoryRadius: 6.525,
-      borderType: UnitBorderType.Round, // Assuming a round shape for now, can be adjusted
-    },
-    [UnitType.Hospital]: {
-      icon: hospitalIcon,
-      borderRadius: 8.525,
-      territoryRadius: 6.525,
-      borderType: UnitBorderType.Round, // Assuming a round shape for now, can be adjusted
-    },
-    [UnitType.PowerPlant]: {
-      icon: powerPlantIcon,
-      borderRadius: 8.525,
-      territoryRadius: 6.525,
-      borderType: UnitBorderType.Round, // Assuming a round shape for now, can be adjusted
-    },
-  };
+  private unitRenderCache: Map<number, string> = new Map();
 
   constructor(
     private game: GameView,
@@ -134,13 +57,13 @@ export class StructureLayer implements Layer {
     this.theme = game.config().theme();
     this.loadIconData();
     this.loadIcon("reloadingSam", {
-      icon: SAMMissileReloadingIcon,
+      icon: reloadingIcons.reloadingSam,
       borderRadius: 8.525,
       territoryRadius: 6.525,
       borderType: UnitBorderType.Square,
     });
     this.loadIcon("reloadingSilo", {
-      icon: MissileSiloReloadingIcon,
+      icon: reloadingIcons.reloadingSilo,
       borderRadius: 8.525,
       territoryRadius: 6.525,
       borderType: UnitBorderType.Square,
@@ -173,21 +96,6 @@ export class StructureLayer implements Layer {
   //   };
   // }
 
-  private getUnitRenderState(unit: UnitView): string {
-    return [
-      unit.id(),
-      unit.type(),
-      unit.constructionType() ?? "none",
-      unit.isCooldown() ? "cooldown" : "ready",
-      unit.isActive() ? "active" : "inactive",
-      unit.owner().id(),
-      unit.isDamaged() ? "damaged" : "healthy",
-      this.selectedStructureUnit?.id() === unit.id()
-        ? "selected"
-        : "unselected",
-    ].join(":");
-  }
-
   private loadIcon(unitType: string, config: UnitRenderConfig) {
     const image = new Image();
     image.src = config.icon;
@@ -198,7 +106,7 @@ export class StructureLayer implements Layer {
   }
 
   private loadIconData() {
-    Object.entries(this.unitConfigs).forEach(([unitType, config]) => {
+    Object.entries(unitConfigs).forEach(([unitType, config]) => {
       this.loadIcon(unitType, config);
     });
   }
@@ -208,47 +116,13 @@ export class StructureLayer implements Layer {
   }
 
   tick() {
-    let cached = 0;
-    let reRendered = 0;
-
     const updates = this.game.updatesSinceLastTick();
     const unitUpdates = updates !== null ? updates[GameUpdateType.Unit] : [];
-
-    // Clean up removed units
-    for (const id of this.unitRenderState.keys()) {
-      if (!this.game.unit(id)) {
-        this.unitRenderState.delete(id);
-      }
-    }
-
-    // Handle updates (state-changed units)
     for (const u of unitUpdates) {
       const unit = this.game.unit(u.id);
       if (unit === undefined) continue;
-
-      const state = this.getUnitRenderState(unit);
-      const previous = this.unitRenderState.get(unit.id());
-
-      if (state === previous) {
-        cached++;
-        continue;
-      }
-
-      reRendered++;
-      this.unitRenderState.set(unit.id(), state);
       this.handleUnitRendering(unit);
     }
-
-    // Handle uncached units (e.g., new spawns or built structures)
-    for (const unit of this.game.units()) {
-      if (!this.unitRenderState.has(unit.id())) {
-        this.handleUnitRendering(unit, true); // Force render & cache
-      }
-    }
-
-    console.log(
-      `StructureLayer tick — cached: ${cached}, re-rendered: ${reRendered}, total tracked: ${this.unitRenderState.size}`,
-    );
   }
 
   init() {
@@ -264,7 +138,21 @@ export class StructureLayer implements Layer {
     this.context = context;
     this.canvas.width = this.game.width();
     this.canvas.height = this.game.height();
-    this.game.units().forEach((u) => this.handleUnitRendering(u, true));
+    this.game.units().forEach((u) => this.handleUnitRendering(u));
+  }
+
+  private getUnitRenderState(unit: UnitView): string {
+    const type = unit.constructionType() ?? unit.type();
+    const status = unit.isCooldown() ? "cooldown" : "ready";
+    const active = unit.isActive() ? "active" : "inactive";
+    const damaged = unit.isDamaged() ? "damaged" : "healthy";
+    const selected =
+      this.selectedStructureUnit?.id() === unit.id()
+        ? "selected"
+        : "unselected";
+    const owner = unit.owner().id();
+
+    return [type, status, active, damaged, selected, owner].join("-");
   }
 
   renderLayer(context: CanvasRenderingContext2D) {
@@ -278,7 +166,7 @@ export class StructureLayer implements Layer {
   }
 
   private isUnitTypeSupported(unitType: UnitType): boolean {
-    return unitType in this.unitConfigs;
+    return unitType in unitConfigs;
   }
 
   private drawBorder(
@@ -326,18 +214,21 @@ export class StructureLayer implements Layer {
     }
   }
 
-  private handleUnitRendering(unit: UnitView, forceRender = false) {
-    const state = this.getUnitRenderState(unit);
-    const previous = this.unitRenderState.get(unit.id());
+  private handleUnitRendering(unit: UnitView) {
+    const newState = this.getUnitRenderState(unit);
+    const oldState = this.unitRenderCache.get(unit.id());
 
-    if (!forceRender && state === previous) return; // Skip if unchanged
-    this.unitRenderState.set(unit.id(), state);
+    if (newState !== oldState) {
+      this.unitRenderCache.set(unit.id(), newState);
+    } else {
+      return;
+    }
 
     const unitType = unit.constructionType() ?? unit.type();
     const iconType = unitType;
     if (!this.isUnitTypeSupported(unitType)) return;
 
-    const config = this.unitConfigs[unitType];
+    const config = unitConfigs[unitType];
     let icon: CanvasImageSource | undefined;
 
     if (unitType === UnitType.SAMLauncher && unit.isCooldown()) {

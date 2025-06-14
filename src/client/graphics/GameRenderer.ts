@@ -5,8 +5,6 @@ import { EventBus } from "../../core/EventBus";
 import { GameView } from "../../core/game/GameView";
 import { GameStartingModal } from "../GameStartingModal";
 import { RefreshGraphicsEvent as RedrawGraphicsEvent } from "../InputHandler";
-import { TransformHandler } from "./TransformHandler";
-import { UIState } from "./UIState";
 import { BuildMenu } from "./layers/BuildMenu";
 import { ChatDisplay } from "./layers/ChatDisplay";
 import { ChatModal } from "./layers/ChatModal";
@@ -27,7 +25,7 @@ import { RadialMenu } from "./layers/RadialMenu";
 import { ResearchMenu } from "./layers/ResearchMenu";
 import { SpawnTimer } from "./layers/SpawnTimer";
 import { StrikePackageMenu } from "./layers/StrikePackageMenu";
-import { StructureLayer } from "./layers/StructureLayer";
+import { StructureLayer } from "./layers/structureLayer/StructureLayer";
 import { TeamStats } from "./layers/TeamStats";
 import { TerrainLayer } from "./layers/TerrainLayer";
 import { TerritoryLayer } from "./layers/TerritoryLayer";
@@ -36,6 +34,8 @@ import { UILayer } from "./layers/UILayer";
 import { UnitInfoModal } from "./layers/UnitInfoModal";
 import { UnitLayer } from "./layers/UnitLayer";
 import { WinModal } from "./layers/WinModal";
+import { TransformHandler } from "./TransformHandler";
+import { UIState } from "./UIState";
 
 export function createRenderer(
   canvas: HTMLCanvasElement,
