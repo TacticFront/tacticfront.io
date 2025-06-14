@@ -154,6 +154,7 @@ export enum UnitType {
   ResearchLab = "Research Lab",
   PowerPlant = "Power Plant",
   Hospital = "Hospital",
+  Barracks = "Barracks",
 }
 
 export interface OwnerComp {
@@ -202,6 +203,7 @@ export interface UnitParamsMap {
   [UnitType.ResearchLab]: {};
 
   [UnitType.Hospital]: {};
+  [UnitType.Barracks]: {};
 
   [UnitType.PowerPlant]: {};
 
@@ -489,6 +491,9 @@ export interface Player {
   markTraitor(): void;
   largestClusterBoundingBox: { min: Cell; max: Cell } | null;
   lastTileChange(): Tick;
+
+  isDisconnected(): boolean;
+  markDisconnected(isDisconnected: boolean): void;
 
   hasSpawned(): boolean;
   setHasSpawned(hasSpawned: boolean): void;

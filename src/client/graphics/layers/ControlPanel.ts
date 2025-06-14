@@ -27,7 +27,7 @@ export class ControlPanel extends LitElement implements Layer {
   private targetTroopRatio = 0.8;
 
   @state()
-  private reserveTroopRatio = 0.75;
+  private reserveTroopRatio = 0.5;
 
   @state()
   private currentTroopRatio = 0.8;

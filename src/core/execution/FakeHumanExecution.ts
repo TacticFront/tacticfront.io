@@ -45,6 +45,7 @@ export class FakeHumanExecution implements Execution {
   private triggerRatio: number;
   private reserveRatio: number;
 
+  private lastAttack: number;
   private lastEmojiSent = new Map<Player, Tick>();
   private lastNukeSent: [Tick, TileRef][] = [];
   private embargoMalusApplied = new Set<PlayerID>();
@@ -60,7 +61,7 @@ export class FakeHumanExecution implements Execution {
     );
     this.attackRate = this.random.nextInt(40, 80);
     this.attackTick = this.random.nextInt(0, this.attackRate);
-    this.triggerRatio = this.random.nextInt(60, 90) / 100;
+    this.triggerRatio = this.random.nextInt(25, 50) / 100;
     this.reserveRatio = this.random.nextInt(60, 80) / 100;
     this.heckleEmoji = ["🤡", "😡"].map((e) => flattenedEmojiTable.indexOf(e));
   }
@@ -70,6 +71,7 @@ export class FakeHumanExecution implements Execution {
     if (this.random.chance(10)) {
       // this.isTraitor = true
     }
+    this.firstMove = true;
   }
 
   private updateRelationsFromEmbargos() {
@@ -117,6 +119,10 @@ export class FakeHumanExecution implements Execution {
   }
 
   tick(ticks: number) {
+    if (this.mg.ticks() - this.lastAttack >= 20) {
+      if (this.attackTerra()) return;
+    }
+
     if (ticks % this.attackRate !== this.attackTick) return;
 
     if (this.mg.inSpawnPhase()) {
@@ -154,12 +160,6 @@ export class FakeHumanExecution implements Execution {
       );
     }
 
-    if (this.firstMove) {
-      this.firstMove = false;
-      this.behavior.sendAttack(this.mg.terraNullius());
-      return;
-    }
-
     if (
       this.player.troops() > 100_000 &&
       this.player.targetTroopRatio() > 0.7
@@ -175,18 +175,35 @@ export class FakeHumanExecution implements Execution {
     this.maybeAttack();
   }
 
+  private attackTerra(): boolean {
+    if (this.player === null || this.behavior === null) {
+      throw new Error("not initialized");
+    }
+
+    if (this.firstMove) {
+      this.firstMove = false;
+      this.behavior.sendAttack(this.mg.terraNullius(), 30);
+      this.lastAttack = this.mg.ticks();
+      return true;
+    }
+
+    if (this.neighborsTerraNullius) {
+      if (this.player.sharesBorderWith(this.mg.terraNullius())) {
+        this.behavior.sendAttack(this.mg.terraNullius(), 60);
+        this.lastAttack = this.mg.ticks();
+        return true;
+      }
+      this.neighborsTerraNullius = false;
+    }
+
+    return false;
+  }
+
   private maybeAttack() {
     if (this.player === null || this.behavior === null) {
       throw new Error("not initialized");
     }
 
-    if (this.neighborsTerraNullius) {
-      if (this.player.sharesBorderWith(this.mg.terraNullius())) {
-        this.behavior.sendAttack(this.mg.terraNullius());
-        return;
-      }
-      this.neighborsTerraNullius = false;
-    }
     const enemyborder = Array.from(this.player.borderTiles())
       .flatMap((t) => this.mg.neighbors(t))
       .filter(
@@ -323,19 +340,26 @@ export class FakeHumanExecution implements Execution {
 
     const sams = other.units(UnitType.SAMLauncher);
 
-    if (silos.length > 0 && sams.length > 2) {
+    if (silos.length > 0 && sams.length > 1) {
       const targetTiles = structures.map((u) => u.tile());
       if (targetTiles) {
-        return new StrikePackageExecution(
-          this.player.id(),
-          other.id(),
-          StrikePackageType.MilitaryStrike,
+        return this.mg.addExecution(
+          new StrikePackageExecution(
+            this.player.id(),
+            other.id(),
+            StrikePackageType.MilitaryStrike,
+          ),
         );
       }
 
       // if (targetTiles.length) {
       //   return this.sendCruise(targetTiles[0]);
       // }
+    } else {
+      const targetTiles = structures.map((u) => u.tile());
+      if (targetTiles.length) {
+        return this.sendCruise(targetTiles.pop() as TileRef);
+      }
     }
 
     structures = other.units(UnitType.City, UnitType.Port, UnitType.PowerPlant);
@@ -470,6 +494,20 @@ export class FakeHumanExecution implements Execution {
   private handleUnits() {
     const player = this.player;
     if (player === null) return;
+
+    if (player.numTilesOwned() < 2500) {
+      this.maybeSpawnStructure(UnitType.DefensePost, 1);
+      this.maybeSpawnStructure(UnitType.City, 1);
+      this.maybeSpawnStructure(UnitType.Barracks, 1);
+      return;
+    }
+
+    if (player.numTilesOwned() < 5000) {
+      this.maybeSpawnStructure(UnitType.DefensePost, 2);
+      this.maybeSpawnStructure(UnitType.City, 2);
+      this.maybeSpawnStructure(UnitType.Barracks, 2);
+      return;
+    }
     const ports = player.units(UnitType.Port);
     if (ports.length === 0 && player.gold() > this.cost(UnitType.Port)) {
       const oceanTiles = Array.from(player.borderTiles()).filter((t) =>
@@ -490,6 +528,25 @@ export class FakeHumanExecution implements Execution {
     this.maybeSpawnStructure(UnitType.City, 5);
     if (this.maybeSpawnWarship()) {
       return;
+    }
+
+    this.maybeSpawnStructure(UnitType.MissileSilo, 2);
+    this.maybeSpawnStructure(UnitType.Hospital, 1);
+
+    if (player.gold() > 10000000) {
+      this.maybeSpawnStructure(
+        UnitType.SAMLauncher,
+        (this.player?.population() || 1) / 12_500_00,
+      );
+      this.maybeSpawnStructure(
+        UnitType.DefensePost,
+        (this.player?.population() || 1) / 10_000_00,
+      );
+      this.maybeSpawnStructure(UnitType.ResearchLab, 5);
+      this.maybeSpawnStructure(
+        UnitType.City,
+        (this.player?.population() || 1) / 10_000_00,
+      );
     }
 
     // if (this.player?.gold() || 0 > 10000000) {

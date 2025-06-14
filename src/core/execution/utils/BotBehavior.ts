@@ -1,3 +1,5 @@
+// src/core/execution/utils/BotBehavior.ts
+
 import {
   AllianceRequest,
   Game,
@@ -179,7 +181,7 @@ export class BotBehavior {
     return this.enemy;
   }
 
-  sendAttack(target: Player | TerraNullius) {
+  sendAttack(target: Player | TerraNullius, percent?: number) {
     if (target.isPlayer() && this.player.isOnSameTeam(target)) return;
     const maxPop = this.game.config().maxPopulation(this.player);
     const maxTroops = maxPop * this.player.targetTroopRatio();

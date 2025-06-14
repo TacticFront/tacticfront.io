@@ -8,6 +8,7 @@ import { TransformHandler } from "../TransformHandler";
 import { Layer } from "./Layer";
 import { UnitInfoModal } from "./UnitInfoModal";
 
+import barracksIcon from "../../../../resources/images/buildings/barracks.png";
 import cityIcon from "../../../../resources/images/buildings/cityAlt1.png";
 import shieldIcon from "../../../../resources/images/buildings/fortAlt2.png";
 import hospitalIcon from "../../../../resources/images/buildings/hospital.png";
@@ -78,6 +79,12 @@ export class StructureLayer implements Layer {
     },
     [UnitType.DefensePost]: {
       icon: shieldIcon,
+      borderRadius: 8.525,
+      territoryRadius: 6.525,
+      borderType: UnitBorderType.Hexagon,
+    },
+    [UnitType.Barracks]: {
+      icon: barracksIcon,
       borderRadius: 8.525,
       territoryRadius: 6.525,
       borderType: UnitBorderType.Hexagon,

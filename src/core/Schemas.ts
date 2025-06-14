@@ -38,6 +38,7 @@ export type Intent =
   | EmbargoIntent
   | QuickChatIntent
   | MoveWarshipIntent
+  | MarkDisconnectedIntent
   | UnlockTechIntent;
 
 export type AttackIntent = z.infer<typeof AttackIntentSchema>;
@@ -64,6 +65,9 @@ export type TargetTroopRatioIntent = z.infer<
 export type BuildUnitIntent = z.infer<typeof BuildUnitIntentSchema>;
 export type MoveWarshipIntent = z.infer<typeof MoveWarshipIntentSchema>;
 export type QuickChatIntent = z.infer<typeof QuickChatIntentSchema>;
+export type MarkDisconnectedIntent = z.infer<
+  typeof MarkDisconnectedIntentSchema
+>;
 export type UnlockTechIntent = z.infer<typeof UnlockTechIntentSchema>;
 
 export type Turn = z.infer<typeof TurnSchema>;
@@ -175,6 +179,7 @@ const BaseIntentSchema = z.object({
     "attack",
     "cancel_attack",
     "spawn",
+    "mark_disconnected",
     "boat",
     "cancel_boat",
     "name",
@@ -308,6 +313,11 @@ export const QuickChatIntentSchema = BaseIntentSchema.extend({
   variables: z.record(SafeString).optional(),
 });
 
+export const MarkDisconnectedIntentSchema = BaseIntentSchema.extend({
+  type: z.literal("mark_disconnected"),
+  isDisconnected: z.boolean(),
+});
+
 export const UnlockTechIntentSchema = BaseIntentSchema.extend({
   type: z.literal("unlock_tech"),
   techId: z.string(),
@@ -317,6 +327,7 @@ const IntentSchema = z.union([
   AttackIntentSchema,
   CancelAttackIntentSchema,
   SpawnIntentSchema,
+  MarkDisconnectedIntentSchema,
   BoatAttackIntentSchema,
   CancelBoatIntentSchema,
   AllianceRequestIntentSchema,

@@ -104,6 +104,8 @@
     "build_mirv_desc": "The most powerful bomb in the game. Splits up into smaller bombs that will cover a huge range of territory. Only damages the player that you first clicked on to build it. Spawns from the nearest Missile Silo and lands in the area you first clicked to build it.",
     "build_lab": "Research Lab",
     "build_lab_desc": "Increases unlocked technologies.",
+    "build_barracks": "Barracks",
+    "build_barracks_desc": "Trains troops faster.",
     "player_icons": "Player icons",
     "icon_desc": "Examples of some of the ingame icons you will encounter and what they mean:",
     "icon_crown": "Crown - Number 1. This is the top player in the leaderboard.",
@@ -231,7 +233,8 @@
     "research_lab": "Research Lab",
     "power_plant": "Power Plant",
     "cruise_missile": "Cruise Missile",
-    "hospital": "Hospital"
+    "hospital": "Hospital",
+    "barracks": "Barracks"
   },
   "user_setting": {
     "title": "User Settings",
@@ -364,7 +367,8 @@
       "cruise_missile": "Damages then destroys military buildings",
       "research_lab": "Unlocks new tech levels",
       "power_plant": "Unlocks Nukes and passive gold production",
-      "hospital": "Increase Pop Growth and Troop Healing"
+      "hospital": "Increase Pop Growth and Troop Healing",
+      "barracks": "Trains Workers into Troops"
     },
     "not_enough_money": "Not enough money"
   },
@@ -376,7 +380,9 @@
     "other_won": "{player} has won!",
     "exit": "Exit Game",
     "keep": "Keep Playing",
-    "wishlist": "Join our Discord"
+    "wishlist": "Join our Discord",
+    "visit_site": "See Replays",
+    "join_discord": "Get Discord Updates"
   },
   "leaderboard": {
     "title": "Leaderboard",
@@ -433,7 +439,13 @@
     "start_trade": "Start trading",
     "stop_trade": "Stop trading",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "none": "None",
+    "alliances": "Alliances"
+  },
+  "replay_panel": {
+    "replay_speed": "Replay speed",
+    "game_speed": "Game speed"
   },
   "error_modal": {
     "crashed": "Game crashed!",

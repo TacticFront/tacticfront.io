@@ -94,6 +94,7 @@ export interface AttackUpdate {
   troops: number;
   id: string;
   retreating: boolean;
+  border: number;
 }
 
 export interface PlayerUpdate {
@@ -108,6 +109,7 @@ export interface PlayerUpdate {
   smallID: number;
   playerType: PlayerType;
   isAlive: boolean;
+  isDisconnected: boolean;
   tilesOwned: number;
   gold: Gold;
   population: number;

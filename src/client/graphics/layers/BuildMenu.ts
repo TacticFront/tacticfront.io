@@ -3,6 +3,7 @@
 import { LitElement, css, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import warshipIcon from "../../../../resources/images/BattleshipIconWhite.svg";
+import barracksIcon from "../../../../resources/images/buildings/barracks.png";
 import hospitalIcon from "../../../../resources/images/buildings/hospital.png";
 import cityIcon from "../../../../resources/images/CityIconWhite.svg";
 import goldCoinIcon from "../../../../resources/images/GoldCoinIcon.svg";
@@ -108,6 +109,13 @@ const buildTable: BuildItemDisplay[][] = [
       icon: shieldIcon,
       description: "build_menu.desc.defense_post",
       key: "unit_type.defense_post",
+      countable: true,
+    },
+    {
+      unitType: UnitType.Barracks,
+      icon: barracksIcon,
+      description: "build_menu.desc.barracks",
+      key: "unit_type.barracks",
       countable: true,
     },
     {

@@ -12,6 +12,7 @@ import {
   UnitType,
 } from "../game/Game";
 import { TileRef } from "../game/GameMap";
+import { BarracksExecution } from "./BarracksExecution";
 import { CityExecution } from "./CityExecution";
 import { DefensePostExecution } from "./DefensePostExecution";
 import { HospitalExecution } from "./HospitalExecution";
@@ -123,6 +124,9 @@ export class ConstructionExecution implements Execution {
         break;
       case UnitType.DefensePost:
         this.mg.addExecution(new DefensePostExecution(player.id(), this.tile));
+        break;
+      case UnitType.Barracks:
+        this.mg.addExecution(new BarracksExecution(player.id(), this.tile));
         break;
       case UnitType.SAMLauncher:
         this.mg.addExecution(new SAMLauncherExecution(player.id(), this.tile));

@@ -366,7 +366,9 @@
     "other_won": "{player} a gagné !",
     "exit": "Quitter la partie",
     "keep": "Continuer à jouer",
-    "wishlist": "Join our Discord"
+    "wishlist": "Join our Discord",
+    "visit_site": "Voir les replays",
+    "join_discord": "Recevoir les mises à jour Discord"
   },
   "leaderboard": {
     "title": "Classement",

@@ -151,40 +151,41 @@ export class WinModal extends LitElement implements Layer {
 
   innerHtml() {
     return html`<p>
-      <a
-        href="https://openlynerd.com"
-        target="_blank"
-        rel="noopener noreferrer"
-        style="
+        <a
+          href="https://openlynerd.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          style="
           color: #4a9eff;
           text-decoration: underline;
           font-weight: 500;
           transition: color 0.2s ease;
           font-size: 24px;
         "
-        onmouseover="this.style.color='#6db3ff'"
-        onmouseout="this.style.color='#4a9eff'"
-      >
-        ${translateText("win_modal.visit_site")}
-      </a>
-
-      <a
-        href="https://discord.gg/vNcACpjfFB"
-        target="_blank"
-        rel="noopener noreferrer"
-        style="
+          onmouseover="this.style.color='#6db3ff'"
+          onmouseout="this.style.color='#4a9eff'"
+        >
+          ${translateText("win_modal.visit_site")}
+        </a>
+      </p>
+      <p>
+        <a
+          href="https://discord.gg/vNcACpjfFB"
+          target="_blank"
+          rel="noopener noreferrer"
+          style="
           color: #4a9eff;
           text-decoration: underline;
           font-weight: 500;
           transition: color 0.2s ease;
           font-size: 24px;
         "
-        onmouseover="this.style.color='#6db3ff'"
-        onmouseout="this.style.color='#4a9eff'"
-      >
-        ${translateText("win_modal.join_discord")}
-      </a>
-    </p>`;
+          onmouseover="this.style.color='#6db3ff'"
+          onmouseout="this.style.color='#4a9eff'"
+        >
+          ${translateText("win_modal.join_discord")}
+        </a>
+      </p>`;
   }
 
   show() {

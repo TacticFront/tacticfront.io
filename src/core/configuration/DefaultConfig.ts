@@ -245,7 +245,7 @@ export class DefaultConfig implements Config {
   }
 
   defensePostRange(): number {
-    return 30;
+    return 35;
   }
   defensePostDefenseBonus(): number {
     return 8;
@@ -460,6 +460,24 @@ export class DefaultConfig implements Config {
           territoryBound: true,
           constructionDuration: this.instantBuild() ? 0 : 5 * 10,
         };
+      case UnitType.Barracks:
+        return {
+          cost: (p: Player) =>
+            p.type() === PlayerType.Human && this.infiniteGold()
+              ? 0n
+              : BigInt(
+                  Math.min(
+                    500_000,
+                    Math.pow(
+                      2,
+                      p.unitsIncludingConstruction(UnitType.Barracks).length,
+                    ) * 50_000,
+                  ),
+                ),
+
+          territoryBound: true,
+          constructionDuration: this.instantBuild() ? 0 : 5 * 10,
+        };
       case UnitType.SAMLauncher:
         return {
           cost: (p: Player) =>
@@ -573,7 +591,7 @@ export class DefaultConfig implements Config {
     return 3;
   }
   numSpawnPhaseTurns(): number {
-    return this._gameConfig.gameType === GameType.Singleplayer ? 80 : 120;
+    return this._gameConfig.gameType === GameType.Singleplayer ? 100 : 150;
   }
   numBots(): number {
     return this.bots();
@@ -599,8 +617,6 @@ export class DefaultConfig implements Config {
     let mag = 0;
     let speed = 0;
 
-    let defenderDensity = 0;
-
     const type = gm.terrainType(tileToConquer);
     switch (type) {
       case TerrainType.Plains:
@@ -619,7 +635,6 @@ export class DefaultConfig implements Config {
         throw new Error(`terrain type ${type} not supported`);
     }
     if (defender.isPlayer()) {
-      defenderDensity = defender.troops() / defender.numTilesOwned();
       for (const dp of gm.nearbyUnits(
         tileToConquer,
         gm.config().defensePostRange(),
@@ -627,7 +642,7 @@ export class DefaultConfig implements Config {
       )) {
         if (dp.unit.owner() === defender && !dp.unit.isDamaged()) {
           mag *= this.defensePostDefenseBonus();
-          speed *= this.defensePostDefenseBonus();
+          speed *= this.defensePostDefenseBonus() / 2;
           break;
         }
       }
@@ -654,29 +669,25 @@ export class DefaultConfig implements Config {
       }
     }
 
-    let largeLossModifier = 1;
-    if (attacker.numTilesOwned() > 100_000) {
-      largeLossModifier = Math.sqrt(100_000 / attacker.numTilesOwned());
-    }
+    const largeLossModifier = 1;
+    // if (attacker.numTilesOwned() > 100_000) {
+    //   largeLossModifier = Math.sqrt(100_000 / attacker.numTilesOwned());
+    // }
     let largeSpeedMalus = 1;
     if (attacker.numTilesOwned() > 75_000) {
       // sqrt is only exponent 1/2 which doesn't slow enough huge players
-      largeSpeedMalus = (75_000 / attacker.numTilesOwned()) ** 0.6;
+      largeSpeedMalus = (75_000 / attacker.numTilesOwned()) ** 0.6 + 1;
     }
 
     if (defender.isPlayer()) {
       return {
         attackerTroopLoss:
-          within(defenderDensity / attackerDensity, 0.7, 2) *
           mag *
           0.8 *
           largeLossModifier *
           (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
         defenderTroopLoss: defender.troops() / defender.numTilesOwned(),
-        tilesPerTickUsed:
-          within(defender.troops() / (5 * attackTroops), 0.2, 1.5) *
-          speed *
-          largeSpeedMalus,
+        tilesPerTickUsed: 2 * speed * largeSpeedMalus,
       };
     } else {
       return {
@@ -698,26 +709,14 @@ export class DefaultConfig implements Config {
     defender: Player | TerraNullius,
     numAdjacentTilesWithEnemy: number,
   ): number {
-    // check troop ratios to determine attack speed
-    const densityModifier = 1;
-    let defenderTroops = 0;
-    let defenderDensity = 0;
-    const attackerDensity = Math.floor(
-      attackTroops / numAdjacentTilesWithEnemy,
-    );
-    if (defender.isPlayer()) {
-      defenderTroops = defender.troops();
-      defenderDensity = defender.troops() / defender.numTilesOwned();
-    }
+    // Base throughput scaling from troop count
+    const baseTilesPerTick = Math.log2(attackTroops + 2) * 3;
 
-    let troopRatio = attackerDensity / defenderDensity;
-    troopRatio = within(troopRatio, 0.5, 2);
+    // Frontline spread: more borders = slightly more throughput
+    const frontlineBoost = Math.sqrt(Math.max(numAdjacentTilesWithEnemy, 10));
 
-    if (defender.isPlayer()) {
-      return troopRatio * numAdjacentTilesWithEnemy;
-    } else {
-      return numAdjacentTilesWithEnemy * 2;
-    }
+    // Final calculation
+    return baseTilesPerTick * (frontlineBoost * 2);
   }
 
   boatAttackAmount(attacker: Player, defender: Player | TerraNullius): number {
@@ -751,9 +750,9 @@ export class DefaultConfig implements Config {
     if (playerInfo.playerType === PlayerType.FakeHuman) {
       switch (this._gameConfig.difficulty) {
         case Difficulty.Easy:
-          return 2_500 * (playerInfo?.nation?.strength ?? 1);
+          return 10_000 * (playerInfo?.nation?.strength ?? 1);
         case Difficulty.Medium:
-          return 5_000 * (playerInfo?.nation?.strength ?? 1);
+          return 15_000 * (playerInfo?.nation?.strength ?? 1);
         case Difficulty.Hard:
           return 20_000 * (playerInfo?.nation?.strength ?? 1);
         case Difficulty.Impossible:
@@ -823,7 +822,7 @@ export class DefaultConfig implements Config {
   }
 
   goldAdditionRate(player: Player): Gold {
-    const populationGold = 0.0325 * player.workers() ** 0.75; // .045
+    const populationGold = 0.025 * player.workers() ** 0.85; // .045
     const cityGold = player.units(UnitType.City).length * 50;
     const portGold = player.units(UnitType.Port).length * 30;
     const powerPlantGold = player.units(UnitType.PowerPlant).length * 80;
@@ -836,13 +835,16 @@ export class DefaultConfig implements Config {
   }
 
   troopAdjustmentRate(player: Player): number {
-    const maxDiff = this.maxPopulation(player) / 700;
+    const maxDiff = this.maxPopulation(player) / 1500;
     const target = player.population() * player.targetTroopRatio();
     const diff = target - player.troops();
     if (Math.abs(diff) < maxDiff) {
       return diff;
     }
-    const adjustment = maxDiff * Math.sign(diff);
+    const adjustment =
+      player.type() === PlayerType.Bot
+        ? 2 * maxDiff * Math.sign(diff)
+        : 2 * maxDiff * Math.sign(diff);
     // Can ramp down troops much faster
     if (adjustment < 0) {
       return adjustment * 5;
@@ -875,7 +877,7 @@ export class DefaultConfig implements Config {
 
   structureMinDist(): number {
     // TODO: Increase this to ~15 once upgradable structures are implemented.
-    return 10;
+    return 15;
   }
 
   shellLifetime(): number {

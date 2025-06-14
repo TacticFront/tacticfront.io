@@ -81,14 +81,15 @@ export class PlayerExecution implements Execution {
 
     let popInc = this.config.populationIncreaseRate(this.player);
 
-    popInc *=
-      (100 +
-        (this.player.getVar("hospitalBonusPopulationGrowth") || 1) *
-          Math.max(
-            this.player.units(UnitType.Hospital).length,
-            this.player.getVar("hospitalMaxNumber"),
-          )) /
-      100;
+    const hospitalBonus =
+      this.player.getVar("hospitalBonusPopulationGrowth") ?? 0; // expect 1-6 ints
+    const hospitalCount = Math.max(
+      this.player.units(UnitType.Hospital).length,
+      this.player.getVar("hospitalMaxNumber") || 0,
+    );
+
+    // Each hospital gives +bonus% population growth
+    popInc *= (100 + hospitalBonus * hospitalCount) / 100;
     this.player.addWorkers(popInc);
 
     // this.player.addWorkers(popInc * (1 - this.player.targetTroopRatio()));
@@ -99,7 +100,9 @@ export class PlayerExecution implements Execution {
     // Record stats
     this.mg.stats().goldWork(this.player, goldFromWorkers);
 
-    const adjustRate = this.config.troopAdjustmentRate(this.player);
+    const adjustRate =
+      this.config.troopAdjustmentRate(this.player) +
+      this.player.units(UnitType.Barracks).length * 250;
     this.player.addTroops(adjustRate);
     this.player.removeWorkers(adjustRate);
 

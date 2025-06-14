@@ -106,6 +106,7 @@ export class PlayerImpl implements Player {
   public _outgoingLandAttacks: Attack[] = [];
 
   private _hasSpawned = false;
+  private _isDisconnected = false;
   private _vars: Map<string, number> = new Map<string, number>();
 
   constructor(
@@ -117,7 +118,7 @@ export class PlayerImpl implements Player {
   ) {
     this._flag = playerInfo.flag;
     this._name = sanitizeUsername(playerInfo.name);
-    this._targetTroopRatio = 95n;
+    this._targetTroopRatio = 80n;
     this._troops = toInt(startTroops);
     this._workers = 0n;
     this._gold = 0n;
@@ -156,6 +157,7 @@ export class PlayerImpl implements Player {
       smallID: this.smallID(),
       playerType: this.type(),
       isAlive: this.isAlive(),
+      isDisconnected: this.isDisconnected(),
       tilesOwned: this.numTilesOwned(),
       gold: this._gold,
       population: this.population(),
@@ -175,6 +177,7 @@ export class PlayerImpl implements Player {
           troops: a.troops(),
           id: a.id(),
           retreating: a.retreating(),
+          border: a.borderSize(),
         } as AttackUpdate;
       }),
       incomingAttacks: this._incomingAttacks.map((a) => {
@@ -184,6 +187,7 @@ export class PlayerImpl implements Player {
           troops: a.troops(),
           id: a.id(),
           retreating: a.retreating(),
+          border: a.borderSize(),
         } as AttackUpdate;
       }),
       outgoingAllianceRequests: outgoingAllianceRequests,
@@ -838,6 +842,7 @@ export class PlayerImpl implements Player {
         return this.tradeShipSpawn(targetTile);
       case UnitType.MissileSilo:
       case UnitType.DefensePost:
+      case UnitType.Barracks:
       case UnitType.SAMLauncher:
       case UnitType.City:
       case UnitType.ResearchLab:
@@ -968,6 +973,14 @@ export class PlayerImpl implements Player {
   }
   lastTileChange(): Tick {
     return this._lastTileChange;
+  }
+
+  isDisconnected(): boolean {
+    return this._isDisconnected;
+  }
+
+  markDisconnected(isDisconnected: boolean): void {
+    this._isDisconnected = isDisconnected;
   }
 
   hash(): number {
