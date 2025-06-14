@@ -53,7 +53,6 @@ export class TestConfig extends DefaultConfig {
     attackTroops: number,
     attacker: Player,
     attackerDensity: number,
-    defenderDensity: number,
     defender: Player | TerraNullius,
     tileToConquer: TileRef,
   ): {
