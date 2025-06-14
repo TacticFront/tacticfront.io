@@ -1,3 +1,5 @@
+// src/core/execution/DonateGoldExecution.ts
+
 import { consolex } from "../Consolex";
 import { Execution, Game, Gold, Player, PlayerID } from "../game/Game";
 
@@ -28,7 +30,7 @@ export class DonateGoldExecution implements Execution {
     this.sender = mg.player(this.senderID);
     this.recipient = mg.player(this.recipientID);
     if (this.gold === null) {
-      this.gold = this.sender.gold() / 3n;
+      this.gold = this.sender.gold() / 3;
     }
   }
 

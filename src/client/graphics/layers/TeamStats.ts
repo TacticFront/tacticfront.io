@@ -1,3 +1,5 @@
+// src/client/graphics/layers/TeamStats.ts
+
 import { LitElement, css, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { EventBus } from "../../../core/EventBus";
@@ -58,7 +60,7 @@ export class TeamStats extends LitElement implements Layer {
 
     this.teams = Object.entries(grouped)
       .map(([teamStr, teamPlayers]) => {
-        let totalGold = 0n;
+        let totalGold = 0;
         let totalTroops = 0;
         let totalScoreSort = 0;
 

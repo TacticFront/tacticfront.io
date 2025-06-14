@@ -38,13 +38,13 @@ export class UnlockTechExecution implements Execution {
 
     // 3) Verify the player can afford it
     const currentGold = this.player.gold();
-    if (currentGold < BigInt(tech.cost)) {
+    if (currentGold < tech.cost) {
       // You could display a message or emit an error here
       return;
     }
 
     // 4) Deduct cost and unlock
-    this.player.removeGold(BigInt(tech.cost));
+    this.player.removeGold(tech.cost);
     this.player.unlockTech(this.techId);
 
     // 5) Apply the tech’s effects

@@ -1,3 +1,5 @@
+// src/client/graphics/layers/TopBar.ts
+
 import { LitElement, html } from "lit";
 import { customElement } from "lit/decorators.js";
 import { translateText } from "../../../client/Utils";
@@ -50,7 +52,7 @@ export class TopBar extends LitElement implements Layer {
 
     const popRate = this.game.config().populationIncreaseRate(myPlayer) * 10;
     const maxPop = this.game.config().maxPopulation(myPlayer);
-    const goldPerSecond = this.game.config().goldAdditionRate(myPlayer) * 10n;
+    const goldPerSecond = this.game.config().goldAdditionRate(myPlayer) * 10;
 
     return html`
       <div

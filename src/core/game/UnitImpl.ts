@@ -1,6 +1,6 @@
 // src/core/game/UnitImpl.ts
 
-import { simpleHash, toInt, withinInt } from "../Util";
+import { simpleHash, within } from "../Util";
 import {
   AllUnitParams,
   MessageType,
@@ -21,7 +21,7 @@ export class UnitImpl implements Unit {
   private _repairCooldown: Tick = 0;
   private _targetTile: TileRef | undefined;
   private _targetUnit: Unit | undefined;
-  private _health: bigint;
+  private _health: number;
   private _lastTile: TileRef;
   private _retreating: boolean = false;
   private _targetedBySAM = false;
@@ -44,7 +44,7 @@ export class UnitImpl implements Unit {
     params: AllUnitParams = {},
   ) {
     this._lastTile = _tile;
-    this._health = toInt(this.mg.unitInfo(_type).maxHealth ?? 1);
+    this._health = this.mg.unitInfo(_type).maxHealth ?? 1;
     this._targetTile =
       "targetTile" in params ? (params.targetTile ?? undefined) : undefined;
     this._troops = "troops" in params ? (params.troops ?? 0) : 0;
@@ -242,12 +242,8 @@ export class UnitImpl implements Unit {
   }
 
   modifyHealth(delta: number, attacker?: Player): void {
-    this._health = withinInt(
-      this._health + toInt(delta),
-      0n,
-      toInt(this.info().maxHealth ?? 1),
-    );
-    if (this._health === 0n) {
+    this._health = within(this._health + delta, 0, this.info().maxHealth ?? 1);
+    if (this._health === 0) {
       this.delete(true, attacker);
     }
   }

@@ -101,13 +101,13 @@ const BigIntStringSchema = z.preprocess((val) => {
   return val;
 }, z.bigint());
 
-const AtLeastOneNumberSchema = BigIntStringSchema.array().min(1);
+const AtLeastOneNumberSchema = z.number().array().min(1);
 export type AtLeastOneNumber = z.infer<typeof AtLeastOneNumberSchema>;
 
 export const PlayerStatsSchema = z
   .object({
     attacks: AtLeastOneNumberSchema.optional(),
-    betrayals: BigIntStringSchema.optional(),
+    betrayals: z.number().optional(),
     boats: z.record(BoatUnitSchema, AtLeastOneNumberSchema).optional(),
     bombs: z.record(BombUnitSchema, AtLeastOneNumberSchema).optional(),
     gold: AtLeastOneNumberSchema.optional(),

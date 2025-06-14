@@ -81,7 +81,7 @@ export class DevConfig extends DefaultConfig {
       populationGold + cityGold + portGold + powerPlantGold,
     );
 
-    return BigInt(totalGold);
+    return totalGold;
   }
 
   // tradeShipSpawnRate(): number {

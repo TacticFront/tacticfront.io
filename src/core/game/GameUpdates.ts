@@ -128,7 +128,7 @@ export interface PlayerUpdate {
   hasSpawned: boolean;
   techLevel: number;
   unlockedTechnologies: Set<string>;
-  betrayals?: bigint;
+  betrayals?: number;
 }
 
 export interface AllianceRequestUpdate {

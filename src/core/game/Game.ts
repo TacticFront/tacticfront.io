@@ -14,7 +14,7 @@ import { Stats } from "./Stats";
 
 export type PlayerID = string;
 export type Tick = number;
-export type Gold = bigint;
+export type Gold = number;
 
 export const AllPlayers = "AllPlayers" as const;
 

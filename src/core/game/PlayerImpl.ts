@@ -4,15 +4,7 @@ import { renderNumber, renderTroops } from "../../client/Utils";
 import { consolex } from "../Consolex";
 import { PseudoRandom } from "../PseudoRandom";
 import { ClientID } from "../Schemas";
-import {
-  assertNever,
-  distSortUnit,
-  maxInt,
-  minInt,
-  simpleHash,
-  toInt,
-  within,
-} from "../Util";
+import { assertNever, distSortUnit, simpleHash, within } from "../Util";
 import { sanitizeUsername } from "../validations/username";
 import { AttackImpl } from "./AttackImpl";
 import {
@@ -66,17 +58,17 @@ export class PlayerImpl implements Player {
   public _lastTileChange: number = 0;
   public _pseudo_random: PseudoRandom;
 
-  private _gold: bigint;
-  private _troops: bigint;
-  private _workers: bigint;
+  private _gold: number;
+  private _troops: number;
+  private _workers: number;
 
   private _techLevel: number;
 
   private _unlockedTechnologies: Set<string> = new Set(); // Add techTree property
 
   // 0 to 100
-  private _targetTroopRatio: bigint;
-  private _reserveTroopRatio: bigint;
+  private _targetTroopRatio: number;
+  private _reserveTroopRatio: number;
 
   markedTraitorTick = -1;
 
@@ -118,10 +110,10 @@ export class PlayerImpl implements Player {
   ) {
     this._flag = playerInfo.flag;
     this._name = sanitizeUsername(playerInfo.name);
-    this._targetTroopRatio = 80n;
-    this._troops = toInt(startTroops);
-    this._workers = 0n;
-    this._gold = 0n;
+    this._targetTroopRatio = 80;
+    this._troops = startTroops;
+    this._workers = 0;
+    this._gold = 0;
     this._techLevel = 0;
     this._displayName = this._name; // processName(this._name)
     this._pseudo_random = new PseudoRandom(simpleHash(this.playerInfo.id));
@@ -296,7 +288,7 @@ export class PlayerImpl implements Player {
     return true as const;
   }
   setTroops(troops: number) {
-    this._troops = toInt(troops);
+    this._troops = troops;
   }
   conquer(tile: TileRef) {
     this.mg.conquer(this, tile);
@@ -597,7 +589,7 @@ export class PlayerImpl implements Player {
   donateGold(recipient: Player, gold: Gold): boolean {
     if (gold <= 0n) return false;
     const removed = this.removeGold(gold);
-    if (removed === 0n) return false;
+    if (removed === 0) return false;
     recipient.addGold(removed);
 
     this.sentDonations.push(new Donation(recipient, this.mg.ticks()));
@@ -687,9 +679,9 @@ export class PlayerImpl implements Player {
 
   removeGold(toRemove: Gold): Gold {
     if (toRemove <= 0n) {
-      return 0n;
+      return 0;
     }
-    const actualRemoved = minInt(this._gold, toRemove);
+    const actualRemoved = Math.min(this._gold, toRemove);
     this._gold -= actualRemoved;
     return actualRemoved;
   }
@@ -701,10 +693,10 @@ export class PlayerImpl implements Player {
     return Math.max(1, Number(this._workers));
   }
   addWorkers(toAdd: number): void {
-    this._workers += toInt(toAdd);
+    this._workers += toAdd;
   }
   removeWorkers(toRemove: number): void {
-    this._workers = maxInt(1n, this._workers - toInt(toRemove));
+    this._workers = Math.max(1, this._workers - toRemove);
   }
 
   targetTroopRatio(): number {
@@ -717,7 +709,7 @@ export class PlayerImpl implements Player {
         `invalid targetTroopRatio ${target} set on player ${PlayerImpl}`,
       );
     }
-    this._targetTroopRatio = toInt(target * 100);
+    this._targetTroopRatio = target * 100;
   }
 
   reserveTroopRatio(): number {
@@ -730,7 +722,7 @@ export class PlayerImpl implements Player {
         `invalid reserveTroopRatio ${target} set on player ${PlayerImpl}`,
       );
     }
-    this._reserveTroopRatio = toInt(target * 100);
+    this._reserveTroopRatio = target * 100;
   }
 
   troops(): number {
@@ -742,13 +734,13 @@ export class PlayerImpl implements Player {
       this.removeTroops(-1 * troops);
       return;
     }
-    this._troops += toInt(troops);
+    this._troops += troops;
   }
   removeTroops(troops: number): number {
     if (troops <= 1) {
       return 0;
     }
-    const toRemove = minInt(this._troops, toInt(troops));
+    const toRemove = Math.min(this._troops, troops);
     this._troops -= toRemove;
     return Number(toRemove);
   }

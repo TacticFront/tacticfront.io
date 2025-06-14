@@ -128,8 +128,7 @@ export class ResearchMenu extends LitElement implements Layer {
   private canAfford(tech: Tech): boolean {
     const player = this.game.myPlayer();
     if (!player) return false;
-    // player.gold() is bigint, so convert cost to bigint
-    return player.gold() >= BigInt(tech.cost);
+    return player.gold() >= tech.cost;
   }
 
   private getUnlockedSet(): Set<string> {

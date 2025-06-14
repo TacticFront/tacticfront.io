@@ -448,7 +448,7 @@ export class BuildMenu extends LitElement implements Layer {
         return bu.cost;
       }
     }
-    return 0n;
+    return 0;
   }
 
   private count(item: BuildItemDisplay): string {
