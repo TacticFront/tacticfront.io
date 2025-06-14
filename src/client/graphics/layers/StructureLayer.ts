@@ -58,6 +58,8 @@ export class StructureLayer implements Layer {
   private previouslySelected: UnitView | null = null;
 
   private unitRenderState: Map<number, string> = new Map();
+  private unitRedrawQueue: number[] = [];
+  private redrawIndex: number = 0;
 
   // Configuration for supported unit types only
   private readonly unitConfigs: Partial<Record<UnitType, UnitRenderConfig>> = {
@@ -206,6 +208,10 @@ export class StructureLayer implements Layer {
   }
 
   tick() {
+    let cached = 0;
+
+    let reRendered = 0;
+
     const updates = this.game.updatesSinceLastTick();
     const unitUpdates = updates !== null ? updates[GameUpdateType.Unit] : [];
 
@@ -214,11 +220,27 @@ export class StructureLayer implements Layer {
         this.unitRenderState.delete(id);
       }
     }
+
     for (const u of unitUpdates) {
       const unit = this.game.unit(u.id);
       if (unit === undefined) continue;
+
+      const state = this.getUnitRenderState(unit);
+      const previous = this.unitRenderState.get(unit.id());
+
+      if (state === previous) {
+        cached++;
+        continue;
+      }
+
+      reRendered++;
+      this.unitRenderState.set(unit.id(), state);
       this.handleUnitRendering(unit);
     }
+
+    console.log(
+      `StructureLayer tick — cached: ${cached}, re-rendered: ${reRendered}`,
+    );
   }
 
   init() {
