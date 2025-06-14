@@ -256,7 +256,7 @@ export class StructureLayer implements Layer {
     this.context = context;
     this.canvas.width = this.game.width();
     this.canvas.height = this.game.height();
-    this.game.units().forEach((u) => this.handleUnitRendering(u));
+    this.game.units().forEach((u) => this.handleUnitRendering(u, true));
   }
 
   renderLayer(context: CanvasRenderingContext2D) {
@@ -318,11 +318,11 @@ export class StructureLayer implements Layer {
     }
   }
 
-  private handleUnitRendering(unit: UnitView) {
+  private handleUnitRendering(unit: UnitView, forceRender = false) {
     const state = this.getUnitRenderState(unit);
     const previous = this.unitRenderState.get(unit.id());
 
-    if (state === previous) return; // Skip if unchanged
+    if (!forceRender && state === previous) return; // Skip if unchanged
     this.unitRenderState.set(unit.id(), state);
 
     const unitType = unit.constructionType() ?? unit.type();
