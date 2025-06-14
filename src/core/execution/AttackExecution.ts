@@ -27,6 +27,7 @@ export class AttackExecution implements Execution {
 
   private _owner: Player;
   private target: Player | TerraNullius;
+  private markDelete: boolean = false;
 
   private mg: Game;
 
@@ -208,13 +209,23 @@ export class AttackExecution implements Execution {
       throw new Error("Attack not initialized");
     }
 
+    if (this.attack.troops() < 1) {
+      this.attack.delete();
+      this.active = false;
+      return;
+    }
+
+    const maxLosses = Math.max(this.attack.troops() / 80);
+    let tickLosses = 0;
+
     const targetIsPlayer = this.target.isPlayer(); // cache target type
     const targetPlayer = targetIsPlayer ? (this.target as Player) : null; // cache target player
 
     if (
       ticks % 10 === 0 &&
       targetPlayer !== null &&
-      this.attack.troops() < targetPlayer.troops() * 3
+      this.attack.troops() < targetPlayer.troops() * 3 &&
+      !this.markDelete
     ) {
       //this.initialTroopCount * 3) {
       const totalTroops = this._owner.troops() + this.attack.troops();
@@ -231,6 +242,24 @@ export class AttackExecution implements Execution {
 
     if (ticks % 100 === 0) {
       this.refreshToConquer();
+
+      for (const outgoing of this._owner.outgoingAttacks()) {
+        if (
+          outgoing !== this.attack &&
+          outgoing.target() === this.attack.target() &&
+          outgoing.sourceTile() === this.attack.sourceTile()
+        ) {
+          if (this.attack.troops() < outgoing.troops()) {
+            outgoing.setTroops(outgoing.troops() + this.attack.troops());
+            this.active = false;
+            this.markDelete = true;
+            this.attack.delete();
+          }
+          // Existing attack on same target, add troops
+
+          return;
+        }
+      }
     }
 
     let troopCount = this.attack.troops(); // cache troop count
@@ -277,10 +306,9 @@ export class AttackExecution implements Execution {
       );
 
     while (numTilesPerTick > 0) {
-      if (troopCount < 1) {
-        this.attack.delete();
-        this.active = false;
-        return;
+      if (tickLosses > maxLosses) {
+        numTilesPerTick = 0;
+        continue;
       }
 
       if (this.toConquer.size() === 0) {
@@ -323,7 +351,11 @@ export class AttackExecution implements Execution {
           this._owner.getVar("hospitalBonusTroopTrickleback")) /
           100) *
         attackerTroopLoss;
-      troopCount -= attackerTroopLoss - hospitalTrickleback;
+
+      const troopAdjustment = attackerTroopLoss - hospitalTrickleback;
+      troopCount -= troopAdjustment;
+      tickLosses += troopAdjustment;
+
       this.attack.setTroops(troopCount);
       if (targetPlayer) {
         targetPlayer.removeTroops(defenderTroopLoss);

@@ -8,13 +8,13 @@ import { TransformHandler } from "../TransformHandler";
 import { Layer } from "./Layer";
 import { UnitInfoModal } from "./UnitInfoModal";
 
-import barracksIcon from "../../../../resources/images/buildings/barracks.png";
+import barracksIcon from "../../../../resources/images/buildings/barracks.webp";
 import cityIcon from "../../../../resources/images/buildings/cityAlt1.png";
 import shieldIcon from "../../../../resources/images/buildings/fortAlt2.png";
 import hospitalIcon from "../../../../resources/images/buildings/hospital.png";
 import anchorIcon from "../../../../resources/images/buildings/port1.png";
-import powerPlantIcon from "../../../../resources/images/buildings/powerPlant.png";
-import researchLabIcon from "../../../../resources/images/buildings/researchLab.png";
+import powerPlantIcon from "../../../../resources/images/buildings/powerPlant.webp";
+import researchLabIcon from "../../../../resources/images/buildings/researchLab.webp";
 import MissileSiloReloadingIcon from "../../../../resources/images/buildings/silo1-reloading.png";
 import missileSiloIcon from "../../../../resources/images/buildings/silo1.png";
 import SAMMissileReloadingIcon from "../../../../resources/images/buildings/silo4-reloading.png";

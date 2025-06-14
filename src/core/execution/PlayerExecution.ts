@@ -137,6 +137,29 @@ export class PlayerExecution implements Execution {
           consolex.log(`player ${this.player.name()}, took ${end - start}ms`);
         }
       }
+
+      // if (this.player.outgoingAttacks()) {
+      //   const attacks = this.player.outgoingAttacks();
+      //   const merged: Map<string, Attack> = new Map();
+
+      //   // Iterate and merge duplicates
+      //   for (let i = attacks.length - 1; i >= 0; i--) {
+      //     const attack = attacks[i];
+      //     const targetId = attack.target.id();
+
+      //     if (merged.has(targetId)) {
+      //       const existing = merged.get(targetId)!;
+
+      //       // Reallocate troops
+      //       existing.troops += attack.troops;
+
+      //       // Remove duplicate attack
+      //       attacks.splice(i, 1);
+      //     } else {
+      //       merged.set(targetId, attack);
+      //     }
+      //   }
+      // }
     }
 
     if (this.checkRepairs > ticks) {
