@@ -57,6 +57,8 @@ export class StructureLayer implements Layer {
   private selectedStructureUnit: UnitView | null = null;
   private previouslySelected: UnitView | null = null;
 
+  private unitRenderState: Map<number, string> = new Map();
+
   // Configuration for supported unit types only
   private readonly unitConfigs: Partial<Record<UnitType, UnitRenderConfig>> = {
     [UnitType.Port]: {
@@ -169,6 +171,21 @@ export class StructureLayer implements Layer {
   //   };
   // }
 
+  private getUnitRenderState(unit: UnitView): string {
+    return [
+      unit.id(),
+      unit.type(),
+      unit.constructionType() ?? "none",
+      unit.isCooldown() ? "cooldown" : "ready",
+      unit.isActive() ? "active" : "inactive",
+      unit.owner().id(),
+      unit.isDamaged() ? "damaged" : "healthy",
+      this.selectedStructureUnit?.id() === unit.id()
+        ? "selected"
+        : "unselected",
+    ].join(":");
+  }
+
   private loadIcon(unitType: string, config: UnitRenderConfig) {
     const image = new Image();
     image.src = config.icon;
@@ -191,6 +208,12 @@ export class StructureLayer implements Layer {
   tick() {
     const updates = this.game.updatesSinceLastTick();
     const unitUpdates = updates !== null ? updates[GameUpdateType.Unit] : [];
+
+    for (const id of this.unitRenderState.keys()) {
+      if (!this.game.unit(id)) {
+        this.unitRenderState.delete(id);
+      }
+    }
     for (const u of unitUpdates) {
       const unit = this.game.unit(u.id);
       if (unit === undefined) continue;
@@ -274,6 +297,12 @@ export class StructureLayer implements Layer {
   }
 
   private handleUnitRendering(unit: UnitView) {
+    const state = this.getUnitRenderState(unit);
+    const previous = this.unitRenderState.get(unit.id());
+
+    if (state === previous) return; // Skip if unchanged
+    this.unitRenderState.set(unit.id(), state);
+
     const unitType = unit.constructionType() ?? unit.type();
     const iconType = unitType;
     if (!this.isUnitTypeSupported(unitType)) return;
