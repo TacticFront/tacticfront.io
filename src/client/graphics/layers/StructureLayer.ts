@@ -209,18 +209,19 @@ export class StructureLayer implements Layer {
 
   tick() {
     let cached = 0;
-
     let reRendered = 0;
 
     const updates = this.game.updatesSinceLastTick();
     const unitUpdates = updates !== null ? updates[GameUpdateType.Unit] : [];
 
+    // Clean up removed units
     for (const id of this.unitRenderState.keys()) {
       if (!this.game.unit(id)) {
         this.unitRenderState.delete(id);
       }
     }
 
+    // Handle updates (state-changed units)
     for (const u of unitUpdates) {
       const unit = this.game.unit(u.id);
       if (unit === undefined) continue;
@@ -238,8 +239,15 @@ export class StructureLayer implements Layer {
       this.handleUnitRendering(unit);
     }
 
+    // Handle uncached units (e.g., new spawns or built structures)
+    for (const unit of this.game.units()) {
+      if (!this.unitRenderState.has(unit.id())) {
+        this.handleUnitRendering(unit, true); // Force render & cache
+      }
+    }
+
     console.log(
-      `StructureLayer tick — cached: ${cached}, re-rendered: ${reRendered}`,
+      `StructureLayer tick — cached: ${cached}, re-rendered: ${reRendered}, total tracked: ${this.unitRenderState.size}`,
     );
   }
 
