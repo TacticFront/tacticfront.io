@@ -221,8 +221,10 @@ export class StructureLayer implements Layer {
       this.unitRenderCache.set(unit.id(), newState);
     } else {
       if (newState !== oldState) {
+        console.log("Cache Miss", unit.id());
         this.unitRenderCache.set(unit.id(), newState);
       } else {
+        console.log("Cache Hit", unit.id());
         return;
       }
     }
