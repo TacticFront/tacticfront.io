@@ -2,6 +2,7 @@
 
 import { Config } from "../configuration/Config";
 import { AllPlayersStats, ClientID } from "../Schemas";
+import { AttackStats } from "./AttackImpl";
 import { GameMap, TileRef } from "./GameMap";
 import {
   GameUpdate,
@@ -304,6 +305,7 @@ export interface Execution {
 export interface Attack {
   id(): string;
   retreating(): boolean;
+  stats(): AttackStats;
   retreated(): boolean;
   orderRetreat(): void;
   executeRetreat(): void;

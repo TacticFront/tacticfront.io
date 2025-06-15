@@ -1,13 +1,42 @@
+// src/core/game/AttackImpl.ts
+
 import { Attack, Cell, Player, TerraNullius } from "./Game";
 import { GameImpl } from "./GameImpl";
 import { TileRef } from "./GameMap";
 import { PlayerImpl } from "./PlayerImpl";
+
+export interface AttackStats {
+  troopCount: number;
+  originalTroopCount: number;
+  totalTroopLosses: number;
+  totalTroopLossesThisTick: number;
+  tilesConquered: number;
+  tilesConqueredThisTick: number;
+  attackAttemptsRemainingOnAbort: number;
+  attackAttempts: number;
+  startingToConquer: number;
+  toConquer: number;
+  borderSize: number;
+}
 
 export class AttackImpl implements Attack {
   private _isActive = true;
   private _borderSize = 0;
   public _retreating = false;
   public _retreated = false;
+  public _stats: AttackStats = {
+    troopCount: 0,
+    originalTroopCount: 0,
+    totalTroopLosses: 0,
+    totalTroopLossesThisTick: 0,
+    tilesConquered: 0,
+    tilesConqueredThisTick: 0,
+    attackAttempts: 0,
+    attackAttemptsRemainingOnAbort: 0,
+    toConquer: 0,
+    startingToConquer: 0,
+    borderSize: 0,
+  };
 
   constructor(
     private _id: string,
@@ -42,6 +71,10 @@ export class AttackImpl implements Attack {
 
   id() {
     return this._id;
+  }
+
+  stats(): AttackStats {
+    return this._stats;
   }
 
   delete() {

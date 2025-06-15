@@ -170,6 +170,7 @@ export class PlayerImpl implements Player {
           id: a.id(),
           retreating: a.retreating(),
           border: a.borderSize(),
+          stats: a.stats(),
         } as AttackUpdate;
       }),
       incomingAttacks: this._incomingAttacks.map((a) => {
@@ -180,6 +181,7 @@ export class PlayerImpl implements Player {
           id: a.id(),
           retreating: a.retreating(),
           border: a.borderSize(),
+          stats: a.stats(),
         } as AttackUpdate;
       }),
       outgoingAllianceRequests: outgoingAllianceRequests,
