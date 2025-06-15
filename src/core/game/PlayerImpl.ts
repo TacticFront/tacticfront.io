@@ -751,7 +751,12 @@ export class PlayerImpl implements Player {
     if (unit.owner() === this) {
       throw new Error(`Cannot capture unit, ${this} already owns ${unit}`);
     }
-    unit.setOwner(this);
+
+    if (unit.type() === UnitType.ResearchLab) {
+      unit.delete(true);
+    } else {
+      unit.setOwner(this);
+    }
   }
 
   buildUnit<T extends UnitType>(
