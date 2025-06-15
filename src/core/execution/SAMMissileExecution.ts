@@ -71,22 +71,55 @@ export class SAMMissileExecution implements Execution {
           this._owner.id(),
         );
         this.active = false;
-        this.target.delete(true, this._owner);
-        this.SAMMissile.delete(false);
 
-        // Record stats
-        this.mg
-          .stats()
-          .bombIntercept(
-            this._owner,
-            this.target.owner(),
-            this.target.type() as NukeType,
-          );
+        if (this.intercepted()) {
+          this.target.delete(true, this._owner);
+          this.SAMMissile.delete(false);
+
+          this.mg
+            .stats()
+            .bombIntercept(
+              this._owner,
+              this.target.owner(),
+              this.target.type() as NukeType,
+            );
+        } else {
+          this.target.setTargetedBySAM(false);
+          this.SAMMissile.delete(true);
+        }
+
         return;
       } else {
         this.SAMMissile.move(result);
       }
     }
+  }
+
+  intercepted(): boolean {
+    let evasion;
+    switch (this.target.type()) {
+      case UnitType.AtomBomb:
+        evasion = this.target.owner().getVar("atomEvasion");
+        break;
+      case UnitType.CruiseMissile:
+        evasion = this.target.owner().getVar("cruiseEvasion");
+        break;
+      case UnitType.HydrogenBomb:
+        evasion = this.target.owner().getVar("hydrogenEvasion");
+        break;
+      default:
+        evasion = 10;
+        break;
+    }
+
+    const targetingBonus = this._owner.getVar("samTargetingBonus") ?? 30;
+    evasion = evasion ?? 10;
+    const baseChance = 60;
+
+    const chance = baseChance + targetingBonus - evasion;
+    const clampedChance = Math.max(0, Math.min(100, chance));
+
+    return Math.random() * 100 < clampedChance;
   }
 
   isActive(): boolean {

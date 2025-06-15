@@ -123,10 +123,11 @@ export class PlayerImpl implements Player {
     this._vars.set("hospitalMaxNumber", 3);
     this._vars.set("samMissileSpeed", 12);
     this._vars.set("samSearchRange", 100);
-    this._vars.set("samInterceptors", 1);
+    this._vars.set("samInterceptors", 2);
     this._vars.set("samReloadTime", 300);
-    this._vars.set("cruiseEvasion", 40);
-    this._vars.set("atomEvasion", 30);
+    this._vars.set("samTargetingBonus", 30);
+    this._vars.set("cruiseEvasion", 20);
+    this._vars.set("atomEvasion", 35);
     this._vars.set("hydrogenEvasion", 25);
   }
 
