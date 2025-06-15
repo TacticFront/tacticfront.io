@@ -126,7 +126,7 @@ export class UnitInfoModal extends LitElement implements Layer {
     if (!this.unit) return null;
 
     const cooldown = this.unit.ticksLeftInCooldown() ?? 0;
-    const secondsLeft = Math.ceil(cooldown / 10);
+    const secondsLeft = Math.ceil(cooldown / 8);
     const stock = this.unit.stockpile();
     const owner = this.unit.owner().name();
 
