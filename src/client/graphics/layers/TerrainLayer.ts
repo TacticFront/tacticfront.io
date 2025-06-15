@@ -22,14 +22,12 @@ export class TerrainLayer implements Layer {
     const now = new Date();
     const min = now.getMinutes().toString().padStart(2, "0");
     const sec = now.getSeconds().toString().padStart(2, "0");
-    console.log(`[${min}:${sec}] TerrainLayer tick`);
     if (this.game.config().theme() !== this.theme) {
       this.redraw();
     }
   }
 
   init() {
-    console.log("redrew terrain layer");
     this.redraw();
   }
 

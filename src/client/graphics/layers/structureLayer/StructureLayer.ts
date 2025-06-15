@@ -137,14 +137,15 @@ export class StructureLayer implements Layer {
       this.handleUnitRendering(unit);
     }
 
-    if (unitUpdates.length > 0) {
-      console.log(
-        "Unit update counts this tick:",
-        typeCounts,
-        this.cacheHit,
-        this.cacheMiss,
-      );
-    }
+    // if(this.game.config().serverConfig().)
+    // if (unitUpdates.length > 0) {
+    //   console.log(
+    //     "Unit update counts this tick:",
+    //     typeCounts,
+    //     this.cacheHit,
+    //     this.cacheMiss,
+    //   );
+    // }
   }
 
   init() {
