@@ -40,7 +40,10 @@ export class StructureLayer implements Layer {
   private theme: Theme;
   private selectedStructureUnit: UnitView | null = null;
   private previouslySelected: UnitView | null = null;
+
   private unitRenderCache: Map<number, string> = new Map();
+  private cacheHit: number;
+  private cacheMiss: number;
 
   constructor(
     private game: GameView,
@@ -118,10 +121,29 @@ export class StructureLayer implements Layer {
   tick() {
     const updates = this.game.updatesSinceLastTick();
     const unitUpdates = updates !== null ? updates[GameUpdateType.Unit] : [];
+
+    const typeCounts: Record<string, number> = {};
+    this.cacheHit = 0;
+    this.cacheMiss = 0;
+
     for (const u of unitUpdates) {
       const unit = this.game.unit(u.id);
       if (unit === undefined) continue;
+
+      const type = unit.constructionType() ?? unit.type();
+      const typeName = UnitType[type]; // Convert enum to string
+      typeCounts[typeName] = (typeCounts[typeName] || 0) + 1;
+
       this.handleUnitRendering(unit);
+    }
+
+    if (unitUpdates.length > 0) {
+      console.log(
+        "Unit update counts this tick:",
+        typeCounts,
+        this.cacheHit,
+        this.cacheMiss,
+      );
     }
   }
 
@@ -221,10 +243,10 @@ export class StructureLayer implements Layer {
       this.unitRenderCache.set(unit.id(), newState);
     } else {
       if (newState !== oldState) {
-        console.log("Cache Miss", unit.id());
+        this.cacheMiss++;
         this.unitRenderCache.set(unit.id(), newState);
       } else {
-        console.log("Cache Hit", unit.id());
+        this.cacheHit++;
         return;
       }
     }
