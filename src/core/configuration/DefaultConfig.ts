@@ -736,16 +736,16 @@ export class DefaultConfig implements Config {
 
   startManpower(playerInfo: PlayerInfo): number {
     if (playerInfo.playerType === PlayerType.Bot) {
-      return 10_000;
+      return 12_500;
     }
     if (playerInfo.playerType === PlayerType.FakeHuman) {
       switch (this._gameConfig.difficulty) {
         case Difficulty.Easy:
           return 10_000 * (playerInfo?.nation?.strength ?? 1);
         case Difficulty.Medium:
-          return 15_000 * (playerInfo?.nation?.strength ?? 1);
-        case Difficulty.Hard:
           return 20_000 * (playerInfo?.nation?.strength ?? 1);
+        case Difficulty.Hard:
+          return 35_000 * (playerInfo?.nation?.strength ?? 1);
         case Difficulty.Impossible:
           return 50_000 * (playerInfo?.nation?.strength ?? 1);
       }
