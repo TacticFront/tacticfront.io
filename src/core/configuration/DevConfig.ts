@@ -68,7 +68,7 @@ export class DevConfig extends DefaultConfig {
     let populationGold = 0;
 
     if (player.type() === "HUMAN") {
-      populationGold = 0.25 * player.workers() ** 0.8; // .045
+      populationGold = 2 * player.workers() ** 0.8; // .045
     } else {
       populationGold = 0.1 * player.workers() ** 0.8; // .045
     }

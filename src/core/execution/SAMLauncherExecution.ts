@@ -94,20 +94,9 @@ export class SAMLauncherExecution implements Execution {
       this.pseudoRandom = new PseudoRandom(this.sam!.id());
     }
 
-    const cooldown = this.sam!.ticksLeftInCooldown();
-    if (typeof cooldown === "number" && cooldown >= 0) {
-      this.sam!.touch();
-    }
-
+    this.sam!.tickCooldown();
+    this.sam!.checkRepairs();
     this.handleReloads();
-
-    if (this.sam!.isDamaged()) {
-      this.sam!.checkRepairs();
-
-      if (this.sam!.isDamaged()) {
-        return;
-      }
-    }
 
     if (this.pseudoRandom === undefined) {
       this.pseudoRandom = new PseudoRandom(this.sam!.id());

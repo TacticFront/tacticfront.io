@@ -130,14 +130,13 @@ export class StructureLayer implements Layer {
       const unit = this.game.unit(u.id);
       if (unit === undefined) continue;
 
-      const type = unit.constructionType() ?? unit.type();
-      const typeName = UnitType[type]; // Convert enum to string
-      typeCounts[typeName] = (typeCounts[typeName] || 0) + 1;
+      // const type = unit.constructionType() ?? unit.type();
+      // typeCounts[type] = (typeCounts[type] || 0) + 1;
 
       this.handleUnitRendering(unit);
     }
 
-    // if(this.game.config().serverConfig().)
+    //if(this.game.config().serverConfig().)
     // if (unitUpdates.length > 0) {
     //   console.log(
     //     "Unit update counts this tick:",

@@ -134,8 +134,8 @@ export class ControlPanel extends LitElement implements Layer {
     this._gold = player.gold();
     this._troops = player.troops();
     this._workers = player.workers();
-    this.popRate = this.game.config().populationIncreaseRate(player) * 10;
-    this._goldPerSecond = this.game.config().goldAdditionRate(player) * 10;
+    this.popRate = this.game.config().populationIncreaseRate(player) * 8;
+    this._goldPerSecond = this.game.config().goldAdditionRate(player) * 8;
 
     this.currentTroopRatio = player.troops() / player.population();
     this.requestUpdate();

@@ -1,3 +1,5 @@
+// tests/util/TestServerConfig.ts
+
 import { JWK } from "jose";
 import { GameEnv, ServerConfig } from "../../src/core/configuration/Config";
 import { GameMapType } from "../../src/core/game/Game";
@@ -29,6 +31,9 @@ export class TestServerConfig implements ServerConfig {
     return "test";
   }
   turnIntervalMs(): number {
+    throw new Error("Method not implemented.");
+  }
+  tps(): number {
     throw new Error("Method not implemented.");
   }
   gameCreationRate(): number {

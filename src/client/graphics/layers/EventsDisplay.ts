@@ -1,3 +1,5 @@
+// src/client/graphics/layers/EventsDisplay.ts
+
 import { html, LitElement } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { DirectiveResult } from "lit/directive.js";
@@ -144,6 +146,16 @@ export class EventsDisplay extends LitElement implements Layer {
       const t = (this.game.playerBySmallID(a.attackerID) as PlayerView).type();
       return t !== PlayerType.Bot;
     });
+
+    // console.log("Incoming Attack Stats:", this.incomingAttacks);
+    // for (const attack of this.incomingAttacks) {
+    //   console.log(`From ${attack.attackerID}`, attack.stats);
+    // }
+
+    // console.log("Outgoing Attack Stats:", this.outgoingAttacks);
+    // for (const attack of this.outgoingAttacks) {
+    //   console.log(`To ${attack.targetID}`, attack.stats);
+    // }
 
     this.outgoingAttacks = myPlayer
       .outgoingAttacks()

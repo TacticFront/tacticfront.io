@@ -1,3 +1,5 @@
+// src/core/execution/MissileSiloExecution.ts
+
 import { consolex } from "../Consolex";
 import {
   Execution,
@@ -53,10 +55,8 @@ export class MissileSiloExecution implements Execution {
       }
     }
 
-    const cooldown = this.silo.ticksLeftInCooldown();
-    if (typeof cooldown === "number" && cooldown >= 0) {
-      this.silo.touch();
-    }
+    this.silo.tickCooldown();
+    this.silo.checkRepairs();
   }
 
   isActive(): boolean {

@@ -30,9 +30,8 @@ export class UnitImpl implements Unit {
   private _constructionType: UnitType | undefined;
   private _lastOwner: PlayerImpl | null = null;
   private _troops: number;
-  private _cooldown: number;
-  private _cooldownStartTick: Tick | null = null;
   private _cooldownEndTick: Tick = 0;
+  private _repairEndTick: Tick = 0;
   private _patrolTile: TileRef | undefined;
   private _stockpile: Map<string, number> = new Map<string, number>();
   constructor(
@@ -109,11 +108,15 @@ export class UnitImpl implements Unit {
   }
 
   cooldown(): number {
-    return this._cooldown;
+    return this.ticksLeftInCooldown();
   }
 
   tickCooldown(): number {
-    return this._cooldown--;
+    const remaining = this.ticksLeftInCooldown();
+    if (remaining === 1) {
+      this.mg.addUpdate(this.toUpdate());
+    }
+    return remaining;
   }
 
   // setCooldown(cooldown: number) {
@@ -164,9 +167,8 @@ export class UnitImpl implements Unit {
       constructionType: this._constructionType,
       targetUnitId: this._targetUnit?.id() ?? undefined,
       targetTile: this.targetTile() ?? undefined,
-      ticksLeftInCooldown: this.ticksLeftInCooldown() ?? undefined,
-      isDamaged: this.isDamaged(),
-      repairCooldown: this.repairCooldown(),
+      cooldownEndTick: this._cooldownEndTick ?? undefined,
+      repairEndTick: this._repairEndTick ?? undefined,
       stockpile: this.getStockpile(),
     };
   }
@@ -253,7 +255,7 @@ export class UnitImpl implements Unit {
   }
 
   checkRepairs(): void {
-    if (this._isDamaged && this._repairCooldown < this.mg.ticks()) {
+    if (this._isDamaged && this._repairEndTick <= this.mg.ticks()) {
       this._isDamaged = false;
       this.mg.addUpdate(this.toUpdate());
       this.mg.displayMessage(
@@ -265,11 +267,11 @@ export class UnitImpl implements Unit {
   }
 
   repairCooldown(): number {
-    return this._repairCooldown;
+    return this._repairEndTick;
   }
 
   setRepairCooldown(repairCooldown: Tick): void {
-    this._repairCooldown = this.mg.ticks() + repairCooldown;
+    this._repairEndTick = this.mg.ticks() + repairCooldown;
     this._isDamaged = true;
     this.mg.addUpdate(this.toUpdate());
   }

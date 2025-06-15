@@ -106,7 +106,7 @@ export class UnitView {
   }
 
   isDamaged(): boolean {
-    return this.data.isDamaged ?? false;
+    return (this.data.repairEndTick ?? 0) > this.gameView.ticks();
   }
 
   constructionType(): UnitType | undefined {
@@ -119,11 +119,14 @@ export class UnitView {
     return this.data.targetTile;
   }
   ticksLeftInCooldown(): Tick | undefined {
-    return this.data.ticksLeftInCooldown;
+    return Math.max(
+      (this.data.cooldownEndTick || 0) - this.gameView.ticks(),
+      0,
+    );
   }
   isCooldown(): boolean {
-    if (this.data.ticksLeftInCooldown === undefined) return false;
-    return this.data.ticksLeftInCooldown > 0;
+    if (this.data.cooldownEndTick === undefined) return false;
+    return (this.data.cooldownEndTick || 0) - this.gameView.ticks() > 0;
   }
 
   stockpile(): Map<string, number> {

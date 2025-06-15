@@ -134,8 +134,13 @@ export abstract class DefaultServerConfig implements ServerConfig {
   abstract numWorkers(): number;
   abstract env(): GameEnv;
   turnIntervalMs(): number {
-    return 100;
+    return 125;
   }
+
+  tps(): number {
+    return 1000 / this.turnIntervalMs();
+  }
+
   gameCreationRate(): number {
     return 60 * 1000;
   }
@@ -172,12 +177,16 @@ export abstract class DefaultServerConfig implements ServerConfig {
 export class DefaultConfig implements Config {
   private pastelTheme: PastelTheme = new PastelTheme();
   private pastelThemeDark: PastelThemeDark = new PastelThemeDark();
+  private _tps;
   constructor(
     private _serverConfig: ServerConfig,
     private _gameConfig: GameConfig,
     private _userSettings: UserSettings | null,
     private _isReplay: boolean,
-  ) {}
+  ) {
+    this._tps = _serverConfig.tps();
+  }
+
   isReplay(): boolean {
     return this._isReplay;
   }
@@ -194,10 +203,10 @@ export class DefaultConfig implements Config {
     return 0.5;
   }
   traitorDuration(): number {
-    return 60 * 10; // 30 seconds
+    return 60 * this._tps; // 30 seconds
   }
   spawnImmunityDuration(): Tick {
-    return 5 * 10;
+    return 5 * this._tps;
   }
 
   gameConfig(): GameConfig {
@@ -327,7 +336,7 @@ export class DefaultConfig implements Config {
                 ),
 
           territoryBound: true,
-          constructionDuration: this.instantBuild() ? 0 : 2 * 10,
+          constructionDuration: this.instantBuild() ? 0 : 3 * this._tps,
         };
       case UnitType.CruiseMissile:
         return {
@@ -382,7 +391,7 @@ export class DefaultConfig implements Config {
                 ),
 
           territoryBound: true,
-          constructionDuration: this.instantBuild() ? 0 : 20 * 10,
+          constructionDuration: this.instantBuild() ? 0 : 20 * this._tps,
         };
       case UnitType.DefensePost:
         return {
@@ -396,7 +405,7 @@ export class DefaultConfig implements Config {
                     40_000,
                 ),
           territoryBound: true,
-          constructionDuration: this.instantBuild() ? 0 : 5 * 10,
+          constructionDuration: this.instantBuild() ? 0 : 5 * this._tps,
         };
       case UnitType.ResearchLab:
         return {
@@ -411,7 +420,7 @@ export class DefaultConfig implements Config {
                   ) * 125_000,
                 ),
           territoryBound: true,
-          constructionDuration: this.instantBuild() ? 0 : 5 * 10,
+          constructionDuration: this.instantBuild() ? 0 : 8 * this._tps,
         };
       case UnitType.PowerPlant:
         return {
@@ -427,7 +436,7 @@ export class DefaultConfig implements Config {
                 ),
 
           territoryBound: true,
-          constructionDuration: this.instantBuild() ? 0 : 5 * 10,
+          constructionDuration: this.instantBuild() ? 0 : 15 * this._tps,
         };
       case UnitType.Hospital:
         return {
@@ -443,7 +452,7 @@ export class DefaultConfig implements Config {
                 ),
 
           territoryBound: true,
-          constructionDuration: this.instantBuild() ? 0 : 5 * 10,
+          constructionDuration: this.instantBuild() ? 0 : 5 * this._tps,
         };
       case UnitType.Barracks:
         return {
@@ -459,7 +468,7 @@ export class DefaultConfig implements Config {
                 ),
 
           territoryBound: true,
-          constructionDuration: this.instantBuild() ? 0 : 5 * 10,
+          constructionDuration: this.instantBuild() ? 0 : 5 * this._tps,
         };
       case UnitType.SAMLauncher:
         return {
@@ -474,7 +483,7 @@ export class DefaultConfig implements Config {
                 ),
 
           territoryBound: true,
-          constructionDuration: this.instantBuild() ? 0 : 30 * 10,
+          constructionDuration: this.instantBuild() ? 0 : 25 * this._tps,
         };
       case UnitType.City:
         return {
@@ -490,7 +499,7 @@ export class DefaultConfig implements Config {
                 ),
 
           territoryBound: true,
-          constructionDuration: this.instantBuild() ? 0 : 2 * 10,
+          constructionDuration: this.instantBuild() ? 0 : 3 * this._tps,
         };
       case UnitType.Construction:
         return {
@@ -524,28 +533,28 @@ export class DefaultConfig implements Config {
     return Math.floor(sender.troops() / 3);
   }
   donateCooldown(): Tick {
-    return 10 * 10;
+    return 10 * this._tps;
   }
   emojiMessageDuration(): Tick {
-    return 5 * 10;
+    return 5 * this._tps;
   }
   emojiMessageCooldown(): Tick {
-    return 5 * 10;
+    return 5 * this._tps;
   }
   targetDuration(): Tick {
-    return 10 * 10;
+    return 10 * this._tps;
   }
   targetCooldown(): Tick {
-    return 15 * 10;
+    return 15 * this._tps;
   }
   allianceRequestCooldown(): Tick {
-    return 30 * 10;
+    return 30 * this._tps;
   }
   allianceDuration(): Tick {
-    return 600 * 10; // 10 minutes.
+    return 600 * this._tps; // 10 minutes.
   }
   temporaryEmbargoDuration(): Tick {
-    return 300 * 10; // 5 minutes.
+    return 300 * this._tps; // 5 minutes.
   }
 
   missileBaseEvasion(missileType: NukeType): number {

@@ -1,3 +1,5 @@
+// src/client/graphics/layers/OptionsMenu.ts
+
 import { html, LitElement } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { EventBus } from "../../../core/EventBus";
@@ -140,7 +142,7 @@ export class OptionsMenu extends LitElement implements Layer {
     }
     if (this.game.inSpawnPhase()) {
       this.timer = 0;
-    } else if (!this.hasWinner && this.game.ticks() % 10 === 0) {
+    } else if (!this.hasWinner && this.game.ticks() % 8 === 0) {
       this.timer++;
     }
     this.isVisible = true;

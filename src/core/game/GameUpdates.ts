@@ -83,9 +83,11 @@ export interface UnitUpdate {
   targetTile?: TileRef; // Only for nukes
   health?: number;
   constructionType?: UnitType;
-  ticksLeftInCooldown?: Tick;
-  isDamaged?: boolean;
-  repairCooldown?: number;
+  // ticksLeftInCooldown?: Tick;
+  cooldownEndTick?: Tick;
+  repairEndTick?: Tick;
+  // isDamaged?: boolean;
+  // repairCooldown?: number;
   stockpile: Map<string, number>;
 }
 
