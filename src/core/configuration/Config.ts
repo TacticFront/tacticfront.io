@@ -107,7 +107,7 @@ export interface Config {
   ): {
     attackerTroopLoss: number;
     defenderTroopLoss: number;
-    tilesPerTickUsed: number;
+    attackAttemptsToConquer: number;
   };
   attackAmount(attacker: Player, defender: Player | TerraNullius): number;
   radiusPortSpawn(): number;

@@ -58,9 +58,13 @@ export class TestConfig extends DefaultConfig {
   ): {
     attackerTroopLoss: number;
     defenderTroopLoss: number;
-    tilesPerTickUsed: number;
+    attackAttemptsToConquer: number;
   } {
-    return { attackerTroopLoss: 1, defenderTroopLoss: 1, tilesPerTickUsed: 1 };
+    return {
+      attackerTroopLoss: 1,
+      defenderTroopLoss: 1,
+      attackAttemptsToConquer: 1,
+    };
   }
 
   attackTilesPerTick(

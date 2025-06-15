@@ -1,6 +1,7 @@
 // src/core/game/GameUpdates.ts
 
 import { AllPlayersStats, ClientID } from "../Schemas";
+import { AttackStats } from "./AttackImpl";
 import {
   EmojiMessage,
   GameUpdates,
@@ -95,6 +96,7 @@ export interface AttackUpdate {
   id: string;
   retreating: boolean;
   border: number;
+  stats: AttackStats;
 }
 
 export interface PlayerUpdate {

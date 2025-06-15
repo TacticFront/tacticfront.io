@@ -593,7 +593,7 @@ export class DefaultConfig implements Config {
   ): {
     attackerTroopLoss: number;
     defenderTroopLoss: number;
-    tilesPerTickUsed: number;
+    attackAttemptsToConquer: number;
   } {
     let mag = 0;
     let speed = 0;
@@ -668,14 +668,14 @@ export class DefaultConfig implements Config {
           largeLossModifier *
           (defender.isTraitor() ? this.traitorDefenseDebuff() : 1),
         defenderTroopLoss: defender.troops() / defender.numTilesOwned(),
-        tilesPerTickUsed: 2 * speed * largeSpeedMalus,
+        attackAttemptsToConquer: 2 * speed * largeSpeedMalus,
       };
     } else {
       return {
         attackerTroopLoss:
           attacker.type() === PlayerType.Bot ? mag / 10 : mag / 5,
         defenderTroopLoss: 0,
-        tilesPerTickUsed: within(
+        attackAttemptsToConquer: within(
           (2000 * Math.max(10, speed)) / attackTroops,
           5,
           100,
@@ -691,13 +691,14 @@ export class DefaultConfig implements Config {
     numAdjacentTilesWithEnemy: number,
   ): number {
     // Base throughput scaling from troop count
-    const baseTilesPerTick = Math.log2(attackTroops + 2) * 3;
+    // const baseTilesPerTick = Math.log2(attackTroops + 2) * 3;
 
-    // Frontline spread: more borders = slightly more throughput
-    const frontlineBoost = Math.sqrt(Math.max(numAdjacentTilesWithEnemy, 10));
+    // // Frontline spread: more borders = slightly more throughput
+    // const frontlineBoost = ((troops / borderSize) ^ 0.5) * borderSize / 2;
 
     // Final calculation
-    return baseTilesPerTick * (frontlineBoost * 2);
+    //return ((attackTroops / numAdjacentTilesWithEnemy) ^ 0.5) * numAdjacentTilesWithEnemy / 2
+    return 10 * numAdjacentTilesWithEnemy + 3 * Math.sqrt(attackTroops);
   }
 
   boatAttackAmount(attacker: Player, defender: Player | TerraNullius): number {

@@ -204,10 +204,19 @@ export class AttackExecution implements Execution {
     this.mg.stats().attackCancel(this._owner, this.target, survivors);
   }
 
+  resetStats(attack: Attack): void {
+    const stats = attack.stats();
+    stats.tilesConqueredThisTick = 0;
+    stats.totalTroopLossesThisTick = 0;
+    stats.troopCount = attack.troops();
+  }
+
   tick(ticks: number) {
     if (this.attack === null) {
       throw new Error("Attack not initialized");
     }
+
+    this.resetStats(this.attack);
 
     if (this.attack.troops() < 1) {
       this.attack.delete();
@@ -240,6 +249,9 @@ export class AttackExecution implements Execution {
       }
     }
 
+    this.attack.stats().startingToConquer = this.toConquer.size();
+    this.attack.stats().borderSize = this.attack.borderSize();
+
     if (ticks % 100 === 0) {
       this.refreshToConquer();
 
@@ -263,6 +275,7 @@ export class AttackExecution implements Execution {
     }
 
     let troopCount = this.attack.troops(); // cache troop count
+    this.attack.stats().troopCount = this.attack.troops();
 
     if (this.attack.retreated()) {
       if (targetIsPlayer) {
@@ -296,7 +309,7 @@ export class AttackExecution implements Execution {
       return;
     }
 
-    let numTilesPerTick = this.mg
+    let attackAttempts = this.mg
       .config()
       .attackTilesPerTick(
         troopCount,
@@ -305,16 +318,21 @@ export class AttackExecution implements Execution {
         this.attack.borderSize() + this.random.nextInt(0, 5),
       );
 
-    while (numTilesPerTick > 0) {
+    this.attack.stats().attackAttempts = attackAttempts;
+    const initialAttempts = attackAttempts;
+
+    while (attackAttempts > 0) {
       if (tickLosses > maxLosses) {
-        numTilesPerTick = 0;
-        continue;
+        break;
       }
 
       if (this.toConquer.size() === 0) {
         this.refreshToConquer();
-        this.retreat();
-        return;
+
+        if (this.toConquer.size() === 0) {
+          this.retreat();
+          break;
+        }
       }
 
       const [tileToConquer] = this.toConquer.dequeue();
@@ -324,25 +342,29 @@ export class AttackExecution implements Execution {
       for (const n of this.mg.neighbors(tileToConquer)) {
         if (this.mg.owner(n) === this._owner) {
           onBorder = true;
-          break;
+          continue;
         }
       }
-      if (this.mg.owner(tileToConquer) !== this.target || !onBorder) {
+      if (
+        this.mg.owner(tileToConquer)?.id() !== this.target.id() ||
+        !onBorder
+      ) {
         continue;
       }
       this.addNeighbors(tileToConquer);
       const attackerDensity = Math.floor(troopCount / this.attack.borderSize());
-      const { attackerTroopLoss, defenderTroopLoss, tilesPerTickUsed } = this.mg
-        .config()
-        .attackLogic(
-          this.mg,
-          troopCount,
-          this._owner,
-          attackerDensity,
-          this.target,
-          tileToConquer,
-        );
-      numTilesPerTick -= tilesPerTickUsed;
+      const { attackerTroopLoss, defenderTroopLoss, attackAttemptsToConquer } =
+        this.mg
+          .config()
+          .attackLogic(
+            this.mg,
+            troopCount,
+            this._owner,
+            attackerDensity,
+            this.target,
+            tileToConquer,
+          );
+      attackAttempts -= attackAttemptsToConquer;
       const hospitalTrickleback =
         ((Math.max(
           this._owner.units(UnitType.Hospital).length,
@@ -362,7 +384,14 @@ export class AttackExecution implements Execution {
       }
       this._owner.conquer(tileToConquer);
       this.handleDeadDefender();
+      this.attack.stats().tilesConqueredThisTick++;
+      this.attack.stats().tilesConquered++;
     }
+
+    this.attack.stats().attackAttemptsRemainingOnAbort = attackAttempts;
+    this.attack.stats().totalTroopLossesThisTick = tickLosses;
+    this.attack.stats().totalTroopLosses += tickLosses;
+    this.attack.stats().toConquer = this.toConquer.size();
   }
 
   private addNeighbors(tile: TileRef) {
@@ -375,7 +404,7 @@ export class AttackExecution implements Execution {
     for (const neighbor of this.mg.neighbors(tile)) {
       if (
         this.mg.isWater(neighbor) ||
-        this.mg.owner(neighbor) !== this.target
+        this.mg.owner(neighbor)?.id() !== this.target.id()
       ) {
         continue;
       }
