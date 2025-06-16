@@ -1,3 +1,5 @@
+// src/client/HelpModal.ts
+
 import { LitElement, html } from "lit";
 import { customElement, query } from "lit/decorators.js";
 import { translateText } from "../client/Utils";
@@ -171,6 +173,9 @@ export class HelpModal extends LitElement {
               <li class="mb-4">
                 ${translateText("help_modal.ui_attack_ratio")}
               </li>
+              <li class="mb-4">
+                ${translateText("help_modal.ui_reserve_ratio")}
+              </li>
             </ul>
           </div>
         </div>
@@ -270,13 +275,13 @@ export class HelpModal extends LitElement {
         <div class="flex flex-col md:flex-row gap-4">
           <div class="flex flex-col gap-4">
             <img
-              src="/images/helpModal/radialMenu2.webp"
+              src="/images/helpModal/Radial Menu Non-Allied.png"
               alt="Radial menu"
               title="Radial menu"
               class="default-image"
             />
             <img
-              src="/images/helpModal/radialMenuAlly.webp"
+              src="/images/helpModal/Radial Menu Allied.png"
               alt="Radial menu ally"
               title="Radial menu ally"
               class="default-image"
@@ -417,6 +422,11 @@ export class HelpModal extends LitElement {
                 <td>${translateText("help_modal.build_city_desc")}</td>
               </tr>
               <tr>
+                <td>${translateText("help_modal.build_hospital")}</td>
+                <td><div class="icon hospital-icon"></div></td>
+                <td>${translateText("help_modal.build_hospital_desc")}</td>
+              </tr>
+              <tr>
                 <td>${translateText("help_modal.build_defense")}</td>
                 <td><div class="icon defense-post-icon"></div></td>
                 <td>${translateText("help_modal.build_defense_desc")}</td>
@@ -440,6 +450,26 @@ export class HelpModal extends LitElement {
                 <td>${translateText("help_modal.build_sam")}</td>
                 <td><div class="icon sam-launcher-icon"></div></td>
                 <td>${translateText("help_modal.build_sam_desc")}</td>
+              </tr>
+              <tr>
+                <td>${translateText("help_modal.build_rlab")}</td>
+                <td><div class="icon rlab-icon"></div></td>
+                <td>${translateText("help_modal.build_rlab_desc")}</td>
+              </tr>
+              <tr>
+                <td>${translateText("help_modal.build_pplant")}</td>
+                <td><div class="icon pplant-icon"></div></td>
+                <td>${translateText("help_modal.build_pplant_desc")}</td>
+              </tr>
+              <tr>
+                <td>${translateText("help_modal.build_barracks")}</td>
+                <td><div class="icon barracks-icon"></div></td>
+                <td>${translateText("help_modal.build_barracks_desc")}</td>
+              </tr>
+              <tr>
+                <td>${translateText("help_modal.build_cruise")}</td>
+                <td><div class="icon cruise-icon"></div></td>
+                <td>${translateText("help_modal.build_cruise_desc")}</td>
               </tr>
               <tr>
                 <td>${translateText("help_modal.build_atom")}</td>

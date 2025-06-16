@@ -1,3 +1,5 @@
+/* src/client/styles.css */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -358,6 +360,31 @@ label.option-card:hover {
 
 #helpModal .city-icon {
   mask: url("../../resources/images/CityIconWhite.svg") no-repeat center / cover;
+}
+
+#helpModal .hospital-icon {
+  mask: url("../../resources/images/buildings/hospital.png") no-repeat center /
+    cover;
+}
+
+#helpModal .pplant-icon {
+  mask: url("../../resources/images/buildings/powerPlant.webp") no-repeat
+    center / cover;
+}
+
+#helpModal .rlab-icon {
+  mask: url("../../resources/images/buildings/researchLab.png") no-repeat
+    center / cover;
+}
+
+#helpModal .cruise-icon {
+  mask: url("../../resources/images/MissileSiloUnit.png") no-repeat center /
+    cover;
+}
+
+#helpModal .barracks-icon {
+  mask: url("../../resources/images/buildings/barracks.png") no-repeat center /
+    cover;
 }
 
 #helpModal .defense-post-icon {
