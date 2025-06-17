@@ -98,8 +98,8 @@ export class LobbyAdPopup extends LitElement {
         );
 
         if (
-          (l.numClients || 0) > 3 &&
-          timeRemaining >= 30 &&
+          (l.numClients || 0) > 2 &&
+          timeRemaining >= 20 &&
           !alreadyShownIds.includes(l.gameID) &&
           !this.shouldHideForCurrentPage(l)
         ) {
