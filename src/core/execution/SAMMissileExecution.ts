@@ -119,7 +119,7 @@ export class SAMMissileExecution implements Execution {
     const chance = baseChance + targetingBonus - evasion;
     const clampedChance = Math.max(0, Math.min(100, chance));
 
-    return Math.random() * 100 < clampedChance;
+    return new PseudoRandom(this.mg.ticks()).nextInt(0, 100) < clampedChance;
   }
 
   isActive(): boolean {
