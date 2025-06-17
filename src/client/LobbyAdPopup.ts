@@ -62,8 +62,13 @@ export class LobbyAdPopup extends LitElement {
           const msUntilStart = l.msUntilStart ?? 0;
           this.lobbyIDToStart.set(l.gameID, msUntilStart + Date.now());
         }
+        const start = this.lobbyIDToStart.get(l.gameID) ?? 0;
+        const timeRemaining = Math.max(
+          0,
+          Math.floor((start - Date.now()) / 1000),
+        );
 
-        if (l.numClients || 0 > 0) {
+        if ((l.numClients || 0) > 0 && timeRemaining >= 30) {
           this.showJoinModal = true;
         }
       });
@@ -102,10 +107,14 @@ export class LobbyAdPopup extends LitElement {
     this.showJoinModal = false;
   }
 
-  private handleCloseModal() {
+  private handleDismissForNow() {
     // Dismiss for 30 minutes
     const until = Date.now() + DISMISS_MINUTES * 60 * 1000;
     localStorage.setItem(DISMISS_KEY, String(until));
+    this.showJoinModal = false;
+  }
+
+  private handleCloseModal() {
     this.showJoinModal = false;
   }
 
@@ -139,6 +148,16 @@ export class LobbyAdPopup extends LitElement {
         <div
           class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 w-full max-w-lg mx-4 relative flex flex-col items-center border-2 border-blue-600"
         >
+          <button
+            class="absolute top-3 right-3 text-gray-400 hover:text-gray-700 dark:hover:text-white text-2xl"
+            style="line-height:1"
+            @click=${this.handleCloseModal}
+            aria-label="Dismiss"
+            title="Close"
+            tabindex="0"
+          >
+            &times;
+          </button>
           <!-- Optional: Map image -->
           ${mapImageUrl
             ? html`<img
@@ -215,9 +234,9 @@ export class LobbyAdPopup extends LitElement {
             </button>
             <button
               class="bg-gradient-to-r from-gray-400 to-gray-700 hover:from-red-500 hover:to-red-700 transition-colors text-white px-6 py-2 rounded-lg font-semibold text-lg focus:outline-none focus:ring-2 focus:ring-red-400"
-              @click=${this.handleCloseModal}
+              @click=${this.handleDismissForNow}
             >
-              Not Now
+              Dismiss for 30 Min
             </button>
           </div>
         </div>
