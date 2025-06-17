@@ -252,6 +252,9 @@ export class PlayerView {
   troops(): number {
     return this.data.troops;
   }
+  offensiveTroops(): number {
+    return this.data.offensiveTroops;
+  }
 
   techLevel(): number {
     return this.data.techLevel;

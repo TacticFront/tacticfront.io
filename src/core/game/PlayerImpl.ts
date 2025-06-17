@@ -61,6 +61,7 @@ export class PlayerImpl implements Player {
   private _gold: number;
   private _troops: number;
   private _workers: number;
+  private _offensiveTroops: number;
 
   private _techLevel: number;
 
@@ -156,6 +157,7 @@ export class PlayerImpl implements Player {
       population: this.population(),
       workers: this.workers(),
       troops: this.troops(),
+      offensiveTroops: this.offensiveTroops(),
       targetTroopRatio: this.targetTroopRatio(),
       reserveTroopRatio: this.reserveTroopRatio(),
       allies: this.alliances().map((a) => a.other(this).smallID()),
@@ -689,8 +691,16 @@ export class PlayerImpl implements Player {
     return actualRemoved;
   }
 
+  offensiveTroops(): number {
+    let offensiveTroops = 0;
+    for (const attack of this._outgoingAttacks) {
+      offensiveTroops += attack.troops();
+    }
+    return offensiveTroops;
+  }
+
   population(): number {
-    return Number(this._troops + this._workers);
+    return Number(this._troops + this._workers + this.offensiveTroops());
   }
   workers(): number {
     return Math.max(1, Number(this._workers));

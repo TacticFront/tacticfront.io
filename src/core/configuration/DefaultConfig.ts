@@ -781,11 +781,22 @@ export class DefaultConfig implements Config {
   }
 
   populationIncreaseRate(player: Player): number {
+    // const max = this.maxPopulation(player);
+
+    // let toAdd = 10 + Math.pow(player.population(), 0.73) / 4;
+
+    // const ratio = 1 - player.population() / max;
+    // toAdd *= ratio;
+
     const max = this.maxPopulation(player);
-
-    let toAdd = 10 + Math.pow(player.population(), 0.73) / 4;
-
-    const ratio = 1 - player.population() / max;
+    //population grows proportional to current population with growth decreasing as it approaches max
+    // smaller countries recieve a boost to pop growth to speed up early game
+    const baseAdditionRate = 10;
+    const basePopGrowthRate = 1400 / max + 1 / 140;
+    const reproductionPop = 0.8 * player.troops() + 1.15 * player.workers();
+    let toAdd = baseAdditionRate + basePopGrowthRate * reproductionPop;
+    const totalPop = player.population();
+    const ratio = 1 - totalPop / max;
     toAdd *= ratio;
 
     if (player.type() === PlayerType.Bot) {
@@ -826,12 +837,13 @@ export class DefaultConfig implements Config {
   }
 
   troopAdjustmentRate(player: Player): number {
-    const maxDiff = this.maxPopulation(player) / 1500;
+    const maxDiff = this.maxPopulation(player) / 1600;
     const target = player.population() * player.targetTroopRatio();
-    const diff = target - player.troops();
+    const diff = target - (player.troops() + player.offensiveTroops());
     if (Math.abs(diff) < maxDiff) {
       return diff;
     }
+
     const adjustment =
       player.type() === PlayerType.Bot
         ? 2 * maxDiff * Math.sign(diff)

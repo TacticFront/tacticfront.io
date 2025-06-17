@@ -233,6 +233,7 @@ export class SAMLauncherExecution implements Execution {
         target,
       ),
     );
+
     this.sam!.removeStock("missiles", 1);
 
     // after removing, if we’re now empty:
@@ -242,6 +243,7 @@ export class SAMLauncherExecution implements Execution {
       // and reset reload countdown so handleReloads will wait the full time
       this.nextReload = this.sam!.owner().getVar("samReloadTime");
     }
+    this.sam!.touch();
   }
 
   isActive(): boolean {

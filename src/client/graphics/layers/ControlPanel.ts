@@ -33,6 +33,9 @@ export class ControlPanel extends LitElement implements Layer {
   private currentTroopRatio = 0.8;
 
   @state()
+  private currentOffensiveTroopRatio = 0;
+
+  @state()
   private _population: number;
 
   @state()
@@ -46,6 +49,9 @@ export class ControlPanel extends LitElement implements Layer {
 
   @state()
   private _workers: number;
+
+  @state()
+  private _offensiveTroops: number;
 
   @state()
   private _isVisible = false;
@@ -134,10 +140,13 @@ export class ControlPanel extends LitElement implements Layer {
     this._gold = player.gold();
     this._troops = player.troops();
     this._workers = player.workers();
+    this._offensiveTroops = player.offensiveTroops();
     this.popRate = this.game.config().populationIncreaseRate(player) * 8;
     this._goldPerSecond = this.game.config().goldAdditionRate(player) * 8;
 
     this.currentTroopRatio = player.troops() / player.population();
+    this.currentOffensiveTroopRatio =
+      player.offensiveTroops() / player.population();
     this.requestUpdate();
   }
 
@@ -265,8 +274,25 @@ export class ControlPanel extends LitElement implements Layer {
             ></div>
             <!-- Fill track -->
             <div
-              class="absolute left-0 top-3 h-2 bg-blue-500/60 rounded transition-all duration-300"
-              style="width: ${this.currentTroopRatio * 100}%"
+              class="absolute left-0 top-3 h-2 bg-red-500/80 rounded transition-all duration-300"
+              style="width: ${(this.currentOffensiveTroopRatio * 100).toFixed(
+                2,
+              )}%;"
+            ></div>
+            <!-- Defensive Troops (Blue) -->
+            <div
+              class="absolute top-3 h-2 bg-blue-500/80 rounded transition-all duration-300"
+              style="left: ${(this.currentOffensiveTroopRatio * 100).toFixed(
+                2,
+              )}%; width: ${(this.currentTroopRatio * 100).toFixed(2)}%;"
+            ></div>
+            <!-- Workers (Gray) -->
+            <div
+              class="absolute top-3 h-2 bg-gray-400/70 rounded transition-all duration-300"
+              style="left: ${(
+                (this.currentOffensiveTroopRatio + this.currentTroopRatio) *
+                100
+              ).toFixed(2)}%;"
             ></div>
             <!-- Range input - exactly overlaying the visual elements -->
             <input
