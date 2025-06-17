@@ -8,7 +8,24 @@ import { GameMode } from "../core/game/Game";
 import { GameID, GameInfo } from "../core/Schemas";
 
 const DISMISS_KEY = "lobby-ad-dismissed-until";
+const POPUP_SHOWN_IDS_KEY = "lobby-ad-shown-gameids";
 const DISMISS_MINUTES = 30;
+
+function getPopupShownIds(): GameID[] {
+  try {
+    return JSON.parse(localStorage.getItem(POPUP_SHOWN_IDS_KEY) || "[]");
+  } catch {
+    return [];
+  }
+}
+
+function addPopupShownId(id: GameID) {
+  const ids = getPopupShownIds();
+  if (!ids.includes(id)) {
+    ids.push(id);
+    localStorage.setItem(POPUP_SHOWN_IDS_KEY, JSON.stringify(ids));
+  }
+}
 
 @customElement("lobby-ad")
 export class LobbyAdPopup extends LitElement {
@@ -42,6 +59,15 @@ export class LobbyAdPopup extends LitElement {
     }
   }
 
+  private shouldHideForCurrentPage(lobby: GameInfo): boolean {
+    const path = window.location.pathname;
+    if (path === "/" || path === `/join/${lobby.gameID}`) {
+      return true;
+    }
+    // Also allow for hash, search, etc if you want (optional)
+    return false;
+  }
+
   private isDismissed(): boolean {
     const until = localStorage.getItem(DISMISS_KEY);
     if (!until) return false;
@@ -67,9 +93,16 @@ export class LobbyAdPopup extends LitElement {
           0,
           Math.floor((start - Date.now()) / 1000),
         );
+        const alreadyShown = getPopupShownIds().includes(l.gameID);
 
-        if ((l.numClients || 0) > 0 && timeRemaining >= 30) {
+        if (
+          (l.numClients || 0) > 0 &&
+          timeRemaining >= 30 &&
+          !alreadyShown &&
+          !this.shouldHideForCurrentPage(l)
+        ) {
           this.showJoinModal = true;
+          addPopupShownId(l.gameID);
         }
       });
     } catch (error) {
@@ -123,7 +156,7 @@ export class LobbyAdPopup extends LitElement {
 
     const lobby = this.lobbies[0];
     if (!lobby?.gameConfig) return;
-
+    if (this.shouldHideForCurrentPage(lobby)) return html``;
     const start = this.lobbyIDToStart.get(lobby.gameID) ?? 0;
     const timeRemaining = Math.max(0, Math.floor((start - Date.now()) / 1000));
     const minutes = Math.floor(timeRemaining / 60);
