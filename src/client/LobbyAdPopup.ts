@@ -98,7 +98,7 @@ export class LobbyAdPopup extends LitElement {
         );
 
         if (
-          (l.numClients || 0) > 0 &&
+          (l.numClients || 0) > 3 &&
           timeRemaining >= 30 &&
           !alreadyShownIds.includes(l.gameID) &&
           !this.shouldHideForCurrentPage(l)
@@ -266,6 +266,12 @@ export class LobbyAdPopup extends LitElement {
               @click=${this.handleJoinClick}
             >
               Join Now
+            </button>
+            <button
+              class="bg-gradient-to-r from-gray-400 to-gray-700 hover:from-blue-500 hover:to-blue-700 transition-colors text-white px-6 py-2 rounded-lg font-semibold text-lg focus:outline-none focus:ring-2 focus:ring-red-400"
+              @click=${this.handleCloseModal}
+            >
+              Skip Map
             </button>
             <button
               class="bg-gradient-to-r from-gray-400 to-gray-700 hover:from-red-500 hover:to-red-700 transition-colors text-white px-6 py-2 rounded-lg font-semibold text-lg focus:outline-none focus:ring-2 focus:ring-red-400"
