@@ -126,10 +126,10 @@ export abstract class DefaultServerConfig implements ServerConfig {
   }
 
   adminHeader(): string {
-    return "x-admin-key";
+    return "x-admin-key2345678";
   }
   adminToken(): string {
-    return process.env.ADMIN_TOKEN ?? "dummy-admin-token";
+    return process.env.ADMIN_TOKEN ?? "thenew=dummy-admin-token";
   }
   abstract numWorkers(): number;
   abstract env(): GameEnv;
