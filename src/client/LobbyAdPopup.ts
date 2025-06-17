@@ -27,7 +27,7 @@ export class LobbyAdPopup extends LitElement {
     this.fetchAndUpdateLobbies();
     this.lobbiesInterval = window.setInterval(
       () => this.fetchAndUpdateLobbies(),
-      1000,
+      2000,
     );
   }
 
@@ -84,7 +84,7 @@ export class LobbyAdPopup extends LitElement {
     if (this.lobbies.length > 0) {
       const lobby = this.lobbies[0];
       // Assuming the game URL is structured like this. Adjust if necessary.
-      window.open(`/game?gameID=${lobby.gameID}`, "_blank");
+      window.open(`/join/${lobby.gameID}`, "_blank");
     }
     this.showJoinModal = false;
   }
@@ -97,13 +97,10 @@ export class LobbyAdPopup extends LitElement {
     if (!this.showJoinModal || this.lobbies.length === 0) return html``;
 
     const lobby = this.lobbies[0];
-    if (!lobby?.gameConfig) {
-      return;
-    }
+    if (!lobby?.gameConfig) return;
+
     const start = this.lobbyIDToStart.get(lobby.gameID) ?? 0;
     const timeRemaining = Math.max(0, Math.floor((start - Date.now()) / 1000));
-
-    // Format time to show minutes and seconds
     const minutes = Math.floor(timeRemaining / 60);
     const seconds = timeRemaining % 60;
     const timeDisplay = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
@@ -113,44 +110,92 @@ export class LobbyAdPopup extends LitElement {
         ? lobby.gameConfig.playerTeams || 0
         : null;
 
+    // Optionally display a map image if available
+    const mapName = lobby.gameConfig.gameMap;
+    // If you have a map image utility: getMapsImage(mapName)
+    // const mapImageUrl = getMapsImage ? getMapsImage(mapName) : null;
+    const mapImageUrl = undefined; // TODO: swap this with your image util if available
+
     return html`
       <div
-        class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center"
+        class="fixed inset-0 bg-black/70 z-[100] flex justify-center items-center"
       >
         <div
-          class="bg-white rounded-lg shadow-lg p-6 w-96 max-w-full text-center"
+          class="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 w-full max-w-lg mx-4 relative flex flex-col items-center border-2 border-blue-600"
         >
-          <h2 class="text-xl font-semibold mb-4">Join Public Lobby?</h2>
-          <p class="mb-4">
-            A public lobby is available. Would you like to join?
-          </p>
-          <p class="mb-4 text-sm text-gray-600">Game ID: ${lobby.gameID}</p>
-          <div class="flex justify-center gap-4">
-            <span
-              class="text-sm ${this.isLobbyHighlighted
-                ? "text-green-600"
-                : "text-blue-600"} bg-white rounded-sm px-1"
-            >
-              ${lobby.gameConfig.gameMode === GameMode.Team
-                ? translateText("public_lobby.teams", { num: teamCount ?? 0 })
-                : translateText("game_mode.ffa")}</span
-            >
-            <span
-              >${translateText(
-                `map.${lobby.gameConfig.gameMap.toLowerCase().replace(/\s+/g, "")}`,
-              )}</span
-            >
+          <!-- Optional: Map image -->
+          ${mapImageUrl
+            ? html` <img
+                src="${mapImageUrl}"
+                alt="${mapName}"
+                class="rounded-lg mb-4 object-cover w-full max-h-32"
+              />`
+            : null}
+          <h2
+            class="text-2xl md:text-3xl font-bold mb-3 text-blue-700 dark:text-blue-300"
+          >
+            🚩 Join Public Lobby
+          </h2>
+          <div class="text-gray-600 dark:text-gray-300 mb-4 text-base">
+            A public lobby is waiting for players.<br />
+            Would you like to join?
+          </div>
+          <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-left w-full mb-4">
+            <div class="font-semibold text-gray-700 dark:text-gray-200">
+              Game ID:
+            </div>
+            <div class="text-blue-700 dark:text-blue-400 truncate">
+              ${lobby.gameID}
+            </div>
+
+            <div class="font-semibold text-gray-700 dark:text-gray-200">
+              Map:
+            </div>
+            <div>
+              ${translateText(
+                `map.${mapName.toLowerCase().replace(/\s+/g, "")}`,
+              )}
+            </div>
+
+            <div class="font-semibold text-gray-700 dark:text-gray-200">
+              Mode:
+            </div>
+            <div>
+              <span
+                class="font-medium ${this.isLobbyHighlighted
+                  ? "text-green-600"
+                  : "text-blue-600"}"
+              >
+                ${lobby.gameConfig.gameMode === GameMode.Team
+                  ? translateText("public_lobby.teams", { num: teamCount ?? 0 })
+                  : translateText("game_mode.ffa")}
+              </span>
+            </div>
+
+            <div class="font-semibold text-gray-700 dark:text-gray-200">
+              Players:
+            </div>
+            <div>
+              ${lobby.numClients ?? 0} / ${lobby.gameConfig.maxPlayers ?? "?"}
+            </div>
+
+            <div class="font-semibold text-gray-700 dark:text-gray-200">
+              Starts in:
+            </div>
+            <div class="text-blue-600 dark:text-blue-300">${timeDisplay}</div>
+          </div>
+          <div class="flex gap-6 justify-center w-full mt-4">
             <button
-              class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded"
+              class="bg-gradient-to-r from-green-500 to-green-700 hover:from-green-700 hover:to-green-500 transition-colors text-white px-6 py-2 rounded-lg font-semibold text-lg focus:outline-none focus:ring-2 focus:ring-green-400"
               @click=${this.handleJoinClick}
             >
-              Yes
+              Join Now
             </button>
             <button
-              class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded"
+              class="bg-gradient-to-r from-gray-400 to-gray-700 hover:from-red-500 hover:to-red-700 transition-colors text-white px-6 py-2 rounded-lg font-semibold text-lg focus:outline-none focus:ring-2 focus:ring-red-400"
               @click=${this.handleCloseModal}
             >
-              No
+              Not Now
             </button>
           </div>
         </div>
