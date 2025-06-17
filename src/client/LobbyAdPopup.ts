@@ -81,6 +81,9 @@ export class LobbyAdPopup extends LitElement {
     }
     try {
       this.lobbies = await this.fetchLobbies();
+      const show = false;
+      const lobbyToShow: GameInfo | null = null;
+      const alreadyShownIds = getPopupShownIds();
       this.lobbies.forEach((l) => {
         // Store the start time on first fetch because endpoint is cached, causing
         // the time to appear irregular.
@@ -93,12 +96,11 @@ export class LobbyAdPopup extends LitElement {
           0,
           Math.floor((start - Date.now()) / 1000),
         );
-        const alreadyShown = getPopupShownIds().includes(l.gameID);
 
         if (
           (l.numClients || 0) > 0 &&
           timeRemaining >= 30 &&
-          !alreadyShown &&
+          !alreadyShownIds.includes(l.gameID) &&
           !this.shouldHideForCurrentPage(l)
         ) {
           this.showJoinModal = true;
