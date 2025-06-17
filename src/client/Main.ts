@@ -22,6 +22,7 @@ import { JoinPrivateLobbyModal } from "./JoinPrivateLobbyModal";
 import "./LangSelector";
 import { LangSelector } from "./LangSelector";
 import { LanguageModal } from "./LanguageModal";
+import { LobbyAdPopup } from "./LobbyAdPopup";
 import { NewsModal } from "./NewsModal";
 import "./PublicLobby";
 import { PublicLobby } from "./PublicLobby";
@@ -57,6 +58,7 @@ class Client {
 
   private joinModal: JoinPrivateLobbyModal;
   private publicLobby: PublicLobby;
+  private lobbyAd: LobbyAdPopup;
   private googleAds: NodeListOf<GoogleAdElement>;
   private userSettings: UserSettings = new UserSettings();
 
@@ -120,6 +122,7 @@ class Client {
     }
 
     this.publicLobby = document.querySelector("public-lobby") as PublicLobby;
+    this.lobbyAd = document.querySelector("lobby-ad") as LobbyAdPopup;
     this.googleAds = document.querySelectorAll(
       "google-ad",
     ) as NodeListOf<GoogleAdElement>;
