@@ -7,6 +7,9 @@ import { consolex } from "../core/Consolex";
 import { GameMode } from "../core/game/Game";
 import { GameID, GameInfo } from "../core/Schemas";
 
+const DISMISS_KEY = "lobby-ad-dismissed-until";
+const DISMISS_MINUTES = 30;
+
 @customElement("lobby-ad")
 export class LobbyAdPopup extends LitElement {
   @state() private lobbies: GameInfo[] = [];
@@ -39,7 +42,17 @@ export class LobbyAdPopup extends LitElement {
     }
   }
 
+  private isDismissed(): boolean {
+    const until = localStorage.getItem(DISMISS_KEY);
+    if (!until) return false;
+    return Date.now() < Number(until);
+  }
+
   private async fetchAndUpdateLobbies(): Promise<void> {
+    if (this.isDismissed()) {
+      this.showJoinModal = false;
+      return;
+    }
     try {
       this.lobbies = await this.fetchLobbies();
       this.lobbies.forEach((l) => {
@@ -90,6 +103,9 @@ export class LobbyAdPopup extends LitElement {
   }
 
   private handleCloseModal() {
+    // Dismiss for 30 minutes
+    const until = Date.now() + DISMISS_MINUTES * 60 * 1000;
+    localStorage.setItem(DISMISS_KEY, String(until));
     this.showJoinModal = false;
   }
 
@@ -125,7 +141,7 @@ export class LobbyAdPopup extends LitElement {
         >
           <!-- Optional: Map image -->
           ${mapImageUrl
-            ? html` <img
+            ? html`<img
                 src="${mapImageUrl}"
                 alt="${mapName}"
                 class="rounded-lg mb-4 object-cover w-full max-h-32"
@@ -136,9 +152,15 @@ export class LobbyAdPopup extends LitElement {
           >
             🚩 Join Public Lobby
           </h2>
-          <div class="text-gray-600 dark:text-gray-300 mb-4 text-base">
+          <div class="text-gray-600 dark:text-gray-300 mb-2 text-base">
             A public lobby is waiting for players.<br />
             Would you like to join?
+          </div>
+          <div class="mb-4 text-blue-700 dark:text-blue-200 text-sm">
+            <span
+              >If you join, the public lobby will open in a <b>new tab</b> so
+              you can return to your game later.</span
+            >
           </div>
           <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-left w-full mb-4">
             <div class="font-semibold text-gray-700 dark:text-gray-200">
