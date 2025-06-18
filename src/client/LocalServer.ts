@@ -204,15 +204,32 @@ export class LocalServer {
       record.turns = [];
     }
     // For unload events, sendBeacon is the only reliable method
-    const blob = new Blob(
-      [JSON.stringify(GameRecordSchema.parse(record), replacer)],
-      {
-        type: "application/json",
-      },
+    const jsonPayload = JSON.stringify(
+      GameRecordSchema.parse(record),
+      replacer,
     );
     const workerPath = this.lobbyConfig.serverConfig.workerPath(
       this.lobbyConfig.gameStartInfo.gameID,
     );
-    navigator.sendBeacon(`/${workerPath}/api/archive_singleplayer_game`, blob);
+
+    fetch(`/${workerPath}/api/archive_singleplayer_game`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: jsonPayload,
+      keepalive: true, // Important for unload events (like sendBeacon)
+    });
+
+    // const blob = new Blob(
+    //   [JSON.stringify(GameRecordSchema.parse(record), replacer)],
+    //   {
+    //     type: "application/json",
+    //   },
+    // );
+    // const workerPath = this.lobbyConfig.serverConfig.workerPath(
+    //   this.lobbyConfig.gameStartInfo.gameID,
+    // );
+    // navigator.sendBeacon(`/${workerPath}/api/archive_singleplayer_game`, blob);
   }
 }
