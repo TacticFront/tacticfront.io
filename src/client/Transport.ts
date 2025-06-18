@@ -395,7 +395,7 @@ export class Transport {
     );
   }
 
-  leaveGame(saveFullGame: boolean = false) {
+  leaveGame(saveFullGame: boolean = true) {
     if (this.isLocal) {
       this.localServer.endGame(saveFullGame);
       return;
