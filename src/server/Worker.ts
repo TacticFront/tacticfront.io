@@ -124,6 +124,14 @@ export function startWorker() {
         `Worker ${workerId}: IP ${ipAnonymize(clientIP)} creating game ${game.isPublic() ? "Public" : "Private"} with id ${id}`,
       );
       res.json(game.gameInfo());
+
+      if (process.send) {
+        process.send({
+          type: "GAME_CREATED",
+          gameID: id,
+          lobbyType: game.isPublic() ? "public" : "private",
+        });
+      }
     }),
   );
 

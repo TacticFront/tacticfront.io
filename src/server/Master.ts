@@ -61,8 +61,8 @@ app.use(
   }),
 );
 
-let publicLobbiesJsonStr = "";
-const lobbiesJsonStr = "";
+const publicLobbiesJsonStr = "";
+let lobbiesJsonStr = "";
 
 const publicLobbyIDs: Set<string> = new Set();
 const privateLobbyIDs: Set<string> = new Set();
@@ -88,6 +88,15 @@ export async function startMaster() {
   }
 
   cluster.on("message", (worker, message) => {
+    if (message.type === "GAME_CREATED") {
+      if (message.lobbyType === "public") {
+        publicLobbyIDs.add(message.gameID);
+      } else {
+        privateLobbyIDs.add(message.gameID);
+      }
+      return;
+    }
+
     if (message.type === "WORKER_READY") {
       const workerId = message.workerId;
       readyWorkers.add(workerId);
@@ -160,7 +169,7 @@ app.get(
 app.get(
   "/api/public_lobbies",
   gatekeeper.httpHandler(LimiterType.Get, async (req, res) => {
-    res.send(publicLobbiesJsonStr);
+    res.send(lobbiesJsonStr);
   }),
 );
 
@@ -219,57 +228,58 @@ async function fetchLobbies(): Promise<number> {
 
   for (const gameID of allLobbyIDs) {
     const controller = new AbortController();
-    setTimeout(() => controller.abort(), 5000); // 5 second timeout
+    setTimeout(() => controller.abort(), 5000); // 5 sec timeout
     const port = config.workerPort(gameID);
     const promise = fetch(`http://localhost:${port}/api/game/${gameID}`, {
       headers: { [config.adminHeader()]: config.adminToken() },
       signal: controller.signal,
     })
       .then((resp) => resp.json())
-      .then((json) => {
-        return json as GameInfo;
-      })
+      .then((json) => json as GameInfo)
       .catch((error) => {
         log.error(`Error fetching game ${gameID}:`, error);
-        // Return null or a placeholder if fetch fails
         publicLobbyIDs.delete(gameID);
+        privateLobbyIDs.delete(gameID);
         return null;
       });
 
     fetchPromises.push(promise);
   }
 
-  // Wait for all promises to resolve
+  // Wait for all results
   const results = await Promise.all(fetchPromises);
 
-  // Filter out any null results from failed fetches
-  const lobbyInfos: GameInfo[] = results
+  // Filter valid lobbies, add lobbyType, and handle msUntilStart
+  const lobbyInfos = results
     .filter((result) => result !== null)
     .map((gi: GameInfo) => {
-      return {
+      const isPublic = publicLobbyIDs.has(gi.gameID);
+      const lobbyInfo: any = {
         gameID: gi.gameID,
         numClients: gi?.clients?.length ?? 0,
         gameConfig: gi.gameConfig,
-        msUntilStart: (gi.msUntilStart ?? Date.now()) - Date.now(),
-      } as GameInfo;
+        lobbyType: isPublic ? "public" : "private",
+      };
+      if (isPublic && "msUntilStart" in gi) {
+        lobbyInfo.msUntilStart = (gi.msUntilStart ?? Date.now()) - Date.now();
+      }
+      return lobbyInfo;
     });
 
+  // Remove expired or full lobbies from both sets
   lobbyInfos.forEach((l) => {
     if (
+      l.lobbyType === "public" &&
       "msUntilStart" in l &&
       l.msUntilStart !== undefined &&
       l.msUntilStart <= 250
     ) {
       publicLobbyIDs.delete(l.gameID);
-      privateLobbyIDs.delete(l.gameID);
       return;
     }
     if (
-      "gameConfig" in l &&
-      l.gameConfig !== undefined &&
-      "maxPlayers" in l.gameConfig &&
+      l.gameConfig &&
       l.gameConfig.maxPlayers !== undefined &&
-      "numClients" in l &&
       l.numClients !== undefined &&
       l.gameConfig.maxPlayers <= l.numClients
     ) {
@@ -279,8 +289,8 @@ async function fetchLobbies(): Promise<number> {
     }
   });
 
-  // Update the JSON string
-  publicLobbiesJsonStr = JSON.stringify({
+  // Update the JSON string with all lobbies
+  lobbiesJsonStr = JSON.stringify({
     lobbies: lobbyInfos,
   });
 
