@@ -637,6 +637,7 @@ export interface Game extends GameMap {
   owner(ref: TileRef): Player | TerraNullius;
 
   teams(): Team[];
+  topPlayer(): Player | null;
 
   // Game State
   ticks(): Tick;

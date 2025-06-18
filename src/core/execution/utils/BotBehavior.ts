@@ -99,6 +99,8 @@ export class BotBehavior {
       if (ratio < this.triggerRatio) return null;
     }
 
+    const topPlayer = this.game.topPlayer();
+
     // Prefer neighboring bots
     if (this.enemy === null) {
       const bots = this.player

@@ -492,8 +492,7 @@ export class DefaultConfig implements Config {
               ? 0
               : Math.min(
                   8_000_000,
-                  (p.unitsIncludingConstruction(UnitType.SAMLauncher).length +
-                    1) *
+                  (p.unitsIncludingConstruction(UnitType.Radar).length + 1) *
                     2_000_000,
                 ),
 

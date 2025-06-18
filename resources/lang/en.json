@@ -95,6 +95,8 @@
     "build_warship_desc": "Patrols in an area, capturing enemy trade ships and destroying their Boats (transport ships) and Warships. Spawns from the nearest Port and patrols the area you first clicked to build it. You can control Warships by attack-clicking on them (see action Attack under Hotkeys) and then attack-clicking the new area you want them to move to.",
     "build_silo": "Missile Silo",
     "build_silo_desc": "Allows launching missiles.",
+    "build_radar": "Radar",
+    "build_radar_desc": "Increases hit chance of nearby missile interceptors.",
     "build_sam": "SAM Launcher",
     "build_sam_desc": "Can intercept enemy missiles in its 100 pixel range. With a 100% hit chance for Atom Bomb, 80% for Hydrogen Bomb and 50% for individual MIRV Warheads. The SAM has a 7.5 second cooldown.",
     "build_atom": "Atom Bomb",
@@ -114,7 +116,7 @@
     "build_hospital": "Hospital",
     "build_hospital_desc": "Faster population growth and some of your troops can survive on your offensives.",
     "build_cruise": "Cruise Missile",
-    "build_cruise_desc": "Strike once to temporarily disable enemy silos, sams and defense posts. A second hit will destroy them.",
+    "build_cruise_desc": "Strike once to temporarily disable enemy silos, sams radars and defense posts. A second hit will destroy them.",
     "player_icons": "Player icons",
     "icon_desc": "Examples of some of the ingame icons you will encounter and what they mean:",
     "icon_crown": "Crown - Number 1. This is the top player in the leaderboard.",
@@ -243,7 +245,8 @@
     "power_plant": "Power Plant",
     "cruise_missile": "Cruise Missile",
     "hospital": "Hospital",
-    "barracks": "Barracks"
+    "barracks": "Barracks",
+    "radar": "Radar"
   },
   "user_setting": {
     "title": "User Settings",
@@ -368,6 +371,7 @@
       "hydrogen_bomb": "Large explosion",
       "mirv": "Huge explosion, only targets selected player",
       "missile_silo": "Used to launch nukes",
+      "radar": "Increase hit chance of nearby missile interceptors.",
       "sam_launcher": "Defends against incoming nukes",
       "warship": "Captures trade ships, destroys ships and boats",
       "port": "Active trade ships and passive gold production",

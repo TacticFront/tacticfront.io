@@ -1,5 +1,8 @@
+// src/core/game/GameImpl.ts
+
 import { Config } from "../configuration/Config";
 import { consolex } from "../Consolex";
+import { CoalitionExecution } from "../execution/coalition/CoalitionExecution";
 import { AllPlayersStats, ClientID } from "../Schemas";
 import { simpleHash } from "../Util";
 import { AllianceImpl } from "./AllianceImpl";
@@ -24,6 +27,7 @@ import {
   Team,
   TerrainType,
   TerraNullius,
+  Tick,
   Unit,
   UnitInfo,
   UnitType,
@@ -74,6 +78,12 @@ export class GameImpl implements Game {
 
   private playerTeams: Team[] = [ColoredTeams.Red, ColoredTeams.Blue];
   private botTeam: Team = ColoredTeams.Bot;
+
+  private _topPlayer: Player | null;
+  private _topPlayerLastCalc: Tick = -1;
+
+  private _coalitionThresholds = [0.1, 0.15, 0.25, 0.35]; // or however many you want
+  private _coalitionThresholdIndex = 0;
 
   constructor(
     private _humans: PlayerInfo[],
@@ -135,6 +145,42 @@ export class GameImpl implements Game {
       }
       this.addPlayer(playerInfo, team);
     }
+  }
+
+  topPlayer(): Player | null {
+    if (this._topPlayerLastCalc !== this._ticks) {
+      // Find top player by tiles owned (can use gold(), troops(), etc.)
+      let top: Player | null = null;
+      let maxTiles = -1;
+      for (const player of this.players()) {
+        const tiles = player.numTilesOwned();
+        if (tiles > maxTiles) {
+          maxTiles = tiles;
+          top = player;
+        }
+      }
+      this._topPlayer = top;
+      this._topPlayerLastCalc = this._ticks;
+
+      const thresholds = this._coalitionThresholds;
+      const idx = this._coalitionThresholdIndex;
+
+      if (
+        this._topPlayer?.type() === PlayerType.Human &&
+        idx < thresholds.length
+      ) {
+        const totalTiles = this.numLandTiles() - this.numTilesWithFallout();
+        const ratio = this._topPlayer.numTilesOwned() / totalTiles;
+        const nextThreshold = thresholds[idx];
+
+        if (ratio >= nextThreshold) {
+          // Pass the threshold value as the second param
+          this.addExecution(new CoalitionExecution(3, nextThreshold));
+          this._coalitionThresholdIndex++;
+        }
+      }
+    }
+    return this._topPlayer;
   }
 
   isOnEdgeOfMap(ref: TileRef): boolean {

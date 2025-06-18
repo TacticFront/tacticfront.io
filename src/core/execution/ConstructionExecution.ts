@@ -21,6 +21,7 @@ import { MissileSiloExecution } from "./MissileSiloExecution";
 import { NukeExecution } from "./NukeExecution";
 import { PortExecution } from "./PortExecution";
 import { PowerPlantExecution } from "./PowerPlantExecution";
+import { RadarExecution } from "./RadarExecution";
 import { ResearchLabExecution } from "./ResearchLabExecution";
 import { SAMLauncherExecution } from "./SAMLauncherExecution";
 import { WarshipExecution } from "./WarshipExecution";
@@ -130,6 +131,9 @@ export class ConstructionExecution implements Execution {
         break;
       case UnitType.SAMLauncher:
         this.mg.addExecution(new SAMLauncherExecution(player.id(), this.tile));
+        break;
+      case UnitType.Radar:
+        this.mg.addExecution(new RadarExecution(player.id(), this.tile));
         break;
       case UnitType.ResearchLab:
         this.mg.addExecution(new ResearchLabExecution(player.id(), this.tile));
