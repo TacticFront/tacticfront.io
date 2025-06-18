@@ -53,6 +53,9 @@ export type OtherUnitType =
   | UnitType.Port
   | UnitType.SAMLauncher
   | UnitType.PowerPlant
+  | UnitType.Barracks
+  | UnitType.Hospital
+  | UnitType.Radar
   | UnitType.ResearchLab
   | UnitType.Warship;
 
@@ -65,6 +68,9 @@ export const unitTypeToOtherUnit = {
   [UnitType.Warship]: "wshp",
   [UnitType.PowerPlant]: "powr",
   [UnitType.ResearchLab]: "rlab",
+  [UnitType.Hospital]: "rlab",
+  [UnitType.Radar]: "rlab",
+  [UnitType.Barracks]: "rlab",
 } as const satisfies Record<OtherUnitType, OtherUnit>;
 
 // Attacks

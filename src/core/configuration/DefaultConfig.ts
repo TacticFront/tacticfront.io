@@ -535,6 +535,8 @@ export class DefaultConfig implements Config {
         return 30 * 10;
       case UnitType.PowerPlant:
         return 30 * 10;
+      case UnitType.Radar:
+        return 45 * 10;
       case UnitType.ResearchLab:
         return 30 * 10;
       case UnitType.SAMLauncher:

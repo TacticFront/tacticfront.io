@@ -42,7 +42,7 @@ export class RadarExecution implements Execution {
         this.active = false;
         return;
       }
-      this.radar = this.player.buildUnit(UnitType.PowerPlant, spawnTile, {});
+      this.radar = this.player.buildUnit(UnitType.Radar, spawnTile, {});
     }
     if (!this.radar.isActive()) {
       this.active = false;

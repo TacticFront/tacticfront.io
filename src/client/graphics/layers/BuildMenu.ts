@@ -102,7 +102,7 @@ const buildTable: BuildItemDisplay[][] = [
       description: "build_menu.desc.radar",
       key: "unit_type.radar",
       countable: true,
-      minTechLevel: 1,
+      minTechLevel: 3,
     },
     // needs new icon
     {
