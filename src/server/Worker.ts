@@ -151,7 +151,9 @@ export function startWorker() {
         );
         return;
       }
-      game.start();
+
+      game.setStartTime();
+
       res.status(200).json({ success: true });
     }),
   );

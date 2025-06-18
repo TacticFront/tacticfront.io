@@ -269,6 +269,10 @@ export class GameServer {
     }
   }
 
+  public setStartTime(): void {
+    this._startTime = Date.now() + 10000;
+  }
+
   public prestart() {
     if (this.hasStarted()) {
       return;
