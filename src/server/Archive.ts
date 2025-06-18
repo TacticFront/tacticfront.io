@@ -40,6 +40,8 @@ export async function archive(gameRecord: GameRecord) {
     // Archive to R2
     await archiveAnalyticsToR2(gameRecord);
 
+    log.info(`${gameRecord.info.gameID}: game has:` + gameRecord.turns?.length);
+
     // Archive full game if there are turns
     if (gameRecord.turns.length > 0) {
       log.info(

@@ -1,3 +1,5 @@
+// src/client/LocalServer.ts
+
 import { consolex } from "../core/Consolex";
 import {
   AllPlayersStats,
@@ -171,7 +173,7 @@ export class LocalServer {
     });
   }
 
-  public endGame(saveFullGame: boolean = false) {
+  public endGame(saveFullGame: boolean = true) {
     consolex.log("local server ending game");
     clearInterval(this.turnCheckInterval);
     if (this.isReplay) {
