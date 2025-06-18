@@ -231,17 +231,16 @@ export class AttackExecution implements Execution {
     const targetPlayer = targetIsPlayer ? (this.target as Player) : null; // cache target player
 
     if (
-      ticks % 10 === 0 &&
+      ticks % 8 === 0 &&
       targetPlayer !== null &&
       this.attack.troops() < targetPlayer.troops() * 3 &&
       !this.markDelete
     ) {
+      if (this._owner.reserveTroopRatio() >= 1) return;
       //this.initialTroopCount * 3) {
-      const totalTroops = this._owner.troops() + this.attack.troops();
+      const reserveTroops = this._owner.troops();
       const troopsToAdd = Math.floor(
-        (totalTroops * (1 - this._owner.reserveTroopRatio()) -
-          this.attack.troops()) /
-          20,
+        (reserveTroops * (1 - this._owner.reserveTroopRatio())) / 20,
       ); // 5% of total troops
       if (troopsToAdd > 0) {
         this._owner.removeTroops(troopsToAdd);

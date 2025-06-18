@@ -6,7 +6,7 @@ import { Difficulty, GameMapType, GameMode, GameType } from "../core/game/Game";
 import { GameConfig, GameID } from "../core/Schemas";
 import { Client } from "./Client";
 import { GamePhase, GameServer } from "./GameServer";
-import { sendPlayersToOpenlyNerd } from "./OpenlyNerd";
+import { sendPlayersToOpenlyNerd } from "./OpenlyNerd/OpenlyNerd";
 
 export class GameManager {
   private games: Map<GameID, GameServer> = new Map();

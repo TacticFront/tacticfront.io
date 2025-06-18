@@ -5,7 +5,7 @@ import { getServerConfigFromServer } from "../core/configuration/ConfigLoader";
 import { AnalyticsRecord, GameID, GameRecord } from "../core/Schemas";
 import { replacer } from "../core/Util";
 import { logger } from "./Logger";
-import { sendWinInfotoOpenlyNerd } from "./OpenlyNerd";
+import { sendWinInfotoOpenlyNerd } from "./OpenlyNerd/OpenlyNerd";
 
 (BigInt.prototype as any).toJSON = function () {
   return this.toString();
