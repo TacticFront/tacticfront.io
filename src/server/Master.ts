@@ -289,12 +289,14 @@ async function fetchLobbies(): Promise<number> {
     }
   });
 
+  const publicCount = lobbyInfos.filter((l) => l.lobbyType === "public").length;
+
   // Update the JSON string with all lobbies
   lobbiesJsonStr = JSON.stringify({
     lobbies: lobbyInfos,
   });
 
-  return allLobbyIDs.size;
+  return publicCount;
 }
 
 // Function to schedule a new public game

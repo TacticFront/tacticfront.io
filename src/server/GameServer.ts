@@ -513,6 +513,7 @@ export class GameServer {
         clientID: c.clientID,
       })),
       gameConfig: this.gameConfig,
+      lobbyType: "",
       msUntilStart: this.isPublic()
         ? this.createdAt + this.config.gameCreationRate()
         : undefined,

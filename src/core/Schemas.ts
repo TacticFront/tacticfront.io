@@ -112,6 +112,7 @@ export interface GameInfo {
   numClients?: number;
   msUntilStart?: number;
   gameConfig?: GameConfig;
+  lobbyType: string;
 }
 export interface ClientInfo {
   clientID: ClientID;
