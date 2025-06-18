@@ -270,7 +270,7 @@ export class GameServer {
   }
 
   public setStartTime(): void {
-    this._startTime = Date.now() + 10000;
+    this._startTime = Date.now() + 15000;
   }
 
   public prestart() {
