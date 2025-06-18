@@ -1,3 +1,5 @@
+// src/client/LangSelector.ts
+
 import { LitElement, html } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import "./LanguageModal";
@@ -28,8 +30,8 @@ import uk from "../../resources/lang/uk.json";
 export class LangSelector extends LitElement {
   @state() public translations: any = {};
   @state() private defaultTranslations: any = {};
-  @state() private currentLang: string = "en";
-  @state() private languageList: any[] = [];
+  @state() public currentLang: string = "en";
+  @state() public languageList: any[] = [];
   @state() private showModal: boolean = false;
   @state() private debugMode: boolean = false;
 
@@ -279,6 +281,17 @@ export class LangSelector extends LitElement {
             en: "English",
             svg: "uk_us_flag",
           });
+
+    return html`
+      <language-modal
+        .visible=${this.showModal}
+        .languageList=${this.languageList}
+        .currentLang=${this.currentLang}
+        @language-selected=${(e: CustomEvent) =>
+          this.changeLanguage(e.detail.lang)}
+        @close-modal=${() => (this.showModal = false)}
+      ></language-modal>
+    `;
 
     return html`
       <div class="container__row">

@@ -1,3 +1,5 @@
+/* src/client/styles/components/setting.css */
+
 .settings-list {
   display: flex;
   flex-direction: column;
@@ -79,7 +81,7 @@
   font-size: 20px;
   border-radius: 12px;
   animation: fadePop_2 10s ease-out forwards;
-  z-index: 9999;
+  z-index: 900;
 }
 
 @keyframes fadePop {

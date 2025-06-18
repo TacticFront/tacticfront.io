@@ -1,3 +1,5 @@
+// src/client/UserSettingModal.ts
+
 import { LitElement, html } from "lit";
 import { customElement, query, state } from "lit/decorators.js";
 import { translateText } from "../client/Utils";
@@ -7,6 +9,8 @@ import { SettingKeybind } from "./components/baseComponents/setting/SettingKeybi
 import "./components/baseComponents/setting/SettingNumber";
 import "./components/baseComponents/setting/SettingSlider";
 import "./components/baseComponents/setting/SettingToggle";
+import { LangSelector } from "./LangSelector";
+import { LanguageModal } from "./LanguageModal";
 
 @customElement("user-setting")
 export class UserSettingModal extends LitElement {
@@ -17,6 +21,24 @@ export class UserSettingModal extends LitElement {
 
   @state() private keySequence: string[] = [];
   @state() private showEasterEggSettings = false;
+
+  langSelector = document.querySelector("lang-selector") as LangSelector;
+  langData =
+    this.langSelector.languageList.find(
+      (l) => l.code === this.langSelector.currentLang,
+    ) ??
+    (this.langSelector.currentLang === "debug"
+      ? {
+          code: "debug",
+          native: "Debug",
+          en: "Debug",
+          svg: "xx",
+        }
+      : {
+          native: "English",
+          en: "English",
+          svg: "uk_us_flag",
+        });
 
   connectedCallback() {
     super.connectedCallback();
@@ -284,6 +306,24 @@ export class UserSettingModal extends LitElement {
         @change=${this.sliderTroopRatio}
       ></setting-slider>
 
+      <div class="container__row">
+        <button
+          id="lang-selector"
+          @click=${this.openLanguageModal}
+          class="text-center appearance-none w-full bg-blue-100 hover:bg-blue-200 text-blue-900 p-3 sm:p-4 lg:p-5 font-medium text-sm sm:text-base lg:text-lg rounded-md border-none cursor-pointer transition-colors duration-300 flex items-center gap-2 justify-center"
+        >
+          <img
+            id="lang-flag"
+            class="w-6 h-4"
+            src="/flags/${this.langData.svg}.svg"
+            alt="flag"
+          />
+          <span id="lang-name"
+            >${this.langData.native} (${this.langData.en})</span
+          >
+        </button>
+      </div>
+
       ${this.showEasterEggSettings
         ? html`
             <setting-slider
@@ -328,6 +368,16 @@ export class UserSettingModal extends LitElement {
           `
         : null}
     `;
+  }
+
+  private openLanguageModal() {
+    const languageModal = document.querySelector(
+      "language-modal",
+    ) as LanguageModal;
+    if (languageModal) {
+      languageModal.visible = true;
+    }
+    this.close();
   }
 
   private renderKeybindSettings() {

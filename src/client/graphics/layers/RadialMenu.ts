@@ -167,7 +167,7 @@ export class RadialMenu implements Layer {
       .append("div")
       .style("position", "fixed")
       .style("display", "none")
-      .style("z-index", "9999")
+      .style("z-index", "9800")
       .style("touch-action", "none")
       .on("contextmenu", (e) => {
         e.preventDefault();

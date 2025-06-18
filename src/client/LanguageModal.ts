@@ -1,3 +1,5 @@
+// src/client/LanguageModal.ts
+
 import { LitElement, css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { translateText } from "../client/Utils";
@@ -12,7 +14,7 @@ export class LanguageModal extends LitElement {
     .c-modal {
       position: fixed;
       padding: 1rem;
-      z-index: 1000;
+      z-index: 1100;
       left: 0;
       bottom: 0;
       right: 0;
@@ -127,6 +129,7 @@ export class LanguageModal extends LitElement {
         composed: true,
       }),
     );
+    this.visible = false;
   };
 
   updated(changedProps: Map<string, unknown>) {

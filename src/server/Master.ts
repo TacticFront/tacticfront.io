@@ -62,8 +62,10 @@ app.use(
 );
 
 let publicLobbiesJsonStr = "";
+const lobbiesJsonStr = "";
 
 const publicLobbyIDs: Set<string> = new Set();
+const privateLobbyIDs: Set<string> = new Set();
 
 // Start the master process
 export async function startMaster() {
@@ -212,9 +214,10 @@ app.get("/api/worker_status", async (req, res) => {
 });
 
 async function fetchLobbies(): Promise<number> {
+  const allLobbyIDs = new Set([...publicLobbyIDs, ...privateLobbyIDs]);
   const fetchPromises: Promise<GameInfo | null>[] = [];
 
-  for (const gameID of new Set(publicLobbyIDs)) {
+  for (const gameID of allLobbyIDs) {
     const controller = new AbortController();
     setTimeout(() => controller.abort(), 5000); // 5 second timeout
     const port = config.workerPort(gameID);
@@ -258,9 +261,9 @@ async function fetchLobbies(): Promise<number> {
       l.msUntilStart <= 250
     ) {
       publicLobbyIDs.delete(l.gameID);
+      privateLobbyIDs.delete(l.gameID);
       return;
     }
-
     if (
       "gameConfig" in l &&
       l.gameConfig !== undefined &&
@@ -271,6 +274,7 @@ async function fetchLobbies(): Promise<number> {
       l.gameConfig.maxPlayers <= l.numClients
     ) {
       publicLobbyIDs.delete(l.gameID);
+      privateLobbyIDs.delete(l.gameID);
       return;
     }
   });
@@ -280,7 +284,7 @@ async function fetchLobbies(): Promise<number> {
     lobbies: lobbyInfos,
   });
 
-  return publicLobbyIDs.size;
+  return allLobbyIDs.size;
 }
 
 // Function to schedule a new public game
