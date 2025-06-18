@@ -271,6 +271,7 @@ export class GameServer {
 
   public setStartTime(): void {
     this._startTime = Date.now() + 15000;
+    this.start();
   }
 
   public prestart() {
@@ -309,7 +310,7 @@ export class GameServer {
       return;
     }
     this._hasStarted = true;
-    this._startTime = Date.now();
+    //this._startTime = Date.now();
     // Set last ping to start so we don't immediately stop the game
     // if no client connects/pings.
     this.lastPingUpdate = Date.now();
