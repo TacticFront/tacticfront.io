@@ -30,7 +30,7 @@ export const techList: Tech[] = [
     category: "Sams",
     cost: 300_000,
     apply: (p) => {
-      p.setVar("samReloadTime", p.getVar("samReloadTime") - 50);
+      p.setVar("samReloadTime", p.getVar("samReloadTime") - 40);
     },
   },
   {
@@ -73,8 +73,7 @@ export const techList: Tech[] = [
   {
     id: "hospitalBonus1",
     name: "Advanced Care Protocols",
-    description:
-      "Increase pop-growth bonus to 2.5% and troop trickleback to 2% per hospital.",
+    description: "Pop growth +2.5%. Troop recovery +2%. (Per Hospital).",
     icon: "🏥",
     category: "Hospitals",
     cost: 500_000,
@@ -87,8 +86,7 @@ export const techList: Tech[] = [
   {
     id: "hospitalBonus2",
     name: "Medical Supply Innovations",
-    description:
-      "Increase pop-growth bonus to 3% and troop trickleback to 2.5% per hospital; expand hospital cap to 4.",
+    description: "Pop growth +3%. Troop recovery +2.5%. Max hospitals: 4.",
     icon: "💊",
     category: "Hospitals",
     cost: 1_200_000,
@@ -101,8 +99,7 @@ export const techList: Tech[] = [
   {
     id: "hospitalBonus3",
     name: "Mobile Field Units",
-    description:
-      "Increase pop-growth bonus to 3.5% and troop trickleback to 3% per hospital.",
+    description: "Pop growth +4%. Troop recovery +4%. Max hospitals: 5.",
     icon: "🚑",
     category: "Hospitals",
     cost: 2_000_000,
@@ -124,6 +121,89 @@ export const techList: Tech[] = [
       p.setVar("hospitalBonusPopulationGrowth", 4);
       p.setVar("hospitalBonusTroopTrickleback", 4);
       p.setVar("hospitalMaxNumber", 5);
+    },
+  },
+  // Radar Techs
+  {
+    id: "radarRange1",
+    name: "Extended Dish Array",
+    description: "Upgraded antennas boost radar range by 25%.",
+    icon: "📡",
+    category: "Radar",
+    cost: 500_000,
+    apply: (p) => {
+      p.setVar("radarRange", Math.floor(p.getVar("radarRange") * 1.25));
+    },
+  },
+  {
+    id: "radarTarget1",
+    name: "Signal Processing Suite",
+    description: "Improved filters increase targeting bonus by 10%.",
+    icon: "🛰️",
+    category: "Radar",
+    cost: 1_000_000,
+    apply: (p) => {
+      p.setVar("radarTargetingBonus", p.getVar("radarTargetingBonus") + 10);
+    },
+  },
+  {
+    id: "radarRange2",
+    name: "High-Gain Transceiver",
+    description: "Advanced electronics boost radar range by another 30%.",
+    icon: "🔭",
+    category: "Radar",
+    cost: 1_200_000,
+    apply: (p) => {
+      p.setVar("radarRange", Math.floor(p.getVar("radarRange") * 1.3));
+    },
+  },
+  {
+    id: "radarTarget2",
+    name: "AI-Assisted Tracking",
+    description:
+      "Machine-learning algorithms further increase targeting bonus by 15%.",
+    icon: "🤖",
+    category: "Radar",
+    cost: 2_500_000,
+    apply: (p) => {
+      p.setVar("radarTargetingBonus", p.getVar("radarTargetingBonus") + 15);
+    },
+  },
+  // Missile Techs
+  {
+    id: "cruiseEvasion1",
+    name: "Chaff Dispersion System",
+    description:
+      "Deploy chaff during flight to improve cruise missile evasion by +8%.",
+    icon: "🎐",
+    category: "Missiles",
+    cost: 1_000_000,
+    apply: (p) => {
+      p.setVar("cruiseEvasion", p.getVar("cruiseEvasion") + 8);
+    },
+  },
+  {
+    id: "atomicEvasion1",
+    name: "Radiation Hardening",
+    description: "Shielding upgrades boost atomic missile evasion by +5%.",
+    icon: "☢️",
+    category: "Missiles",
+    cost: 2_500_000,
+    apply: (p) => {
+      p.setVar("atomEvasion", p.getVar("atomEvasion") + 5);
+    },
+  },
+  {
+    id: "missilesEvasionAll1",
+    name: "Adaptive Countermeasures",
+    description: "Integrated ECM boosts evasion of all missile types by +5%.",
+    icon: "🛡️",
+    category: "Missiles",
+    cost: 3_500_000,
+    apply: (p) => {
+      p.setVar("cruiseEvasion", p.getVar("cruiseEvasion") + 5);
+      p.setVar("atomEvasion", p.getVar("atomEvasion") + 5);
+      p.setVar("hydrogenEvasion", p.getVar("hydrogenEvasion") + 5);
     },
   },
 ];

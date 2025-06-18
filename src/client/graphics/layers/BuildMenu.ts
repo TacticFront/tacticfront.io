@@ -5,6 +5,8 @@ import { customElement, state } from "lit/decorators.js";
 import warshipIcon from "../../../../resources/images/BattleshipIconWhite.svg";
 import barracksIcon from "../../../../resources/images/buildings/barracks.png";
 import hospitalIcon from "../../../../resources/images/buildings/hospital.png";
+import radarIcon from "../../../../resources/images/buildings/radar.png";
+import researchLabIcon from "../../../../resources/images/buildings/researchLab.png";
 import cityIcon from "../../../../resources/images/CityIconWhite.svg";
 import goldCoinIcon from "../../../../resources/images/GoldCoinIcon.svg";
 import mirvIcon from "../../../../resources/images/MIRVIcon.svg";
@@ -13,7 +15,6 @@ import hydrogenBombIcon from "../../../../resources/images/MushroomCloudIconWhit
 import atomBombIcon from "../../../../resources/images/NukeIconWhite.svg";
 import portIcon from "../../../../resources/images/PortIcon.svg";
 import powerPlantIcon from "../../../../resources/images/PowerPlantIcon.svg";
-import researchLabIcon from "../../../../resources/images/ResearchLabIconWhite.svg";
 import samlauncherIcon from "../../../../resources/images/SamLauncherIconWhite.svg";
 import shieldIcon from "../../../../resources/images/ShieldIconWhite.svg";
 import { translateText } from "../../../client/Utils";
@@ -92,6 +93,14 @@ const buildTable: BuildItemDisplay[][] = [
       icon: missileSiloIcon,
       description: "build_menu.desc.missile_silo",
       key: "unit_type.missile_silo",
+      countable: true,
+      minTechLevel: 1,
+    },
+    {
+      unitType: UnitType.Radar,
+      icon: radarIcon,
+      description: "build_menu.desc.radar",
+      key: "unit_type.radar",
       countable: true,
       minTechLevel: 1,
     },

@@ -254,10 +254,10 @@ export class DefaultConfig implements Config {
   }
 
   defensePostRange(): number {
-    return 25;
+    return 35;
   }
   defensePostDefenseBonus(): number {
-    return 4;
+    return 8;
   }
   playerTeams(): number | typeof Duos {
     return this._gameConfig.playerTeams ?? 0;
@@ -480,6 +480,21 @@ export class DefaultConfig implements Config {
                   (p.unitsIncludingConstruction(UnitType.SAMLauncher).length +
                     1) *
                     500_000,
+                ),
+
+          territoryBound: true,
+          constructionDuration: this.instantBuild() ? 0 : 25 * this._tps,
+        };
+      case UnitType.Radar:
+        return {
+          cost: (p: Player) =>
+            p.type() === PlayerType.Human && this.infiniteGold()
+              ? 0
+              : Math.min(
+                  8_000_000,
+                  (p.unitsIncludingConstruction(UnitType.SAMLauncher).length +
+                    1) *
+                    2_000_000,
                 ),
 
           territoryBound: true,

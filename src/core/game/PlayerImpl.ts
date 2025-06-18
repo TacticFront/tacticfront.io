@@ -126,10 +126,12 @@ export class PlayerImpl implements Player {
     this._vars.set("samSearchRange", 100);
     this._vars.set("samInterceptors", 2);
     this._vars.set("samReloadTime", 300);
-    this._vars.set("samTargetingBonus", 30);
-    this._vars.set("cruiseEvasion", 20);
+    this._vars.set("samTargetingBonus", 20);
+    this._vars.set("cruiseEvasion", 15);
     this._vars.set("atomEvasion", 35);
     this._vars.set("hydrogenEvasion", 25);
+    this._vars.set("radarRange", 200);
+    this._vars.set("radarTargetingBonus", 10);
   }
 
   largestClusterBoundingBox: { min: Cell; max: Cell } | null;
@@ -854,6 +856,7 @@ export class PlayerImpl implements Player {
       case UnitType.DefensePost:
       case UnitType.Barracks:
       case UnitType.SAMLauncher:
+      case UnitType.Radar:
       case UnitType.City:
       case UnitType.ResearchLab:
       case UnitType.PowerPlant:

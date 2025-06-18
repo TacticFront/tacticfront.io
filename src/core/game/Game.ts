@@ -156,6 +156,7 @@ export enum UnitType {
   PowerPlant = "Power Plant",
   Hospital = "Hospital",
   Barracks = "Barracks",
+  Radar = "Radar",
 }
 
 export interface OwnerComp {
@@ -209,6 +210,8 @@ export interface UnitParamsMap {
   [UnitType.PowerPlant]: {};
 
   [UnitType.SAMLauncher]: {};
+
+  [UnitType.Radar]: {};
 
   [UnitType.City]: {};
 

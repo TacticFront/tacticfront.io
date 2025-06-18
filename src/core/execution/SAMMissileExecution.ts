@@ -72,7 +72,7 @@ export class SAMMissileExecution implements Execution {
         );
         this.active = false;
 
-        if (this.intercepted()) {
+        if (this.intercepted(this.SAMMissile.tile(), this.SAMMissile.owner())) {
           this.target.delete(true, this._owner);
           this.SAMMissile.delete(false);
 
@@ -95,7 +95,7 @@ export class SAMMissileExecution implements Execution {
     }
   }
 
-  intercepted(): boolean {
+  intercepted(tile: TileRef, player: Player): boolean {
     let evasion;
     switch (this.target.type()) {
       case UnitType.AtomBomb:
@@ -112,7 +112,15 @@ export class SAMMissileExecution implements Execution {
         break;
     }
 
-    const targetingBonus = this._owner.getVar("samTargetingBonus") ?? 30;
+    const radar = this.mg.nearbyUnits(
+      tile,
+      player.getVar("radarRange"),
+      UnitType.Radar,
+    );
+
+    let targetingBonus = this._owner.getVar("samTargetingBonus") ?? 20;
+    targetingBonus += radar ? this._owner.getVar("radarTargetingBonus") : 0;
+
     evasion = evasion ?? 10;
     const baseChance = 60;
 

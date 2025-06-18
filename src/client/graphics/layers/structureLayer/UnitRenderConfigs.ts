@@ -6,6 +6,7 @@ import shieldIcon from "../../../../../resources/images/buildings/fortAlt2.png";
 import hospitalIcon from "../../../../../resources/images/buildings/hospital.png";
 import anchorIcon from "../../../../../resources/images/buildings/port1.png";
 import powerPlantIcon from "../../../../../resources/images/buildings/powerPlant.webp";
+import RadarIcon from "../../../../../resources/images/buildings/radar.png";
 import researchLabIcon from "../../../../../resources/images/buildings/researchLab.webp";
 import MissileSiloReloadingIcon from "../../../../../resources/images/buildings/silo1-reloading.png";
 import missileSiloIcon from "../../../../../resources/images/buildings/silo1.png";
@@ -43,6 +44,12 @@ export const unitConfigs: Partial<Record<UnitType, UnitRenderConfig>> = {
   },
   [UnitType.MissileSilo]: {
     icon: missileSiloIcon,
+    borderRadius: 8.525,
+    territoryRadius: 6.525,
+    borderType: UnitBorderType.Square,
+  },
+  [UnitType.Radar]: {
+    icon: RadarIcon,
     borderRadius: 8.525,
     territoryRadius: 6.525,
     borderType: UnitBorderType.Square,
