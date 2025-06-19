@@ -270,7 +270,7 @@ export class GameServer {
   }
 
   public setStartTime(): void {
-    this._startTime = Date.now() + 15000;
+    this._startTime = Date.now(); // + 15000;
     this.start();
   }
 
@@ -310,7 +310,7 @@ export class GameServer {
       return;
     }
     this._hasStarted = true;
-    //this._startTime = Date.now();
+    this._startTime = Date.now();
     // Set last ping to start so we don't immediately stop the game
     // if no client connects/pings.
     this.lastPingUpdate = Date.now();
@@ -521,7 +521,9 @@ export class GameServer {
       lobbyType: "",
       msUntilStart: this.isPublic()
         ? this.createdAt + this.config.gameCreationRate()
-        : undefined,
+        : this._startTime
+          ? this._startTime
+          : undefined,
     };
   }
 

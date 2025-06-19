@@ -152,7 +152,7 @@ export function startWorker() {
         return;
       }
 
-      game.setStartTime();
+      game.start();
 
       res.status(200).json({ success: true });
     }),
