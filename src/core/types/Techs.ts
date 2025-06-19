@@ -206,6 +206,183 @@ export const techList: Tech[] = [
       p.setVar("hydrogenEvasion", p.getVar("hydrogenEvasion") + 5);
     },
   },
+  // Power Plant
+  {
+    id: "powerPlant1",
+    name: "High-Efficiency Turbines",
+    description: "Gold +400 per plant.",
+    icon: "⚡",
+    category: "Power",
+    cost: 900_000,
+    apply: (p) => {
+      p.setVar(
+        "powerPlantGoldGeneration",
+        p.getVar("powerPlantGoldGeneration") + 400,
+      );
+    },
+  },
+  {
+    id: "powerPlant2",
+    name: "Automated Silos",
+    description: "Store +5 materials, max plants: 4.",
+    icon: "🏭",
+    category: "Power",
+    cost: 1_400_000,
+    apply: (p) => {
+      p.setVar(
+        "powerPlantMaterialGenerationMax",
+        p.getVar("powerPlantMaterialGenerationMax") + 5,
+      );
+      p.setVar("powerPlantMaxNumber", 4);
+    },
+  },
+  {
+    id: "powerPlant3",
+    name: "Advanced Power Cycle",
+    description: "Gold +600, materials +1/cycle per plant.",
+    icon: "💡",
+    category: "Power",
+    cost: 2_000_000,
+    apply: (p) => {
+      p.setVar(
+        "powerPlantGoldGeneration",
+        p.getVar("powerPlantGoldGeneration") + 600,
+      );
+      p.setVar(
+        "powerPlantMaterialGenerationRate",
+        p.getVar("powerPlantMaterialGenerationRate") + 1,
+      );
+    },
+  },
+  {
+    id: "powerPlant4",
+    name: "National Grid",
+    description:
+      "Store +5 materials, max plants: 5, materials +1/cycle per plant.",
+    icon: "🌐",
+    category: "Power",
+    cost: 2_800_000,
+    apply: (p) => {
+      p.setVar(
+        "powerPlantMaterialGenerationMax",
+        p.getVar("powerPlantMaterialGenerationMax") + 5,
+      );
+      p.setVar(
+        "powerPlantMaterialGenerationRate",
+        p.getVar("powerPlantMaterialGenerationRate") + 1,
+      );
+      p.setVar("powerPlantMaxNumber", 5);
+    },
+  },
+  // Naval
+  {
+    id: "navalOps1",
+    name: "Fleet Interceptor Retrofit",
+    description: "Warships gain a missile interceptor.",
+    icon: "🛡️",
+    category: "Naval",
+    cost: 1_200_000,
+    apply: (p) => {
+      p.setVar("warshipMaxInterceptors", 1);
+    },
+  },
+  {
+    id: "navalOps2",
+    name: "Amphibious Expansion",
+    description: "Naval invasions: 4. Interceptor range +40.",
+    icon: "⚓",
+    category: "Naval",
+    cost: 1_500_000,
+    apply: (p) => {
+      p.setVar("navalInvasionMaxCount", 4);
+      p.setVar(
+        "warshipMaxInterceptorRange",
+        p.getVar("warshipMaxInterceptorRange") + 40,
+      );
+    },
+  },
+  {
+    id: "navalOps3",
+    name: "Integrated Air Defense",
+    description: "Warships: 2 interceptors, range +40.",
+    icon: "🚢",
+    category: "Naval",
+    cost: 1_700_000,
+    apply: (p) => {
+      p.setVar("warshipMaxInterceptors", 2);
+      p.setVar(
+        "warshipMaxInterceptorRange",
+        p.getVar("warshipMaxInterceptorRange") + 40,
+      );
+    },
+  },
+  {
+    id: "navalOps4",
+    name: "Global Naval Command",
+    description: "Naval invasions: 5.",
+    icon: "🌊",
+    category: "Naval",
+    cost: 2_400_000,
+    apply: (p) => {
+      p.setVar("navalInvasionMaxCount", 5);
+    },
+  },
+  //Silos
+  {
+    id: "siloTech1",
+    name: "Servo-Assisted Reload",
+    description: "Reload time -10%.",
+    icon: "⏱️",
+    category: "Silos",
+    cost: 700_000,
+    apply: (p) => {
+      p.setVar(
+        "missileSiloTubeRegenTime",
+        Math.floor(p.getVar("missileSiloTubeRegenTime") * 0.9),
+      );
+    },
+  },
+  {
+    id: "siloTech2",
+    name: "Secondary Launch Tube",
+    description: "Silos: 2 tubes. Silo cost cap: $1.3M.",
+    icon: "🚀",
+    category: "Silos",
+    cost: 1_200_000,
+    apply: (p) => {
+      p.setVar("missileSiloTubes", 2);
+      p.setVar("missileSiloMaxCost", 1_300_000);
+    },
+  },
+  {
+    id: "siloTech3",
+    name: "Pneumatic Feed System",
+    description: "Reload time -10%.",
+    icon: "🔧",
+    category: "Silos",
+    cost: 1_700_000,
+    apply: (p) => {
+      p.setVar(
+        "missileSiloTubeRegenTime",
+        Math.floor(p.getVar("missileSiloTubeRegenTime") * 0.9),
+      );
+    },
+  },
+  {
+    id: "siloTech4",
+    name: "Hardened Launch Bays",
+    description: "Missile cost cap: $1.6M. Reload time -10%.",
+    icon: "🏗️",
+    category: "Silos",
+    cost: 2_300_000,
+    apply: (p) => {
+      p.setVar("missileSiloMaxCost", 1_600_000);
+      p.setVar(
+        "missileSiloTubeRegenTime",
+        Math.floor(p.getVar("missileSiloTubeRegenTime") * 0.9),
+      );
+    },
+  },
 ];
 
 export function groupTechsByCategoryForUI(techs: Tech[]): Tech[][] {

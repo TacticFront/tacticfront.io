@@ -384,7 +384,7 @@ export class DefaultConfig implements Config {
             p.type() === PlayerType.Human && this.infiniteGold()
               ? 0
               : Math.min(
-                  800_000,
+                  p.getVar("missileSiloMaxCost") ?? 800_000,
                   200_000 +
                     p.unitsIncludingConstruction(UnitType.MissileSilo).length *
                       200_000,
@@ -428,11 +428,10 @@ export class DefaultConfig implements Config {
             p.type() === PlayerType.Human && this.infiniteGold()
               ? 0
               : Math.min(
-                  2_000_000,
-                  Math.pow(
-                    2,
-                    p.unitsIncludingConstruction(UnitType.PowerPlant).length,
-                  ) * 500_000,
+                  2_500_000,
+                  (p.unitsIncludingConstruction(UnitType.PowerPlant).length +
+                    1) *
+                    500_000,
                 ),
 
           territoryBound: true,
@@ -491,9 +490,9 @@ export class DefaultConfig implements Config {
             p.type() === PlayerType.Human && this.infiniteGold()
               ? 0
               : Math.min(
-                  8_000_000,
+                  6_000_000,
                   (p.unitsIncludingConstruction(UnitType.Radar).length + 1) *
-                    2_000_000,
+                    1_500_000,
                 ),
 
           territoryBound: true,
@@ -593,8 +592,8 @@ export class DefaultConfig implements Config {
     }
     return 80;
   }
-  boatMaxNumber(): number {
-    return 3;
+  boatMaxNumber(player: Player): number {
+    return player.getVar("navalInvasionMaxCount") || 3;
   }
   numSpawnPhaseTurns(): number {
     return this._gameConfig.gameType === GameType.Singleplayer ? 100 : 150;
@@ -843,7 +842,10 @@ export class DefaultConfig implements Config {
     const populationGold = 0.025 * player.workers() ** 0.87; // .045
     const cityGold = player.units(UnitType.City).length * 50;
     const portGold = player.units(UnitType.Port).length * 30;
-    const powerPlantGold = player.units(UnitType.PowerPlant).length * 80;
+    const powerPlantGold =
+      (player.units(UnitType.PowerPlant).length *
+        player.getVar("powerPlantGoldGeneration")) /
+      this._tps;
 
     const totalGold = Math.floor(
       populationGold + cityGold + portGold + powerPlantGold,

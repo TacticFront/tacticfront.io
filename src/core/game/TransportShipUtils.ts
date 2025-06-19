@@ -1,3 +1,5 @@
+// src/core/game/TransportShipUtils.ts
+
 import { PathFindResultType } from "../pathfinding/AStar";
 import { MiniAStar } from "../pathfinding/MiniAStar";
 import { Game, Player, UnitType } from "./Game";
@@ -9,7 +11,8 @@ export function canBuildTransportShip(
   tile: TileRef,
 ): TileRef | false {
   if (
-    player.units(UnitType.TransportShip).length >= game.config().boatMaxNumber()
+    player.units(UnitType.TransportShip).length >=
+    game.config().boatMaxNumber(player)
   ) {
     return false;
   }

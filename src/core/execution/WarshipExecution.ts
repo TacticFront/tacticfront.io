@@ -1,3 +1,5 @@
+// src/core/execution/WarshipExecution.ts
+
 import { consolex } from "../Consolex";
 import {
   Execution,
@@ -12,6 +14,7 @@ import { TileRef } from "../game/GameMap";
 import { PathFindResultType } from "../pathfinding/AStar";
 import { PathFinder } from "../pathfinding/PathFinding";
 import { PseudoRandom } from "../PseudoRandom";
+import { SAMMissileExecution } from "./SAMMissileExecution";
 import { ShellExecution } from "./ShellExecution";
 
 export class WarshipExecution implements Execution {
@@ -21,6 +24,7 @@ export class WarshipExecution implements Execution {
   private pathfinder: PathFinder;
   private lastShellAttack = 0;
   private alreadySentShell = new Set<Unit>();
+  private nextAntiMissileReload = 0;
 
   constructor(
     private input: (UnitParams<UnitType.Warship> & OwnerComp) | Unit,
@@ -68,6 +72,7 @@ export class WarshipExecution implements Execution {
     }
 
     this.patrol();
+    this.handleAntiMissile();
 
     if (this.warship.targetUnit() !== undefined) {
       this.shootTarget();
@@ -275,5 +280,95 @@ export class WarshipExecution implements Execution {
       return this.randomTile(true);
     }
     return undefined;
+  }
+
+  private handleAntiMissile() {
+    const interceptorRange = this.warship
+      .owner()
+      .getVar("warshipMaxInterceptorRange");
+    const maxMissiles = this.warship.owner().getVar("warshipMaxInterceptors");
+    const reloadTime = this.warship.owner().getVar("warshipReloadTime") ?? 300;
+
+    if (!maxMissiles) return;
+
+    // Find enemy missiles in range
+    const missiles = this.mg
+      .nearbyUnits(this.warship.tile(), interceptorRange, [
+        UnitType.CruiseMissile,
+      ])
+      .map((r) => r.unit)
+      .filter(
+        (u) =>
+          u.owner() !== this.warship.owner() &&
+          !u.owner().isFriendly(this.warship.owner()),
+      );
+
+    // Try to intercept if we have ammo
+    if (missiles.length > 0 && this.warship.getStock?.("missiles") > 0) {
+      // Pick highest-priority missile
+      const target = missiles.sort((a, b) => {
+        if (
+          a.type() === UnitType.HydrogenBomb &&
+          b.type() !== UnitType.HydrogenBomb
+        )
+          return -1;
+        if (
+          a.type() !== UnitType.HydrogenBomb &&
+          b.type() === UnitType.HydrogenBomb
+        )
+          return 1;
+        const da = this.mg.manhattanDist(a.tile(), this.warship.tile());
+        const db = this.mg.manhattanDist(b.tile(), this.warship.tile());
+        return da - db;
+      })[0];
+
+      this.attemptFireInterceptor(target);
+    } else if (this.warship.getStock?.("missiles") < maxMissiles) {
+      // Handle reloading
+      this.nextAntiMissileReload--;
+      if (this.nextAntiMissileReload <= 0) {
+        this.warship.addStock?.("missiles", 1);
+        this.warship.touch?.();
+        this.nextAntiMissileReload = reloadTime;
+      }
+    } else {
+      // At max, reset reload so after firing you start fresh
+      this.nextAntiMissileReload = reloadTime;
+    }
+  }
+
+  private attemptFireInterceptor(target: Unit) {
+    if (this.warship.getStock?.("missiles") === 0) {
+      // No interceptors left; optionally set a cooldown or do nothing
+      // e.g. set a reload timer here if desired
+      this.nextAntiMissileReload =
+        this.warship.owner().getVar("warshipReloadTime") ?? 300;
+      return;
+    }
+
+    // Mark missile as targeted (optional, but SAM does this)
+    target.setTargetedBySAM?.(true);
+
+    // Launch visible interceptor missile execution!
+    // If you have a dedicated WarshipMissileExecution, use it here.
+    // Or you can reuse SAMMissileExecution:
+    this.mg.addExecution(
+      new SAMMissileExecution(
+        this.warship.tile(),
+        this.warship.owner(),
+        this.warship,
+        target,
+      ),
+    );
+
+    this.warship.removeStock?.("missiles", 1);
+
+    // If now empty, reset reload timer
+    if (this.warship.getStock?.("missiles") === 0) {
+      this.nextAntiMissileReload =
+        this.warship.owner().getVar("warshipReloadTime") ?? 300;
+    }
+
+    this.warship.touch?.();
   }
 }

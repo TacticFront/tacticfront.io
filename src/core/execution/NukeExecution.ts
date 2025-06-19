@@ -181,8 +181,15 @@ export class NukeExecution implements Execution {
       if (silo) {
         console.log("Missile silo found at spawn:", spawn);
 
+        silo.removeStock("Launch Tubes", 1);
+        silo.touch();
         // CooldownProject
-        silo.setCooldown(300);
+        if (silo.getStock("Launch Tubes") === 0) {
+          // no ammo — go onto full reload
+          silo.setCooldown(silo.owner().getVar("samReloadTime"));
+          silo.touch();
+          return;
+        }
         console.log("Missile silo launch invoked at spawn:", spawn);
       } else {
         console.warn("No missile silo found at spawn:", spawn);
@@ -214,6 +221,8 @@ export class NukeExecution implements Execution {
     }
   }
 
+  private removeTube() {}
+
   private detonate() {
     if (this.mg === null || this.nuke === null || this.player === null) {
       throw new Error("Not initialized");
@@ -221,7 +230,7 @@ export class NukeExecution implements Execution {
 
     const magnitude = this.mg.config().nukeMagnitudes(this.nuke.type());
     const toDestroy = this.tilesToDestroy();
-    this.breakAlliances(toDestroy);
+    //this.breakAlliances(toDestroy);
 
     for (const tile of toDestroy) {
       const owner = this.mg.owner(tile);

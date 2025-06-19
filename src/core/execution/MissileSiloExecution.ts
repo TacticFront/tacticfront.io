@@ -17,6 +17,8 @@ export class MissileSiloExecution implements Execution {
   private player: Player | null = null;
   private silo: Unit | null = null;
 
+  private nextReload: number;
+
   constructor(
     private _owner: PlayerID,
     private tile: TileRef,
@@ -28,13 +30,13 @@ export class MissileSiloExecution implements Execution {
       this.active = false;
       return;
     }
-
     this.mg = mg;
     this.player = mg.player(this._owner);
+    this.constructing();
   }
 
-  tick(ticks: number): void {
-    if (this.player === null || this.mg === null) {
+  constructing(): void {
+    if (this.mg === null || this.player === null) {
       throw new Error("Not initialized");
     }
     if (this.silo === null) {
@@ -49,14 +51,65 @@ export class MissileSiloExecution implements Execution {
       this.silo = this.player.buildUnit(UnitType.MissileSilo, spawn, {
         cooldownDuration: this.mg.config().SiloCooldown(),
       });
+      // Set initial tubes to max
+      this.silo!.setStock(
+        "Launch Tubes",
+        this.silo!.owner().getVar("missileSiloTubes") ?? 1,
+      );
+      // Start reload timer
+      this.nextReload =
+        this.silo!.owner().getVar("missileSiloTubeRegenTime") ?? 240;
+    }
+  }
 
-      if (this.player !== this.silo.owner()) {
-        this.player = this.silo.owner();
-      }
+  tick(ticks: number): void {
+    if (this.player === null || this.mg === null || this.silo === null) {
+      throw new Error("Not initialized");
+    }
+
+    if (!this.silo.isActive()) {
+      this.active = false;
+      return;
+    }
+
+    // In case of ownership transfer
+    if (this.player !== this.silo.owner()) {
+      this.player = this.silo.owner();
     }
 
     this.silo.tickCooldown();
     this.silo.checkRepairs();
+
+    this.handleReloads();
+  }
+
+  handleReloads() {
+    const maxTubes = this.silo!.owner().getVar("missileSiloTubes") ?? 1;
+    const regenTime =
+      this.silo!.owner().getVar("missileSiloTubeRegenTime") ?? 240;
+
+    // Only reload if not full
+    if (this.silo!.getStock("Launch Tubes") < maxTubes) {
+      this.nextReload--;
+      if (this.nextReload <= 0) {
+        this.silo!.addStock("Launch Tubes", 1);
+        this.silo!.touch(); // update client/UI if needed
+        this.nextReload = regenTime;
+      }
+    } else {
+      // At max, always reset timer so it doesn't accumulate partial reloads
+      this.nextReload = regenTime;
+    }
+  }
+
+  // Use this to spend a tube when launching
+  consumeTube(): boolean {
+    if (this.silo!.getStock("Launch Tubes") > 0) {
+      this.silo!.removeStock("Launch Tubes", 1);
+      this.silo!.touch();
+      return true;
+    }
+    return false;
   }
 
   isActive(): boolean {

@@ -125,13 +125,24 @@ export class PlayerImpl implements Player {
     this._vars.set("samMissileSpeed", 12);
     this._vars.set("samSearchRange", 100);
     this._vars.set("samInterceptors", 2);
-    this._vars.set("samReloadTime", 300);
+    this._vars.set("samReloadTime", 240);
     this._vars.set("samTargetingBonus", 20);
+
+    this._vars.set("navalInvasionMaxCount", 3);
+    this._vars.set("warshipMaxInterceptors", 0);
+    this._vars.set("warshipMaxInterceptorRange", 80);
+    this._vars.set("missileSiloTubes", 1);
+    this._vars.set("missileSiloTubeRegenTime", 240);
+    this._vars.set("missileSiloMaxCost", 1_000_000);
     this._vars.set("cruiseEvasion", 15);
     this._vars.set("atomEvasion", 35);
     this._vars.set("hydrogenEvasion", 25);
     this._vars.set("radarRange", 200);
     this._vars.set("radarTargetingBonus", 10);
+    this._vars.set("powerPlantGoldGeneration", 800);
+    this._vars.set("powerPlantMaxNumber", 3);
+    this._vars.set("powerPlantMaterialGenerationRate", 1);
+    this._vars.set("powerPlantMaterialGenerationMax", 10);
   }
 
   largestClusterBoundingBox: { min: Cell; max: Cell } | null;

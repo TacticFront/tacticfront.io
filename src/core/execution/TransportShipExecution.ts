@@ -1,3 +1,5 @@
+// src/core/execution/TransportShipExecution.ts
+
 import { consolex } from "../Consolex";
 import {
   Execution,
@@ -69,10 +71,10 @@ export class TransportShipExecution implements Execution {
 
     if (
       this.attacker.units(UnitType.TransportShip).length >=
-      mg.config().boatMaxNumber()
+      mg.config().boatMaxNumber(this.attacker)
     ) {
       mg.displayMessage(
-        `No boats available, max ${mg.config().boatMaxNumber()}`,
+        `No boats available, max ${mg.config().boatMaxNumber(this.attacker)}`,
         MessageType.WARN,
         this.attackerID,
       );
