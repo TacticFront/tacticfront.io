@@ -47,7 +47,7 @@ export const techList: Tech[] = [
   {
     id: "samSpeed1",
     name: "Hyper-Combustion Fuel",
-    description: "Solid additives increase interceptor speed by 33%.",
+    description: "Interceptor speed  +33%. Interceptors +1.",
     icon: "⚡",
     category: "Sams",
     cost: 1_250_000,
@@ -56,6 +56,7 @@ export const techList: Tech[] = [
         "samMissileSpeed",
         Math.floor(p.getVar("samMissileSpeed") * 1.33),
       );
+      p.setVar("samInterceptors", p.getVar("samInterceptors") + 1);
     },
   },
   {
