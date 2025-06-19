@@ -303,9 +303,9 @@ export class DefaultConfig implements Config {
             p.type() === PlayerType.Human && this.infiniteGold()
               ? 0
               : Math.min(
-                  1_000_000,
+                  6_000_000,
                   (p.unitsIncludingConstruction(UnitType.Warship).length + 1) *
-                    250_000,
+                    300_000,
                 ),
 
           territoryBound: false,
@@ -842,11 +842,10 @@ export class DefaultConfig implements Config {
     const populationGold = 0.025 * player.workers() ** 0.87; // .045
     const cityGold = player.units(UnitType.City).length * 50;
     const portGold = player.units(UnitType.Port).length * 30;
+    const powerPlantgps =
+      (player.getVar("powerPlantGoldGeneration") || 1) / this._tps;
     const powerPlantGold =
-      (player.units(UnitType.PowerPlant).length *
-        player.getVar("powerPlantGoldGeneration")) /
-      this._tps;
-
+      player.units(UnitType.PowerPlant).length * powerPlantgps;
     const totalGold = Math.floor(
       populationGold + cityGold + portGold + powerPlantGold,
     );
