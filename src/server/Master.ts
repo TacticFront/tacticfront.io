@@ -287,6 +287,11 @@ async function fetchLobbies(): Promise<number> {
       return;
     }
 
+    if (l.lobbyType === "private" && l.numClients === 0) {
+      privateLobbyIDs.delete(l.gameID);
+      return;
+    }
+
     if (
       l.gameConfig &&
       l.gameConfig.maxPlayers !== undefined &&
