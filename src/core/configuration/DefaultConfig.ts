@@ -840,7 +840,7 @@ export class DefaultConfig implements Config {
   }
 
   goldAdditionRate(player: Player): Gold {
-    const populationGold = 0.025 * player.workers() ** 0.9; // .045
+    const populationGold = 0.025 * player.workers() ** 0.87; // .045
     const cityGold = player.units(UnitType.City).length * 50;
     const portGold = player.units(UnitType.Port).length * 30;
     const powerPlantGold = player.units(UnitType.PowerPlant).length * 80;
@@ -874,13 +874,13 @@ export class DefaultConfig implements Config {
   nukeMagnitudes(unitType: UnitType): NukeMagnitude {
     switch (unitType) {
       case UnitType.MIRVWarhead:
-        return { inner: 8, outer: 20 };
+        return { inner: 6, outer: 16 };
       case UnitType.CruiseMissile:
         return { inner: 5, outer: 10 };
       case UnitType.AtomBomb:
         return { inner: 12, outer: 30 };
       case UnitType.HydrogenBomb:
-        return { inner: 80, outer: 100 };
+        return { inner: 50, outer: 75 };
     }
     throw new Error(`Unknown nuke type: ${unitType}`);
   }
