@@ -839,13 +839,17 @@ export class DefaultConfig implements Config {
   }
 
   goldAdditionRate(player: Player): Gold {
-    const populationGold = 0.025 * player.workers() ** 0.87; // .045
-    const cityGold = player.units(UnitType.City).length * 50;
-    const portGold = player.units(UnitType.Port).length * 30;
-    const powerPlantgps =
-      (player.getVar("powerPlantGoldGeneration") || 1) / this._tps;
+    const workers = Number(player.workers()) || 0;
+    const populationGold = 0.025 * Math.pow(workers, 0.87);
+    const cityGold = (player.units(UnitType.City)?.length || 0) * 50;
+    const portGold = (player.units(UnitType.Port)?.length || 0) * 30;
+
+    const ppGen = Number(player.getVar("powerPlantGoldGeneration")) || 1;
+    const tps = Number(this._tps) || 1;
+    const powerPlantgps = ppGen / tps;
     const powerPlantGold =
-      player.units(UnitType.PowerPlant).length * powerPlantgps;
+      (player.units(UnitType.PowerPlant)?.length || 0) * powerPlantgps;
+
     const totalGold = Math.floor(
       populationGold + cityGold + portGold + powerPlantGold,
     );
