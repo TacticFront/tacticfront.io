@@ -9,7 +9,7 @@ import { GameID, GameInfo } from "../core/Schemas";
 
 const DISMISS_KEY = "lobby-ad-dismissed-until";
 const POPUP_SHOWN_IDS_KEY = "lobby-ad-shown-gameids";
-const DISMISS_MINUTES = 30;
+const DISMISS_MINUTES = 60;
 
 function getPopupShownIds(): GameID[] {
   try {
@@ -98,8 +98,8 @@ export class LobbyAdPopup extends LitElement {
         );
 
         if (
-          (l.numClients || 0) > 2 &&
-          timeRemaining >= 20 &&
+          (l.numClients || 0) > 4 &&
+          timeRemaining >= 30 &&
           !alreadyShownIds.includes(l.gameID) &&
           !this.shouldHideForCurrentPage(l)
         ) {
