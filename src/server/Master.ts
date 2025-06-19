@@ -260,7 +260,7 @@ async function fetchLobbies(): Promise<number> {
         gameConfig: gi.gameConfig,
         lobbyType: isPublic ? "public" : "private",
       };
-      if (isPublic && "msUntilStart" in gi) {
+      if ("msUntilStart" in gi) {
         lobbyInfo.msUntilStart = (gi.msUntilStart ?? Date.now()) - Date.now();
       }
       return lobbyInfo;
@@ -277,6 +277,16 @@ async function fetchLobbies(): Promise<number> {
       publicLobbyIDs.delete(l.gameID);
       return;
     }
+    if (
+      l.lobbyType === "private" &&
+      "msUntilStart" in l &&
+      l.msUntilStart !== undefined &&
+      l.msUntilStart <= 250
+    ) {
+      privateLobbyIDs.delete(l.gameID);
+      return;
+    }
+
     if (
       l.gameConfig &&
       l.gameConfig.maxPlayers !== undefined &&
