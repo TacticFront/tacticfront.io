@@ -142,7 +142,7 @@ export abstract class DefaultServerConfig implements ServerConfig {
   }
 
   gameCreationRate(): number {
-    return 60 * 1000;
+    return 120 * 1000;
   }
 
   lobbyMaxPlayers(
@@ -257,7 +257,7 @@ export class DefaultConfig implements Config {
     return 35;
   }
   defensePostDefenseBonus(): number {
-    return 8;
+    return 6;
   }
   playerTeams(): number | typeof Duos {
     return this._gameConfig.playerTeams ?? 0;
@@ -808,8 +808,8 @@ export class DefaultConfig implements Config {
     //population grows proportional to current population with growth decreasing as it approaches max
     // smaller countries recieve a boost to pop growth to speed up early game
     const baseAdditionRate = 10;
-    const basePopGrowthRate = 1400 / max + 1 / 140;
-    const reproductionPop = 0.8 * player.troops() + 1.15 * player.workers();
+    const basePopGrowthRate = 1400 / max + 1 / 160;
+    const reproductionPop = 0.8 * player.troops() + 1.1 * player.workers();
     let toAdd = baseAdditionRate + basePopGrowthRate * reproductionPop;
     const totalPop = player.population();
     const ratio = 1 - totalPop / max;
@@ -840,7 +840,7 @@ export class DefaultConfig implements Config {
   }
 
   goldAdditionRate(player: Player): Gold {
-    const populationGold = 0.025 * player.workers() ** 0.85; // .045
+    const populationGold = 0.025 * player.workers() ** 0.9; // .045
     const cityGold = player.units(UnitType.City).length * 50;
     const portGold = player.units(UnitType.Port).length * 30;
     const powerPlantGold = player.units(UnitType.PowerPlant).length * 80;

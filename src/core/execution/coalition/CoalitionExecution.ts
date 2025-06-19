@@ -44,30 +44,38 @@ export class CoalitionExecution implements Execution {
       .players()
       .filter((p) => p.type() === PlayerType.FakeHuman);
 
-    if (nations.length <= 1) {
-      return;
-    }
+    if (nations.length <= 1) return;
 
     // 2. Sort by power (numTilesOwned, gold, etc.)
     nations.sort((a, b) => b.numTilesOwned() - a.numTilesOwned());
 
     // 3. Take top N
     const topN = nations.slice(0, this.topCount);
-    if (topN.length < 2) {
-      return;
-    }
+    if (topN.length < 2) return;
+
+    // --- NEW: Calculate tile limit ---
+    const totalTiles =
+      this.mg.numLandTiles() - (this.mg.numTilesWithFallout?.() || 0);
+    const maxAllowed = this.threshold * totalTiles * 1.15; // 15% buffer
 
     // 4. Merge all but the strongest into the strongest (index 0)
     const leader = topN[0];
+    let leaderTileCount = leader.numTilesOwned();
+
     for (let i = 1; i < topN.length; i++) {
       const nation = topN[i];
-      // Transfer all tiles
-      for (const tile of nation.tiles()) {
-        leader.conquer(tile);
+      const nationTileCount = nation.numTilesOwned();
+
+      // Only merge if within buffer
+      if (leaderTileCount + nationTileCount > maxAllowed) {
+        // Optionally, could merge just some tiles, or skip
+        continue;
       }
-      // Optionally transfer gold, troops, etc.
+
+      for (const tile of nation.tiles()) leader.conquer(tile);
       leader.addGold(nation.gold());
       nation.removeGold(nation.gold());
+      leaderTileCount += nationTileCount;
       // Optionally: mark as "merged", "eliminated", etc.
     }
 
@@ -77,7 +85,6 @@ export class CoalitionExecution implements Execution {
       MessageType.INFO,
       null,
     );
-    //consolex.info(`Nations merged: ${topN.map(n => n.displayName()).join(", ")}`);
   }
 
   private mergeNationsWithNeighborBots() {
