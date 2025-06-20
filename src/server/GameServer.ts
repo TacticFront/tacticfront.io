@@ -692,6 +692,7 @@ export class GameServer {
           const data = {
             gameID: this.id,
             clientID: c.clientID,
+            name: c.username,
             persistentID: c.persistentID,
             lastDesyncTurn,
           };
@@ -701,6 +702,7 @@ export class GameServer {
           ClientID: ${data.clientID}
           PersistentID: ${data.persistentID}
           Last Desync Turn: ${data.lastDesyncTurn}
+          Name: ${data.name}
           `;
 
           fetch(
