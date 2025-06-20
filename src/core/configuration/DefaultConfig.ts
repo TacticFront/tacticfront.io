@@ -839,6 +839,8 @@ export class DefaultConfig implements Config {
   }
 
   goldAdditionRate(player: Player): Gold {
+    if (!player) return 0;
+
     const workers = Number(player.workers()) || 0;
     const populationGold = 0.025 * Math.pow(workers, 0.87);
     const cityGold = (player.units(UnitType.City)?.length || 0) * 50;
