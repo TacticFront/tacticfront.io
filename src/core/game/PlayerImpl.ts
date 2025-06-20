@@ -203,8 +203,8 @@ export class PlayerImpl implements Player {
       outgoingAllianceRequests: outgoingAllianceRequests,
       hasSpawned: this.hasSpawned(),
       betrayals: stats?.betrayals,
-      techLevel: this._techLevel,
       unlockedTechnologies: this._unlockedTechnologies,
+      techLevel: this._techLevel,
     };
   }
 

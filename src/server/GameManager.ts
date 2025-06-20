@@ -2,7 +2,13 @@
 
 import { Logger } from "winston";
 import { ServerConfig } from "../core/configuration/Config";
-import { Difficulty, GameMapType, GameMode, GameType } from "../core/game/Game";
+import {
+  Difficulty,
+  Game,
+  GameMapType,
+  GameMode,
+  GameType,
+} from "../core/game/Game";
 import { GameConfig, GameID } from "../core/Schemas";
 import { Client } from "./Client";
 import { GamePhase, GameServer } from "./GameServer";
@@ -32,20 +38,32 @@ export class GameManager {
     return false;
   }
 
-  createGame(id: GameID, gameConfig: GameConfig | undefined) {
-    const game = new GameServer(id, this.log, Date.now(), this.config, {
-      gameMap: GameMapType.World,
-      gameType: GameType.Private,
-      difficulty: Difficulty.Medium,
-      disableNPCs: false,
-      infiniteGold: false,
-      infiniteTroops: false,
-      instantBuild: false,
-      gameMode: GameMode.FFA,
-      bots: 400,
-      disabledUnits: [],
-      ...gameConfig,
-    });
+  createGame(
+    id: GameID,
+    gameConfig: GameConfig | undefined,
+    gameInstance: Game,
+  ) {
+    // Add gameInstance parameter
+    const game = new GameServer(
+      id,
+      this.log,
+      Date.now(),
+      this.config,
+      {
+        gameMap: GameMapType.World,
+        gameType: GameType.Private,
+        difficulty: Difficulty.Medium,
+        disableNPCs: false,
+        infiniteGold: false,
+        infiniteTroops: false,
+        instantBuild: false,
+        gameMode: GameMode.FFA,
+        bots: 400,
+        disabledUnits: [],
+        ...gameConfig,
+      },
+      gameInstance,
+    ); // Pass gameInstance to GameServer constructor
     this.games.set(id, game);
     return game;
   }

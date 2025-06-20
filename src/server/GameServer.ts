@@ -22,7 +22,7 @@ import {
 } from "../core/Schemas";
 import { createGameRecord } from "../core/Util";
 import { GameEnv, ServerConfig } from "../core/configuration/Config";
-import { GameType } from "../core/game/Game";
+import { Game, GameType } from "../core/game/Game";
 import { archive } from "./Archive";
 import { Client } from "./Client";
 import { gatekeeper } from "./Gatekeeper";
@@ -61,6 +61,9 @@ export class GameServer {
 
   private kickedClients: Set<ClientID> = new Set();
   private outOfSyncClients: Set<ClientID> = new Set();
+  private lastDesyncTime: Map<ClientID, number> = new Map(); // Add map to store last desync time
+
+  private gameInstance: Game; // Add property to store Game instance
 
   constructor(
     public readonly id: string,
@@ -68,8 +71,10 @@ export class GameServer {
     public readonly createdAt: number,
     private config: ServerConfig,
     public gameConfig: GameConfig,
+    gameInstance: Game, // Add Game instance to constructor
   ) {
     this.log = log_.child({ gameID: id });
+    this.gameInstance = gameInstance; // Store the Game instance
   }
 
   public updateGameConfig(gameConfig: Partial<GameConfig>): void {
@@ -665,13 +670,47 @@ export class GameServer {
       if (this.sentDesyncMessageClients.has(c.clientID)) {
         continue;
       }
-      this.sentDesyncMessageClients.add(c.clientID);
-      this.log.info("sending desync to client", {
-        gameID: this.id,
-        clientID: c.clientID,
-        persistentID: c.persistentID,
-      });
-      c.ws.send(desyncMsg);
+
+      if (this.lastDesyncTime.has(c.clientID)) {
+        const lastDesyncTurn = this.lastDesyncTime.get(c.clientID)!;
+        if (lastDesyncTurn === this.turns.length - 10) {
+          this.log.info("last desync turn for client", {
+            gameID: this.id,
+            clientID: c.clientID,
+            persistentID: c.persistentID,
+            lastDesyncTurn,
+          });
+
+          this.sentDesyncMessageClients.add(c.clientID);
+          this.log.info("sending desync to client", {
+            gameID: this.id,
+            clientID: c.clientID,
+            persistentID: c.persistentID,
+          });
+          c.ws.send(desyncMsg);
+        }
+      } else {
+        this.lastDesyncTime.set(c.clientID, this.turns.length);
+        // Send player update data to the desynced client
+        const playerUpdates = this.gameInstance
+          .players()
+          .map((player) => player.toUpdate());
+        const playerUpdateData = {
+          type: "player_update",
+          players: playerUpdates,
+        };
+        c.ws.send(JSON.stringify(playerUpdateData));
+
+        // Send unit update data to the desynced client
+        const unitUpdates = this.gameInstance
+          .units()
+          .map((unit) => unit.toUpdate());
+        const unitUpdateData = {
+          type: "unit_update",
+          units: unitUpdates,
+        };
+        c.ws.send(JSON.stringify(unitUpdateData));
+      }
     }
   }
 
