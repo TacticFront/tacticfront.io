@@ -688,6 +688,29 @@ export class GameServer {
             persistentID: c.persistentID,
           });
           c.ws.send(desyncMsg);
+
+          const data = {
+            gameID: this.id,
+            clientID: c.clientID,
+            persistentID: c.persistentID,
+            lastDesyncTurn,
+          };
+
+          const content = `🚨 **Desync Detected**
+          GameID: ${data.gameID}
+          ClientID: ${data.clientID}
+          PersistentID: ${data.persistentID}
+          Last Desync Turn: ${data.lastDesyncTurn}
+          `;
+
+          fetch(
+            "https://discordapp.com/api/webhooks/1385474084288204850/xBpso9FGUE_zh6Z8OxPHoF0Bbozd9YRv6oyxRZkndthh2c_CkyqXRctHD1_Pj9mo-VQL",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ content }),
+            },
+          );
         }
       } else {
         this.lastDesyncTime.set(c.clientID, this.turns.length);
