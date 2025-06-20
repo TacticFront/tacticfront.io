@@ -218,7 +218,7 @@ export const techList: Tech[] = [
     apply: (p) => {
       p.setVar(
         "powerPlantGoldGeneration",
-        p.getVar("powerPlantGoldGeneration") + 400,
+        p.getVar("powerPlantGoldGeneration") + 50,
       );
     },
   },
@@ -247,7 +247,7 @@ export const techList: Tech[] = [
     apply: (p) => {
       p.setVar(
         "powerPlantGoldGeneration",
-        p.getVar("powerPlantGoldGeneration") + 600,
+        p.getVar("powerPlantGoldGeneration") + 80,
       );
       p.setVar(
         "powerPlantMaterialGenerationRate",

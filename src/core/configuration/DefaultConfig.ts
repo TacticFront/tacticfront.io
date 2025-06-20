@@ -846,9 +846,8 @@ export class DefaultConfig implements Config {
 
     const ppGen = Number(player.getVar("powerPlantGoldGeneration")) || 1;
     const tps = Number(this._tps) || 1;
-    const powerPlantgps = ppGen / tps;
     const powerPlantGold =
-      (player.units(UnitType.PowerPlant)?.length || 0) * powerPlantgps;
+      (player.units(UnitType.PowerPlant)?.length || 0) * ppGen;
 
     const totalGold = Math.floor(
       populationGold + cityGold + portGold + powerPlantGold,
