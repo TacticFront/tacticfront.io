@@ -845,8 +845,10 @@ export class DefaultConfig implements Config {
     const portGold = (player.units(UnitType.Port)?.length || 0) * 30;
 
     const ppGen =
-      Number(player && player.getVar("powerPlantGoldGeneration")) || 1;
-    const tps = Number(this._tps) || 1;
+      player && typeof player.getVar === "function"
+        ? Number(player.getVar("powerPlantGoldGeneration")) || 1
+        : 1;
+
     const powerPlantGold =
       (player.units(UnitType.PowerPlant)?.length || 0) * ppGen;
 
