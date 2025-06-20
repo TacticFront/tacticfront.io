@@ -104,16 +104,16 @@ export interface AttackUpdate {
 export interface PlayerUpdate {
   type: GameUpdateType.Player;
   nameViewData?: NameViewData;
-  clientID: ClientID | null;
+  clientID?: ClientID | null;
   flag: string | undefined;
   name: string;
-  displayName: string;
+  displayName?: string;
   id: PlayerID;
   team?: Team;
   smallID: number;
-  playerType: PlayerType;
-  isAlive: boolean;
-  isDisconnected: boolean;
+  playerType?: PlayerType;
+  isAlive?: boolean;
+  isDisconnected?: boolean;
   tilesOwned: number;
   gold: Gold;
   population: number;
@@ -122,18 +122,18 @@ export interface PlayerUpdate {
   offensiveTroops: number;
   targetTroopRatio: number;
   reserveTroopRatio: number;
-  allies: number[];
-  embargoes: Set<PlayerID>;
-  isTraitor: boolean;
+  allies?: number[];
+  embargoes?: Set<PlayerID>;
+  isTraitor?: boolean;
   targets: number[];
-  outgoingEmojis: EmojiMessage[];
+  outgoingEmojis?: EmojiMessage[]; // null means no emojis sent
   outgoingAttacks: AttackUpdate[];
   incomingAttacks: AttackUpdate[];
-  outgoingAllianceRequests: PlayerID[];
+  outgoingAllianceRequests?: PlayerID[];
   hasSpawned: boolean;
-  techLevel: number;
-  unlockedTechnologies: Set<string>;
-  betrayals?: number;
+  techLevel?: number | null; // null means no tech level
+  unlockedTechnologies?: Set<string> | null; // null means no technologies unlocked
+  betrayals?: number | null; // null means no betrayals
 }
 
 export interface AllianceRequestUpdate {

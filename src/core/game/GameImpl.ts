@@ -355,9 +355,13 @@ export class GameImpl implements Game {
     this.unInitExecs = unInited;
     for (const player of this._players.values()) {
       // Players change each to so always add them
+      if (!player.isAlive()) {
+        continue; // Skip dead players
+      }
       this.addUpdate(player.toUpdate());
     }
-    if (this.ticks() % 10 === 0) {
+
+    if (this.ticks() % 100 === 0) {
       this.addUpdate({
         type: GameUpdateType.Hash,
         tick: this.ticks(),

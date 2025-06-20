@@ -147,7 +147,7 @@ export class PlayerView {
     } else {
       this.anonymousName = createRandomName(
         this.data.name,
-        this.data.playerType,
+        this.data.playerType || PlayerType.Bot,
       );
     }
   }
@@ -207,7 +207,7 @@ export class PlayerView {
   }
 
   clientID(): ClientID | null {
-    return this.data.clientID;
+    return this.data.clientID || null;
   }
   id(): PlayerID {
     return this.data.id;
@@ -216,10 +216,10 @@ export class PlayerView {
     return this.data.team ?? null;
   }
   type(): PlayerType {
-    return this.data.playerType;
+    return this.data.playerType || PlayerType.Bot;
   }
   isAlive(): boolean {
-    return this.data.isAlive;
+    return this.data.isAlive || false;
   }
   isPlayer(): this is Player {
     return true;
@@ -228,8 +228,13 @@ export class PlayerView {
     return this.data.tilesOwned;
   }
   allies(): PlayerView[] {
-    return this.data.allies.map(
-      (a) => this.game.playerBySmallID(a) as PlayerView,
+    if (this.data.allies === null) {
+      return [];
+    }
+    return (
+      this.data.allies?.map(
+        (a) => this.game.playerBySmallID(a) as PlayerView,
+      ) || []
     );
   }
   targets(): PlayerView[] {
@@ -257,7 +262,7 @@ export class PlayerView {
   }
 
   techLevel(): number {
-    return this.data.techLevel;
+    return this.data.techLevel || 0;
   }
 
   reserveRatio(): number {
@@ -265,7 +270,10 @@ export class PlayerView {
   }
 
   isAlliedWith(other: PlayerView): boolean {
-    return this.data.allies.some((n) => other.smallID() === n);
+    if (this.data.allies === null) {
+      return false;
+    }
+    return this.data.allies?.some((n) => other.smallID() === n) || false;
   }
 
   isOnSameTeam(other: PlayerView): boolean {
@@ -277,11 +285,17 @@ export class PlayerView {
   }
 
   isRequestingAllianceWith(other: PlayerView) {
-    return this.data.outgoingAllianceRequests.some((id) => other.id() === id);
+    if (this.data.outgoingAllianceRequests === null) {
+      return false;
+    }
+    return this.data.outgoingAllianceRequests?.some((id) => other.id() === id);
   }
 
   hasEmbargoAgainst(other: PlayerView): boolean {
-    return this.data.embargoes.has(other.id());
+    if (this.data.embargoes === null) {
+      return false;
+    }
+    return this.data.embargoes?.has(other.id()) || false;
   }
 
   profile(): Promise<PlayerProfile> {
@@ -297,10 +311,10 @@ export class PlayerView {
   }
 
   isTraitor(): boolean {
-    return this.data.isTraitor;
+    return this.data.isTraitor || false;
   }
   outgoingEmojis(): EmojiMessage[] {
-    return this.data.outgoingEmojis;
+    return this.data.outgoingEmojis || [];
   }
   info(): PlayerInfo {
     return new PlayerInfo(
@@ -315,7 +329,7 @@ export class PlayerView {
     return this.data.hasSpawned;
   }
   isDisconnected(): boolean {
-    return this.data.isDisconnected;
+    return this.data.isDisconnected || false;
   }
 }
 

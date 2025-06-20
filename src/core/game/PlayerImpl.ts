@@ -153,18 +153,67 @@ export class PlayerImpl implements Player {
     );
     const stats = this.mg.stats().getPlayerStats(this);
 
+    if (this.type() !== PlayerType.Bot)
+      return {
+        type: GameUpdateType.Player,
+        clientID: this.clientID(),
+        flag: this.flag(),
+        name: this.name(),
+        displayName: this.displayName(),
+        id: this.id(),
+        team: this.team() ?? undefined,
+        smallID: this.smallID(),
+        playerType: this.type(),
+        isAlive: this.isAlive(),
+        isDisconnected: this.isDisconnected(),
+        tilesOwned: this.numTilesOwned(),
+        gold: this._gold,
+        population: this.population(),
+        workers: this.workers(),
+        troops: this.troops(),
+        offensiveTroops: this.offensiveTroops(),
+        targetTroopRatio: this.targetTroopRatio(),
+        reserveTroopRatio: this.reserveTroopRatio(),
+        allies: this.alliances().map((a) => a.other(this).smallID()),
+        embargoes: new Set([...this.embargoes.keys()].map((p) => p.toString())),
+        isTraitor: this.isTraitor(),
+        targets: this.targets().map((p) => p.smallID()),
+        outgoingEmojis: this.outgoingEmojis(),
+        outgoingAttacks: this._outgoingAttacks.map((a) => {
+          return {
+            attackerID: a.attacker().smallID(),
+            targetID: a.target().smallID(),
+            troops: a.troops(),
+            id: a.id(),
+            retreating: a.retreating(),
+            border: a.borderSize(),
+            //stats: a.stats(),
+          } as AttackUpdate;
+        }),
+        incomingAttacks: this._incomingAttacks.map((a) => {
+          return {
+            attackerID: a.attacker().smallID(),
+            targetID: a.target().smallID(),
+            troops: a.troops(),
+            id: a.id(),
+            retreating: a.retreating(),
+            border: a.borderSize(),
+            //stats: a.stats(),
+          } as AttackUpdate;
+        }),
+        outgoingAllianceRequests: outgoingAllianceRequests,
+        hasSpawned: this.hasSpawned(),
+        betrayals: stats?.betrayals,
+        unlockedTechnologies: this._unlockedTechnologies,
+        techLevel: this._techLevel,
+      };
+
     return {
       type: GameUpdateType.Player,
-      clientID: this.clientID(),
       flag: this.flag(),
       name: this.name(),
-      displayName: this.displayName(),
       id: this.id(),
-      team: this.team() ?? undefined,
       smallID: this.smallID(),
-      playerType: this.type(),
-      isAlive: this.isAlive(),
-      isDisconnected: this.isDisconnected(),
       tilesOwned: this.numTilesOwned(),
       gold: this._gold,
       population: this.population(),
@@ -173,11 +222,7 @@ export class PlayerImpl implements Player {
       offensiveTroops: this.offensiveTroops(),
       targetTroopRatio: this.targetTroopRatio(),
       reserveTroopRatio: this.reserveTroopRatio(),
-      allies: this.alliances().map((a) => a.other(this).smallID()),
-      embargoes: new Set([...this.embargoes.keys()].map((p) => p.toString())),
-      isTraitor: this.isTraitor(),
       targets: this.targets().map((p) => p.smallID()),
-      outgoingEmojis: this.outgoingEmojis(),
       outgoingAttacks: this._outgoingAttacks.map((a) => {
         return {
           attackerID: a.attacker().smallID(),
@@ -186,7 +231,7 @@ export class PlayerImpl implements Player {
           id: a.id(),
           retreating: a.retreating(),
           border: a.borderSize(),
-          stats: a.stats(),
+          //stats: a.stats(),
         } as AttackUpdate;
       }),
       incomingAttacks: this._incomingAttacks.map((a) => {
@@ -197,14 +242,10 @@ export class PlayerImpl implements Player {
           id: a.id(),
           retreating: a.retreating(),
           border: a.borderSize(),
-          stats: a.stats(),
+          //stats: a.stats(),
         } as AttackUpdate;
       }),
-      outgoingAllianceRequests: outgoingAllianceRequests,
       hasSpawned: this.hasSpawned(),
-      betrayals: stats?.betrayals,
-      unlockedTechnologies: this._unlockedTechnologies,
-      techLevel: this._techLevel,
     };
   }
 
@@ -713,10 +754,16 @@ export class PlayerImpl implements Player {
   }
 
   population(): number {
-    return Number(this._troops + this._workers + this.offensiveTroops());
+    this._offensiveTroops = Math.floor(this.offensiveTroops());
+    this._troops = Math.floor(Math.max(0, this._troops));
+    this._workers = Math.ceil(Math.max(1, this._workers));
+
+    return Number(
+      Math.floor(this._troops + this._workers + this.offensiveTroops()),
+    );
   }
   workers(): number {
-    return Math.max(1, Number(this._workers));
+    return Math.floor(Math.max(1, Number(this._workers)));
   }
   addWorkers(toAdd: number): void {
     this._workers += toAdd;
