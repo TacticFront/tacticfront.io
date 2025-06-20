@@ -849,11 +849,10 @@ export class DefaultConfig implements Config {
     const powerPlantGold =
       (player.units(UnitType.PowerPlant)?.length || 0) * ppGen;
 
-    const totalGold = Math.floor(
-      populationGold + cityGold + portGold + powerPlantGold,
-    );
+    let totalGoldRaw = populationGold + cityGold + portGold + powerPlantGold;
+    if (!isFinite(totalGoldRaw)) totalGoldRaw = 0;
 
-    return totalGold;
+    return Math.floor(totalGoldRaw);
   }
 
   troopAdjustmentRate(player: Player): number {
