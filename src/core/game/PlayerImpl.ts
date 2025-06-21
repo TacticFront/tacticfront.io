@@ -127,7 +127,6 @@ export class PlayerImpl implements Player {
     this._vars.set("samInterceptors", 2);
     this._vars.set("samReloadTime", 240);
     this._vars.set("samTargetingBonus", 20);
-
     this._vars.set("navalInvasionMaxCount", 3);
     this._vars.set("warshipMaxInterceptors", 0);
     this._vars.set("warshipMaxInterceptorRange", 80);

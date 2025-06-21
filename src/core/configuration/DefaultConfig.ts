@@ -369,7 +369,7 @@ export class DefaultConfig implements Config {
           cost: (p: Player) =>
             p.type() === PlayerType.Human && this.infiniteGold()
               ? 0
-              : 25_000_000,
+              : 20_000_000,
           territoryBound: false,
         };
       case UnitType.MIRVWarhead:
@@ -864,7 +864,7 @@ export class DefaultConfig implements Config {
     if (!player) return 0;
 
     const workers = Number(player.workers()) || 0;
-    const populationGold = 0.027 * Math.pow(workers, 0.89);
+    const populationGold = 0.025 * Math.pow(workers, 0.88);
     const cityGold = (player.units(UnitType.City)?.length || 0) * 50;
     const metroGold = (player.units(UnitType.Metropolis)?.length || 0) * 250;
     const portGold = (player.units(UnitType.Port)?.length || 0) * 30;
@@ -898,7 +898,7 @@ export class DefaultConfig implements Config {
   }
 
   troopAdjustmentRate(player: Player): number {
-    const maxDiff = this.maxPopulation(player) / 1600;
+    const maxDiff = this.maxPopulation(player) / 1800;
     const target = player.population() * player.targetTroopRatio();
     const diff = target - (player.troops() + player.offensiveTroops());
     if (Math.abs(diff) < maxDiff) {
