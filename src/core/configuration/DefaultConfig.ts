@@ -867,11 +867,9 @@ export class DefaultConfig implements Config {
     const workers = Number(player.workers()) || 0;
     const populationGold = 0.025 * Math.pow(workers, 0.88);
     const cityGold = (player.units(UnitType.City)?.length || 0) * 50;
-    const metroGold =
-      player.units(UnitType.Metropolis)?.length *
-        player.getVar("metroGoldGen") ||
-      0 ||
-      0;
+    const metroCount = Number(player.units(UnitType.Metropolis)?.length) || 0;
+    const metroGen = Number(player.getVar("metroGoldGen")) || 0;
+    const metroGold = metroCount * metroGen;
     const portGold = (player.units(UnitType.Port)?.length || 0) * 30;
     const troopWages =
       (player.offensiveTroops() * 0.004 + player.troops() * 0.002) *
