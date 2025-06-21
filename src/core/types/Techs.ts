@@ -28,7 +28,8 @@ export const techList: Tech[] = [
     name: "Rapid Reload Protocol",
     description: "Crew drills cut reload time by 5 seconds.",
     icon: "⏱️",
-    category: "Sams",
+    category: "Defense",
+    minorCategory: "Sams",
     cost: 300_000,
     apply: (p) => {
       p.setVar("samReloadTime", p.getVar("samReloadTime") - 40);
@@ -39,7 +40,8 @@ export const techList: Tech[] = [
     name: "Extended Tracking Array",
     description: "Chemical reformulation boosts interceptor range by 25%.",
     icon: "📡",
-    category: "Sams",
+    category: "Defense",
+    minorCategory: "Sams",
     cost: 800_000,
     apply: (p) => {
       p.setVar("samSearchRange", Math.floor(p.getVar("samSearchRange") * 1.25));
@@ -50,7 +52,8 @@ export const techList: Tech[] = [
     name: "Hyper-Combustion Fuel",
     description: "Interceptor speed  +33%. Interceptors +1.",
     icon: "⚡",
-    category: "Sams",
+    category: "Defense",
+    minorCategory: "Sams",
     cost: 1_250_000,
     apply: (p) => {
       p.setVar(
@@ -65,7 +68,8 @@ export const techList: Tech[] = [
     name: "Mass Interceptor Production",
     description: "Factory upgrades allow +1 interceptor per launcher.",
     icon: "➕",
-    category: "Sams",
+    category: "Defense",
+    minorCategory: "Sams",
     cost: 4_000_000,
     apply: (p) => {
       p.setVar("samInterceptors", p.getVar("samInterceptors") + 1);
@@ -200,7 +204,8 @@ export const techList: Tech[] = [
     name: "Extended Dish Array",
     description: "Upgraded antennas boost radar range by 25%.",
     icon: "📡",
-    category: "Radar",
+    category: "Defense",
+    minorCategory: "Radar",
     cost: 500_000,
     apply: (p) => {
       p.setVar("radarRange", Math.floor(p.getVar("radarRange") * 1.25));
@@ -211,7 +216,8 @@ export const techList: Tech[] = [
     name: "Signal Processing Suite",
     description: "Improved filters increase targeting bonus by 10%.",
     icon: "🛰️",
-    category: "Radar",
+    category: "Defense",
+    minorCategory: "Radar",
     cost: 1_000_000,
     apply: (p) => {
       p.setVar("radarTargetingBonus", p.getVar("radarTargetingBonus") + 10);
@@ -222,7 +228,8 @@ export const techList: Tech[] = [
     name: "High-Gain Transceiver",
     description: "Advanced electronics boost radar range by another 30%.",
     icon: "🔭",
-    category: "Radar",
+    category: "Defense",
+    minorCategory: "Radar",
     cost: 1_200_000,
     apply: (p) => {
       p.setVar("radarRange", Math.floor(p.getVar("radarRange") * 1.3));
@@ -234,7 +241,8 @@ export const techList: Tech[] = [
     description:
       "Machine-learning algorithms further increase targeting bonus by 15%.",
     icon: "🤖",
-    category: "Radar",
+    category: "Defense",
+    minorCategory: "Radar",
     cost: 2_500_000,
     apply: (p) => {
       p.setVar("radarTargetingBonus", p.getVar("radarTargetingBonus") + 15);
@@ -248,6 +256,7 @@ export const techList: Tech[] = [
       "Deploy chaff during flight to improve cruise missile evasion by +8%.",
     icon: "🎐",
     category: "Missiles",
+    minorCategory: "Survivability",
     cost: 1_000_000,
     apply: (p) => {
       p.setVar("cruiseEvasion", p.getVar("cruiseEvasion") + 8);
@@ -259,6 +268,7 @@ export const techList: Tech[] = [
     description: "Shielding upgrades boost atomic missile evasion by +5%.",
     icon: "☢️",
     category: "Missiles",
+    minorCategory: "Survivability",
     cost: 2_500_000,
     apply: (p) => {
       p.setVar("atomEvasion", p.getVar("atomEvasion") + 5);
@@ -270,6 +280,7 @@ export const techList: Tech[] = [
     description: "Integrated ECM boosts evasion of all missile types by +5%.",
     icon: "🛡️",
     category: "Missiles",
+    minorCategory: "Survivability",
     cost: 3_500_000,
     apply: (p) => {
       p.setVar("cruiseEvasion", p.getVar("cruiseEvasion") + 5);
@@ -404,7 +415,8 @@ export const techList: Tech[] = [
     name: "Servo-Assisted Reload",
     description: "Reload time -10%.",
     icon: "⏱️",
-    category: "Silos",
+    category: "Missiles",
+    minorCategory: "Silos",
     cost: 700_000,
     apply: (p) => {
       p.setVar(
@@ -418,7 +430,8 @@ export const techList: Tech[] = [
     name: "Secondary Launch Tube",
     description: "Silos: 2 tubes. Silo cost cap: $1.3M.",
     icon: "🚀",
-    category: "Silos",
+    category: "Missiles",
+    minorCategory: "Silos",
     cost: 1_200_000,
     apply: (p) => {
       p.setVar("missileSiloTubes", 2);
@@ -430,7 +443,8 @@ export const techList: Tech[] = [
     name: "Pneumatic Feed System",
     description: "Reload time -10%.",
     icon: "🔧",
-    category: "Silos",
+    category: "Missiles",
+    minorCategory: "Silos",
     cost: 1_700_000,
     apply: (p) => {
       p.setVar(
@@ -444,7 +458,8 @@ export const techList: Tech[] = [
     name: "Hardened Launch Bays",
     description: "Missile cost cap: $1.6M. Reload time -10%.",
     icon: "🏗️",
-    category: "Silos",
+    category: "Missiles",
+    minorCategory: "Silos",
     cost: 2_300_000,
     apply: (p) => {
       p.setVar("missileSiloMaxCost", 1_600_000);

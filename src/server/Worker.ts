@@ -11,6 +11,7 @@ import { z } from "zod/v4";
 import { GameEnv } from "../core/configuration/Config";
 import { getServerConfigFromServer } from "../core/configuration/ConfigLoader";
 import { GameType } from "../core/game/Game";
+import { UsernameSanitizer } from "../core/game/openlynerd/UsernameSanitizer";
 import {
   ClientMessageSchema,
   GameRecord,
@@ -377,6 +378,14 @@ export function startWorker() {
               clientMsg.flag,
               clientMsg.nerdToken,
             );
+
+            if (UsernameSanitizer.isProfane(clientMsg.username)) {
+              log.warn(
+                `Profane username attempt from ${ipAnonymize(ip)}: ${clientMsg.username}`,
+              );
+              ws.close(1008, "Profane username not allowed");
+              return;
+            }
 
             const wasFound = gm.addClient(
               client,

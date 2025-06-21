@@ -141,7 +141,7 @@ export class PlayerImpl implements Player {
     this._vars.set("hydrogenEvasion", 25);
     this._vars.set("radarRange", 200);
     this._vars.set("radarTargetingBonus", 10);
-    this._vars.set("powerPlantGoldGeneration", 100);
+    this._vars.set("powerPlantGoldGeneration", 250);
     this._vars.set("powerPlantMaxNumber", 3);
     this._vars.set("powerPlantMaterialGenerationRate", 1);
     this._vars.set("powerPlantMaterialGenerationMax", 10);
@@ -158,6 +158,7 @@ export class PlayerImpl implements Player {
     if (this.type() !== PlayerType.Bot)
       return {
         type: GameUpdateType.Player,
+        //vars: this._vars,
         clientID: this.clientID(),
         flag: this.flag(),
         name: this.name(),
@@ -170,6 +171,8 @@ export class PlayerImpl implements Player {
         isDisconnected: this.isDisconnected(),
         tilesOwned: this.numTilesOwned(),
         gold: this._gold,
+        goldAdded: this.mg.config().goldAdditionRate(this),
+        popAdded: this.mg.config().populationIncreaseRate(this),
         maxPopulation: this.mg.config().maxPopulation(this),
         population: this.population(),
         workers: this.workers(),

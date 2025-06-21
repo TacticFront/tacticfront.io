@@ -241,9 +241,7 @@ export class DefaultConfig implements Config {
   }
 
   metropolisPopulationIncrease(player: Player): number {
-    return player && typeof player.getVar === "function"
-      ? Number(player.getVar("metroGoldGen")) || 750_000
-      : 750_000;
+    return this.getSafeVar(player, "metroPop", 750_000);
   }
 
   falloutDefenseModifier(falloutRatio: number): number {
@@ -433,10 +431,10 @@ export class DefaultConfig implements Config {
             p.type() === PlayerType.Human && this.infiniteGold()
               ? 0
               : Math.min(
-                  2_500_000,
-                  (p.unitsIncludingConstruction(UnitType.PowerPlant).length +
-                    1) *
-                    500_000,
+                  1_500_000,
+                  300_000 +
+                    p.unitsIncludingConstruction(UnitType.PowerPlant).length *
+                      300_000,
                 ),
 
           territoryBound: true,
@@ -816,6 +814,26 @@ export class DefaultConfig implements Config {
     }
   }
 
+  private getSafeVar(
+    player: Player,
+    key: string,
+    defaultValue: number,
+  ): number {
+    if (!player || typeof player.getVar !== "function") {
+      console.warn("[getSafeVar] player or getVar missing!", {
+        player,
+        key,
+        defaultValue,
+      });
+      return 7000;
+    }
+    const value = player.getVar(key);
+    if (typeof value === "number" && !isNaN(value)) {
+      return value;
+    }
+    return defaultValue;
+  }
+
   populationIncreaseRate(player: Player): number {
     // const max = this.maxPopulation(player);
 
@@ -866,35 +884,21 @@ export class DefaultConfig implements Config {
 
     const workers = Number(player.workers() ?? 0);
     const populationGold = 0.025 * Math.pow(workers, 0.88);
-    const cityGold = Number(player.units(UnitType.City)?.length ?? 0) * 50;
-    const metroCount = Number(player.units(UnitType.Metropolis)?.length ?? 0);
-    const metroGen = Number(player.getVar("metroGoldGen") ?? 0);
-    const metroGold = metroCount * metroGen;
-    const portGold = Number(player.units(UnitType.Port)?.length ?? 0) * 30;
+    const cityGold = player.units(UnitType.City)?.length * 50;
+    const metroGold =
+      player.units(UnitType.Metropolis).length *
+      this.getSafeVar(player, "metroGoldGen", 150);
+    const powerPlantGold =
+      Math.min(
+        player.units(UnitType.PowerPlant)?.length,
+        this.getSafeVar(player, "powerPlantMaxNumber", 3),
+      ) * this.getSafeVar(player, "powerPlantGoldGeneration", 100);
+    const portGold = player.units(UnitType.Port)?.length * 30;
 
     const troopWages =
       (Number(player.offensiveTroops() ?? 0) * 0.004 +
         Number(player.troops() ?? 0) * 0.002) *
       (player.type() === PlayerType.Bot ? 0.5 : 1);
-
-    const ppGen =
-      Number(
-        player && typeof player.getVar === "function"
-          ? player.getVar("powerPlantGoldGeneration")
-          : 1,
-      ) || 1;
-
-    const ppMax =
-      Number(
-        player && typeof player.getVar === "function"
-          ? player.getVar("powerPlantMaxNumber")
-          : 0,
-      ) || 0;
-
-    const powerPlantCount = Number(
-      player.units(UnitType.PowerPlant)?.length ?? 0,
-    );
-    const powerPlantGold = Math.min(powerPlantCount, ppMax) * ppGen;
 
     let totalGoldRaw =
       populationGold +
@@ -909,7 +913,7 @@ export class DefaultConfig implements Config {
   }
 
   troopAdjustmentRate(player: Player): number {
-    const maxDiff = this.maxPopulation(player) / 1800;
+    const maxDiff = this.maxPopulation(player) / 2000;
     const target = player.population() * player.targetTroopRatio();
     const diff = target - (player.troops() + player.offensiveTroops());
     if (Math.abs(diff) < maxDiff) {

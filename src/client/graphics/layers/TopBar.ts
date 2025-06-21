@@ -50,9 +50,9 @@ export class TopBar extends LitElement implements Layer {
       return html``;
     }
 
-    const popRate = this.game.config().populationIncreaseRate(myPlayer) * 8;
+    const popRate = this.game.myPlayer()?.popAdded() || 0 * 8;
     const maxPop = this.game?.myPlayer()?.maxPopulation() || 25_000;
-    const goldPerSecond = this.game.config().goldAdditionRate(myPlayer) * 8;
+    const goldPerSecond = this.game.myPlayer()?.goldAdded() || 0 * 8;
 
     return html`
       <div

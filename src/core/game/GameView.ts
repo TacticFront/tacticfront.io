@@ -246,6 +246,14 @@ export class PlayerView {
     return this.data.gold;
   }
 
+  goldAdded(): Gold {
+    return this.data.goldAdded || 0;
+  }
+
+  popAdded(): number {
+    return this.data.popAdded || 0;
+  }
+
   maxPopulation(): number {
     return this.data.maxPopulation || 0;
   }

@@ -103,6 +103,7 @@ export interface AttackUpdate {
 
 export interface PlayerUpdate {
   type: GameUpdateType.Player;
+  vars?: Map<string, string | number | boolean | null>;
   nameViewData?: NameViewData;
   clientID?: ClientID | null;
   flag: string | undefined;
@@ -116,6 +117,8 @@ export interface PlayerUpdate {
   isDisconnected?: boolean;
   tilesOwned: number;
   gold: Gold;
+  goldAdded?: Gold;
+  popAdded?: number;
   maxPopulation: number;
   population: number;
   workers: number;

@@ -3,8 +3,10 @@
 import { LitElement, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { v4 as uuidv4 } from "uuid";
+import { boolean } from "zod/v4";
 import { translateText } from "../client/Utils";
 import { UserSettings } from "../core/game/UserSettings";
+import { UsernameSanitizer } from "../core/game/openlynerd/UsernameSanitizer";
 import {
   MAX_USERNAME_LENGTH,
   validateUsername,
@@ -16,6 +18,8 @@ const usernameKey: string = "username";
 export class UsernameInput extends LitElement {
   @state() private username: string = "";
   @property({ type: String }) validationError: string = "";
+  @property({ type: boolean }) idiotDetected: string = "";
+
   private _isValid: boolean = true;
   private userSettings: UserSettings = new UserSettings();
 
@@ -128,6 +132,15 @@ export class UsernameInput extends LitElement {
     this.username = input.value.trim();
     const result = validateUsername(this.username);
     this._isValid = result.isValid;
+
+    if (this.username && UsernameSanitizer.isProfane(this.username)) {
+      this.username = UsernameSanitizer.sanitize(this.username); // Reset to a new username if profane
+      setTimeout(() => {
+        this.validationError =
+          "Error: Your Father did not apply Proverbs 13:24 enough probably because he never came back from getting the milk."; // or null, or "" depending on your codebase
+      }, 2000);
+    }
+
     if (result.isValid) {
       this.storeUsername(this.username);
       this.validationError = "";

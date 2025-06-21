@@ -1,6 +1,6 @@
 // src/core/configuration/DevConfig.ts
 
-import { Gold, Player, UnitInfo, UnitType } from "../game/Game";
+import { UnitInfo, UnitType } from "../game/Game";
 import { UserSettings } from "../game/UserSettings";
 import { GameConfig } from "../Schemas";
 import { GameEnv, ServerConfig } from "./Config";
@@ -64,25 +64,25 @@ export class DevConfig extends DefaultConfig {
     return info;
   }
 
-  goldAdditionRate(player: Player): Gold {
-    let populationGold = 0;
+  // goldAdditionRate(player: Player): Gold {
+  //   let populationGold = 0;
 
-    if (player.type() === "HUMAN") {
-      populationGold = 2 * player.workers() ** 0.8; // .045
-    } else {
-      populationGold = 0.1 * player.workers() ** 0.8; // .045
-    }
+  //   if (player.type() === "HUMAN") {
+  //     populationGold = 2 * player.workers() ** 0.8; // .045
+  //   } else {
+  //     populationGold = 0.1 * player.workers() ** 0.8; // .045
+  //   }
 
-    const cityGold = player.units(UnitType.City).length * 50;
-    const portGold = player.units(UnitType.Port).length * 30;
-    const powerPlantGold = player.units(UnitType.PowerPlant).length * 80;
+  //   const cityGold = player.units(UnitType.City).length * 50;
+  //   const portGold = player.units(UnitType.Port).length * 30;
+  //   const powerPlantGold = player.units(UnitType.PowerPlant).length * 80;
 
-    const totalGold = Math.floor(
-      populationGold + cityGold + portGold + powerPlantGold,
-    );
+  //   const totalGold = Math.floor(
+  //     populationGold + cityGold + portGold + powerPlantGold,
+  //   );
 
-    return totalGold;
-  }
+  //   return totalGold;
+  // }
 
   // tradeShipSpawnRate(): number {
   //   return 10;
