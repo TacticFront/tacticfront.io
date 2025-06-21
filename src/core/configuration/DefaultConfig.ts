@@ -869,7 +869,7 @@ export class DefaultConfig implements Config {
     const metroGold = (player.units(UnitType.Metropolis)?.length || 0) * 250;
     const portGold = (player.units(UnitType.Port)?.length || 0) * 30;
     const troopWages =
-      (player.offensiveTroops() * 0.02 + player.troops() * 0.01) *
+      (player.offensiveTroops() * 0.01 + player.troops() * 0.005) *
       (player.type() === PlayerType.Bot ? 0.5 : 1);
 
     const ppGen =
