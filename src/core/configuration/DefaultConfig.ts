@@ -142,7 +142,7 @@ export abstract class DefaultServerConfig implements ServerConfig {
   }
 
   gameCreationRate(): number {
-    return 120 * 1000;
+    return 90 * 1000;
   }
 
   lobbyMaxPlayers(
