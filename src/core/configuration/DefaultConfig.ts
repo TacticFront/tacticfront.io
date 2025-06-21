@@ -833,7 +833,7 @@ export class DefaultConfig implements Config {
     const totalPop = player.population();
 
     const slowdownExp = 1.3; // 1 = linear, 2 = very sharp, try 1.3–1.8
-    const ratio = 1 - totalPop / max;
+    const ratio = Math.max(0.01, 1 - totalPop / max);
     toAdd *= Math.pow(ratio, slowdownExp);
 
     if (player.type() === PlayerType.Bot) {
