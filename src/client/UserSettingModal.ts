@@ -301,7 +301,7 @@ export class UserSettingModal extends LitElement {
         description="${translateText("user_setting.troop_ratio_desc")}"
         min="1"
         max="100"
-        .value=${Number(localStorage.getItem("settings.troopRatio") ?? "0.7") *
+        .value=${Number(localStorage.getItem("settings.troopRatio") ?? "0.6") *
         100}
         @change=${this.sliderTroopRatio}
       ></setting-slider>
