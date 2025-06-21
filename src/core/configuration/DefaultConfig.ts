@@ -877,11 +877,13 @@ export class DefaultConfig implements Config {
         ? Number(player.getVar("powerPlantGoldGeneration")) || 1
         : 1;
 
-    const powerPlantGold =
-      Math.min(
-        player.units(UnitType.PowerPlant)?.length || 0,
-        player.getVar("powerPlantMaxNumber"),
-      ) * ppGen;
+    const ppMax =
+      player && typeof player.getVar === "function"
+        ? Number(player.getVar("powerPlantMaxNumber")) || 0
+        : 0;
+
+    const powerPlantCount = player.units(UnitType.PowerPlant)?.length || 0;
+    const powerPlantGold = Math.min(powerPlantCount, ppMax) * ppGen;
 
     let totalGoldRaw =
       populationGold +
