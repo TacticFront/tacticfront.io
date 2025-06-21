@@ -117,6 +117,7 @@ export interface Config {
   proximityBonusPortsNb(totalPorts: number): number;
   maxPopulation(player: Player | PlayerView): number;
   cityPopulationIncrease(): number;
+  metropolisPopulationIncrease(player: Player): number;
   boatAttackAmount(attacker: Player, defender: Player | TerraNullius): number;
   shellLifetime(): number;
   boatMaxNumber(player: Player): number;

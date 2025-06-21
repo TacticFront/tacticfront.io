@@ -149,7 +149,7 @@ export class NukeExecution implements Execution {
             MessageType.ERROR,
             target.id(),
           );
-          this.breakAlliances(this.tilesToDestroy());
+          //this.breakAlliances(this.tilesToDestroy());
         } else if (this.type === UnitType.AtomBomb) {
           this.mg.displayIncomingUnit(
             this.nuke.id(),
@@ -157,7 +157,7 @@ export class NukeExecution implements Execution {
             MessageType.ERROR,
             target.id(),
           );
-          this.breakAlliances(this.tilesToDestroy());
+          //this.breakAlliances(this.tilesToDestroy());
         } else if (this.type === UnitType.HydrogenBomb) {
           this.mg.displayIncomingUnit(
             this.nuke.id(),

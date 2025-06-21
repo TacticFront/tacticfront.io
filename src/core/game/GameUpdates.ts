@@ -116,6 +116,7 @@ export interface PlayerUpdate {
   isDisconnected?: boolean;
   tilesOwned: number;
   gold: Gold;
+  maxPopulation: number;
   population: number;
   workers: number;
   troops: number;

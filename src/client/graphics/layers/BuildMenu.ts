@@ -140,7 +140,7 @@ const buildTable: BuildItemDisplay[][] = [
       icon: cityIcon,
       description: "build_menu.desc.metropolis",
       key: "unit_type.metropolis",
-      minTechLevel: 4,
+      minTechLevel: 2,
       countable: true,
     },
     {

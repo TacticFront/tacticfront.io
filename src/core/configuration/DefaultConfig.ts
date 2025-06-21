@@ -20,7 +20,6 @@ import {
   UnitType,
 } from "../game/Game";
 import { TileRef } from "../game/GameMap";
-import { PlayerView } from "../game/GameView";
 import { UserSettings } from "../game/UserSettings";
 import { GameConfig, GameID } from "../Schemas";
 import { NukeType } from "../StatsSchemas";
@@ -241,8 +240,10 @@ export class DefaultConfig implements Config {
     return 250_000;
   }
 
-  metropolisPopulationIncrease(): number {
-    return 1_250_000;
+  metropolisPopulationIncrease(player: Player): number {
+    return player && typeof player.getVar === "function"
+      ? Number(player.getVar("metroGoldGen")) || 750_000
+      : 750_000;
   }
 
   falloutDefenseModifier(falloutRatio: number): number {
@@ -508,7 +509,7 @@ export class DefaultConfig implements Config {
             p.type() === PlayerType.Human && this.infiniteGold()
               ? 0
               : Math.min(
-                  5_000_000,
+                  p.getVar("metrosMaxCost") ?? 4_000_000,
                   (p.unitsIncludingConstruction(UnitType.Metropolis).length +
                     1) *
                     500_000 +
@@ -786,14 +787,14 @@ export class DefaultConfig implements Config {
     return this.infiniteTroops() ? 1_000_000 : 20_000;
   }
 
-  maxPopulation(player: Player | PlayerView): number {
+  maxPopulation(player: Player): number {
     const maxPop =
       player.type() === PlayerType.Human && this.infiniteTroops()
         ? 1_000_000_000
         : 2 * (Math.pow(player.numTilesOwned(), 0.6) * 1000 + 50000) +
           player.units(UnitType.City).length * this.cityPopulationIncrease() +
           player.units(UnitType.Metropolis).length *
-            this.metropolisPopulationIncrease();
+            this.metropolisPopulationIncrease(player);
 
     if (player.type() === PlayerType.Bot) {
       return maxPop / 2;
@@ -866,7 +867,11 @@ export class DefaultConfig implements Config {
     const workers = Number(player.workers()) || 0;
     const populationGold = 0.025 * Math.pow(workers, 0.88);
     const cityGold = (player.units(UnitType.City)?.length || 0) * 50;
-    const metroGold = (player.units(UnitType.Metropolis)?.length || 0) * 250;
+    const metroGold =
+      player.units(UnitType.Metropolis)?.length *
+        player.getVar("metroGoldGen") ||
+      0 ||
+      0;
     const portGold = (player.units(UnitType.Port)?.length || 0) * 30;
     const troopWages =
       (player.offensiveTroops() * 0.004 + player.troops() * 0.002) *

@@ -133,6 +133,9 @@ export class PlayerImpl implements Player {
     this._vars.set("missileSiloTubes", 1);
     this._vars.set("missileSiloTubeRegenTime", 240);
     this._vars.set("missileSiloMaxCost", 1_000_000);
+    this._vars.set("metroPop", 750_000);
+    this._vars.set("metroGoldGen", 150);
+    this._vars.set("metrosMaxCost", 4_000_000);
     this._vars.set("cruiseEvasion", 15);
     this._vars.set("atomEvasion", 35);
     this._vars.set("hydrogenEvasion", 25);
@@ -167,6 +170,7 @@ export class PlayerImpl implements Player {
         isDisconnected: this.isDisconnected(),
         tilesOwned: this.numTilesOwned(),
         gold: this._gold,
+        maxPopulation: this.mg.config().maxPopulation(this),
         population: this.population(),
         workers: this.workers(),
         troops: this.troops(),
@@ -215,6 +219,7 @@ export class PlayerImpl implements Player {
       smallID: this.smallID(),
       tilesOwned: this.numTilesOwned(),
       gold: this._gold,
+      maxPopulation: this.mg.config().maxPopulation(this),
       population: this.population(),
       workers: this.workers(),
       troops: this.troops(),

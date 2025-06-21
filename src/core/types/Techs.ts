@@ -137,10 +137,63 @@ export const techList: Tech[] = [
     icon: "🏙️",
     category: "Civilian",
     minorCategory: "Cities",
-    cost: 2_500_000,
+    cost: 2_000_000,
     apply: (p) => {},
   },
-
+  {
+    id: "metro_bonus_1",
+    name: "Urban Planning Bureau",
+    description:
+      "Metro population cap +25k and gold income +50. Cost Cap +$1M.",
+    icon: "🏢",
+    category: "Civilian",
+    minorCategory: "Cities",
+    cost: 2_500_000,
+    apply: (p) => {
+      p.setVar("metroPop", (p.getVar("metroPop") ?? 750_000) + 250_000);
+      p.setVar("metroGoldGen", (p.getVar("metroGoldGen") ?? 150) + 50);
+      p.setVar(
+        "metrosMaxCost",
+        (p.getVar("metrosMaxCost") ?? 4_000_000) + 1_000_000,
+      );
+    },
+  },
+  {
+    id: "metro_bonus_2",
+    name: "Next-Gen Infrastructure",
+    description:
+      "Metro population cap +35k and gold income +60. Cost Cap +$1M.",
+    icon: "🏗️",
+    category: "Civilian",
+    minorCategory: "Cities",
+    cost: 3_200_000,
+    apply: (p) => {
+      p.setVar("metroPop", (p.getVar("metroPop") ?? 750_000) + 350_000);
+      p.setVar("metroGoldGen", (p.getVar("metroGoldGen") ?? 150) + 60);
+      p.setVar(
+        "metrosMaxCost",
+        (p.getVar("metrosMaxCost") ?? 4_000_000) + 1_000_000,
+      );
+    },
+  },
+  {
+    id: "metro_bonus_3",
+    name: "Automated Districts",
+    description:
+      "Metro population cap +50k and gold income +80. Cost Cap +$1M.",
+    icon: "🤖",
+    category: "Civilian",
+    minorCategory: "Cities",
+    cost: 4_000_000,
+    apply: (p) => {
+      p.setVar("metroPop", (p.getVar("metroPop") ?? 750_000) + 500_000);
+      p.setVar("metroGoldGen", (p.getVar("metroGoldGen") ?? 150) + 80);
+      p.setVar(
+        "metrosMaxCost",
+        (p.getVar("metrosMaxCost") ?? 4_000_000) + 1_000_000,
+      );
+    },
+  },
   // Radar Techs
   {
     id: "radarRange1",
@@ -228,14 +281,14 @@ export const techList: Tech[] = [
   {
     id: "powerPlant1",
     name: "High-Efficiency Turbines",
-    description: "Gold +400 per plant.",
+    description: "Gold +1000 per plant.",
     icon: "⚡",
     category: "Power",
     cost: 900_000,
     apply: (p) => {
       p.setVar(
         "powerPlantGoldGeneration",
-        p.getVar("powerPlantGoldGeneration") + 50,
+        p.getVar("powerPlantGoldGeneration") + 125,
       );
     },
   },
@@ -257,14 +310,14 @@ export const techList: Tech[] = [
   {
     id: "powerPlant3",
     name: "Advanced Power Cycle",
-    description: "Gold +600, materials +1/cycle per plant.",
+    description: "Gold +1500, materials +1/cycle per plant.",
     icon: "💡",
     category: "Power",
     cost: 2_000_000,
     apply: (p) => {
       p.setVar(
         "powerPlantGoldGeneration",
-        p.getVar("powerPlantGoldGeneration") + 80,
+        p.getVar("powerPlantGoldGeneration") + 188,
       );
       p.setVar(
         "powerPlantMaterialGenerationRate",
