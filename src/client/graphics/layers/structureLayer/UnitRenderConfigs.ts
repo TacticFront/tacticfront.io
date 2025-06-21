@@ -12,6 +12,7 @@ import MissileSiloReloadingIcon from "../../../../../resources/images/buildings/
 import missileSiloIcon from "../../../../../resources/images/buildings/silo1.png";
 import SAMMissileReloadingIcon from "../../../../../resources/images/buildings/silo4-reloading.png";
 import SAMMissileIcon from "../../../../../resources/images/buildings/silo4.png";
+import townIcon from "../../../../../resources/images/buildings/town.png";
 
 import { UnitType } from "../../../../core/game/Game";
 
@@ -37,6 +38,12 @@ export const unitConfigs: Partial<Record<UnitType, UnitRenderConfig>> = {
     borderType: UnitBorderType.Round,
   },
   [UnitType.City]: {
+    icon: townIcon,
+    borderRadius: 8.525,
+    territoryRadius: 6.525,
+    borderType: UnitBorderType.Round,
+  },
+  [UnitType.Metropolis]: {
     icon: cityIcon,
     borderRadius: 8.525,
     territoryRadius: 6.525,

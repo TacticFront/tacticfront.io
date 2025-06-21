@@ -861,6 +861,15 @@ export class PlayerImpl implements Player {
     return unit;
   }
 
+  public hasRequiredTechs(unitType: UnitType): boolean {
+    switch (unitType) {
+      case UnitType.Metropolis:
+        return this._unlockedTechnologies.has("metros");
+      default:
+        return true;
+    }
+  }
+
   public buildableUnits(tile: TileRef): BuildableUnit[] {
     const validTiles = this.validStructureSpawnTiles(tile);
     return Object.values(UnitType).map((u) => {
@@ -887,6 +896,11 @@ export class PlayerImpl implements Player {
     if (!this.isAlive() || this.gold() < cost) {
       return false;
     }
+
+    if (this.hasRequiredTechs(unitType) === false) {
+      return false;
+    }
+
     switch (unitType) {
       case UnitType.MIRV:
         if (!this.mg.hasOwner(targetTile)) {
@@ -916,6 +930,7 @@ export class PlayerImpl implements Player {
       case UnitType.SAMLauncher:
       case UnitType.Radar:
       case UnitType.City:
+      case UnitType.Metropolis:
       case UnitType.ResearchLab:
       case UnitType.PowerPlant:
       case UnitType.Hospital:

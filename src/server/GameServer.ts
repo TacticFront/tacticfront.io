@@ -669,7 +669,7 @@ export class GameServer {
 
       if (this.lastDesyncTime.has(c.clientID)) {
         const lastDesyncTurn = this.lastDesyncTime.get(c.clientID)!;
-        if (lastDesyncTurn === this.turns.length - 10) {
+        if (lastDesyncTurn === this.turns.length - 100) {
           this.log.info("last desync turn for client", {
             gameID: this.id,
             clientID: c.clientID,

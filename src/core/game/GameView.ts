@@ -265,6 +265,10 @@ export class PlayerView {
     return this.data.techLevel || 0;
   }
 
+  unlockedTechnologies(): Set<string> {
+    return this.data.unlockedTechnologies || new Set<string>();
+  }
+
   reserveRatio(): number {
     return this.data.reserveTroopRatio;
   }

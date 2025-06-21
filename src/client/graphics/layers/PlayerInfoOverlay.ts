@@ -248,6 +248,10 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
           ${player.units(UnitType.City).length}
         </div>
         <div class="text-sm opacity-80" translate="no">
+          ${translateText("player_info_overlay.metros")}:
+          ${player.units(UnitType.Metropolis).length}
+        </div>
+        <div class="text-sm opacity-80" translate="no">
           ${translateText("player_info_overlay.missile_launchers")}:
           ${player.units(UnitType.MissileSilo).length}
         </div>
@@ -270,6 +274,10 @@ export class PlayerInfoOverlay extends LitElement implements Layer {
         <div class="text-sm opacity-80" translate="no">
           ${translateText("player_info_overlay.tech_level")}:
           ${player.techLevel()}
+        </div>
+        <div class="text-sm opacity-80" translate="no">
+          ${translateText("player_info_overlay.unlocked_techs")}:
+          ${player.unlockedTechnologies().size}
         </div>
         <div class="text-sm opacity-80" translate="no">
           Tiles: ${player.numTilesOwned()}

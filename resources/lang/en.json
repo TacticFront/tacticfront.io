@@ -87,6 +87,8 @@
     "build_desc": "Description",
     "build_city": "City",
     "build_city_desc": "Increases your max population. Useful when you can't expand your territory or you're about to hit your population limit.",
+    "build_metro": "Metropolis",
+    "build_metro_desc": "Vastly increases your max population. Useful when you can't expand your territory or you're about to hit your population limit.",
     "build_defense": "Defense Post",
     "build_defense_desc": "Increases defenses around nearby borders, which show a checkered pattern. Attacks from enemies are slower and have more casualties.",
     "build_port": "Port",
@@ -233,6 +235,7 @@
   },
   "unit_type": {
     "city": "City",
+    "metropolis": "Metropolis",
     "defense_post": "Defense Post",
     "port": "Port",
     "warship": "Warship",
@@ -377,6 +380,7 @@
       "port": "Active trade ships and passive gold production",
       "defense_post": "Increase defenses of nearby borders",
       "city": "Increase max population and passive gold",
+      "metropolis": "Vastly increase max population and passive gold",
       "cruise_missile": "Damages then destroys military buildings",
       "research_lab": "Unlocks new tech levels",
       "power_plant": "Unlocks Nukes and passive gold production",
@@ -417,6 +421,7 @@
     "gold": "Gold",
     "ports": "Ports",
     "cities": "Cities",
+    "metros": "Metros",
     "missile_launchers": "Missile launchers",
     "sams": "SAMs",
     "warships": "Warships",
@@ -424,7 +429,8 @@
     "attitude": "Attitude",
     "tech_level": "Tech Level",
     "power_plants": "Power Plants",
-    "hospitals": "Hospitals"
+    "hospitals": "Hospitals",
+    "unlocked_techs": "Unlocked Techs"
   },
   "relation": {
     "hostile": "Hostile",

@@ -241,6 +241,10 @@ export class DefaultConfig implements Config {
     return 250_000;
   }
 
+  metropolisPopulationIncrease(): number {
+    return 1_250_000;
+  }
+
   falloutDefenseModifier(falloutRatio: number): number {
     // falloutRatio is between 0 and 1
     // So defense modifier is between [5, 2.5]
@@ -498,17 +502,31 @@ export class DefaultConfig implements Config {
           territoryBound: true,
           constructionDuration: this.instantBuild() ? 0 : 25 * this._tps,
         };
+      case UnitType.Metropolis:
+        return {
+          cost: (p: Player) =>
+            p.type() === PlayerType.Human && this.infiniteGold()
+              ? 0
+              : Math.min(
+                  5_000_000,
+                  (p.unitsIncludingConstruction(UnitType.Metropolis).length +
+                    1) *
+                    500_000 +
+                    2_500_000,
+                ),
+
+          territoryBound: true,
+          constructionDuration: this.instantBuild() ? 0 : 25 * this._tps,
+        };
       case UnitType.City:
         return {
           cost: (p: Player) =>
             p.type() === PlayerType.Human && this.infiniteGold()
               ? 0
               : Math.min(
-                  1_000_000,
-                  Math.pow(
-                    2,
-                    p.unitsIncludingConstruction(UnitType.City).length,
-                  ) * 125_000,
+                  1_500_000,
+                  (p.unitsIncludingConstruction(UnitType.City).length + 1) *
+                    125_000,
                 ),
 
           territoryBound: true,
@@ -773,7 +791,9 @@ export class DefaultConfig implements Config {
       player.type() === PlayerType.Human && this.infiniteTroops()
         ? 1_000_000_000
         : 2 * (Math.pow(player.numTilesOwned(), 0.6) * 1000 + 50000) +
-          player.units(UnitType.City).length * this.cityPopulationIncrease();
+          player.units(UnitType.City).length * this.cityPopulationIncrease() +
+          player.units(UnitType.Metropolis).length *
+            this.metropolisPopulationIncrease();
 
     if (player.type() === PlayerType.Bot) {
       return maxPop / 2;
@@ -811,8 +831,10 @@ export class DefaultConfig implements Config {
     const reproductionPop = 0.8 * player.troops() + 1.1 * player.workers();
     let toAdd = baseAdditionRate + basePopGrowthRate * reproductionPop;
     const totalPop = player.population();
+
+    const slowdownExp = 1.3; // 1 = linear, 2 = very sharp, try 1.3–1.8
     const ratio = 1 - totalPop / max;
-    toAdd *= ratio;
+    toAdd *= Math.pow(ratio, slowdownExp);
 
     if (player.type() === PlayerType.Bot) {
       toAdd *= 0.7;
@@ -842,9 +864,13 @@ export class DefaultConfig implements Config {
     if (!player) return 0;
 
     const workers = Number(player.workers()) || 0;
-    const populationGold = 0.025 * Math.pow(workers, 0.87);
+    const populationGold = 0.025 * Math.pow(workers, 0.89);
     const cityGold = (player.units(UnitType.City)?.length || 0) * 50;
+    const metroGold = (player.units(UnitType.Metropolis)?.length || 0) * 250;
     const portGold = (player.units(UnitType.Port)?.length || 0) * 30;
+    const troopWages =
+      (player.offensiveTroops() * 0.02 + player.troops() * 0.01) *
+      (player.type() === PlayerType.Bot ? 0.5 : 1);
 
     const ppGen =
       player && typeof player.getVar === "function"
@@ -852,12 +878,21 @@ export class DefaultConfig implements Config {
         : 1;
 
     const powerPlantGold =
-      (player.units(UnitType.PowerPlant)?.length || 0) * ppGen;
+      Math.min(
+        player.units(UnitType.PowerPlant)?.length || 0,
+        player.getVar("powerPlantMaxNumber"),
+      ) * ppGen;
 
-    let totalGoldRaw = populationGold + cityGold + portGold + powerPlantGold;
+    let totalGoldRaw =
+      populationGold +
+      cityGold +
+      metroGold +
+      portGold +
+      powerPlantGold -
+      troopWages;
     if (!isFinite(totalGoldRaw)) totalGoldRaw = 0;
 
-    return Math.floor(totalGoldRaw);
+    return Math.max(Math.floor(totalGoldRaw), 0);
   }
 
   troopAdjustmentRate(player: Player): number {

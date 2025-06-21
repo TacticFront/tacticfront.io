@@ -104,21 +104,30 @@ export class ResearchMenu extends LitElement implements Layer {
       border-bottom: 3px solid #f8d162;
       z-index: 1;
     }
+    .minor-row-label {
+      width: 100%;
+      color: #97dfff;
+      font-size: 1.08em;
+      margin-top: 10px;
+      margin-bottom: 2px;
+      font-weight: bold;
+      text-align: left;
+      padding-left: 6px;
+    }
     .tree-row {
-      display: flex;
-      flex-direction: row;
-      align-items: stretch;
-      justify-content: center;
-      gap: 0;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr); /* Exactly 4 cards per row */
+      gap: 18px; /* Set to your desired gap */
       width: 100%;
       margin-top: 8px;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      scrollbar-width: thin;
+      margin-bottom: 10px;
     }
+
     .tech-card-wrap {
       display: flex;
       align-items: center;
+      justify-content: center;
+      width: 100%;
     }
     .tech-connector {
       color: #444;
@@ -214,7 +223,6 @@ export class ResearchMenu extends LitElement implements Layer {
       box-shadow: 0 0 6px #ffd93b33;
       color: #fffbe8;
     }
-    /* Checkmark overlay for unlocked techs (optional) */
     .tech-card.unlocked::after {
       content: "✔";
       color: #30e070;
@@ -239,8 +247,9 @@ export class ResearchMenu extends LitElement implements Layer {
         overflow-x: auto;
       }
       .tech-card {
-        min-width: 130px;
-        max-width: 165px;
+        min-width: 0;
+        width: 100%;
+        max-width: 230px; /* optional, but can be removed */
         height: 158px;
         font-size: 13px;
         padding: 11px 7px 7px 7px;
@@ -255,6 +264,42 @@ export class ResearchMenu extends LitElement implements Layer {
         margin: 0 3px;
       }
     }
+
+    .rows-scroll {
+      max-height: 55vh; /* Adjust height as needed */
+      overflow-y: auto;
+      overflow-x: hidden;
+      width: 100%;
+      padding-right: 4px; /* for scrollbar */
+      margin-bottom: 6px;
+      /* Optionally: */
+      scrollbar-width: thin;
+      /* For Webkit browsers: */
+      /* Hide default scrollbar background, keep thumb visible */
+    }
+    .rows-scroll::-webkit-scrollbar {
+      width: 8px;
+    }
+    .rows-scroll::-webkit-scrollbar-thumb {
+      background: #333;
+      border-radius: 8px;
+    }
+
+    @media (max-width: 900px) {
+      .tree-row {
+        grid-template-columns: repeat(
+          2,
+          1fr
+        ); /* 2 per row on smaller screens */
+      }
+    }
+
+    @media (max-width: 600px) {
+      .tree-row {
+        grid-template-columns: 1fr; /* 1 per row on mobile */
+      }
+    }
+
     @media (max-width: 520px) {
       .tech-card {
         min-width: 96px;
@@ -296,20 +341,20 @@ export class ResearchMenu extends LitElement implements Layer {
     if (techIdx === 0) return true;
     return this.isUnlocked(row[techIdx - 1].id);
   }
-  private unlockTech(rowIdx: number, techIdx: number) {
-    const tech = this.researchTree[rowIdx][techIdx];
-    if (!this.canUnlock(this.researchTree[rowIdx], techIdx)) return;
+  private unlockTech(rowIdx: number, techIdx: number, row: Tech[]) {
+    const tech = row[techIdx];
+    if (!this.canUnlock(row, techIdx)) return;
     this.eventBus.emit(new SendUnlockTechIntentEvent(tech.id));
     setTimeout(() => this.requestUpdate(), 2000);
   }
   private get tabNames(): string[] {
-    return this.researchTree.map((row) => row[0]?.category || "Other");
+    return this.researchTree.map((cat) => cat.category || "Other");
   }
 
   render() {
     const categoryTabs = this.tabNames;
     const activeTab = this.activeTab;
-    const currentRow = this.researchTree[activeTab];
+    const currentTab = this.researchTree[activeTab];
 
     return html`
       <div class="research-menu ${this._hidden ? "hidden" : ""}">
@@ -328,49 +373,59 @@ export class ResearchMenu extends LitElement implements Layer {
               </div>`,
           )}
         </div>
-        <div class="tree-row">
-          ${currentRow.map((tech, techIdx) => {
-            const unlocked = this.isUnlocked(tech.id);
-            const canUnlock = this.canUnlock(currentRow, techIdx);
-            return html`
-              <div class="tech-card-wrap">
-                <button
-                  class="tech-card ${unlocked
-                    ? "unlocked"
-                    : canUnlock
-                      ? "can-unlock"
-                      : "locked"}"
-                  @click=${() => {
-                    if (!unlocked && canUnlock)
-                      this.unlockTech(activeTab, techIdx);
-                  }}
-                  ?disabled=${!canUnlock || unlocked}
-                  title=${unlocked
-                    ? "Already unlocked"
-                    : canUnlock
-                      ? "Unlock"
-                      : "Locked"}
-                >
-                  <span class="icon">${tech.icon}</span>
-                  <span class="name">${tech.name}</span>
-                  <span class="desc">${tech.description}</span>
-                  <span class="cost">
-                    ${renderNumber(tech.cost)}
-                    <img
-                      src=${goldCoinIcon}
-                      alt="gold"
-                      width="14"
-                      height="14"
-                      style="vertical-align: middle;"
-                    />
-                  </span>
-                </button>
-                ${techIdx < currentRow.length - 1
-                  ? html`<div class="tech-connector">–</div>`
+        <div class="tab-content">
+          <div class="rows-scroll">
+            ${currentTab.rows.map(
+              (rowObj) => html`
+                ${rowObj.minorCategory !== "General"
+                  ? html`<div class="minor-row-label">
+                      ${rowObj.minorCategory}
+                    </div>`
                   : ""}
-              </div>
-            `;
-          })}
+                <div class="tree-row">
+                  ${rowObj.techs.map((tech: Tech, techIdx: number) => {
+                    const unlocked = this.isUnlocked(tech.id);
+                    const canUnlock = this.canUnlock(rowObj.techs, techIdx);
+                    return html`
+                      <div class="tech-card-wrap">
+                        <button
+                          class="tech-card ${unlocked
+                            ? "unlocked"
+                            : canUnlock
+                              ? "can-unlock"
+                              : "locked"}"
+                          @click=${() => {
+                            if (!unlocked && canUnlock)
+                              this.unlockTech(activeTab, techIdx, rowObj.techs);
+                          }}
+                          ?disabled=${!canUnlock || unlocked}
+                          title=${unlocked
+                            ? "Already unlocked"
+                            : canUnlock
+                              ? "Unlock"
+                              : "Locked"}
+                        >
+                          <span class="icon">${tech.icon}</span>
+                          <span class="name">${tech.name}</span>
+                          <span class="desc">${tech.description}</span>
+                          <span class="cost">
+                            ${renderNumber(tech.cost)}
+                            <img
+                              src=${goldCoinIcon}
+                              alt="gold"
+                              width="14"
+                              height="14"
+                              style="vertical-align: middle;"
+                            />
+                          </span>
+                        </button>
+                      </div>
+                    `;
+                  })}
+                </div>
+              `,
+            )}
+          </div>
         </div>
       </div>
     `;

@@ -7,6 +7,7 @@ import barracksIcon from "../../../../resources/images/buildings/barracks.png";
 import hospitalIcon from "../../../../resources/images/buildings/hospital.png";
 import radarIcon from "../../../../resources/images/buildings/radar.png";
 import researchLabIcon from "../../../../resources/images/buildings/researchLab.png";
+import townIcon from "../../../../resources/images/buildings/town.png";
 import cityIcon from "../../../../resources/images/CityIconWhite.svg";
 import goldCoinIcon from "../../../../resources/images/GoldCoinIcon.svg";
 import mirvIcon from "../../../../resources/images/MIRVIcon.svg";
@@ -129,9 +130,17 @@ const buildTable: BuildItemDisplay[][] = [
     },
     {
       unitType: UnitType.City,
-      icon: cityIcon,
+      icon: townIcon,
       description: "build_menu.desc.city",
       key: "unit_type.city",
+      countable: true,
+    },
+    {
+      unitType: UnitType.Metropolis,
+      icon: cityIcon,
+      description: "build_menu.desc.metropolis",
+      key: "unit_type.metropolis",
+      minTechLevel: 4,
       countable: true,
     },
     {
@@ -381,6 +390,18 @@ export class BuildMenu extends LitElement implements Layer {
   @state()
   private _hidden = true;
 
+  public hasRequiredTechs(unitType: UnitType): boolean {
+    switch (unitType) {
+      case UnitType.Metropolis:
+        // Only allow if the player HAS the 'metros' tech
+        return (
+          this.game?.myPlayer()?.unlockedTechnologies().has("metros") || false
+        );
+      default:
+        return true;
+    }
+  }
+
   private getBuildError(item: BuildItemDisplay): string | null {
     if (!this.game?.myPlayer() || !this.playerActions) {
       return "Player not initialized";
@@ -404,6 +425,11 @@ export class BuildMenu extends LitElement implements Layer {
     if (this.game?.config()?.isUnitDisabled(item.unitType)) {
       return "Unit currently disabled";
     }
+
+    if (!this.hasRequiredTechs(item.unitType)) {
+      return "Requires specific technology";
+    }
+
     // Check buildable units for specific feedback
     const buildableUnits = this.playerActions.buildableUnits ?? [];
     const unit = buildableUnits.find((u) => u.type === item.unitType);
@@ -432,6 +458,10 @@ export class BuildMenu extends LitElement implements Layer {
       item?.minTechLevel &&
       (this.game?.myPlayer()?.techLevel() ?? 0) < item.minTechLevel
     ) {
+      return false;
+    }
+
+    if (!this.hasRequiredTechs(item.unitType)) {
       return false;
     }
 

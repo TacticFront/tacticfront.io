@@ -16,6 +16,7 @@ import { BarracksExecution } from "./BarracksExecution";
 import { CityExecution } from "./CityExecution";
 import { DefensePostExecution } from "./DefensePostExecution";
 import { HospitalExecution } from "./HospitalExecution";
+import { MetropolisExecution } from "./MetropolisExecution";
 import { MirvExecution } from "./MIRVExecution";
 import { MissileSiloExecution } from "./MissileSiloExecution";
 import { NukeExecution } from "./NukeExecution";
@@ -143,6 +144,9 @@ export class ConstructionExecution implements Execution {
         break;
       case UnitType.Hospital:
         this.mg.addExecution(new HospitalExecution(player.id(), this.tile));
+        break;
+      case UnitType.Metropolis:
+        this.mg.addExecution(new MetropolisExecution(player.id(), this.tile));
         break;
       case UnitType.City:
         this.mg.addExecution(new CityExecution(player.id(), this.tile));

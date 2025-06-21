@@ -9,6 +9,7 @@ export type Tech = {
   icon: string; // SVG path or emoji for now
   unlocked?: boolean;
   category: string;
+  minorCategory?: string;
   cost: number; // Add cost field (in gold)
   apply: (player: Player) => void;
 };
@@ -76,7 +77,8 @@ export const techList: Tech[] = [
     name: "Advanced Care Protocols",
     description: "Pop growth +2.5%. Troop recovery +2%. (Per Hospital).",
     icon: "🏥",
-    category: "Hospitals",
+    category: "Civilian",
+    minorCategory: "Hospitals",
     cost: 500_000,
     apply: (p) => {
       p.setVar("hospitalBonusPopulationGrowth", 2.5);
@@ -89,7 +91,8 @@ export const techList: Tech[] = [
     name: "Medical Supply Innovations",
     description: "Pop growth +3%. Troop recovery +2.5%. Max hospitals: 4.",
     icon: "💊",
-    category: "Hospitals",
+    category: "Civilian",
+    minorCategory: "Hospitals",
     cost: 1_200_000,
     apply: (p) => {
       p.setVar("hospitalBonusPopulationGrowth", 3);
@@ -100,9 +103,10 @@ export const techList: Tech[] = [
   {
     id: "hospitalBonus3",
     name: "Mobile Field Units",
-    description: "Pop growth +4%. Troop recovery +4%. Max hospitals: 5.",
+    description: "Pop growth +3.5%. Troop recovery +3%.",
     icon: "🚑",
-    category: "Hospitals",
+    category: "Civilian",
+    minorCategory: "Hospitals",
     cost: 2_000_000,
     apply: (p) => {
       p.setVar("hospitalBonusPopulationGrowth", 3.5);
@@ -113,10 +117,10 @@ export const techList: Tech[] = [
   {
     id: "hospitalBonus4",
     name: "Advanced Bio-Engineering",
-    description:
-      "Increase pop-growth bonus to 4% and troop trickleback to 4% per hospital; expand hospital cap to 5.",
+    description: "Pop growth +4%. Troop recovery +4%. Max hospitals: 5.",
     icon: "🧬",
-    category: "Hospitals",
+    category: "Civilian",
+    minorCategory: "Hospitals",
     cost: 4_000_000,
     apply: (p) => {
       p.setVar("hospitalBonusPopulationGrowth", 4);
@@ -124,6 +128,19 @@ export const techList: Tech[] = [
       p.setVar("hospitalMaxNumber", 5);
     },
   },
+  // Metro Tech
+  {
+    id: "metros",
+    name: "Metropolitan Design",
+    description:
+      "Unlocks Metropolises, massive cities with advanced infrastructure.",
+    icon: "🏙️",
+    category: "Civilian",
+    minorCategory: "Cities",
+    cost: 2_500_000,
+    apply: (p) => {},
+  },
+
   // Radar Techs
   {
     id: "radarRange1",
@@ -386,11 +403,23 @@ export const techList: Tech[] = [
   },
 ];
 
-export function groupTechsByCategoryForUI(techs: Tech[]): Tech[][] {
-  // Get all unique categories in the order they appear
+// Group techs by category, then by minorCategory (default "General")
+export function groupTechsByCategoryForUI(techs: Tech[]) {
   const categories = Array.from(new Set(techs.map((t) => t.category)));
-  // Map each category to its array (preserving original tech order)
-  return categories.map((cat) => techs.filter((t) => t.category === cat));
+  return categories.map((cat) => {
+    const items = techs.filter((t) => t.category === cat);
+    // group by minorCategory
+    const minorCats = Array.from(
+      new Set(items.map((t) => t.minorCategory || "General")),
+    );
+    return {
+      category: cat,
+      rows: minorCats.map((minCat) => ({
+        minorCategory: minCat,
+        techs: items.filter((t) => (t.minorCategory || "General") === minCat),
+      })),
+    };
+  });
 }
 
 export const researchTree = groupTechsByCategoryForUI(techList);

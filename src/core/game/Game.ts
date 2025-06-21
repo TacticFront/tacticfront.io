@@ -157,6 +157,7 @@ export enum UnitType {
   Hospital = "Hospital",
   Barracks = "Barracks",
   Radar = "Radar",
+  Metropolis = "Metropolis",
 }
 
 export interface OwnerComp {
@@ -214,6 +215,8 @@ export interface UnitParamsMap {
   [UnitType.Radar]: {};
 
   [UnitType.City]: {};
+
+  [UnitType.Metropolis]: {};
 
   [UnitType.MIRV]: {};
 
