@@ -137,7 +137,7 @@ export class UsernameInput extends LitElement {
       this.username = UsernameSanitizer.sanitize(this.username); // Reset to a new username if profane
       setTimeout(() => {
         this.validationError =
-          "Error: Your Father did not apply Proverbs 13:24 enough probably because he never came back from getting the milk."; // or null, or "" depending on your codebase
+          "Your username contains inappropriate or prohibited language."; // or null, or "" depending on your codebase
       }, 2000);
     }
 

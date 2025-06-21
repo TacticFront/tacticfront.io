@@ -57,6 +57,6 @@ export class UsernameSanitizer {
   }
 
   private static anonName(): string {
-    return `Fatherless Behaviour${Math.floor(1000 + Math.random() * 9000)}`;
+    return `TOSViolator${Math.floor(1000 + Math.random() * 9000)}`;
   }
 }
