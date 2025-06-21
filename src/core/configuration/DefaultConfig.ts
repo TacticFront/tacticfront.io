@@ -864,28 +864,36 @@ export class DefaultConfig implements Config {
   goldAdditionRate(player: Player): Gold {
     if (!player) return 0;
 
-    const workers = Number(player.workers()) || 0;
+    const workers = Number(player.workers() ?? 0);
     const populationGold = 0.025 * Math.pow(workers, 0.88);
-    const cityGold = (player.units(UnitType.City)?.length || 0) * 50;
-    const metroCount = Number(player.units(UnitType.Metropolis)?.length) || 0;
-    const metroGen = Number(player.getVar("metroGoldGen")) || 0;
+    const cityGold = Number(player.units(UnitType.City)?.length ?? 0) * 50;
+    const metroCount = Number(player.units(UnitType.Metropolis)?.length ?? 0);
+    const metroGen = Number(player.getVar("metroGoldGen") ?? 0);
     const metroGold = metroCount * metroGen;
-    const portGold = (player.units(UnitType.Port)?.length || 0) * 30;
+    const portGold = Number(player.units(UnitType.Port)?.length ?? 0) * 30;
+
     const troopWages =
-      (player.offensiveTroops() * 0.004 + player.troops() * 0.002) *
+      (Number(player.offensiveTroops() ?? 0) * 0.004 +
+        Number(player.troops() ?? 0) * 0.002) *
       (player.type() === PlayerType.Bot ? 0.5 : 1);
 
     const ppGen =
-      player && typeof player.getVar === "function"
-        ? Number(player.getVar("powerPlantGoldGeneration")) || 1
-        : 1;
+      Number(
+        player && typeof player.getVar === "function"
+          ? player.getVar("powerPlantGoldGeneration")
+          : 1,
+      ) || 1;
 
     const ppMax =
-      player && typeof player.getVar === "function"
-        ? Number(player.getVar("powerPlantMaxNumber")) || 0
-        : 0;
+      Number(
+        player && typeof player.getVar === "function"
+          ? player.getVar("powerPlantMaxNumber")
+          : 0,
+      ) || 0;
 
-    const powerPlantCount = player.units(UnitType.PowerPlant)?.length || 0;
+    const powerPlantCount = Number(
+      player.units(UnitType.PowerPlant)?.length ?? 0,
+    );
     const powerPlantGold = Math.min(powerPlantCount, ppMax) * ppGen;
 
     let totalGoldRaw =
