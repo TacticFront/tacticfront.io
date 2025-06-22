@@ -212,8 +212,8 @@ export class PlayerImpl implements Player {
         ...(this.outgoingEmojis().length > 0 && {
           outgoingEmojis: this.outgoingEmojis(),
         }),
-        ...(oa.length > 0 && { outgoingAttacks: oa }),
-        ...(ia.length > 0 && { incomingAttacks: ia }),
+        ...(oa.length > 0 && { oa: oa }),
+        ...(ia.length > 0 && { ia: ia }),
         ...(targets.length > 0 && { targets }),
         ...(outgoingAllianceRequests.length > 0 && {
           outgoingAllianceRequests,
