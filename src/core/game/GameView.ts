@@ -84,7 +84,7 @@ export class UnitView {
     if (this.type() !== UnitType.TransportShip) {
       throw Error("Must be a transport ship");
     }
-    return this.data.retreating;
+    return this.data.retreating || false;
   }
   tile(): TileRef {
     return this.data.pos;

@@ -212,8 +212,8 @@ export class PlayerImpl implements Player {
         ...(this.outgoingEmojis().length > 0 && {
           outgoingEmojis: this.outgoingEmojis(),
         }),
-        ...(oa.length > 0 && { oa: oa }),
-        ...(ia.length > 0 && { ia: ia }),
+        ...(oa.length > 0 && { oa }),
+        ...(ia.length > 0 && { ia }),
         ...(targets.length > 0 && { targets }),
         ...(outgoingAllianceRequests.length > 0 && {
           outgoingAllianceRequests,
@@ -237,8 +237,8 @@ export class PlayerImpl implements Player {
       w: this.workers(),
       t: this.troops(),
       ...(oa.length > 0 && { o: this.offensiveTroops() }),
-      ...(oa.length > 0 && { outgoingAttacks: oa }),
-      ...(ia.length > 0 && { incomingAttacks: ia }),
+      ...(oa.length > 0 && { oa }),
+      ...(ia.length > 0 && { ia }),
       ...(targets.length > 0 && { targets }),
       ...(!this.hasSpawned() && { hasSpawned: false }),
     };
