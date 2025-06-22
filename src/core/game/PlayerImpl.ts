@@ -25,6 +25,7 @@ import {
   PlayerInfo,
   PlayerProfile,
   PlayerType,
+  PlayerTypeKey,
   Relation,
   Team,
   TerraNullius,
@@ -155,104 +156,91 @@ export class PlayerImpl implements Player {
     );
     const stats = this.mg.stats().getPlayerStats(this);
 
+    const oa: AttackUpdate[] = this._outgoingAttacks.map((a) => {
+      return {
+        attkrid: a.attacker().smallID(),
+        tgt: a.target().smallID(),
+        t: a.troops(),
+        id: a.id(),
+        ...(a.retreating() && { retreating: a.retreating() }),
+        b: a.borderSize(),
+        //stats: a.stats(),
+      } as AttackUpdate;
+    });
+    const ia: AttackUpdate[] = this._incomingAttacks.map((a) => {
+      return {
+        attkrid: a.attacker().smallID(),
+        tgt: a.target().smallID(),
+        t: a.troops(),
+        id: a.id(),
+        ...(a.retreating() && { retreating: a.retreating() }),
+        b: a.borderSize(),
+        //stats: a.stats(),
+      } as AttackUpdate;
+    });
+
+    const targets = this.targets().map((p) => p.smallID());
+    const allies = this.alliances().map((a) => a.other(this).smallID());
+    const embargoes = new Set(
+      [...this.embargoes.keys()].map((p) => p.toString()),
+    );
+    const betrayals = stats?.betrayals;
+
     if (this.type() !== PlayerType.Bot)
       return {
         type: GameUpdateType.Player,
         //vars: this._vars,
-        clientID: this.clientID(),
-        flag: this.flag(),
-        name: this.name(),
-        displayName: this.displayName(),
+        ...(this.clientID() !== null && { cid: this.clientID() }),
+        ...(this.flag() && { f: this.flag() }),
+        n: this.name(),
         id: this.id(),
-        team: this.team() ?? undefined,
-        smallID: this.smallID(),
-        playerType: this.type(),
-        isAlive: this.isAlive(),
-        isDisconnected: this.isDisconnected(),
-        tilesOwned: this.numTilesOwned(),
-        gold: this._gold,
-        goldAdded: this.mg.config().goldAdditionRate(this),
-        popAdded: this.mg.config().populationIncreaseRate(this),
-        maxPopulation: this.mg.config().maxPopulation(this),
-        population: this.population(),
-        workers: this.workers(),
-        troops: this.troops(),
-        offensiveTroops: this.offensiveTroops(),
-        targetTroopRatio: this.targetTroopRatio(),
-        reserveTroopRatio: this.reserveTroopRatio(),
-        allies: this.alliances().map((a) => a.other(this).smallID()),
-        embargoes: new Set([...this.embargoes.keys()].map((p) => p.toString())),
-        isTraitor: this.isTraitor(),
-        targets: this.targets().map((p) => p.smallID()),
-        outgoingEmojis: this.outgoingEmojis(),
-        outgoingAttacks: this._outgoingAttacks.map((a) => {
-          return {
-            attackerID: a.attacker().smallID(),
-            targetID: a.target().smallID(),
-            troops: a.troops(),
-            id: a.id(),
-            retreating: a.retreating(),
-            border: a.borderSize(),
-            //stats: a.stats(),
-          } as AttackUpdate;
+        ...(this.team() !== null && { team: this.team() ?? undefined }),
+        sid: this.smallID(),
+        pt: PlayerTypeKey[this.type()],
+        ...(this.isDisconnected() && { isDisconnected: true }),
+        ti: this.numTilesOwned(),
+        g: this._gold,
+        ga: this.mg.config().goldAdditionRate(this),
+        pa: this.mg.config().populationIncreaseRate(this),
+        mp: this.mg.config().maxPopulation(this),
+        w: this.workers(),
+        t: this.troops(),
+        ...(oa.length > 0 && { o: this.offensiveTroops() }),
+        ...(allies.length > 0 && { allies }),
+        ...(embargoes.size > 0 && { embargoes }),
+        ...(this.isTraitor() && { isTraitor: true }),
+        ...(this.outgoingEmojis().length > 0 && {
+          outgoingEmojis: this.outgoingEmojis(),
         }),
-        incomingAttacks: this._incomingAttacks.map((a) => {
-          return {
-            attackerID: a.attacker().smallID(),
-            targetID: a.target().smallID(),
-            troops: a.troops(),
-            id: a.id(),
-            retreating: a.retreating(),
-            border: a.borderSize(),
-            //stats: a.stats(),
-          } as AttackUpdate;
+        ...(oa.length > 0 && { outgoingAttacks: oa }),
+        ...(ia.length > 0 && { incomingAttacks: ia }),
+        ...(targets.length > 0 && { targets }),
+        ...(outgoingAllianceRequests.length > 0 && {
+          outgoingAllianceRequests,
         }),
-        outgoingAllianceRequests: outgoingAllianceRequests,
-        hasSpawned: this.hasSpawned(),
-        betrayals: stats?.betrayals,
-        unlockedTechnologies: this._unlockedTechnologies,
-        techLevel: this._techLevel,
+        ...(!this.hasSpawned() && { hasSpawned: false }),
+        ...(betrayals !== undefined && { betrayals }),
+        ...(this._unlockedTechnologies.size > 0 && {
+          unlockedTechnologies: this._unlockedTechnologies,
+        }),
+        ...(this.techLevel() > 0 && { techLevel: this._techLevel }),
       };
 
     return {
       type: GameUpdateType.Player,
-      flag: this.flag(),
-      name: this.name(),
+      n: this.name(),
       id: this.id(),
-      smallID: this.smallID(),
-      tilesOwned: this.numTilesOwned(),
-      gold: this._gold,
-      maxPopulation: this.mg.config().maxPopulation(this),
-      population: this.population(),
-      workers: this.workers(),
-      troops: this.troops(),
-      offensiveTroops: this.offensiveTroops(),
-      targetTroopRatio: this.targetTroopRatio(),
-      reserveTroopRatio: this.reserveTroopRatio(),
-      targets: this.targets().map((p) => p.smallID()),
-      outgoingAttacks: this._outgoingAttacks.map((a) => {
-        return {
-          attackerID: a.attacker().smallID(),
-          targetID: a.target().smallID(),
-          troops: a.troops(),
-          id: a.id(),
-          retreating: a.retreating(),
-          border: a.borderSize(),
-          //stats: a.stats(),
-        } as AttackUpdate;
-      }),
-      incomingAttacks: this._incomingAttacks.map((a) => {
-        return {
-          attackerID: a.attacker().smallID(),
-          targetID: a.target().smallID(),
-          troops: a.troops(),
-          id: a.id(),
-          retreating: a.retreating(),
-          border: a.borderSize(),
-          //stats: a.stats(),
-        } as AttackUpdate;
-      }),
-      hasSpawned: this.hasSpawned(),
+      sid: this.smallID(),
+      ti: this.numTilesOwned(),
+      g: this._gold,
+      mp: this.mg.config().maxPopulation(this),
+      w: this.workers(),
+      t: this.troops(),
+      ...(oa.length > 0 && { o: this.offensiveTroops() }),
+      ...(oa.length > 0 && { outgoingAttacks: oa }),
+      ...(ia.length > 0 && { incomingAttacks: ia }),
+      ...(targets.length > 0 && { targets }),
+      ...(!this.hasSpawned() && { hasSpawned: false }),
     };
   }
 
@@ -757,7 +745,7 @@ export class PlayerImpl implements Player {
     for (const attack of this._outgoingAttacks) {
       offensiveTroops += attack.troops();
     }
-    return offensiveTroops;
+    return Math.floor(offensiveTroops);
   }
 
   population(): number {

@@ -9,7 +9,7 @@ import {
   MessageType,
   NameViewData,
   PlayerID,
-  PlayerType,
+  PlayerTypeKey,
   Team,
   Tick,
   UnitType,
@@ -92,49 +92,48 @@ export interface UnitUpdate {
 }
 
 export interface AttackUpdate {
-  attackerID: number;
-  targetID: number;
-  troops: number;
+  attkrid: number;
+  tgt: number; //target id
+  t: number; // troops
   id: string;
-  retreating: boolean;
-  border: number;
-  stats: AttackStats;
+  re?: boolean; // retreating
+  b: number; // border tile id
+  stats?: AttackStats; // attack stats, if available
 }
 
 export interface PlayerUpdate {
   type: GameUpdateType.Player;
   vars?: Map<string, string | number | boolean | null>;
   nameViewData?: NameViewData;
-  clientID?: ClientID | null;
-  flag: string | undefined;
-  name: string;
+  cid?: ClientID | null;
+  f?: string | undefined;
+  n: string;
   displayName?: string;
   id: PlayerID;
   team?: Team;
-  smallID: number;
-  playerType?: PlayerType;
+  sid: number;
+  pt?: PlayerTypeKey;
   isAlive?: boolean;
   isDisconnected?: boolean;
-  tilesOwned: number;
-  gold: Gold;
-  goldAdded?: Gold;
-  popAdded?: number;
-  maxPopulation: number;
-  population: number;
-  workers: number;
-  troops: number;
-  offensiveTroops: number;
-  targetTroopRatio: number;
-  reserveTroopRatio: number;
+  ti: number;
+  g: Gold;
+  ga?: Gold;
+  pa?: number;
+  mp: number;
+  w: number;
+  t: number;
+  o?: number;
+  // targetTroopRatio: number;
+  // reserveTroopRatio: number;
   allies?: number[];
   embargoes?: Set<PlayerID>;
   isTraitor?: boolean;
-  targets: number[];
+  targets?: number[];
   outgoingEmojis?: EmojiMessage[]; // null means no emojis sent
-  outgoingAttacks: AttackUpdate[];
-  incomingAttacks: AttackUpdate[];
+  oa?: AttackUpdate[];
+  ia?: AttackUpdate[];
   outgoingAllianceRequests?: PlayerID[];
-  hasSpawned: boolean;
+  hasSpawned?: boolean;
   techLevel?: number | null; // null means no tech level
   unlockedTechnologies?: Set<string> | null; // null means no technologies unlocked
   betrayals?: number | null; // null means no betrayals

@@ -369,13 +369,13 @@ export class GameImpl implements Game {
       }
     }
 
-    for (const player of this._players.values()) {
-      // Players change each to so always add them
-      if (!player.isAlive()) {
-        continue; // Skip dead players
-      }
-      this.addUpdate(player.toUpdate());
-    }
+    // for (const player of this._players.values()) {
+    //   // Players change each to so always add them
+    //   if (!player.isAlive()) {
+    //     continue; // Skip dead players
+    //   }
+    //   this.addUpdate(player.toUpdate());
+    // }
 
     if (this.ticks() % 100 === 0) {
       this.addUpdate({

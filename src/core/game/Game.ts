@@ -293,6 +293,12 @@ export enum PlayerType {
   FakeHuman = "FAKEHUMAN",
 }
 
+export enum PlayerTypeKey {
+  "BOT" = 0,
+  "HUMAN" = 1,
+  "FAKEHUMAN" = 2,
+}
+
 export enum ExecutionPhase {
   INIT = "init",
   CONSTRUCTING = "constructing",

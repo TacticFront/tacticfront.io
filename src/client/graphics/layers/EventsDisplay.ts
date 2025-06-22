@@ -143,7 +143,7 @@ export class EventsDisplay extends LitElement implements Layer {
 
     // Update attacks
     this.incomingAttacks = myPlayer.incomingAttacks().filter((a) => {
-      const t = (this.game.playerBySmallID(a.attackerID) as PlayerView).type();
+      const t = (this.game.playerBySmallID(a.attkrid) as PlayerView).type();
       return t !== PlayerType.Bot;
     });
 
@@ -159,11 +159,11 @@ export class EventsDisplay extends LitElement implements Layer {
 
     this.outgoingAttacks = myPlayer
       .outgoingAttacks()
-      .filter((a) => a.targetID !== 0);
+      .filter((a) => a.tgt !== 0);
 
     this.outgoingLandAttacks = myPlayer
       .outgoingAttacks()
-      .filter((a) => a.targetID === 0);
+      .filter((a) => a.tgt === 0);
 
     this.outgoingBoats = myPlayer
       .units()
@@ -495,22 +495,22 @@ export class EventsDisplay extends LitElement implements Layer {
   }
 
   private async attackWarningOnClick(attack: AttackUpdate) {
-    const playerView = this.game.playerBySmallID(attack.attackerID);
+    const playerView = this.game.playerBySmallID(attack.attkrid);
     if (playerView !== undefined) {
       if (playerView instanceof PlayerView) {
         const averagePosition = await playerView.attackAveragePosition(
-          attack.attackerID,
+          attack.attkrid,
           attack.id,
         );
 
         if (averagePosition === null) {
-          this.emitGoToPlayerEvent(attack.attackerID);
+          this.emitGoToPlayerEvent(attack.attkrid);
         } else {
           this.emitGoToPositionEvent(averagePosition.x, averagePosition.y);
         }
       }
     } else {
-      this.emitGoToPlayerEvent(attack.attackerID);
+      this.emitGoToPlayerEvent(attack.attkrid);
     }
   }
 
@@ -527,14 +527,12 @@ export class EventsDisplay extends LitElement implements Layer {
                       class="ml-2"
                       @click=${() => this.attackWarningOnClick(attack)}
                     >
-                      ${renderTroops(attack.troops)}
+                      ${renderTroops(attack.t)}
                       ${(
-                        this.game.playerBySmallID(
-                          attack.attackerID,
-                        ) as PlayerView
+                        this.game.playerBySmallID(attack.attkrid) as PlayerView
                       )?.name()}
                     </button>
-                    ${attack.retreating ? "(retreating...)" : ""}
+                    ${attack.re ? "(retreating...)" : ""}
                   `,
                 )}
               </td>
@@ -557,15 +555,15 @@ export class EventsDisplay extends LitElement implements Layer {
                       class="ml-2"
                       @click=${async () => this.attackWarningOnClick(attack)}
                     >
-                      ${renderTroops(attack.troops)}
+                      ${renderTroops(attack.t)}
                       ${(
-                        this.game.playerBySmallID(attack.targetID) as PlayerView
+                        this.game.playerBySmallID(attack.tgt) as PlayerView
                       )?.name()}
                     </button>
 
-                    ${!attack.retreating
+                    ${!attack.re
                       ? html`<button
-                          ${attack.retreating ? "disabled" : ""}
+                          ${attack.re ? "disabled" : ""}
                           @click=${() => {
                             this.emitCancelAttackIntent(attack.id);
                           }}
@@ -591,12 +589,12 @@ export class EventsDisplay extends LitElement implements Layer {
                 ${this.outgoingLandAttacks.map(
                   (landAttack) => html`
                     <button translate="no" class="ml-2">
-                      ${renderTroops(landAttack.troops)} Wilderness
+                      ${renderTroops(landAttack.t)} Wilderness
                     </button>
 
-                    ${!landAttack.retreating
+                    ${!landAttack.re
                       ? html`<button
-                          ${landAttack.retreating ? "disabled" : ""}
+                          ${landAttack.re ? "disabled" : ""}
                           @click=${() => {
                             this.emitCancelAttackIntent(landAttack.id);
                           }}

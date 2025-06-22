@@ -795,22 +795,22 @@ export class DefaultConfig implements Config {
             this.metropolisPopulationIncrease(player);
 
     if (player.type() === PlayerType.Bot) {
-      return maxPop / 2;
+      return Math.floor(maxPop / 2);
     }
 
     if (player.type() === PlayerType.Human) {
-      return maxPop;
+      return Math.floor(maxPop);
     }
 
     switch (this._gameConfig.difficulty) {
       case Difficulty.Easy:
-        return maxPop * 0.5;
+        return Math.floor(maxPop * 0.5);
       case Difficulty.Medium:
-        return maxPop * 1;
+        return Math.floor(maxPop * 1);
       case Difficulty.Hard:
-        return maxPop * 1.5;
+        return Math.floor(maxPop * 1.5);
       case Difficulty.Impossible:
-        return maxPop * 2;
+        return Math.floor(maxPop * 2);
     }
   }
 
@@ -876,7 +876,9 @@ export class DefaultConfig implements Config {
       }
     }
 
-    return Math.min(player.population() + toAdd, max) - player.population();
+    return Math.floor(
+      Math.min(player.population() + toAdd, max) - player.population(),
+    );
   }
 
   goldAdditionRate(player: Player): Gold {

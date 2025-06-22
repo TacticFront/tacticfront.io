@@ -258,12 +258,6 @@ export class ClientGameRunner {
         this.eventBus.emit(new SendHashEvent(hu.tick, hu.hash));
       });
 
-      // gu.updates[GameUpdateType.Player].forEach((pu: PlayerUpdate) => {
-      //   if(!pu.vars) return;
-      //   console.log(
-      //     `player update: ${pu.name} - `, pu.vars
-      //   );
-      // });
       this.gameView.update(gu);
       this.renderer.tick();
 

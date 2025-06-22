@@ -142,13 +142,10 @@ export class PlayerView {
     public data: PlayerUpdate,
     public nameData: NameViewData,
   ) {
-    if (data.clientID === game.myClientID()) {
-      this.anonymousName = this.data.name;
+    if (data.cid === game.myClientID()) {
+      this.anonymousName = this.data.n;
     } else {
-      this.anonymousName = createRandomName(
-        this.data.name,
-        this.data.playerType || PlayerType.Bot,
-      );
+      this.anonymousName = createRandomName(this.data.n, this.type());
     }
   }
 
@@ -165,11 +162,11 @@ export class PlayerView {
   }
 
   outgoingAttacks(): AttackUpdate[] {
-    return this.data.outgoingAttacks;
+    return this.data.oa || [];
   }
 
   incomingAttacks(): AttackUpdate[] {
-    return this.data.incomingAttacks;
+    return this.data.ia || [];
   }
 
   async attackAveragePosition(
@@ -190,24 +187,24 @@ export class PlayerView {
   }
 
   smallID(): number {
-    return this.data.smallID;
+    return this.data.sid;
   }
   flag(): string | undefined {
-    return this.data.flag;
+    return this.data.f || "";
   }
   name(): string {
     return this.anonymousName !== null && userSettings.anonymousNames()
       ? this.anonymousName
-      : this.data.name;
+      : this.data.n;
   }
   displayName(): string {
     return this.anonymousName !== null && userSettings.anonymousNames()
       ? this.anonymousName
-      : this.data.name;
+      : this.data.n;
   }
 
   clientID(): ClientID | null {
-    return this.data.clientID || null;
+    return this.data.cid || null;
   }
   id(): PlayerID {
     return this.data.id;
@@ -216,16 +213,26 @@ export class PlayerView {
     return this.data.team ?? null;
   }
   type(): PlayerType {
-    return this.data.playerType || PlayerType.Bot;
+    // Map string to numeric enum
+    switch (this.data.pt) {
+      case 0:
+        return PlayerType.Bot;
+      case 1:
+        return PlayerType.Human;
+      case 2:
+        return PlayerType.FakeHuman;
+      default:
+        return PlayerType.Bot;
+    }
   }
   isAlive(): boolean {
-    return this.data.isAlive || false;
+    return this.data.ti > 0;
   }
   isPlayer(): this is Player {
     return true;
   }
   numTilesOwned(): number {
-    return this.data.tilesOwned;
+    return this.data.ti;
   }
   allies(): PlayerView[] {
     if (this.data.allies === null) {
@@ -238,40 +245,43 @@ export class PlayerView {
     );
   }
   targets(): PlayerView[] {
+    if (!Array.isArray(this.data.targets)) {
+      return [];
+    }
     return this.data.targets.map(
       (id) => this.game.playerBySmallID(id) as PlayerView,
     );
   }
   gold(): Gold {
-    return this.data.gold;
+    return this.data.g;
   }
 
   goldAdded(): Gold {
-    return this.data.goldAdded || 0;
+    return this.data.ga || 0;
   }
 
   popAdded(): number {
-    return this.data.popAdded || 0;
+    return this.data.pa || 0;
   }
 
   maxPopulation(): number {
-    return this.data.maxPopulation || 0;
+    return this.data.mp || 0;
   }
 
   population(): number {
-    return this.data.population;
+    return this.data.t + this.offensiveTroops() + this.data.w || 0;
   }
   workers(): number {
-    return this.data.workers;
+    return this.data.w;
   }
-  targetTroopRatio(): number {
-    return this.data.targetTroopRatio;
-  }
+  // targetTroopRatio(): number {
+  //   return this.data.targetTroopRatio;
+  // }
   troops(): number {
-    return this.data.troops;
+    return this.data.t;
   }
   offensiveTroops(): number {
-    return this.data.offensiveTroops;
+    return this.data.o || 0;
   }
 
   techLevel(): number {
@@ -282,9 +292,9 @@ export class PlayerView {
     return this.data.unlockedTechnologies || new Set<string>();
   }
 
-  reserveRatio(): number {
-    return this.data.reserveTroopRatio;
-  }
+  // reserveRatio(): number {
+  //   return this.data.reserveTroopRatio;
+  // }
 
   isAlliedWith(other: PlayerView): boolean {
     if (this.data.allies === null) {
@@ -343,7 +353,7 @@ export class PlayerView {
     );
   }
   hasSpawned(): boolean {
-    return this.data.hasSpawned;
+    return this.data.hasSpawned || false;
   }
   isDisconnected(): boolean {
     return this.data.isDisconnected || false;
@@ -397,7 +407,7 @@ export class GameView implements GameMap {
       throw new Error("lastUpdate.updates not initialized");
     }
     gu.updates[GameUpdateType.Player].forEach((pu) => {
-      this.smallIDToID.set(pu.smallID, pu.id);
+      this.smallIDToID.set(pu.sid, pu.id);
       const player = this._players.get(pu.id);
       if (player !== undefined) {
         player.data = pu;

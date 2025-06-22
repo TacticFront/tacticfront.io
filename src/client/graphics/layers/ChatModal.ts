@@ -1,3 +1,5 @@
+// src/client/graphics/layers/ChatModal.ts
+
 import { LitElement, html } from "lit";
 import { customElement, query } from "lit/decorators.js";
 
@@ -278,8 +280,8 @@ export class ChatModal extends LitElement {
       console.log("Sent message:", sender);
       const alivePlayerNames = this.g
         .players()
-        .filter((p) => p.isAlive() && !(p.data.playerType === PlayerType.Bot))
-        .map((p) => p.data.name);
+        .filter((p) => p.isAlive() && !(p.type() === PlayerType.Bot))
+        .map((p) => p.data.n);
 
       console.log("Alive player names:", alivePlayerNames);
       this.players = alivePlayerNames;
