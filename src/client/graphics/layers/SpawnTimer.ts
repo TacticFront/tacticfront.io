@@ -1,4 +1,4 @@
-import { GameMode, Team } from "../../../core/game/Game";
+import { GameMode, PlayerType, Team } from "../../../core/game/Game";
 import { GameView } from "../../../core/game/GameView";
 import { TransformHandler } from "../TransformHandler";
 import { Layer } from "./Layer";
@@ -30,6 +30,7 @@ export class SpawnTimer implements Layer {
 
     const teamTiles: Map<Team, number> = new Map();
     for (const player of this.game.players()) {
+      if (player.type() === PlayerType.Bot) continue;
       const team = player.team();
       if (team === null) throw new Error("Team is null");
       const tiles = teamTiles.get(team) ?? 0;
