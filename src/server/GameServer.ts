@@ -693,6 +693,7 @@ export class GameServer {
             commonHash: mostCommonHash,
             persistentID: c.persistentID,
             lastDesyncTurn,
+            ip: c.ip,
           };
 
           const content = `🚨 **Desync Detected**
@@ -703,6 +704,7 @@ export class GameServer {
           Name: ${data.name},
           Hash: ${data.hash}
           Common Hash: ${data.commonHash}
+          IP: ${data.ip}
           `;
 
           fetch(

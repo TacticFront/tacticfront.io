@@ -62,7 +62,7 @@ export class FakeHumanExecution implements Execution {
     this.attackRate = this.random.nextInt(40, 80);
     this.attackTick = this.random.nextInt(0, this.attackRate);
     this.triggerRatio = this.random.nextInt(25, 50) / 100;
-    this.reserveRatio = this.random.nextInt(60, 80) / 100;
+    this.reserveRatio = this.random.nextInt(40, 60) / 100;
     this.heckleEmoji = ["🤡", "😡"].map((e) => flattenedEmojiTable.indexOf(e));
   }
 

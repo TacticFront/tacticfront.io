@@ -45,51 +45,59 @@ export class UsernameInput extends LitElement {
   render() {
     const token = localStorage.getItem("nerd-token");
 
-    if (token) {
-      // User is logged in — display the username and a logout button
-      return html`
-        <div class="text-center mt-2">
-          <div
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-800 text-white border border-blue-400 shadow"
-          >
-            <span class="font-semibold">Player:</span>
-            <span class="font-mono text-lg">${this.username}</span>
-          </div>
-          <button
-            @click=${this.logout}
-            class="mt-3 px-4 py-2 bg-red-600 text-white rounded-xl text-lg hover:bg-red-700 transition"
-          >
-            Log Out
-          </button>
-        </div>
-      `;
-    }
-
-    // User is not logged in — show input and login button
     return html`
-      <input
-        type="text"
-        .value=${this.username}
-        @input=${this.handleChange}
-        @change=${this.handleChange}
-        placeholder="${translateText("username.enter_username")}"
-        maxlength="${MAX_USERNAME_LENGTH}"
-        class="w-full px-4 py-2 border border-gray-300 rounded-xl shadow-sm text-2xl text-center focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-300/60 dark:bg-gray-700 dark:text-white"
-      />
-      ${this.validationError
-        ? html`<div
-            class="absolute z-10 w-full mt-2 px-3 py-1 text-lg border rounded bg-white text-red-600 border-red-600 dark:bg-gray-700 dark:text-red-300 dark:border-red-300"
-          >
-            ${this.validationError}
-          </div>`
-        : null}
-
-      <button
-        @click=${this.redirectToAuth}
-        class="mt-4 w-full px-4 py-2 bg-blue-600 text-white rounded-xl text-xl hover:bg-blue-700 transition"
-      >
-        Log In with OpenlyNerd.com
-      </button>
+      <div class="bg-yellow-900/5 rounded-xl p-6 shadow-lg w-full">
+        <div class="mb-3 text-lg font-bold tracking-wide">Quick Join</div>
+        ${token
+          ? html`
+              <div class="flex flex-col items-center gap-3">
+                <div
+                  class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-800 text-white border border-blue-400 shadow"
+                >
+                  <span class="font-semibold">Player:</span>
+                  <span class="font-mono text-lg">${this.username}</span>
+                </div>
+                <button
+                  @click=${this.logout}
+                  class="w-full mt-2 px-4 py-2 bg-red-600 text-white rounded-xl text-lg hover:bg-red-700 transition font-semibold"
+                >
+                  Log Out
+                </button>
+              </div>
+            `
+          : html`
+              <input
+                type="text"
+                .value=${this.username}
+                @input=${this.handleChange}
+                @change=${this.handleChange}
+                placeholder="${translateText("username.enter_username")}"
+                maxlength="${MAX_USERNAME_LENGTH}"
+                class="w-full mb-3 px-4 py-2 border border-yellow-700 rounded-xl shadow text-xl text-yellow-200 bg-black/40 text-center focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"
+              />
+              ${this.validationError
+                ? html`<div
+                    class="w-full mb-2 px-3 py-1 text-md border rounded bg-white text-red-600 border-red-600 dark:bg-gray-700 dark:text-red-300 dark:border-red-300 text-center"
+                  >
+                    ${this.validationError}
+                  </div>`
+                : null}
+              <button
+                @click=${this.redirectToAuth}
+                class="w-full bg-yellow-400 hover:bg-yellow-300 text-black py-2 rounded font-bold shadow text-lg mt-2 transition"
+              >
+                JOIN NOW
+              </button>
+              <div class="mt-3 text-xs text-yellow-600 text-center">
+                or log in with
+                <a
+                  href="https://openlynerd.com/appauth?appid=tacticfront"
+                  class="underline hover:text-yellow-400"
+                  >OpenlyNerd.com</a
+                >
+              </div>
+            `}
+      </div>
     `;
   }
 
@@ -103,7 +111,7 @@ export class UsernameInput extends LitElement {
 
   private redirectToAuth() {
     const username = this.username;
-    const url = `https://openlynerd.com/appauth?appid=openfront-expanded`;
+    const url = `https://openlynerd.com/appauth?appid=tacticfront`;
     window.location.href = url;
   }
 

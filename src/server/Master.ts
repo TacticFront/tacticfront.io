@@ -222,6 +222,53 @@ app.get("/api/worker_status", async (req, res) => {
   res.json({ workers: statuses });
 });
 
+let activeStatsCache;
+let activeStatsCacheTime = 0;
+
+app.get("/api/active_stats", async (req, res) => {
+  const now = Date.now();
+  // Serve from cache if it's fresh (30s)
+  if (activeStatsCache && now - activeStatsCacheTime < 30000) {
+    return res.json(activeStatsCache);
+  }
+
+  try {
+    const resp = await fetch("https://tacticfront.io/api/worker_status");
+    const data = await resp.json();
+
+    let totalGames = 0;
+    let totalClients = 0;
+    let errorWorkers = 0;
+    const allGameIDs: string[] = [];
+
+    for (const w of data.workers) {
+      if (w.status === "ok") {
+        totalGames += w.activeGames || 0;
+        totalClients += w.activeClients || 0;
+        if (Array.isArray(w.gameIDs)) allGameIDs.push(...w.gameIDs);
+      } else {
+        errorWorkers++;
+      }
+    }
+
+    const result = {
+      activeGames: totalGames,
+      activeClients: totalClients,
+      gameIDs: allGameIDs,
+      errorWorkers,
+      cachedAt: new Date().toISOString(),
+    };
+
+    // Cache it
+    activeStatsCache = result;
+    activeStatsCacheTime = now;
+
+    res.json(result);
+  } catch (err) {
+    res.status(502).json({ error: (err && err.message) || String(err) });
+  }
+});
+
 async function fetchLobbies(): Promise<number> {
   const allLobbyIDs = new Set([...publicLobbyIDs, ...privateLobbyIDs]);
   const fetchPromises: Promise<GameInfo | null>[] = [];

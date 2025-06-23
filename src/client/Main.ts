@@ -35,7 +35,6 @@ import { generateCryptoRandomUUID } from "./Utils";
 import "./components/NewsButton";
 import { NewsButton } from "./components/NewsButton";
 import "./components/baseComponents/Button";
-import { OButton } from "./components/baseComponents/Button";
 import "./components/baseComponents/Modal";
 import { isLoggedIn } from "./jwt";
 import "./styles.css";
@@ -108,13 +107,6 @@ class Client {
       consolex.warn("Dark mode button element not found");
     }
 
-    const loginDiscordButton = document.getElementById(
-      "login-discord",
-    ) as OButton;
-    const logoutDiscordButton = document.getElementById(
-      "logout-discord",
-    ) as OButton;
-
     this.usernameInput = document.querySelector(
       "username-input",
     ) as UsernameInput;
@@ -178,9 +170,6 @@ class Client {
         console.error("Invalid token:", e);
       }
     }
-
-    loginDiscordButton.hidden = true;
-    logoutDiscordButton.hidden = true;
 
     if (hasNerdToken) {
       // loginDiscordButton.hidden = true;

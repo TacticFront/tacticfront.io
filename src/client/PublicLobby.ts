@@ -86,8 +86,8 @@ export class PublicLobby extends LitElement {
     if (this.publicLobbies.length === 0 && this.privateLobbies.length === 0)
       return html``;
 
-    // Helper to render one lobby button, with a label
-    const renderLobby = (lobby: GameInfo, label: string | null = null) => {
+    // Card component for a lobby
+    const renderLobbyCard = (lobby: GameInfo, isPublic: boolean) => {
       if (!lobby?.gameConfig) return;
       const start = this.lobbyIDToStart.get(lobby.gameID) ?? 0;
       const timeRemaining = Math.max(
@@ -104,83 +104,90 @@ export class PublicLobby extends LitElement {
           ? lobby.gameConfig.playerTeams || 0
           : null;
 
+      //style="mask-image: linear-gradient(to left, transparent, #fff)"
+
       return html`
-        <div class="mb-2">
-          ${label
-            ? html`<div
-                class="text-xs font-bold uppercase mb-1 ${label === "Public"
-                  ? "text-green-600"
-                  : "text-gray-400"}"
-              >
-                ${label}
-              </div>`
-            : null}
-          <button
-            @click=${() => this.lobbyClicked(lobby)}
-            ?disabled=${this.isButtonDebounced}
-            class="isolate grid h-40 grid-cols-[100%] grid-rows-[100%] place-content-stretch w-full overflow-hidden ${this
-              .isLobbyHighlighted
-              ? "bg-gradient-to-r from-green-600 to-green-500"
-              : "bg-gradient-to-r from-blue-600 to-blue-500"} text-white font-medium rounded-xl transition-opacity duration-200 hover:opacity-90 ${this
-              .isButtonDebounced
-              ? "opacity-70 cursor-not-allowed"
-              : ""}"
-          >
+        <div
+          class="flex flex-col bg-yellow-900/10 border border-yellow-700 rounded-xl shadow-lg mb-6 overflow-hidden relative group transition hover:scale-[1.02] duration-150"
+        >
+          <!-- Map image background -->
+          <div class="relative h-40 md:h-56 overflow-hidden">
             <img
               src="${getMapsImage(lobby.gameConfig.gameMap)}"
               alt="${lobby.gameConfig.gameMap}"
-              class="place-self-start col-span-full row-span-full h-full -z-10"
-              style="mask-image: linear-gradient(to left, transparent, #fff)"
+              class="object-cover w-full h-full brightness-90 group-hover:brightness-100 transition"
             />
-            <div
-              class="flex flex-col justify-between h-full col-span-full row-span-full p-4 md:p-6 text-right z-0"
-            >
-              <div>
-                <div class="text-lg md:text-2xl font-semibold">
-                  ${translateText("public_lobby.join")}
-                </div>
-                <div class="text-md font-medium text-blue-100">
-                  <span
-                    class="text-sm ${this.isLobbyHighlighted
-                      ? "text-green-600"
-                      : "text-blue-600"} bg-white rounded-sm px-1"
-                  >
-                    ${lobby.gameConfig.gameMode === GameMode.Team
-                      ? translateText("public_lobby.teams", {
-                          num: teamCount ?? 0,
-                        })
-                      : translateText("game_mode.ffa")}</span
-                  >
-                  <span
-                    >${translateText(
-                      `map.${lobby.gameConfig.gameMap
-                        .toLowerCase()
-                        .replace(/\s+/g, "")}`,
-                    )}</span
-                  >
-                </div>
+            <div class="absolute top-2 left-2">
+              <span
+                class="px-3 py-1 text-xs rounded-full font-bold
+              ${isPublic
+                  ? "bg-green-700 text-white"
+                  : "bg-blue-800 text-blue-100"} shadow"
+              >
+                ${isPublic ? "PUBLIC" : "PRIVATE"}
+              </span>
+            </div>
+          </div>
+
+          <!-- Lobby Info -->
+          <div
+            class="flex flex-col md:flex-row md:items-center justify-between gap-3 px-6 py-4 bg-black/60"
+          >
+            <div>
+              <div class="text-lg md:text-xl font-bold text-yellow-100 mb-1">
+                ${lobby.gameConfig.gameMap}
               </div>
-              <div>
-                <div class="text-md font-medium text-blue-100">
-                  ${lobby.numClients} / ${lobby.gameConfig.maxPlayers}
-                </div>
-                ${lobby.lobbyType === "public"
-                  ? html`<div class="text-md font-medium text-blue-100">
-                      ${timeDisplay}
-                    </div>`
-                  : null}
+              <div
+                class="flex items-center gap-3 text-xs md:text-sm font-mono mb-1"
+              >
+                <span
+                  class="inline-flex items-center px-2 py-1 rounded bg-yellow-800 text-yellow-200"
+                >
+                  ${lobby.gameConfig.gameMode === GameMode.Team
+                    ? `${teamCount} Teams`
+                    : translateText("game_mode.ffa")}
+                </span>
+                <span
+                  class="inline-flex items-center px-2 py-1 rounded bg-yellow-950 text-yellow-400"
+                >
+                  ${translateText(
+                    `map.${lobby.gameConfig.gameMap
+                      .toLowerCase()
+                      .replace(/\s+/g, "")}`,
+                  )}
+                </span>
+              </div>
+              <div class="flex gap-6 text-yellow-300 font-bold text-sm">
+                <span
+                  >👥 ${lobby.numClients} / ${lobby.gameConfig.maxPlayers}</span
+                >
+                ${isPublic ? html`<span>⏱ ${timeDisplay}</span>` : ""}
               </div>
             </div>
-          </button>
+            <div>
+              <button
+                @click=${() => this.lobbyClicked(lobby)}
+                ?disabled=${this.isButtonDebounced}
+                class="mt-2 md:mt-0 px-6 py-2 rounded-lg font-bold bg-yellow-400 text-black hover:bg-yellow-300 shadow-lg transition-all duration-100
+                ${this.isButtonDebounced
+                  ? "opacity-70 cursor-not-allowed"
+                  : ""}"
+              >
+                ${translateText("public_lobby.join")}
+              </button>
+            </div>
+          </div>
         </div>
       `;
     };
 
     return html`
-      ${this.publicLobbies.length
-        ? renderLobby(this.publicLobbies[0], "Public")
-        : ""}
-      ${this.privateLobbies.map((l) => renderLobby(l, "Private"))}
+      <div class="space-y-6">
+        ${this.publicLobbies.length
+          ? renderLobbyCard(this.publicLobbies[0], true)
+          : ""}
+        ${this.privateLobbies.map((l) => renderLobbyCard(l, false))}
+      </div>
     `;
   }
 

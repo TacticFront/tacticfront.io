@@ -1,3 +1,5 @@
+// src/client/graphics/layers/SpawnTimer.ts
+
 import { GameMode, PlayerType, Team } from "../../../core/game/Game";
 import { GameView } from "../../../core/game/GameView";
 import { TransformHandler } from "../TransformHandler";
