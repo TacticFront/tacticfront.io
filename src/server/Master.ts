@@ -7,6 +7,7 @@ import http from "http";
 import path from "path";
 import { fileURLToPath } from "url";
 import { getServerConfigFromServer } from "../core/configuration/ConfigLoader";
+import { GameMapType } from "../core/game/Game";
 import { GameInfo } from "../core/Schemas";
 import { generateID } from "../core/Util";
 import { gatekeeper, LimiterType } from "./Gatekeeper";
@@ -361,12 +362,97 @@ async function fetchLobbies(): Promise<number> {
   return publicCount;
 }
 
+// Map votes: mapName -> Set of IPs who voted
+const mapVotes: Record<string, Set<string>> = {};
+// IP -> map string
+const ipToMapVote: Record<string, string> = {};
+
+app.get("/api/map_votes", (req, res) => {
+  const voteCounts = Object.fromEntries(
+    Object.entries(mapVotes).map(([map, ips]) => [map, ips.size]),
+  );
+  res.json(voteCounts);
+});
+
+app.post("/api/vote_map", (req, res) => {
+  const map = req.body.map;
+  if (!map || typeof map !== "string") {
+    return res.status(400).json({ error: "Missing or invalid map name" });
+  }
+
+  // Get client IP (handles proxy setups)
+  const ip =
+    req.headers["x-forwarded-for"]?.toString().split(",")[0] ||
+    req.socket.remoteAddress;
+
+  if (!ip) {
+    return res.status(400).json({ error: "Cannot determine client IP" });
+  }
+
+  // If their previous vote is for a map that has since had votes cleared, wipe their mapping.
+  const prevMap = ipToMapVote[ip];
+  if (prevMap && (!mapVotes[prevMap] || !mapVotes[prevMap].has(ip))) {
+    delete ipToMapVote[ip];
+  }
+
+  // Now check: are they voting for the same map again?
+  if (ipToMapVote[ip] === map && mapVotes[map]?.has(ip)) {
+    return res
+      .status(200)
+      .json({ success: false, message: "Already voted for this map" });
+  }
+
+  // Remove previous vote from old map if it exists
+  if (ipToMapVote[ip] && mapVotes[ipToMapVote[ip]]) {
+    mapVotes[ipToMapVote[ip]].delete(ip);
+  }
+
+  // Initialize vote set for this map if needed
+  if (!mapVotes[map]) {
+    mapVotes[map] = new Set();
+  }
+
+  // Register their vote
+  mapVotes[map].add(ip);
+  ipToMapVote[ip] = map;
+
+  res.json({ success: true, votes: mapVotes[map].size });
+});
+
+function getMostVotedMap(): string | null {
+  let maxVotes = 0;
+  let selected: string | null = null;
+  for (const [map, ips] of Object.entries(mapVotes)) {
+    if (ips.size > maxVotes) {
+      if (!(map in GameMapType)) {
+        mapVotes[map]?.clear?.();
+        continue;
+      }
+      maxVotes = ips.size;
+      selected = map;
+    }
+  }
+  return selected;
+}
+
 // Function to schedule a new public game
 async function schedulePublicGame(playlist: MapPlaylist) {
   const gameID = generateID();
   publicLobbyIDs.add(gameID);
 
   const workerPath = config.workerPath(gameID);
+  const gameConfig = playlist.gameConfig();
+
+  const votedMap = getMostVotedMap();
+  log.error(`Next Map": ${votedMap}`);
+  if (votedMap && votedMap in GameMapType) {
+    gameConfig.gameMap = GameMapType[votedMap];
+    // Optionally: reset votes for next round
+    mapVotes[votedMap]?.clear?.();
+    log.info(`Public game scheduled with voted map: ${votedMap}`);
+  } else {
+    log.info(`Public game scheduled with playlist map: ${gameConfig.gameMap}`);
+  }
 
   // Send request to the worker to start the game
   try {
@@ -378,7 +464,7 @@ async function schedulePublicGame(playlist: MapPlaylist) {
           "Content-Type": "application/json",
           [config.adminHeader()]: config.adminToken(),
         },
-        body: JSON.stringify(playlist.gameConfig()),
+        body: JSON.stringify(gameConfig),
       },
     );
 

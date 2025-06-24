@@ -42,12 +42,13 @@ export class UsernameInput extends LitElement {
     this.dispatchUsernameEvent();
   }
 
+  // <div class="mb-3 text-lg font-bold tracking-wide">Quick Join</div>
+
   render() {
     const token = localStorage.getItem("nerd-token");
 
     return html`
       <div class="bg-yellow-900/5 rounded-xl p-6 shadow-lg w-full">
-        <div class="mb-3 text-lg font-bold tracking-wide">Quick Join</div>
         ${token
           ? html`
               <div class="flex flex-col items-center gap-3">

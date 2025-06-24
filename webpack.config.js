@@ -238,6 +238,8 @@ export default async (env, argv) => {
                 "/api/kick_player",
                 "/api/worker_status",
                 "/api/active_stats",
+                "/api/map_votes",
+                "/api/vote_map",
               ],
               target: "http://localhost:3000",
               secure: false,

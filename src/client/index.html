@@ -74,13 +74,13 @@
             alt="Logo"
             class="h-10"
         /></span>
-        <span class="text-sm text-yellow-600 opacity-80">v2.11</span>
+        <span class="text-sm text-grey-600">v2.11</span>
       </div>
-      <button
+      <!-- <button
         class="px-4 py-2 rounded border border-yellow-600 hover:bg-yellow-700 hover:text-black transition font-semibold"
       >
         Sign In
-      </button>
+      </button> -->
     </header>
 
     <!-- Main Content: Responsive Flex -->
@@ -187,7 +187,7 @@
         <!-- Latest News -->
         <div class="bg-yellow-900/5 rounded-xl p-6 shadow-lg">
           <div class="mb-3 text-lg font-bold flex items-center gap-2">
-            📰 Latest News
+            📰 News Feed
           </div>
           <div class="space-y-4">
             <div class="bg-yellow-700/10 p-3 rounded">
@@ -202,37 +202,54 @@
                 To play in the tournament sign into the game using an
                 OpenlyNerd.com Account
               </div>
-              <div class="text-xs text-yellow-500 mt-1">5h ago</div>
+              <!-- <div class="text-xs text-yellow-500 mt-1">5h ago</div> -->
+            </div>
+            <div class="bg-yellow-700/10 p-3 rounded">
+              <span
+                class="px-2 py-1 text-xs rounded bg-blue-700 text-white font-semibold"
+                >UPDATE</span
+              >
+              <div class="mt-1 font-bold text-yellow-200">
+                Server Migration v2.11
+              </div>
+              <ul class="text-yellow-300 text-xs list-disc ml-4">
+                <li>Added Map Voting to Main Menu</li>
+                <li>Vote for the next map in Queue</li>
+              </ul>
+              <!-- <div class="text-xs text-yellow-500 mt-1">1d ago</div> -->
             </div>
             <div class="bg-yellow-700/10 p-3 rounded">
               <span
                 class="px-2 py-1 text-xs rounded bg-orange-700 text-white font-semibold"
                 >PATCH</span
               >
-              <div class="mt-1 font-bold text-yellow-200">
-                Server Migration v2.11
-              </div>
+              <div class="mt-1 font-bold text-yellow-200">Server Upgrades</div>
               <ul class="text-yellow-300 text-xs list-disc ml-4">
-                <li>Upgraded server infrastructure.</li>
+                <li>Upgraded our Hosting</li>
                 <li>Hopefully fixes Desync issues for everyone.</li>
               </ul>
-              <div class="text-xs text-yellow-500 mt-1">1d ago</div>
+              <!-- <div class="text-xs text-yellow-500 mt-1">1d ago</div> -->
             </div>
           </div>
         </div>
 
-        <!-- Server Status -->
         <div class="bg-yellow-900/5 rounded-xl p-6 shadow-lg">
-          <div class="mb-2 text-lg font-bold">Server Status - Coming Soon</div>
-          <div class="flex items-center justify-between mb-2">
-            <span>Players Online</span>
-            <span class="text-green-400 font-bold">1,240</span>
+          <div class="mb-2 text-lg font-bold">Vote for Next Map</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+            <button
+              class="bg-yellow-800 hover:bg-yellow-700 text-yellow-100 rounded py-3 font-semibold w-full flex items-center justify-center gap-2"
+              id="map-vote-button"
+              title="Vote for Next Map"
+              translationKey="main.create_lobby"
+              block
+              secondary
+            >
+              🗳️ Vote Map
+            </button>
+            <div class="flex flex-col items-center sm:items-end w-full">
+              <flag-input class="w-[80px] md:w-[100px]"></flag-input>
+            </div>
           </div>
-          <div class="flex items-center justify-between">
-            <span>Active Games</span>
-            <span class="text-yellow-200 font-bold">42</span>
-          </div>
-          <flag-input class="w-[20%] md:w-[15%]"></flag-input>
         </div>
       </aside>
     </main>
@@ -305,6 +322,7 @@
     <lobby-ad class="block"></lobby-ad>
     <single-player-modal></single-player-modal>
     <host-lobby-modal></host-lobby-modal>
+    <map-vote-modal></map-vote-modal>
     <join-private-lobby-modal></join-private-lobby-modal>
     <emoji-table></emoji-table>
     <leader-board></leader-board>

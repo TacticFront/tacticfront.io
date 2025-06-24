@@ -24,6 +24,7 @@ import { LangSelector } from "./LangSelector";
 import { LanguageModal } from "./LanguageModal";
 import "./LobbyAdPopup";
 import { LobbyAdPopup } from "./LobbyAdPopup";
+import { MapVoteModal } from "./MapVoteModal";
 import { NewsModal } from "./NewsModal";
 import "./PublicLobby";
 import { PublicLobby } from "./PublicLobby";
@@ -235,6 +236,19 @@ class Client {
     hostLobbyButton.addEventListener("click", () => {
       if (this.usernameInput?.isValid()) {
         hostModal.open();
+        this.publicLobby.leaveLobby();
+      }
+    });
+
+    const mapVoteModal = document.querySelector(
+      "map-vote-modal",
+    ) as MapVoteModal;
+    mapVoteModal instanceof MapVoteModal;
+    const mapVoteButton = document.getElementById("map-vote-button");
+    if (mapVoteButton === null) throw new Error("Missing map-vote-button");
+    mapVoteButton.addEventListener("click", () => {
+      if (this.usernameInput?.isValid()) {
+        mapVoteModal.open();
         this.publicLobby.leaveLobby();
       }
     });
