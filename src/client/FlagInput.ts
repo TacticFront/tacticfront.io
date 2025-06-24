@@ -70,7 +70,20 @@ export class FlagInput extends LitElement {
     super.connectedCallback();
     this.flag = this.getStoredFlag();
     this.dispatchFlagEvent();
+    window.addEventListener("close-all-modals", this.handleCloseAllModals);
   }
+
+  disconnectedCallback() {
+    window.removeEventListener("close-all-modals", this.handleCloseAllModals);
+    super.disconnectedCallback();
+  }
+
+  private handleCloseAllModals = () => {
+    if (this.showModal) {
+      this.showModal = false;
+      this.requestUpdate(); // ensure Lit rerenders
+    }
+  };
 
   createRenderRoot() {
     return this;
