@@ -64,6 +64,18 @@ class Client {
   constructor() {}
 
   initialize(): void {
+    const publicLobby = document.querySelector("public-lobby") as PublicLobby;
+
+    const tabButtons = document.querySelectorAll(".tab-button");
+    tabButtons.forEach((button) => {
+      button.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement;
+        const lobbyType = target.dataset?.tab ?? "public";
+        console.log(lobbyType);
+        publicLobby.updateLobbyType(lobbyType);
+      });
+    });
+
     // const newsModal = document.querySelector("news-modal") as NewsModal;
     // if (!newsModal) {
     //   consolex.warn("News modal element not found");
@@ -134,11 +146,18 @@ class Client {
       "single-player-modal",
     ) as SinglePlayerModal;
     spModal instanceof SinglePlayerModal;
-    const singlePlayer = document.getElementById("single-player");
-    if (singlePlayer === null) throw new Error("Missing single-player");
-    singlePlayer.addEventListener("click", () => {
-      if (this.usernameInput?.isValid()) {
-        spModal.open();
+    const singlePlayerButtons = [
+      document.getElementById("single-player-sidebar"),
+      document.getElementById("single-player-mobile"),
+    ];
+    if (singlePlayerButtons === null) throw new Error("Missing single-player");
+    singlePlayerButtons.forEach((btn) => {
+      if (btn) {
+        btn.addEventListener("click", () => {
+          if (this.usernameInput?.isValid()) {
+            spModal.open();
+          }
+        });
       }
     });
 
@@ -150,10 +169,17 @@ class Client {
 
     const hlpModal = document.querySelector("help-modal") as HelpModal;
     hlpModal instanceof HelpModal;
-    const helpButton = document.getElementById("help-button");
-    if (helpButton === null) throw new Error("Missing help-button");
-    helpButton.addEventListener("click", () => {
-      hlpModal.open();
+    const helpButtons = [
+      document.getElementById("help-button-sidebar"),
+      document.getElementById("help-button-mobile"),
+    ];
+    if (helpButtons === null) throw new Error("Missing help-button");
+    helpButtons.forEach((btn) => {
+      if (btn) {
+        btn.addEventListener("click", () => {
+          hlpModal.open();
+        });
+      }
     });
 
     const hasNerdToken = !!localStorage.getItem("nerd-token");
@@ -229,12 +255,18 @@ class Client {
       "host-lobby-modal",
     ) as HostPrivateLobbyModal;
     hostModal instanceof HostPrivateLobbyModal;
-    const hostLobbyButton = document.getElementById("host-lobby-button");
-    if (hostLobbyButton === null) throw new Error("Missing host-lobby-button");
-    hostLobbyButton.addEventListener("click", () => {
-      if (this.usernameInput?.isValid()) {
-        hostModal.open();
-        this.publicLobby.leaveLobby();
+    const hostLobbyButtons = [
+      document.getElementById("host-lobby-button-public"),
+      document.getElementById("host-lobby-button-private"),
+    ];
+    hostLobbyButtons.forEach((btn) => {
+      if (btn) {
+        btn.addEventListener("click", () => {
+          if (this.usernameInput?.isValid()) {
+            hostModal.open();
+            this.publicLobby.leaveLobby();
+          }
+        });
       }
     });
 
@@ -255,14 +287,19 @@ class Client {
       "join-private-lobby-modal",
     ) as JoinPrivateLobbyModal;
     this.joinModal instanceof JoinPrivateLobbyModal;
-    const joinPrivateLobbyButton = document.getElementById(
-      "join-private-lobby-button",
-    );
-    if (joinPrivateLobbyButton === null)
+    const joinPrivateLobbyButtons = [
+      document.getElementById("join-private-lobby-button-public"),
+      document.getElementById("join-private-lobby-button-private"),
+    ];
+    if (joinPrivateLobbyButtons === null)
       throw new Error("Missing join-private-lobby-button");
-    joinPrivateLobbyButton.addEventListener("click", () => {
-      if (this.usernameInput?.isValid()) {
-        this.joinModal.open();
+    joinPrivateLobbyButtons.forEach((btn) => {
+      if (btn) {
+        btn.addEventListener("click", () => {
+          if (this.usernameInput?.isValid()) {
+            this.joinModal.open();
+          }
+        });
       }
     });
 
@@ -333,6 +370,15 @@ class Client {
         console.log("Closing modals");
         document.getElementById("settings-button")?.classList.add("hidden");
         document.getElementById("flag-input-div")?.classList.add("hidden");
+        document.getElementById("lobbies")?.classList.add("hidden");
+        document.getElementById("profile")?.classList.add("really-hidden");
+        document.getElementById("left-menu")?.classList.add("really-hidden");
+        document
+          .getElementById("mobile-menu-button")
+          ?.classList.add("really-hidden");
+        document.getElementById("mobileNav")?.classList.add("really-hidden");
+        document.getElementById("footer")?.classList.add("really-hidden");
+
         [
           "single-player-modal",
           "host-lobby-modal",
@@ -346,10 +392,17 @@ class Client {
             close?: () => void;
             isModalOpen?: boolean;
           };
-          if (modal?.close) {
+          if (modal && typeof modal.close === "function") {
             modal.close();
-          } else if ("isModalOpen" in modal) {
+          } else if (modal && "isModalOpen" in modal) {
             modal.isModalOpen = false;
+          } else if (!modal) {
+            consolex.warn("Modal tag not found:", tag);
+          } else {
+            consolex.warn(
+              "Modal found, but no close() or isModalOpen property:",
+              tag,
+            );
           }
         });
         this.publicLobby.stop();

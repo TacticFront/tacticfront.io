@@ -46,6 +46,29 @@ export function createRenderer(
 
   const uiState = { attackRatio: 20 };
 
+  const requiredTags = [
+    "emoji-table",
+    "build-menu",
+    "leader-board",
+    "strike-package-menu",
+    "win-modal",
+    "game-starting-modal",
+    "top-bar",
+    "team-stats",
+    "player-panel",
+    "chat-modal",
+    "user-setting",
+    "multi-tab-modal",
+    "unit-info-modal",
+    "news-modal",
+    "left-in-game-ad",
+  ];
+  requiredTags.forEach((tag) => {
+    if (!document.querySelector(tag)) {
+      throw new Error(`Missing <${tag}> in DOM!`);
+    }
+  });
+
   //hide when the game renders
   const startingModal = document.querySelector(
     "game-starting-modal",

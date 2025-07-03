@@ -1,57 +1,92 @@
 .c-button {
-  background: var(--primaryColor);
-  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  min-width: 120px;
+  font-size: 1.07rem;
+  font-weight: 700;
+  padding: 0.75em 2.1em;
+  border-radius: 1.3em;
+  background: rgba(24, 199, 199, 0.15); /* Glassy cyan accent */
+  color: #0e6079;
+  border: 2px solid rgba(24, 199, 199, 0.28);
+  box-shadow:
+    0 2px 18px 0 rgba(24, 199, 199, 0.07),
+    0 1.5px 7px 0 rgba(24, 199, 199, 0.08);
+  backdrop-filter: blur(1.6px) saturate(1.12);
+  transition:
+    background 0.18s,
+    box-shadow 0.16s,
+    border 0.16s,
+    color 0.13s;
   cursor: pointer;
   outline: none;
-  display: inline-block;
-  font-size: 16px;
-  border: 1px solid transparent;
   text-align: center;
-  padding: 0.8rem 1rem;
-  border-radius: 8px;
-  transition: var(--transition);
-
-  @media (min-width: 1024px) {
-    font-size: 18px;
-  }
 }
 
 .c-button:hover,
-.c-button:active,
-.c-button:focus {
-  background: var(--primaryColorHover);
-  transition: var(--transition);
+.c-button:focus,
+.c-button:active {
+  background: rgba(24, 199, 199, 0.26);
+  color: #087e8b;
+  border: 2.5px solid rgba(24, 199, 199, 0.4);
+  box-shadow: 0 2px 28px 0 rgba(24, 199, 199, 0.14);
+  outline: none;
 }
 
-.c-button:disabled {
-  background: var(--primaryColorDisabled);
-  opacity: 0.7;
+.c-button:disabled,
+.c-button--disabled,
+.c-button[disabled] {
+  background: rgba(24, 199, 199, 0.15);
+  opacity: 0.55;
   cursor: not-allowed;
-  transition: var(--transition);
+  color: #6b8ba2;
+  border-color: rgba(24, 199, 199, 0.12);
+  box-shadow: none;
 }
 
 .c-button--secondary {
-  background: var(--secondaryColor);
-  color: var(--fontColor);
+  background: rgba(180, 220, 220, 0.16);
+  color: #235a7c;
+  border: 2px solid rgba(24, 199, 199, 0.12);
 }
-
 .c-button--secondary:hover,
-.c-button--secondary:active,
-.c-button--secondary:focus {
-  background: var(--secondaryColorHover);
+.c-button--secondary:focus,
+.c-button--secondary:active {
+  background: rgba(180, 220, 220, 0.26);
+  color: #087e8b;
+  border: 2.5px solid rgba(24, 199, 199, 0.22);
 }
 
 .c-button--block {
-  display: block;
   width: 100%;
+  display: flex;
 }
 
 .c-button--blockDesktop {
-  display: block;
   width: 100%;
-
-  @media (min-width: 1024px) {
+  display: flex;
+}
+@media (min-width: 1024px) {
+  .c-button--blockDesktop {
     width: auto;
+    min-width: 170px;
     margin: 0 auto;
   }
 }
+
+/* Optional: Dark mode version (Uncomment if using dark mode, or use a dark utility class) */
+/*
+body.dark .c-button,
+.c-button.dark {
+  background: rgba(12,30,45,0.32);
+  color: #9aefff;
+  border-color: rgba(24,199,199,0.22);
+}
+body.dark .c-button--secondary,
+.c-button--secondary.dark {
+  background: rgba(34, 44, 70, 0.26);
+  color: #9aefff;
+}
+*/

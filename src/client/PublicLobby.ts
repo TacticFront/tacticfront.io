@@ -14,6 +14,25 @@ import { getMapsImage } from "./utilities/Maps";
 export class PublicLobby extends LitElement {
   @state() private publicLobbies: GameInfo[] = [];
   @state() private privateLobbies: GameInfo[] = [];
+  @state() selectedLobbyType: string = "public";
+
+  static get properties() {
+    return {
+      selectedLobbyType: { type: String, reflect: true },
+    };
+  }
+
+  firstUpdated() {
+    const tabButtons = this.shadowRoot?.querySelectorAll(".tab-button") ?? [];
+    tabButtons.forEach((button) => {
+      button.addEventListener("click", (e) => {
+        const target = e.target as HTMLElement;
+        const lobbyType = target.dataset?.tab ?? "public";
+        this.updateLobbyType(lobbyType);
+        this.requestUpdate();
+      });
+    });
+  }
 
   @state() public isLobbyHighlighted: boolean = false;
   @state() private isButtonDebounced: boolean = false;
@@ -43,13 +62,34 @@ export class PublicLobby extends LitElement {
     }
   }
 
+  public updateLobbyType(lobbyType: string) {
+    this.selectedLobbyType = lobbyType;
+
+    console.log(lobbyType, this.selectedLobbyType);
+    this.fetchAndUpdateLobbies();
+    this.requestUpdate();
+  }
+
   private async fetchAndUpdateLobbies(): Promise<void> {
     try {
       const lobbies = await this.fetchLobbies();
-      this.publicLobbies = lobbies.filter((l) => l.lobbyType === "public");
-      this.privateLobbies = lobbies.filter((l) => l.lobbyType === "private");
-      // ...preserve your lobbyIDToStart logic for both
-      [...lobbies].forEach((l) => {
+
+      let filteredLobbies: GameInfo[] = [];
+      if (this.selectedLobbyType === "public") {
+        filteredLobbies = lobbies.filter((l) => l.lobbyType === "public");
+      } else if (this.selectedLobbyType === "private") {
+        filteredLobbies = lobbies.filter((l) => l.lobbyType === "private");
+      }
+
+      // Assign new arrays directly, no need to clear first!
+      this.publicLobbies = filteredLobbies.filter(
+        (l) => l.lobbyType === "public",
+      );
+      this.privateLobbies = filteredLobbies.filter(
+        (l) => l.lobbyType === "private",
+      );
+
+      filteredLobbies.forEach((l) => {
         if (!this.lobbyIDToStart.has(l.gameID)) {
           const msUntilStart = l.msUntilStart ?? 0;
           this.lobbyIDToStart.set(l.gameID, msUntilStart + Date.now());
@@ -63,13 +103,15 @@ export class PublicLobby extends LitElement {
   async fetchLobbies(): Promise<GameInfo[]> {
     try {
       const response = await fetch(`/api/public_lobbies`);
-      if (!response.ok)
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok) {
+        consolex.error(`HTTP error! status: ${response.status}`);
+        return [];
+      }
       const data = await response.json();
       return data.lobbies;
     } catch (error) {
       consolex.error("Error fetching lobbies:", error);
-      throw error;
+      return [];
     }
   }
 
@@ -82,113 +124,128 @@ export class PublicLobby extends LitElement {
   }
 
   render() {
-    // Show nothing if empty
-    if (this.publicLobbies.length === 0 && this.privateLobbies.length === 0)
-      return html``;
-
-    // Card component for a lobby
-    const renderLobbyCard = (lobby: GameInfo, isPublic: boolean) => {
-      if (!lobby?.gameConfig) return;
-      const start = this.lobbyIDToStart.get(lobby.gameID) ?? 0;
-      const timeRemaining = Math.max(
-        0,
-        Math.floor((start - Date.now()) / 1000),
-      );
-      const minutes = Math.floor(timeRemaining / 60);
-      const seconds = timeRemaining % 60;
-      const timeDisplay =
-        minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
-
-      const teamCount =
-        lobby.gameConfig.gameMode === GameMode.Team
-          ? lobby.gameConfig.playerTeams || 0
-          : null;
-
-      //style="mask-image: linear-gradient(to left, transparent, #fff)"
-
-      return html`
-        <div
-          class="flex flex-col bg-yellow-900/10 border border-yellow-700 rounded-xl shadow-lg mb-6 overflow-hidden relative group transition hover:scale-[1.02] duration-150"
-        >
-          <!-- Map image background -->
-          <div class="relative h-40 md:h-56 overflow-hidden">
-            <img
-              src="${getMapsImage(lobby.gameConfig.gameMap)}"
-              alt="${lobby.gameConfig.gameMap}"
-              class="object-cover w-full h-full brightness-90 group-hover:brightness-100 transition"
-            />
-            <div class="absolute top-2 left-2">
-              <span
-                class="px-3 py-1 text-xs rounded-full font-bold
-              ${isPublic
-                  ? "bg-green-700 text-white"
-                  : "bg-blue-800 text-blue-100"} shadow"
-              >
-                ${isPublic ? "PUBLIC" : "PRIVATE"}
-              </span>
-            </div>
-          </div>
-
-          <!-- Lobby Info -->
-          <div
-            class="flex flex-col md:flex-row md:items-center justify-between gap-3 px-6 py-4 bg-black/60"
-          >
-            <div>
-              <div class="text-lg md:text-xl font-bold text-yellow-100 mb-1">
-                ${lobby.gameConfig.gameMap}
-              </div>
-              <div
-                class="flex items-center gap-3 text-xs md:text-sm font-mono mb-1"
-              >
-                <span
-                  class="inline-flex items-center px-2 py-1 rounded bg-yellow-800 text-yellow-200"
-                >
-                  ${lobby.gameConfig.gameMode === GameMode.Team
-                    ? `${teamCount} Teams`
-                    : translateText("game_mode.ffa")}
-                </span>
-                <span
-                  class="inline-flex items-center px-2 py-1 rounded bg-yellow-950 text-yellow-400"
-                >
-                  ${translateText(
-                    `map.${lobby.gameConfig.gameMap
-                      .toLowerCase()
-                      .replace(/\s+/g, "")}`,
-                  )}
-                </span>
-              </div>
-              <div class="flex gap-6 text-yellow-300 font-bold text-sm">
-                <span
-                  >👥 ${lobby.numClients} / ${lobby.gameConfig.maxPlayers}</span
-                >
-                ${isPublic ? html`<span>⏱ ${timeDisplay}</span>` : ""}
-              </div>
-            </div>
-            <div>
-              <button
-                @click=${() => this.lobbyClicked(lobby)}
-                ?disabled=${this.isButtonDebounced}
-                class="mt-2 md:mt-0 px-6 py-2 rounded-lg font-bold bg-yellow-400 text-black hover:bg-yellow-300 shadow-lg transition-all duration-100
-                ${this.isButtonDebounced
-                  ? "opacity-70 cursor-not-allowed"
-                  : ""}"
-              >
-                ${translateText("public_lobby.join")}
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-    };
-
+    const lobbiesToRender = this.getLobbiesToRender();
+    if (lobbiesToRender.length === 0) {
+      return this.renderEmptyState();
+    }
     return html`
-      <div class="space-y-6">
-        ${this.publicLobbies.length
-          ? renderLobbyCard(this.publicLobbies[0], true)
-          : ""}
-        ${this.privateLobbies.map((l) => renderLobbyCard(l, false))}
+      <div class="space-y-8 px-2">
+        ${lobbiesToRender.map((l) => this.renderLobbyCard(l))}
       </div>
     `;
+  }
+
+  private renderEmptyState() {
+    return html`
+      <div
+        class="flex justify-center items-center py-20 text-xl text-gray-500 dark:text-gray-300 opacity-70 select-none"
+      >
+        ${this.selectedLobbyType === "public"
+          ? "No public lobbies found."
+          : "No private lobbies found."}
+      </div>
+    `;
+  }
+
+  private renderLobbyCard(lobby: GameInfo) {
+    const isPublic = lobby.lobbyType === "public";
+    if (!lobby?.gameConfig) return;
+    const start = this.lobbyIDToStart.get(lobby.gameID) ?? 0;
+    const timeRemaining = Math.max(0, Math.floor((start - Date.now()) / 1000));
+    const minutes = Math.floor(timeRemaining / 60);
+    const seconds = timeRemaining % 60;
+    const timeDisplay = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+    const teamCount =
+      lobby.gameConfig.gameMode === GameMode.Team
+        ? lobby.gameConfig.playerTeams || 0
+        : null;
+    const accentBG = "bg-accent bg-cyan-500";
+    const accentText = "text-accent text-cyan-700";
+    const accentRing = "ring-accent ring-cyan-400";
+
+    return html`
+      <div
+        class="flex flex-col bg-white/30 dark:bg-black/30 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 mb-8 overflow-hidden relative group transition hover:scale-[1.025] duration-200 max-w-2xl mx-auto"
+      >
+        <!-- Map image background -->
+        <div class="relative h-44 md:h-60 overflow-hidden">
+          <img
+            src="${getMapsImage(lobby.gameConfig.gameMap)}"
+            alt="${lobby.gameConfig.gameMap}"
+            class="object-cover w-full h-full brightness-90 group-hover:brightness-100 transition"
+          />
+          <div class="absolute top-3 left-3 flex gap-2">
+            <span
+              class="px-4 py-1 text-sm rounded-full font-semibold shadow-xl uppercase tracking-wide ${isPublic
+                ? accentBG + " text-white"
+                : "bg-gray-800 text-gray-100"}"
+            >
+              ${isPublic ? "Public" : "Private"}
+            </span>
+          </div>
+        </div>
+
+        <!-- Lobby Info -->
+        <div
+          class="flex flex-col md:flex-row md:items-center justify-between gap-3 px-7 py-5 bg-white/40 dark:bg-black/60 backdrop-blur-lg"
+        >
+          <div class="flex-1 min-w-0">
+            <div class="text-2xl font-bold mb-1 ${accentText}">
+              ${lobby.gameConfig.gameMap}
+            </div>
+            <div
+              class="flex flex-wrap items-center gap-2 text-xs md:text-sm mb-2"
+            >
+              <span
+                class="inline-flex items-center px-2 py-1 rounded-lg bg-white/80 dark:bg-black/50 font-bold ${accentText} border border-white/40"
+              >
+                ${lobby.gameConfig.gameMode === GameMode.Team
+                  ? `${teamCount} Teams`
+                  : translateText("game_mode.ffa")}
+              </span>
+              <span
+                class="inline-flex items-center px-2 py-1 rounded-lg bg-black/10 dark:bg-white/10 border border-white/30 text-gray-700 dark:text-gray-200"
+              >
+                ${translateText(
+                  `map.${lobby.gameConfig.gameMap
+                    .toLowerCase()
+                    .replace(/\s+/g, "")}`,
+                )}
+              </span>
+            </div>
+            <div
+              class="flex gap-5 text-gray-800 dark:text-gray-100 font-semibold text-base"
+            >
+              <span
+                >👥 ${lobby.numClients} / ${lobby.gameConfig.maxPlayers}</span
+              >
+              ${isPublic ? html`<span>⏱ ${timeDisplay}</span>` : ""}
+            </div>
+          </div>
+          <div class="flex items-center mt-3 md:mt-0">
+            <button
+              @click=${() => this.lobbyClicked(lobby)}
+              ?disabled=${this.isButtonDebounced}
+              class="px-7 py-2.5 rounded-xl font-bold bg-accent bg-cyan-500 text-white text-lg shadow-lg ring-2 ${accentRing} transition-all duration-100
+            ${this.isButtonDebounced
+                ? "opacity-60 cursor-not-allowed"
+                : "hover:bg-cyan-400 hover:scale-105"}"
+            >
+              ${translateText("public_lobby.join")}
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  private getLobbiesToRender(): GameInfo[] {
+    if (this.selectedLobbyType === "public") {
+      return this.publicLobbies;
+    } else if (this.selectedLobbyType === "private") {
+      return this.privateLobbies;
+    }
+    return [];
   }
 
   leaveLobby() {

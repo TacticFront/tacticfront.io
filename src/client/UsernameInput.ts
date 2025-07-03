@@ -48,19 +48,21 @@ export class UsernameInput extends LitElement {
     const token = localStorage.getItem("nerd-token");
 
     return html`
-      <div class="bg-yellow-900/5 rounded-xl p-6 shadow-lg w-full">
+      <div
+        class="bg-white/30 dark:bg-black/40 backdrop-blur-lg rounded-2xl p-6 shadow-2xl border border-white/20 w-full"
+      >
         ${token
           ? html`
               <div class="flex flex-col items-center gap-3">
                 <div
-                  class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-800 text-white border border-blue-400 shadow"
+                  class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-accent/80 text-white border-2 border-accent shadow text-lg"
                 >
-                  <span class="font-semibold">Player:</span>
-                  <span class="font-mono text-lg">${this.username}</span>
+                  <span class="font-semibold text-white">Player:</span>
+                  <span class="font-mono text-2xl">${this.username}</span>
                 </div>
                 <button
                   @click=${this.logout}
-                  class="w-full mt-2 px-4 py-2 bg-red-600 text-white rounded-xl text-lg hover:bg-red-700 transition font-semibold"
+                  class="w-full mt-2 px-5 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white text-lg font-bold shadow-md transition"
                 >
                   Log Out
                 </button>
@@ -68,32 +70,34 @@ export class UsernameInput extends LitElement {
             `
           : html`
               <input
+                id="username-input-field"
                 type="text"
                 .value=${this.username}
                 @input=${this.handleChange}
                 @change=${this.handleChange}
                 placeholder="${translateText("username.enter_username")}"
                 maxlength="${MAX_USERNAME_LENGTH}"
-                class="w-full mb-3 px-4 py-2 border border-yellow-700 rounded-xl shadow text-xl text-yellow-200 bg-black/40 text-center focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"
+                autocomplete="off"
+                class="w-full px-5 py-3 mb-2 border-2 border-white/40 rounded-xl shadow bg-white/60 dark:bg-black/40 text-xl text-gray-800 dark:text-gray-200 text-center focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition"
               />
               ${this.validationError
                 ? html`<div
-                    class="w-full mb-2 px-3 py-1 text-md border rounded bg-white text-red-600 border-red-600 dark:bg-gray-700 dark:text-red-300 dark:border-red-300 text-center"
+                    class="w-full mb-2 px-3 py-2 rounded bg-red-50 dark:bg-red-900 text-red-700 dark:text-red-300 border-2 border-red-400 dark:border-red-700 text-center font-semibold"
                   >
                     ${this.validationError}
                   </div>`
                 : null}
               <button
                 @click=${this.redirectToAuth}
-                class="w-full bg-yellow-400 hover:bg-yellow-300 text-black py-2 rounded font-bold shadow text-lg mt-2 transition"
+                class="w-full py-3 px-6 mt-2 rounded-xl bg-accent text-white text-lg font-bold shadow-md hover:bg-accent/90 active:bg-accent/80 transition"
               >
                 JOIN NOW
               </button>
-              <div class="mt-3 text-xs text-yellow-600 text-center">
+              <div class="mt-3 text-xs text-accent text-center">
                 or log in with
                 <a
                   href="https://openlynerd.com/appauth?appid=tacticfront"
-                  class="underline hover:text-yellow-400"
+                  class="underline hover:text-accent/70 transition"
                   >OpenlyNerd.com</a
                 >
               </div>

@@ -6,44 +6,100 @@
     <title>TacticFront</title>
     <link rel="manifest" href="../../resources/manifest.json" />
 
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Optionally add font for extra retro feel -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Critical CSS to prevent FOUC -->
     <style>
-      body {
-        font-family: "Share Tech Mono", monospace;
+      /* Tabs Styles */
+      .tab-buttons {
+        display: flex;
+        margin-bottom: 10px;
       }
 
-      /* Optional grid overlay for retro feel */
-      body::before {
+      .tab-button {
+        padding: 8px 16px;
+        border: none;
+        background-color: #f0f0f0;
+        cursor: pointer;
+        border-radius: 4px 4px 0 0;
+        margin-right: 2px;
+      }
+
+      .tab-button.active {
+        background-color: #ddd;
+      }
+
+      .tab-content {
+        display: none;
+        padding: 16px;
+        border: 1px solid #ccc;
+        border-radius: 0 4px 4px 4px;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      /* ...existing styles... */
+      .bg-image {
         content: "";
+        background-image: url("/images/logo/Background-TF.jpg");
+        background-position: center;
+        background-attachment: fixed;
+        background-size: cover;
         position: fixed;
-        inset: 0;
-        background:
-          repeating-linear-gradient(
-            to right,
-            transparent,
-            transparent 31px,
-            rgba(255, 255, 0, 0.03) 32px
-          ),
-          repeating-linear-gradient(
-            to bottom,
-            transparent,
-            transparent 31px,
-            rgba(255, 255, 0, 0.03) 32px
-          );
-        pointer-events: none;
-        z-index: 0;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        filter: blur(6px) brightness(0.65);
+        z-index: -2;
+      }
+
+      @media (max-width: 1024px) {
+        .sidebar {
+          display: none;
+        }
+
+        .hamburger {
+          display: block;
+        }
+      }
+
+      @media (min-width: 1025px) {
+        .sidebar {
+          display: flex;
+        }
+
+        .hamburger {
+          display: none;
+        }
       }
     </style>
 
     <!-- Immediate execution to prevent FOUC -->
     <script>
       document.documentElement.className = "preload";
+    </script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const tabButtons = document.querySelectorAll(".tab-button");
+        const tabContents = document.querySelectorAll(".tab-content");
+
+        tabButtons.forEach(function (button) {
+          button.addEventListener("click", function () {
+            const tab = this.dataset.tab;
+
+            tabButtons.forEach(function (btn) {
+              btn.classList.remove("active");
+            });
+            tabContents.forEach(function (content) {
+              content.classList.remove("active");
+            });
+
+            this.classList.add("active");
+            document.getElementById(tab).classList.add("active");
+          });
+        });
+      });
     </script>
 
     <!-- Analytics -->
@@ -63,212 +119,247 @@
     </script>
   </head>
 
-  <body class="min-h-screen bg-black text-yellow-400 font-mono flex flex-col">
-    <header
-      class="flex items-center justify-between px-8 py-4 border-b border-yellow-800"
-    >
-      <div class="flex items-center space-x-3">
-        <span class="text-2xl font-bold tracking-wider"
-          ><img
-            src="../../resources/images/logo/TacticFront-logo-small.png"
-            alt="Logo"
-            class="h-10"
-        /></span>
-        <span class="text-sm text-grey-600">v2.11</span>
-      </div>
-      <!-- <button
-        class="px-4 py-2 rounded border border-yellow-600 hover:bg-yellow-700 hover:text-black transition font-semibold"
-      >
-        Sign In
-      </button> -->
-    </header>
+  <body class="h-full font-sans min-h-screen bg-opacity-0 flex flex-col">
+    <!-- Glassmorphic/blurred bg enhancements -->
+    <div class="bg-image"></div>
+    <div class="glass-overlay"></div>
+    <!-- NEW -->
 
-    <!-- Main Content: Responsive Flex -->
-    <main
-      class="flex flex-1 flex-col lg:flex-row items-stretch gap-8 px-8 pt-10 bg-gradient-to-br from-black via-gray-900 to-black"
-    >
-      <!-- LEFT: Main Map/Game Panel -->
-      <section
-        class="flex-1 bg-yellow-900/5 rounded-xl p-6 shadow-lg flex flex-col justify-between max-w-2xl"
-      >
-        <!-- Map Preview & Title -->
-        <div>
-          <public-lobby class="block"></public-lobby>
-        </div>
-
-        <!-- Secondary Actions -->
-        <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <button
-            class="bg-yellow-800 hover:bg-yellow-700 text-yellow-100 rounded py-2 font-semibold"
-            id="host-lobby-button"
-            title="Create Lobby"
-            translationKey="main.create_lobby"
-            block
-            secondary
-          >
-            Create Game
-          </button>
-          <button
-            class="bg-yellow-800 hover:bg-yellow-700 text-yellow-100 rounded py-2 font-semibold"
-            id="single-player"
-            title="Single Player"
-            translationKey="main.single_player"
-            block
-          >
-            Single Player
-          </button>
-          <button
-            class="bg-yellow-800 hover:bg-yellow-700 text-yellow-100 rounded py-2 font-semibold"
-            id="join-private-lobby-button"
-            title="Join Lobby"
-            translationKey="main.join_lobby"
-            block
-            secondary
-          >
-            Join Lobby
-          </button>
-        </div>
-      </section>
-
-      <!-- RIGHT: Quick Join, Server Status, News -->
-      <aside class="flex flex-col gap-8 w-full max-w-sm">
-        <username-input class="relative w-full"></username-input>
-
-        <!-- Help Modal -->
-        <div
-          class="bg-yellow-900/5 rounded-xl p-6 shadow-lg flex flex-col gap-4"
-        >
-          <img
-            src="../../resources/images/logo/TacticFront-logo-small.png"
-            alt="Logo"
-            class="h-auto w-auto mb-2 mt-0"
-          />
-          <div class="flex items-center gap-2 mb-1">
-            <span class="text-xl">❓</span>
-            <span class="text-xl font-bold text-yellow-100">Player Help</span>
-          </div>
-          <p class="text-yellow-300 text-sm mb-2">
-            New? Get help, read the wiki, or join our Discord community:
-          </p>
-
-          <button
-            class="bg-yellow-800 hover:bg-yellow-700 text-yellow-100 rounded py-2 font-semibold"
-            id="help-button"
-            title="Instructions"
-            translationKey="main.instructions"
-            block
-            secondary
-          >
-            <span>📖</span> Instructions
-          </button>
-
-          <a
-            href="https://openlynerd.com/a/tacticfront"
-            target="_blank"
-            class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-green-700 hover:bg-green-800 text-white font-bold text-base transition"
-          >
-            <span>🌐</span> <span>Wiki</span>
-          </a>
-
-          <a
-            href="https://discord.gg/vNcACpjfFB"
-            target="_blank"
-            class="w-full flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold text-base transition"
-          >
-            <img
-              src="../../resources/images/discord-white-icon.webp"
-              style="height: 1em"
-            />
-            <span>Join Discord</span>
-          </a>
-        </div>
-      </aside>
-      <aside class="flex flex-col gap-8 w-full max-w-sm">
-        <!-- Latest News -->
-        <div class="bg-yellow-900/5 rounded-xl p-6 shadow-lg">
-          <div class="mb-3 text-lg font-bold flex items-center gap-2">
-            📰 News Feed
-          </div>
-          <div class="space-y-4">
-            <div class="bg-yellow-700/10 p-3 rounded">
-              <span
-                class="px-2 py-1 text-xs rounded bg-green-700 text-white font-semibold"
-                >EVENT</span
-              >
-              <div class="mt-1 font-bold text-yellow-200">
-                Weekend tournaments starting soon
-              </div>
-              <div class="text-yellow-300 text-xs">
-                To play in the tournament sign into the game using an
-                OpenlyNerd.com Account
-              </div>
-              <!-- <div class="text-xs text-yellow-500 mt-1">5h ago</div> -->
-            </div>
-            <div class="bg-yellow-700/10 p-3 rounded">
-              <span
-                class="px-2 py-1 text-xs rounded bg-blue-700 text-white font-semibold"
-                >UPDATE</span
-              >
-              <div class="mt-1 font-bold text-yellow-200">
-                Server Migration v2.11
-              </div>
-              <ul class="text-yellow-300 text-xs list-disc ml-4">
-                <li>Added Map Voting to Main Menu</li>
-                <li>Vote for the next map in Queue</li>
-              </ul>
-              <!-- <div class="text-xs text-yellow-500 mt-1">1d ago</div> -->
-            </div>
-            <div class="bg-yellow-700/10 p-3 rounded">
-              <span
-                class="px-2 py-1 text-xs rounded bg-orange-700 text-white font-semibold"
-                >PATCH</span
-              >
-              <div class="mt-1 font-bold text-yellow-200">Server Upgrades</div>
-              <ul class="text-yellow-300 text-xs list-disc ml-4">
-                <li>Upgraded our Hosting</li>
-                <li>Hopefully fixes Desync issues for everyone.</li>
-              </ul>
-              <!-- <div class="text-xs text-yellow-500 mt-1">1d ago</div> -->
-            </div>
-          </div>
-        </div>
-
-        <div class="bg-yellow-900/5 rounded-xl p-6 shadow-lg">
-          <div class="mb-2 text-lg font-bold">Vote for Next Map</div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-            <button
-              class="bg-yellow-800 hover:bg-yellow-700 text-yellow-100 rounded py-3 font-semibold w-full flex items-center justify-center gap-2"
-              id="map-vote-button"
-              title="Vote for Next Map"
-              translationKey="main.create_lobby"
-              block
-              secondary
-            >
-              🗳️ Vote Map
-            </button>
-            <div
-              id="flag-input-div"
-              class="flex flex-col items-center sm:items-end w-full"
-            >
-              <flag-input class="w-[80px] md:w-[100px]"></flag-input>
-            </div>
-          </div>
-        </div>
-      </aside>
-    </main>
-
-    <!-- User Setting -->
-    <button
-      id="settings-button"
-      title="Settings"
-      class="fixed bottom-4 right-4 z-50 rounded-full p-2 shadow-lg transition-colors duration-300 flex items-center justify-center"
-      style="width: 80px; height: 80px; background-color: #0075ff"
+    <!-- Sidebar Nav (desktop), Hamburger (mobile) -->
+    <nav
+      id="left-menu"
+      class="sidebar fixed top-0 left-0 h-full w-64 bg-white/20 backdrop-blur-lg shadow-lg rounded-tr-2xl rounded-br-2xl flex-col p-6 z-20 space-y-4 hidden lg:flex"
     >
       <img
-        src="../../resources/images/SettingIconWhite.svg"
-        alt="Settings"
-        style="width: 72px; height: 72px"
+        src="../../resources/images/logo/TacticFront-logo-small.png"
+        class="w-36 mb-8 mx-auto"
       />
+      <o-button
+        id="single-player-sidebar"
+        title="Single Player"
+        translationKey="main.single_player"
+        block
+        class="w-full"
+      ></o-button>
+      <o-button
+        id="help-button-sidebar"
+        title="Instructions"
+        translationKey="main.instructions"
+        block
+        secondary
+        class="w-full"
+      ></o-button>
+      <a
+        class="discord-btn"
+        href="https://discord.gg/vNcACpjfFB"
+        target="_blank"
+        rel="noopener"
+      >
+        <img
+          class="discord-logo"
+          src="https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/66e3d7f4ef6498ac018f2c55_Symbol.svg"
+          alt="Discord Logo"
+        />
+        Join our Discord
+      </a>
+    </nav>
+    <button
+      id="mobile-menu-button"
+      class="hamburger fixed top-6 left-4 z-30 bg-accent text-white rounded-full p-3 shadow-lg lg:hidden"
+      onclick="document.getElementById('mobileNav').classList.toggle('hidden')"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="w-8 h-8"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 8h16M4 16h16"
+        />
+      </svg>
+    </button>
+    <nav
+      id="mobileNav"
+      class="hamburger hidden fixed top-0 left-0 h-full w-64 bg-white/90 backdrop-blur-xl shadow-xl z-40 flex flex-col p-6 space-y-4"
+    >
+      <button
+        onclick="document.getElementById('mobileNav').classList.add('hidden')"
+        class="mb-6 text-gray-700"
+      >
+        ✕ Close
+      </button>
+      <!-- Same nav items as sidebar -->
+      <o-button
+        id="single-player-mobile"
+        title="Single Player"
+        translationKey="main.single_player"
+        block
+        class="w-full"
+      ></o-button>
+
+      <o-button
+        id="help-button-mobile"
+        title="Instructions"
+        translationKey="main.instructions"
+        block
+        secondary
+        class="w-full"
+      ></o-button>
+      <a
+        class="discord-btn"
+        href="https://discord.gg/vNcACpjfFB"
+        target="_blank"
+        rel="noopener"
+      >
+        <img
+          class="discord-logo"
+          src="https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/66e3d7f4ef6498ac018f2c55_Symbol.svg"
+          alt="Discord Logo"
+        />
+        Join our Discord
+      </a>
+    </nav>
+
+    <!-- Main content -->
+    <main
+      id="lobbies"
+      class="flex justify-center flex-grow items-center px-2 relative z-10"
+    >
+      <!-- Main glassmorphic card -->
+      <div
+        class="relative bg-white/40 dark:bg-black/40 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/20 p-8 max-w-xl w-full mx-4 flex flex-col items-center space-y-6 z-10"
+      >
+        <!-- Logo + Version -->
+        <div class="flex items-center w-full justify-center">
+          <img
+            src="../../resources/images/logo/TacticFront-logo-small.png"
+            alt="TacticFront Logo"
+            class="w-36 mb-2"
+          />
+          <span class="ml-4 text-lg font-extrabold text-white">v2.10.2</span>
+        </div>
+
+        <!-- Map lobby loader (public-lobby) -->
+        <div class="w-full mt-4">
+          <div class="tab-buttons flex w-full gap-2 max-w-md mx-auto mb-4">
+            <button class="tab-button flex-1 active" data-tab="public">
+              Public
+            </button>
+            <button class="tab-button flex-1" data-tab="private">
+              Private
+            </button>
+          </div>
+
+          <div>
+            <public-lobby id="public-lobby" class="block"></public-lobby>
+          </div>
+          <div id="public" class="tab-content active">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+              <o-button
+                id="map-vote-button"
+                title="🗳️ Vote Maps"
+                block
+                class="glass-btn"
+              ></o-button>
+              <o-button
+                id="host-lobby-button-public"
+                title="Create Lobby"
+                translationKey="main.create_lobby"
+                block
+                class="glass-btn"
+              ></o-button>
+            </div>
+          </div>
+          <div id="private" class="tab-content">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+              <o-button
+                id="host-lobby-button-private"
+                title="Create Lobby"
+                translationKey="main.create_lobby"
+                block
+                class="glass-btn"
+              ></o-button>
+              <o-button
+                id="join-private-lobby-button-private"
+                title="Join Lobby"
+                translationKey="main.join_lobby"
+                block
+                class="glass-btn"
+              ></o-button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Right-side login panel (hidden on mobile, below on small screens) -->
+    <aside
+      id="profile"
+      class="hidden xl:flex flex-col items-center justify-center h-full px-4 py-12 fixed top-0 right-0 z-30"
+      style="min-width: 370px; max-width: 420px"
+    >
+      <div
+        class="bg-white/40 dark:bg-black/50 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/20 p-8 w-full space-y-6"
+      >
+        <div class="profile-container p-4">
+          <img
+            src="../../resources/images/freepik/ProfilePlaceholder.png"
+            alt="Profile Image"
+            class="profile-image rounded-full w-16 h-16 mx-auto"
+          />
+          <h2 class="username text-lg font-semibold text-center">Username</h2>
+          <p class="clan text-sm text-center">Clan: SMOL</p>
+          <p class="rank text-sm text-center">Rank: Recruit</p>
+          <p class="points text-sm text-center">Points: 1000</p>
+        </div>
+        <flag-input
+          id="flag-input"
+          class="w-[22%] md:w-[15%] hidden"
+        ></flag-input>
+        <username-input id="username-input" class="flex-1"></username-input>
+        <news-button
+          id="news-button"
+          class="w-[22%] md:w-[15%] component-hideable hidden"
+        ></news-button>
+      </div>
+    </aside>
+
+    <!-- Mobile/tablet login panel, shown only below xl -->
+    <section class="flex xl:hidden w-full max-w-md mx-auto mt-6 px-2 z-20">
+      <div
+        class="bg-white/40 dark:bg-black/50 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/20 p-6 w-full space-y-6"
+      >
+        <flag-input id="flag-input-mobile" class="w-[30%]"></flag-input>
+        <username-input
+          id="username-input-mobile"
+          class="flex-1"
+        ></username-input>
+        <news-button
+          id="news-button-mobile"
+          class="w-[30%] component-hideable"
+        ></news-button>
+      </div>
+    </section>
+
+    <!-- FAB for mobile (optional) -->
+    <button
+      class="fixed bottom-5 right-5 z-50 bg-accent text-white rounded-full p-4 shadow-lg lg:hidden"
+      style="width: 64px; height: 64px"
+    >
+      <svg
+        class="w-8 h-8 mx-auto"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+      >
+        <path d="M12 4v16m8-8H4" />
+      </svg>
     </button>
 
     <!-- Game components -->
@@ -309,26 +400,47 @@
       </div>
     </div>
 
-    <!-- Footer section -->
+    <!-- Footer -->
     <footer
-      class="mt-12 py-4 border-t border-yellow-800 text-xs text-yellow-600 flex justify-center gap-6"
+      id="footer"
+      class="fixed bottom-0 w-full bg-white/20 backdrop-blur-md border-t border-white/10 py-2 px-4 text-center text-sm text-gray-800 dark:text-gray-100 flex justify-between items-center z-50"
     >
-      <!-- <a href="https://openlynerd.com/a/tacticfront" class="hover:underline">Wiki</a>
-    <a href="https://discord.gg/vNcACpjfFB" class="hover:underline">Discord</a> -->
-      <a href="/privacy-policy.html" class="hover:underline">Privacy Policy</a>
-      <a href="/terms-of-service.html" class="hover:underline"
-        >Terms of Service</a
-      >
-      <span>©2025 TacticFront</span>
+      <div>
+        <a
+          href="https://youtu.be/jvHEvbko3uw?si=znspkP84P76B1w5I"
+          class="t-link"
+          target="_blank"
+          >How to Play</a
+        >
+        <a
+          href="https://openfront.miraheze.org/wiki/Main_Page"
+          class="t-link"
+          target="_blank"
+          >Wiki</a
+        >
+        <a href="https://discord.gg/vNcACpjfFB" class="t-link" target="_blank"
+          >Join the Discord!</a
+        >
+      </div>
+      <div>
+        ©2025 TacticFront
+        <a href="/privacy-policy.html" class="t-link" target="_blank"
+          >Privacy Policy</a
+        >
+        <a href="/terms-of-service.html" class="t-link" target="_blank"
+          >Terms of Service</a
+        >
+      </div>
     </footer>
+    <!-- ...rest of your modals/components... -->
     <!-- Game modals and overlays -->
     <lobby-ad class="block"></lobby-ad>
     <single-player-modal></single-player-modal>
     <host-lobby-modal></host-lobby-modal>
-    <map-vote-modal></map-vote-modal>
     <join-private-lobby-modal></join-private-lobby-modal>
     <emoji-table></emoji-table>
     <leader-board></leader-board>
+    <map-vote-modal></map-vote-modal>
     <build-menu></build-menu>
     <strike-package-menu></strike-package-menu>
     <win-modal></win-modal>
@@ -364,6 +476,7 @@
         </button>
       </div>
     </div>
+
     <!-- Scripts -->
     <script>
       // Remove preload class after everything is loaded
