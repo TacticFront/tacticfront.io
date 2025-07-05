@@ -1,35 +1,42 @@
-# OpenFrontIO
-
-pm2 start src/server/Server.ts \
- --name openfront-server \
- --interpreter node \
- --interpreter-args="--loader ts-node/esm --experimental-specifier-resolution=node" \
- --env NODE_ENV=production \
- --env GAME_ENV=prod
-
-NODE_ENV=production GAME_ENV=prod node --loader ts-node/esm --experimental-specifier-resolution=node src/server/Server.ts
+# TacticFront
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="resources/images/OpenFrontLogoDark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="resources/images/OpenFrontLogo.svg">
-    <img src="resources/images/OpenFrontLogo.svg" alt="OpenFrontIO Logo" width="300">
+    <img src="resources/tacticfront/TacticFront-logo-small.png" alt="OpenFrontIO Logo" width="300">
   </picture>
 </p>
 
-![Prettier Check](https://github.com/openfrontio/OpenFrontIO/actions/workflows/prettier.yml/badge.svg)
-[![Crowdin](https://badges.crowdin.net/openfront-mls/localized.svg)](https://crowdin.com/project/openfront-mls)
+TacticFront is an online real-time strategy game focused on territorial control and alliance building. Players compete to expand their territory, build structures, and form strategic alliances in various maps based on real-world geography which builds off of elements found in early versions of Openfront.
 
-OpenFront is an online real-time strategy game focused on territorial control and alliance building. Players compete to expand their territory, build structures, and form strategic alliances in various maps based on real-world geography.
+## 🏛️ Project Lineage
 
-This is a fork/rewrite of WarFront.io. Credit to https://github.com/WarFrontIO.
+This project, TacticFront, is a fork and major rewrite of [OpenFront.io](https://github.com/openfrontio/OpenFrontIO),  
+which itself is a fork and rewrite of [WarFront.io](https://github.com/WarFrontIO).  
+Credit to all previous contributors and teams.
 
-# OpenFront - Licensing
+# Licensing
 
-This project uses a dual-licensing approach:
+The Openfront project used a dual-licensing approach at the time of our fork:
 
 - Code in the `server/` and `core/` directory is licensed under MIT
-- Client code (in the `client/` directory) is licensed under GPL v3
+- Client code (in the `client/` directory) is licensed under GPL v3 see `src/client/` for full license texts.
+
+We have preserved all headers and license text from the time of our fork.
+
+This project is a fork of OpenFront.io, which at the time of fork included a root-level MIT license.  
+However, we were made aware after our fork of a note in the README indicating the project or parts thereof were covered by the GPL.  
+In order to comply with potential GPL requirements, all code from the original repo subsequent to that notice might be treated as GPL v3, and the full GPL license text is included in the subfolder.  
+No attempt has been made to retroactively add file-level headers to code where authorship or original intent is unclear.
+
+This project is therefore released under GPL v3 for any code affected by that notice. We make no warranties regarding the legal status or condition of any code in this repository. You should consult with your own legal counsel before using or redistributing any portion of this codebase.
+We are publishing this code solely to comply with potential open-source licensing requirements and assert our rights to do so under either the MIT or GPL v3 licenses, as may apply.
+
+# Additional Licensing information
+
+> **Note:**  
+> Some visual assets (logos, images) referenced by this project may NOT included in this repository due to third-party licensing restrictions. See `resources/tacticfront` and subfolders for details.
+
+NOTICE: Assets that may be referenced or required by this project (such as logos and images) are NOT included in this repository. Some assets are licensed from Freepik (https://www.freepik.com/) and may not be distributed or sublicensed under GPL or any other open-source license. If you need these assets, please obtain them directly from Freepik, and follow their terms of service.
 
 ## 🌟 Features
 
@@ -47,11 +54,6 @@ This project uses a dual-licensing approach:
 ## 🚀 Installation
 
 1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/openfrontio/OpenFrontIO.git
-   cd OpenFrontIO
-   ```
 
 2. **Install dependencies**
 
@@ -125,7 +127,8 @@ This project is licensed under the terms found in the [LICENSE](LICENSE) file.
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-1. Request to join the development [Discord](https://discord.gg/K9zernJB5z).
+1. [Join the TacticFront community on Discord!](https://discord.gg/vNcACpjfFB)
+
 1. Fork the repository
 1. Create your feature branch (`git checkout -b amazing-feature`)
 1. Commit your changes (`git commit -m 'Add some amazing feature'`)
@@ -145,9 +148,11 @@ How to help?
 
 ### Project Governance
 
-- The project maintainer ([evan](https://github.com/evanpelle)) has final authority on all code changes and design decisions
+- The project maintainers have final authority on all code changes and design decisions
 - All pull requests require maintainer approval before merging
-- The maintainer reserves the right to reject contributions that don't align with the project's vision or quality standards
+- The maintainers reserve the right to reject contributions that don't align with the project's vision or quality standards
+
+- By submitting any code change you are confirming that you have the rights to the code or changes and are allowing them to be distributed under the terms of the project license. Accepted changes may be used in TacticFront.io commercially.
 
 ### Contribution Path for New Contributors
 
@@ -200,4 +205,4 @@ To ensure code quality and project stability, we use a progressive contribution 
 
 Remember that maintaining this project requires significant effort. The maintainer appreciates your contributions but must prioritize long-term project health and stability. Not all contributions will be accepted, and that's okay.
 
-Thank you for helping make OpenFront better!
+Thank you for helping make TacticFront better!

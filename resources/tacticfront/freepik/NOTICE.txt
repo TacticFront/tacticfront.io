@@ -1,0 +1,7 @@
+NOTICE: The visual assets (such as logos and images) originally intended for use in this project are NOT included in this repository.
+
+These assets are licensed from Freepik (https://www.freepik.com/) and may not be distributed under the GNU General Public License (GPL) or any open-source license.
+
+If you wish to use the project with these visual assets, you must obtain them directly from Freepik and ensure your use complies with Freepik’s terms of service and license agreements (https://www.freepik.com/terms_of_use).
+
+Any references to such assets in the project code or documentation are for illustrative purposes only and do not imply any right to use, copy, or redistribute them. We may include placeholder images rather than distribuiting potentially copyrighted materials.
