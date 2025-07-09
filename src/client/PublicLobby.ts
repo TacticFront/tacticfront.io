@@ -283,6 +283,7 @@ export class PublicLobby extends LitElement {
   leaveLobby() {
     this.isLobbyHighlighted = false;
     this.currLobby = null;
+    this.debouncedLobby = null;
   }
 
   private lobbyClicked(lobby: GameInfo) {
@@ -290,10 +291,10 @@ export class PublicLobby extends LitElement {
 
     this.debouncedLobby = lobby.gameID;
 
-    setTimeout(() => {
-      this.debouncedLobby = null;
-      this.requestUpdate();
-    }, this.debounceDelay);
+    // setTimeout(() => {
+    //   this.debouncedLobby = null;
+    //   this.requestUpdate();
+    // }, this.debounceDelay);
 
     if (this.currLobby === null) {
       this.isLobbyHighlighted = true;
