@@ -15,6 +15,7 @@ export class PublicLobby extends LitElement {
   @state() private publicLobbies: GameInfo[] = [];
   @state() private privateLobbies: GameInfo[] = [];
   @state() selectedLobbyType: string = "public";
+  @state() private debouncedLobby: GameID | null = null;
 
   static get properties() {
     return {
@@ -163,6 +164,9 @@ export class PublicLobby extends LitElement {
     const accentText = "text-accent text-cyan-700";
     const accentRing = "ring-accent ring-cyan-400";
 
+    // Only this lobby gets the debounced state/spinner!
+    const isDebounced = this.debouncedLobby === lobby.gameID;
+
     return html`
       <div
         class="flex flex-col bg-white/30 dark:bg-black/30 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 mb-8 overflow-hidden relative group transition hover:scale-[1.025] duration-200 max-w-2xl mx-auto"
@@ -225,15 +229,15 @@ export class PublicLobby extends LitElement {
           <div class="flex items-center mt-3 md:mt-0">
             <button
               @click=${() => this.lobbyClicked(lobby)}
-              ?disabled=${this.isButtonDebounced}
+              ?disabled=${isDebounced}
               class="tf-button block font-bold text-lg ring-2 transition-all duration-100
-                ${accentRing}
-                ${this.isButtonDebounced
+              ${accentRing}
+              ${isDebounced
                 ? "active opacity-60 cursor-not-allowed ring-cyan-300"
                 : "hover:bg-cyan-400 hover:scale-105 ring-cyan-400"}"
               style="text-align: center;"
             >
-              ${this.isButtonDebounced
+              ${isDebounced
                 ? html`<span
                     class="inline-flex items-center justify-center w-full"
                   >
@@ -282,16 +286,13 @@ export class PublicLobby extends LitElement {
   }
 
   private lobbyClicked(lobby: GameInfo) {
-    if (this.isButtonDebounced) {
-      return;
-    }
+    if (this.debouncedLobby === lobby.gameID) return; // Ignore double clicks
 
-    // Set debounce state
-    this.isButtonDebounced = true;
+    this.debouncedLobby = lobby.gameID;
 
-    // Reset debounce after delay
     setTimeout(() => {
-      this.isButtonDebounced = false;
+      this.debouncedLobby = null;
+      this.requestUpdate();
     }, this.debounceDelay);
 
     if (this.currLobby === null) {
