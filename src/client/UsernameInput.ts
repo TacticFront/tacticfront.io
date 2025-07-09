@@ -57,7 +57,6 @@ export class UsernameInput extends LitElement {
                 <div
                   class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-accent/80 text-white border-2 border-accent shadow text-lg"
                 >
-                  <span class="font-semibold text-white">Player:</span>
                   <span class="font-mono text-2xl">${this.username}</span>
                 </div>
                 <button

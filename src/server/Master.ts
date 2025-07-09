@@ -3,6 +3,7 @@
 import cluster from "cluster";
 import express from "express";
 import rateLimit from "express-rate-limit";
+import fs from "fs";
 import http from "http";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -26,6 +27,17 @@ const log = logger.child({ comp: "m" });
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.json());
+
+app.use((req, res, next) => {
+  if (!path.extname(req.path)) {
+    const filePath = path.join(__dirname, "../../static", req.path + ".html");
+    if (fs.existsSync(filePath)) {
+      return res.sendFile(filePath);
+    }
+  }
+  next();
+});
+
 app.use(
   express.static(path.join(__dirname, "../../static"), {
     maxAge: "1y", // Set max-age to 1 year for all static assets
