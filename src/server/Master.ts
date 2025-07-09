@@ -30,7 +30,9 @@ app.use(express.json());
 
 app.use((req, res, next) => {
   if (!path.extname(req.path)) {
-    const filePath = path.join(__dirname, "../../static", req.path + ".html");
+    const filename = req.path.replace(/^\/+/, "");
+    const filePath = path.join(__dirname, "../../static", filename + ".html");
+    console.log("Checking:", filePath);
     if (fs.existsSync(filePath)) {
       return res.sendFile(filePath);
     }
