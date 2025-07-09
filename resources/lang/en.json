@@ -187,7 +187,8 @@
     "joined_waiting": "Joined successfully! Waiting for game to start..."
   },
   "public_lobby": {
-    "join": "Join next Game",
+    "join": "Join Lobby",
+    "leave": "Leave Queue",
     "waiting": "players waiting",
     "teams": "{num} teams"
   },
