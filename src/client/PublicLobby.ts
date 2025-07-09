@@ -226,12 +226,40 @@ export class PublicLobby extends LitElement {
             <button
               @click=${() => this.lobbyClicked(lobby)}
               ?disabled=${this.isButtonDebounced}
-              class="px-7 py-2.5 rounded-xl font-bold bg-accent bg-cyan-500 text-white text-lg shadow-lg ring-2 ${accentRing} transition-all duration-100
-            ${this.isButtonDebounced
-                ? "opacity-60 cursor-not-allowed"
-                : "hover:bg-cyan-400 hover:scale-105"}"
+              class="tf-button block font-bold text-lg ring-2 transition-all duration-100
+                ${accentRing}
+                ${this.isButtonDebounced
+                ? "active opacity-60 cursor-not-allowed ring-cyan-300"
+                : "hover:bg-cyan-400 hover:scale-105 ring-cyan-400"}"
+              style="text-align: center;"
             >
-              ${translateText("public_lobby.join")}
+              ${this.isButtonDebounced
+                ? html`<span
+                    class="inline-flex items-center justify-center w-full"
+                  >
+                    <svg
+                      class="animate-spin h-5 w-5 mr-2 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        class="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        stroke-width="4"
+                      ></circle>
+                      <path
+                        class="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8z"
+                      ></path>
+                    </svg>
+                    Joining...
+                  </span>`
+                : translateText("public_lobby.join")}
             </button>
           </div>
         </div>
