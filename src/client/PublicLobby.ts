@@ -165,7 +165,7 @@ export class PublicLobby extends LitElement {
     const accentRing = "ring-accent ring-cyan-400";
 
     // Only this lobby gets the debounced state/spinner!
-    const isDebounced = this.debouncedLobby === lobby.gameID;
+    const isSelected = this.debouncedLobby === lobby.gameID;
 
     return html`
       <div
@@ -228,16 +228,15 @@ export class PublicLobby extends LitElement {
           </div>
           <div class="flex items-center mt-3 md:mt-0">
             <button
-              @click=${() => this.lobbyClicked(lobby)}
-              ?disabled=${isDebounced}
+              @click=${() => this.lobbyButtonClicked(lobby)}
               class="tf-button block font-bold text-lg ring-2 transition-all duration-100
               ${accentRing}
-              ${isDebounced
-                ? "active opacity-60 cursor-not-allowed ring-cyan-300"
+              ${isSelected
+                ? "active opacity-60 ring-cyan-300"
                 : "hover:bg-cyan-400 hover:scale-105 ring-cyan-400"}"
               style="text-align: center;"
             >
-              ${isDebounced
+              ${isSelected
                 ? html`<span
                     class="inline-flex items-center justify-center w-full"
                   >
@@ -261,7 +260,7 @@ export class PublicLobby extends LitElement {
                         d="M4 12a8 8 0 018-8v8z"
                       ></path>
                     </svg>
-                    Joining...
+                    ${translateText("public_lobby.leave")}
                   </span>`
                 : translateText("public_lobby.join")}
             </button>
@@ -286,17 +285,20 @@ export class PublicLobby extends LitElement {
     this.debouncedLobby = null;
   }
 
-  private lobbyClicked(lobby: GameInfo) {
-    if (this.debouncedLobby === lobby.gameID) return; // Ignore double clicks
-
-    this.debouncedLobby = lobby.gameID;
-
-    // setTimeout(() => {
-    //   this.debouncedLobby = null;
-    //   this.requestUpdate();
-    // }, this.debounceDelay);
-
-    if (this.currLobby === null) {
+  private lobbyButtonClicked(lobby: GameInfo) {
+    if (this.debouncedLobby === lobby.gameID) {
+      // Already joined/queued -> clicking again leaves
+      this.leaveLobby();
+      this.dispatchEvent(
+        new CustomEvent("leave-lobby", {
+          detail: { lobby },
+          bubbles: true,
+          composed: true,
+        }),
+      );
+    } else {
+      // Not joined -> click joins
+      this.debouncedLobby = lobby.gameID;
       this.isLobbyHighlighted = true;
       this.currLobby = lobby;
       this.dispatchEvent(
@@ -309,15 +311,6 @@ export class PublicLobby extends LitElement {
           composed: true,
         }),
       );
-    } else {
-      this.dispatchEvent(
-        new CustomEvent("leave-lobby", {
-          detail: { lobby: this.currLobby },
-          bubbles: true,
-          composed: true,
-        }),
-      );
-      this.leaveLobby();
     }
   }
 }
