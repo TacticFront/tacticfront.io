@@ -374,6 +374,9 @@ class Client {
         document.getElementById("profile")?.classList.add("really-hidden");
         document.getElementById("left-menu")?.classList.add("really-hidden");
         document
+          .getElementById("mobile-login-panel")
+          ?.classList.add("really-hidden");
+        document
           .getElementById("mobile-menu-button")
           ?.classList.add("really-hidden");
         document.getElementById("mobileNav")?.classList.add("really-hidden");
