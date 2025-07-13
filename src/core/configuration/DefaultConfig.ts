@@ -287,7 +287,7 @@ export class DefaultConfig implements Config {
     return this._gameConfig.infiniteTroops;
   }
   tradeShipGold(dist: number): Gold {
-    return Math.floor(5000 + 30 * Math.pow(dist, 1.1));
+    return Math.floor(5000 + 50 * Math.pow(dist, 1.1));
   }
   tradeShipSpawnRate(numberOfPorts: number): number {
     return Math.max(10, Math.round(80 / Math.pow(numberOfPorts, 0.47)));
