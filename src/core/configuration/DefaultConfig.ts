@@ -846,12 +846,12 @@ export class DefaultConfig implements Config {
     //population grows proportional to current population with growth decreasing as it approaches max
     // smaller countries recieve a boost to pop growth to speed up early game
     const baseAdditionRate = 10;
-    const basePopGrowthRate = 1400 / max + 1 / 160;
-    const reproductionPop = 0.8 * player.troops() + 1.1 * player.workers();
+    const basePopGrowthRate = 1400 / max + 1 / 200;
+    const reproductionPop = 0.65 * player.troops() + 1.0 * player.workers();
     let toAdd = baseAdditionRate + basePopGrowthRate * reproductionPop;
     const totalPop = player.population();
 
-    const slowdownExp = 1.3; // 1 = linear, 2 = very sharp, try 1.3–1.8
+    const slowdownExp = 1.35; // 1 = linear, 2 = very sharp, try 1.3–1.8
     const ratio = Math.max(0.01, 1 - totalPop / max);
     toAdd *= Math.pow(ratio, slowdownExp);
 
@@ -885,7 +885,7 @@ export class DefaultConfig implements Config {
     if (!player) return 0;
 
     const workers = Number(player.workers() ?? 0);
-    const populationGold = 0.025 * Math.pow(workers, 0.88);
+    const populationGold = 0.02 * Math.pow(workers, 0.9);
     const cityGold = player.units(UnitType.City)?.length * 50;
     const metroGold =
       player.units(UnitType.Metropolis).length *
@@ -898,8 +898,8 @@ export class DefaultConfig implements Config {
     const portGold = player.units(UnitType.Port)?.length * 30;
 
     const troopWages =
-      (Number(player.offensiveTroops() ?? 0) * 0.004 +
-        Number(player.troops() ?? 0) * 0.002) *
+      (Number(player.offensiveTroops() ?? 0) * 0.006 +
+        Number(player.troops() ?? 0) * 0.003) *
       (player.type() === PlayerType.Bot ? 0.5 : 1);
 
     let totalGoldRaw =
@@ -915,7 +915,7 @@ export class DefaultConfig implements Config {
   }
 
   troopAdjustmentRate(player: Player): number {
-    const maxDiff = this.maxPopulation(player) / 2000;
+    const maxDiff = this.maxPopulation(player) / 2200;
     const target = player.population() * player.targetTroopRatio();
     const diff = target - (player.troops() + player.offensiveTroops());
     if (Math.abs(diff) < maxDiff) {

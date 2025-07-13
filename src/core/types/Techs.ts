@@ -152,7 +152,7 @@ export const techList: Tech[] = [
     icon: "🏢",
     category: "Civilian",
     minorCategory: "Cities",
-    cost: 2_500_000,
+    cost: 3_000_000,
     apply: (p) => {
       p.setVar("metroPop", (p.getVar("metroPop") ?? 750_000) + 250_000);
       p.setVar("metroGoldGen", (p.getVar("metroGoldGen") ?? 150) + 50);
@@ -166,13 +166,13 @@ export const techList: Tech[] = [
     id: "metro_bonus_2",
     name: "Next-Gen Infrastructure",
     description:
-      "Metro population cap +35k and gold income +60. Cost Cap +$1M.",
+      "Metro population cap +30k and gold income +60. Cost Cap +$1M.",
     icon: "🏗️",
     category: "Civilian",
     minorCategory: "Cities",
-    cost: 3_200_000,
+    cost: 4_000_000,
     apply: (p) => {
-      p.setVar("metroPop", (p.getVar("metroPop") ?? 750_000) + 350_000);
+      p.setVar("metroPop", (p.getVar("metroPop") ?? 750_000) + 300_000);
       p.setVar("metroGoldGen", (p.getVar("metroGoldGen") ?? 150) + 60);
       p.setVar(
         "metrosMaxCost",
@@ -184,13 +184,13 @@ export const techList: Tech[] = [
     id: "metro_bonus_3",
     name: "Automated Districts",
     description:
-      "Metro population cap +50k and gold income +80. Cost Cap +$1M.",
+      "Metro population cap +35k and gold income +80. Cost Cap +$1M.",
     icon: "🤖",
     category: "Civilian",
     minorCategory: "Cities",
-    cost: 4_000_000,
+    cost: 5_000_000,
     apply: (p) => {
-      p.setVar("metroPop", (p.getVar("metroPop") ?? 750_000) + 500_000);
+      p.setVar("metroPop", (p.getVar("metroPop") ?? 750_000) + 350_000);
       p.setVar("metroGoldGen", (p.getVar("metroGoldGen") ?? 150) + 80);
       p.setVar(
         "metrosMaxCost",
@@ -306,7 +306,7 @@ export const techList: Tech[] = [
   {
     id: "powerPlant2",
     name: "Automated Silos",
-    description: "Store +5 materials, max plants: 4.",
+    description: "Store +5 materials, max plants: 5.",
     icon: "🏭",
     category: "Power",
     cost: 1_400_000,
@@ -315,7 +315,7 @@ export const techList: Tech[] = [
         "powerPlantMaterialGenerationMax",
         p.getVar("powerPlantMaterialGenerationMax") + 5,
       );
-      p.setVar("powerPlantMaxNumber", 4);
+      p.setVar("powerPlantMaxNumber", 5);
     },
   },
   {
@@ -340,7 +340,7 @@ export const techList: Tech[] = [
     id: "powerPlant4",
     name: "National Grid",
     description:
-      "Store +5 materials, max plants: 5, materials +1/cycle per plant.",
+      "Store +5 materials, max plants: 6, materials +1/cycle per plant.",
     icon: "🌐",
     category: "Power",
     cost: 2_800_000,
@@ -353,7 +353,7 @@ export const techList: Tech[] = [
         "powerPlantMaterialGenerationRate",
         p.getVar("powerPlantMaterialGenerationRate") + 1,
       );
-      p.setVar("powerPlantMaxNumber", 5);
+      p.setVar("powerPlantMaxNumber", 6);
     },
   },
   // Naval

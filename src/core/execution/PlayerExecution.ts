@@ -102,7 +102,7 @@ export class PlayerExecution implements Execution {
 
     const adjustRate =
       this.config.troopAdjustmentRate(this.player) +
-      this.player.units(UnitType.Barracks).length * 250;
+      this.player.units(UnitType.Barracks).length * 200;
     this.player.addTroops(adjustRate);
     this.player.removeWorkers(adjustRate);
 

@@ -24,7 +24,7 @@ export class ControlPanel extends LitElement implements Layer {
   private attackRatio: number = 0.2;
 
   @state()
-  private targetTroopRatio = 0.6;
+  private targetTroopRatio = 0.5;
 
   @state()
   private reserveTroopRatio = 0.5;
@@ -349,36 +349,43 @@ export class ControlPanel extends LitElement implements Layer {
         </div>
 
         <div class="relative mb-0 lg:mb-4">
-          <label class="block text-white mb-1" translate="no"
-            >Reserve Troop Ratio: ${(this.reserveTroopRatio * 100).toFixed(0)}%
+          <label class="block text-white mb-1" translate="no">
+            Reinforcement Priority:
+            ${(this.reserveTroopRatio * 100).toFixed(0)}%
           </label>
-          <div class="relative h-8">
-            <!-- Background track -->
-            <div
-              class="absolute left-0 right-0 top-3 h-2 bg-white/20 rounded"
-            ></div>
-            <!-- Fill track -->
-            <div
-              class="absolute left-0 top-3 h-2 bg-green-500/60 rounded transition-all duration-300"
-              style="width: ${this.reserveTroopRatio * 100}%"
-            ></div>
-            <!-- Range input - exactly overlaying the visual elements -->
-            <input
-              id="reserve-troop-ratio"
-              type="range"
-              min="1"
-              max="100"
-              .value=${(this.reserveTroopRatio * 100).toString()}
-              @input=${(e: Event) => {
-                this.reserveTroopRatio =
-                  parseInt((e.target as HTMLInputElement).value) / 100;
-                this.onTroopChange(
-                  this.targetTroopRatio,
-                  this.reserveTroopRatio,
-                );
-              }}
-              class="absolute left-0 right-0 top-2 m-0 h-4 cursor-pointer"
-            />
+          <div class="flex items-center relative h-8 space-x-2">
+            <!-- Sword Icon (Left) -->
+            <span class="text-xl select-none" aria-label="Sword">🗡️</span>
+            <div class="relative flex-1">
+              <!-- Background track -->
+              <div
+                class="absolute left-0 right-0 top-3 h-2 bg-white/20 rounded"
+              ></div>
+              <!-- Fill track -->
+              <div
+                class="absolute left-0 top-3 h-2 bg-green-500/60 rounded transition-all duration-300"
+                style="width: ${this.reserveTroopRatio * 100}%"
+              ></div>
+              <!-- Range input -->
+              <input
+                id="reinforcement-priority"
+                type="range"
+                min="1"
+                max="100"
+                .value=${(this.reserveTroopRatio * 100).toString()}
+                @input=${(e: Event) => {
+                  this.reserveTroopRatio =
+                    parseInt((e.target as HTMLInputElement).value) / 100;
+                  this.onTroopChange(
+                    this.targetTroopRatio,
+                    this.reserveTroopRatio,
+                  );
+                }}
+                class="absolute left-0 right-0 top-2 m-0 h-4 cursor-pointer"
+              />
+            </div>
+            <!-- Shield Icon (Right) -->
+            <span class="text-xl select-none" aria-label="Shield">🛡️</span>
           </div>
         </div>
 

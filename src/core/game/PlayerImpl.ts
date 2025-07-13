@@ -143,7 +143,7 @@ export class PlayerImpl implements Player {
     this._vars.set("radarRange", 200);
     this._vars.set("radarTargetingBonus", 10);
     this._vars.set("powerPlantGoldGeneration", 250);
-    this._vars.set("powerPlantMaxNumber", 3);
+    this._vars.set("powerPlantMaxNumber", 4);
     this._vars.set("powerPlantMaterialGenerationRate", 1);
     this._vars.set("powerPlantMaterialGenerationMax", 10);
   }
