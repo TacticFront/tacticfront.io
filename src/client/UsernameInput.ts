@@ -42,10 +42,21 @@ export class UsernameInput extends LitElement {
     this.dispatchUsernameEvent();
   }
 
+  checkNerdToken(): string | null {
+    const token = localStorage.getItem("nerd-token");
+    if (!token) return null;
+    if (isTokenExpired(token)) {
+      // Optionally: auto logout/clear
+      localStorage.removeItem("nerd-token");
+      return null;
+    }
+    return token;
+  }
+
   // <div class="mb-3 text-lg font-bold tracking-wide">Quick Join</div>
 
   render() {
-    const token = localStorage.getItem("nerd-token");
+    const token = this.checkNerdToken();
 
     return html`
       <div
@@ -202,4 +213,23 @@ export class UsernameInput extends LitElement {
   public isValid(): boolean {
     return this._isValid;
   }
+}
+
+function decodeJWT(token: string): any | null {
+  try {
+    const payload = token.split(".")[1];
+    if (!payload) return null;
+    const json = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(decodeURIComponent(escape(json)));
+  } catch (e) {
+    return null;
+  }
+}
+
+function isTokenExpired(token: string): boolean {
+  const payload = decodeJWT(token);
+  if (!payload || !payload.exp) return true; // Invalid token
+  // exp is in seconds since epoch, JS Date.now() is ms
+  const sixHoursInMs = 6 * 60 * 60 * 1000;
+  return Date.now() >= payload.exp * 1000 - sixHoursInMs;
 }
