@@ -125,7 +125,7 @@ export abstract class DefaultServerConfig implements ServerConfig {
   }
 
   adminHeader(): string {
-    return "x-admin-key2345678";
+    return "x-admin-key";
   }
   adminToken(): string {
     return process.env.ADMIN_TOKEN ?? "thenew=dummy-admin-token";
@@ -287,10 +287,11 @@ export class DefaultConfig implements Config {
     return this._gameConfig.infiniteTroops;
   }
   tradeShipGold(dist: number): Gold {
-    return Math.floor(10000 + 150 * Math.pow(dist, 1.1));
+    return Math.floor(5000 + 30 * Math.pow(dist, 1.1));
   }
   tradeShipSpawnRate(numberOfPorts: number): number {
-    return Math.min(50, Math.round(10 * Math.pow(numberOfPorts, 0.6)));
+    return Math.max(10, Math.round(80 / Math.pow(numberOfPorts, 0.47)));
+    //return Math.min(50, Math.round(10 * Math.pow(numberOfPorts, 0.6)));
   }
 
   unitInfo(type: UnitType): UnitInfo {

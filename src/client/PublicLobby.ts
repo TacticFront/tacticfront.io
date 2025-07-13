@@ -173,6 +173,10 @@ export class PublicLobby extends LitElement {
       >
         <!-- Map image background -->
         <div class="relative h-44 md:h-60 overflow-hidden">
+          <div
+            class="absolute inset-0 z-0"
+            style="background: linear-gradient(120deg, #1a2b6d 80%, #193d5e 100%); opacity: 0.82;"
+          ></div>
           <img
             src="${getMapsImage(lobby.gameConfig.gameMap)}"
             alt="${lobby.gameConfig.gameMap}"

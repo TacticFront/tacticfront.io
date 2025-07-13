@@ -60,7 +60,7 @@ export class PortExecution implements Execution {
     }
 
     // Only check every 10 ticks for performance.
-    if ((this.mg.ticks() + this.checkOffset) % 10 !== 0) {
+    if ((this.mg.ticks() + this.checkOffset) % 20 !== 0) {
       return;
     }
 
